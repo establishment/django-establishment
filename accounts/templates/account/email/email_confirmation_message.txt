@@ -1,0 +1,4 @@
+{% autoescape off %}A user at StemJS has given this as an email address.
+
+To confirm this is correct, go to {{ activate_url }}
+{% endautoescape %}

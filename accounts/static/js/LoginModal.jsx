@@ -1,0 +1,60 @@
+import {UI} from "UI";
+import {Login} from "Login";
+import {Device} from "Device";
+
+class LoginModal extends UI.Modal {
+    getModalWindowStyle() {
+        if (Device.isTouchDevice()) {
+            return {
+                position: "relative",
+                padding: "0",
+                boxShadow: "0 5px 15px rgba(0,0,0,0.5)",
+                // margin: "60px auto",
+                display: this.options.display || "block",
+                left: "0",
+                right: "0",
+                width: "100vw",
+                height: "500px",
+                background: "white",
+                overflow: this.options.overflow || "auto",
+                maxHeight: "100%",
+                maxWidth: "500px",
+                verticalAlign: "center",
+                margin: "0 auto",
+            }
+        }
+        return {
+            position: "relative",
+            padding: "0",
+            boxShadow: "0 5px 15px rgba(0,0,0,0.5)",
+            margin: "60px auto",
+            display: this.options.display || "block",
+            maxHeight: this.options.maxHeight || "85%",
+            left: "0",
+            right: "0",
+            width: "500px",
+            height: this.options.height || "auto",
+            background: "white",
+            overflow: this.options.overflow || "auto",
+        };
+    }
+
+    getGivenChildren() {
+        return <Login/>;
+    }
+
+    static show() {
+        this.loginModal = this.loginModal || new LoginModal({});
+        this.loginModal.show();
+    }
+
+    static requireLogin(func) {
+        if (USER.isAuthenticated) {
+            return func();
+        } else {
+            this.show();
+        }
+    }
+}
+
+export {LoginModal};

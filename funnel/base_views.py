@@ -1,0 +1,109 @@
+"""
+File to keep basic view classes (for instance for ajax requests, etc.)
+"""
+from django.http import JsonResponse, HttpResponseBadRequest, Http404
+
+from establishment.funnel.encoder import StreamJSONEncoder
+
+
+class HTTPRenderer(object):
+    pass
+
+
+global_renderer = HTTPRenderer()
+
+
+def default_render_ui_widget(request, widget_class, state=None, page_title=None, widget_require=None, widget_options={}):
+    pass
+
+
+def default_render_error_message(request, title, message):
+    pass
+
+
+global_renderer.render_ui_widget = default_render_ui_widget
+global_renderer.render_error_message = default_render_error_message
+
+
+def get_remote_ip(request):
+    """
+    Method that can be used to get the ip (filled in by apache/nginx) from a request object
+    You don't normally want to use this, but rather have all requests wrapped in a middleware that fills in request.ip
+    You can change it to fit your needs, but only trust values your webserver fills in (default REMOTE_ADDR)
+    """
+    return request.META["REMOTE_ADDR"]
+
+
+class JSONResponse(JsonResponse):
+    def __init__(self, data, cls=StreamJSONEncoder, **kwargs):
+        super().__init__(data, cls, **kwargs)
+
+
+# TODO: deprecate over time to return ErrorMessage.ERROR_CONSTANT.to_response()
+class JSONErrorResponse(JSONResponse):
+    def __init__(self, message, **kwargs):
+        super().__init__({"error": message}, **kwargs)
+
+
+def login_required(function=None):
+    def _decorator(view_func):
+        def _wrapped_view(request, *args, **kwargs):
+            if not request.user.is_authenticated():
+                return global_renderer.render_error_message(request, "Please login", "You need to login to continue."
+                                                                       "You can login from the navbar (upper right corner)")
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
+
+    if function is None:
+        return _decorator
+    else:
+        return _decorator(function)
+
+
+def superuser_required(function=None):
+    def _decorator(view_func):
+        def _wrapped_view(request, *args, **kwargs):
+            if not request.user.is_superuser:
+                raise Http404()
+            return view_func(request, *args, **kwargs)
+
+        return _wrapped_view
+
+    if function is None:
+        return _decorator
+    else:
+        return _decorator(function)
+
+
+def login_required_ajax(function=None):
+    """
+    Just make sure the user is authenticated to access a certain ajax view
+    """
+    def _decorator(view_func):
+        def _wrapped_view(request, *args, **kwargs):
+            if not request.is_ajax():
+                return HttpResponseBadRequest()
+            if not request.user.is_authenticated():
+                # TODO: return BaseError.USER_NOT_AUTHENTICATED
+                return JSONErrorResponse("User is not authenticated.")
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
+
+    if function is None:
+        return _decorator
+    else:
+        return _decorator(function)
+
+
+def ajax_required(function=None):
+    def _decorator(view_func):
+        def _wrapped_view(request, *args, **kwargs):
+            if not request.is_ajax():
+                return HttpResponseBadRequest()
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
+
+    if function is None:
+        return _decorator
+    else:
+        return _decorator(function)
