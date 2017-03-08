@@ -1,6 +1,12 @@
 import {composeURL} from "Fetch";
 
 class GithubManager {
+    constructor() {
+        this.options = Object.assign({
+            loginWindowOptions: "height=600,width=800,scrollbars=yes",
+        }, window.GITHUB_MANAGER_OPTIONS || {});
+    }
+
 
     static Global() {
         if (!this._Global) {
@@ -13,11 +19,11 @@ class GithubManager {
         const githubUri = "https://github.com/login/oauth/authorize";
 
         const rawParams = {
-            client_id: "6ee28fb2ccbb39eb6503",
+            client_id: this.options.clientId,
         };
 
         const uri = composeURL(githubUri, rawParams);
-        const githubWindow = window.open(uri, "githubWindow", "height=600,width=800,scrollbars=yes");
+        const githubWindow = window.open(uri, "githubWindow", this.options.loginWindowOptions);
 
         githubWindow.onbeforeunload = callback;
     }

@@ -2,10 +2,8 @@ import {Ajax} from "Ajax";
 
 class GoogleManager {
     constructor() {
-        var isHttps = window.location.href.startsWith("https");
-
         this.options = Object.assign({
-            loginByTokenUrl: (isHttps ? "https" : "http") + "://stemjs.org/accounts/google/login/token/",
+            loginByTokenUrl: "/accounts/google/login/token/",
         }, window.GOOGLE_MANAGER_OPTIONS || {});
         this.ensureGoogleScriptNodeExists();
     }
@@ -33,7 +31,7 @@ class GoogleManager {
     init() {
         gapi.load("auth2", () => {
             gapi.auth2.init({
-                client_id: "1059276446770-fe3p50pms8doh0slc0q5nappr64g1615.apps.googleusercontent.com",
+                client_id: this.options.clientId,
             }).then(() => {
                 // Listen for sign-in state changes.
                 // gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus);
@@ -65,9 +63,9 @@ class GoogleManager {
     }
 
     handleAuthClick(nextUrl, process, onSuccess) {
-        this.getGoogleAuth().grantOfflineAccess({'redirect_uri': "postmessage"}).then((data) => {
+        this.getGoogleAuth().grantOfflineAccess({"redirect_uri": "postmessage"}).then((data) => {
             Object.assign(data, {
-                next: nextUrl || '',
+                next: nextUrl || "",
                 process: process,
             });
             this.sendData(this.options.loginByTokenUrl, data, onSuccess);

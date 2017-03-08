@@ -5,11 +5,9 @@ import {Ajax} from "Ajax";
 // TODO: this class should be dispatchable, to dispatch on login for instance
 class FacebookManager {
     constructor() {
-        var isHttps = window.location.href.startsWith("https");
-
         let options = Object.assign({
             version: "v2.7",
-            loginByTokenUrl: (isHttps ? "https" : "http") + "://stemjs.org/accounts/facebook/login/token/",
+            loginByTokenUrl: "/accounts/facebook/login/token/",
             loginOptions: {
                 auth_type: "rerequest",
                 scope: "email"
@@ -17,7 +15,6 @@ class FacebookManager {
             logoutUrl: "/accounts/logout/",
             // TODO: should probably look at https://www.facebook.com/translations/FacebookLocales.xml and Language.Locale
             locale: "en_US",
-            appId: "263853557378373",
         }, window.FACEBOOK_MANAGER_OPTIONS || {});
         this.init(options);
     }
