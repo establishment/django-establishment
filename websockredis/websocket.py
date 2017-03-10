@@ -5,8 +5,8 @@ from socket import error as socket_error
 
 from django.core.handlers.wsgi import logger
 
-from establishment.websockredis.utf8validator import Utf8Validator
-from establishment.websockredis.exceptions import WebSocketError, FrameTooLargeException
+from .utf8validator import Utf8Validator
+from .exceptions import WebSocketError, FrameTooLargeException
 
 
 class WebSocket(object):

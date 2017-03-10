@@ -14,7 +14,7 @@ from django.core.handlers.wsgi import WSGIRequest, logger
 from establishment.detoate.threading_helper import ThreadHandler
 from establishment.funnel.redis_stream import RedisStreamSubscriber
 from establishment.funnel.permission_checking import user_can_subscribe_to_stream
-from establishment.websockredis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
+from .exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
 
 # The maximum size we should allow websocket messages to have
 MAX_WEBSOCKET_MESSAGE_SIZE = 1 << 20
