@@ -5,7 +5,6 @@ import {Dispatcher} from "Dispatcher";
 import {URLRouter} from "URLRouter";
 import {FACollapseIcon} from "FontAwesome";
 import {css, hover, focus, active, ExclusiveClassSet, StyleSet} from "Style";
-import {StemNavbar} from "StemNavbar";
 
 
 class DocumentationStyle extends StyleSet {
