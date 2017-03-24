@@ -1,5 +1,8 @@
 import os
 
+# The import encodings.idna is never user explicitly, we just need it for networking
+import encodings.idna
+
 from establishment.services.daemon import Daemon
 from establishment.services.status import ServiceStatus
 

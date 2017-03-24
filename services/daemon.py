@@ -18,6 +18,11 @@ class Daemon:
     """
 
     def __init__(self, service_name, pidfile):
+        tokens = sys.argv[0].split("/")
+        if tokens[-1] == "":
+            self.daemon_process_name = tokens[-2]
+        else:
+            self.daemon_process_name = tokens[-1]
         self.name = service_name
         self.pidfile = pidfile
         self.logger = logging.getLogger(service_name)
@@ -37,7 +42,7 @@ class Daemon:
                 # exit first parent
                 sys.exit(0)
         except OSError:
-            self.logger.exception("Fork 1 failed")
+            self.logger.exception("Daemonize: first fork failed")
             sys.exit(1)
 
         # decouple from parent environment
@@ -52,14 +57,14 @@ class Daemon:
                 # exit from second parent
                 sys.exit(0)
         except OSError as err:
-            self.logger.exception("Fork 2 failed")
+            self.logger.exception("Daemonize: second fork failed")
             sys.exit(1)
 
         # redirect standard file descriptors
         sys.stdout.flush()
         sys.stderr.flush()
-        si = open(os.devnull, 'r')
-        so = open(os.path.join(cur_dir, "log/" + self.name + "-out.txt"), 'a+')
+        si = open(os.devnull, "r")
+        so = open(os.path.join(cur_dir, "log/" + self.name + "-out.txt"), "a+")
         se = so
 
         os.dup2(si.fileno(), sys.stdin.fileno())
@@ -70,20 +75,21 @@ class Daemon:
         atexit.register(self.delpid)
 
         pid = str(os.getpid())
-        self.logger.info("Current pidfile " + self.pidfile)
+        self.logger.info("Current pid file: " + self.pidfile)
 
-        with open(self.pidfile,'w+') as f:
-            f.write(pid + '\n')
+        with open(self.pidfile, "w+") as pidfile:
+            pidfile.write(pid + "\n")
 
     def delpid(self):
-        os.remove(self.pidfile)
+        if os.path.isfile(self.pidfile):
+            os.remove(self.pidfile)
 
     def start(self):
         """Start the daemon."""
 
         # Check for a pidfile to see if the daemon is already running
         if self.get_pid():
-            self.logger.error("Pidfile already exist. Daemon already running?")
+            self.logger.error("Daemon is already running ...")
             sys.exit(1)
 
         # Start the daemon
@@ -104,14 +110,59 @@ class Daemon:
         """Get the daemon pid from file."""
 
         try:
-            with open(self.pidfile,'r') as pf:
-                return int(pf.read().strip())
+            with open(self.pidfile, "r") as pidfile:
+                file_pid = int(pidfile.read().strip())
         except IOError:
-            return None
+            file_pid = None
+
+        running_pids = self.get_running_daemon_pid()
+        if len(running_pids) > 1:
+            self.logger.critical("There are multiple Daemons running! This should NEVER happen!")
+        elif len(running_pids) == 0:
+            self.logger.critical("There is no daemon running but pid file is present! Deleting ...")
+            self.delpid()
+        if file_pid in running_pids:
+            return file_pid
+        self.logger.error("Pid file does not correspond with the running processes! Deleting ...")
+        self.delpid()
+        return file_pid
+
+    def get_running_daemon_pid(self):
+        pids = []
+        if not os.access("/proc", os.R_OK):
+            return pids
+        for dirname in os.listdir("/proc"):
+            try:
+                with open("/proc/{}/cmdline".format(dirname), mode="rb") as fd:
+                    content = fd.read().decode().split("\x00")
+            except Exception:
+                continue
+
+            command_line = " ".join(content)
+            split_python = command_line.split("python3", 1)
+            if len(split_python) != 2:
+                continue
+            split_daemon_name = split_python[1].split(self.daemon_process_name, 1)
+            if len(split_daemon_name) != 2:
+                continue
+            if "restart" not in split_daemon_name[1] and "start" not in split_daemon_name[1]:
+                continue
+            try:
+                pid = int(dirname)
+            except Exception:
+                continue
+            if pid == os.getpid():
+                continue
+            pids.append(pid)
+        return pids
 
     def kill(self, signal_number, pid=None, timeout=None):
         if not pid:
             pid = self.get_pid()
+
+        if not pid:
+            self.logger.warning("No running daemon found!")
+            return KILL_GRACEFULLY
 
         total_time = 0.0
 
@@ -129,7 +180,8 @@ class Daemon:
             e = str(err.args)
             if e.find("No such process") > 0:
                 if os.path.exists(self.pidfile):
-                    os.remove(self.pidfile)
+                    self.logger.warning("Daemon was not gracefully closed! (residual pid file is still present)")
+                    self.delpid()
                 return KILL_GRACEFULLY
             else:
                 return KILL_NOT_GRACEFULLY
@@ -140,8 +192,8 @@ class Daemon:
         pid = self.get_pid()
 
         if not pid:
-            self.logger.error("Pidfile does not exist. Daemon not running?")
-            return # not an error in a restart
+            self.logger.error("Daemon is not running ...")
+            return
 
         self.logger.warning("Trying to stop the daemon")
 
@@ -162,15 +214,15 @@ class Daemon:
     def restart(self):
         """Restart the daemon."""
 
-        self.stop()
+        self.stop(sync=True)
         self.start()
 
     def force_stop(self):
         pid = self.get_pid()
 
         if not pid:
-            self.logger.error("Pidfile does not exists. Daemon not running?")
-            return # not an error in restart --force
+            self.logger.error("Daemon is not running ...")
+            return
 
         rc = self.kill(signal.SIGKILL, pid=pid, timeout=4.0)
 
@@ -206,7 +258,7 @@ class Daemon:
             self.logger.warning("Restarting daemon " + sys.argv[0])
             self.restart()
         elif cmd == "stop" and not force:
-            self.logger.warning("Stoping daemon " + sys.argv[0])
+            self.logger.warning("Stopping daemon " + sys.argv[0])
             self.stop()
         elif cmd == "restart" and force:
             self.logger.warning("Force restarting daemon " + sys.argv[0])
@@ -215,7 +267,7 @@ class Daemon:
             self.logger.warning("Force stop daemon " + sys.argv[0])
             self.force_stop()
         elif cmd == "sync-stop" and not force:
-            self.logger.warning("Stoping daemon " + sys.argv[0] + " (sync call)")
+            self.logger.warning("Stopping daemon " + sys.argv[0] + " (sync call)")
             self.stop(sync=True)
         else:
             print("Invalid arguments, call as python3 " + sys.argv[0] + " start|stop|restart [--force]")

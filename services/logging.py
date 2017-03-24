@@ -2,21 +2,23 @@
 This library is provided to allow standard python logging
 to output log data as JSON formatted strings
 """
-import datetime
 import inspect
-import json
 import logging
-import re
-import time
-import traceback
-from collections import OrderedDict
-from inspect import istraceback
+import json
 from logging.handlers import RotatingFileHandler
 from queue import Queue
+import re
+import datetime
+import traceback
+import time
 
+from inspect import istraceback
+from collections import OrderedDict
 from redis import StrictRedis
-
 from establishment.detoate.threading_helper import ThreadHandler
+
+
+# http://docs.python.org/library/logging.html#logrecord-attributes
 from establishment.funnel.encoder import LoggingStreamJSONEncoder
 
 # skip natural LogRecord attributes

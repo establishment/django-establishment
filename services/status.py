@@ -3,12 +3,12 @@ import resource
 import threading
 import time
 
-from establishment.detoate.threading_helper import ThreadHandler
 from establishment.detoate.ifconfig import get_default_network_interface
+from establishment.detoate.threading_helper import ThreadHandler
 from establishment.funnel.redis_stream import RedisStreamPublisher
 
-
 #TODO: consider including https://github.com/giampaolo/psutil/ into our codebase
+
 
 class ServiceStatus(object):
     log_info = {}
@@ -60,9 +60,14 @@ class ServiceStatus(object):
 
         cls.background_thread_handler = ThreadHandler("service_status_update", cls.background_thread)
 
+    # You probably want to monkey patch this method
     @classmethod
     def get_machine_id(cls):
-        # TODO: hardcoded machine id (not a problem for single machine websites)
+        from django.conf import settings
+
+        if hasattr(settings, "MOCK_MACHINE_ID"):
+            return settings.MOCK_MACHINE_ID
+
         return 1
 
     @classmethod
