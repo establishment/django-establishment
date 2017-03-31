@@ -1,5 +1,4 @@
-import {UI} from "UI";
-import {SectionDivider} from "SectionDivider";
+import {UI, SectionDivider} from "UI";
 import {Dispatcher} from "Dispatcher";
 import "MarkupRenderer";
 

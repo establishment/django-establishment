@@ -1,3 +1,4 @@
+# TODO: this file should be renamed to state.py
 import json
 import time
 
@@ -35,6 +36,12 @@ class DBObjectCache:
     def add(self, obj, timestamp=time.time()):
         self.cache[obj.id] = (obj, timestamp)
 
+    def size(self):
+        return len(self.cache)
+
+    def is_empty(self):
+        return self.size() == 0
+
     def all(self):
         # TODO: this sort should be on the client side
         rez = [o[0] for o in self.cache.values()]
@@ -60,6 +67,9 @@ class GlobalObjectCache:
         if hasattr(ObjectClass, "_meta") and hasattr(ObjectClass._meta, "db_table"):
             return ObjectClass._meta.db_table
         return ObjectClass
+
+    def has_store(self, ObjectClass):
+        return self.get_store_key(ObjectClass) in self.object_caches
 
     def get_store(self, ObjectClass):
         class_key = self.get_store_key(ObjectClass)
@@ -98,6 +108,14 @@ class GlobalObjectCache:
     def to_json(self):
         for processor in STATE_FILTERS:
             processor(self)
+
+        empty_keys = []
+        for key in self.object_caches:
+            if self.object_caches[key].is_empty():
+                empty_keys.append(key)
+        for key in empty_keys:
+            self.object_caches.pop(key)
+
         return self.object_caches
 
     def dumps(self):
@@ -112,17 +130,7 @@ class GlobalObjectCache:
         return JSONResponse(result)
 
 
-def lazy_property(fn):
-    attr_name = '_lazy_' + fn.__name__
-
-    @property
-    def _lazyprop(self):
-        if not hasattr(self, attr_name):
-            setattr(self, attr_name, fn(self))
-        return getattr(self, attr_name)
-    return _lazyprop
-
-
+# TODO: this doesn't belong here
 def int_list(list, ignore_errors=True):
     result = []
     for value in list:
