@@ -171,19 +171,13 @@ def edit_article(request, article_id):
     state.add(article)
     state.add_all(article_edits)
 
-    context = {
-        "article": article,
-        "state": state.dumps(),
-    }
-
-
     # TODO: Language should be loaded in PublicState
     from establishment.content.models import Language
     state.add_all(Language.objects.all())
     # return render(request, "content/article_edit.html", context)
     return global_renderer.render_ui_widget(request, "ArticleEditor", state,
-                            page_title="Editing" + article.name,
-                            widget_options={"articleId": article.id})
+                                            page_title="Editing" + article.name,
+                                            widget_options={"articleId": article.id})
 
 
 # TODO: this logic should be merged into edit_article

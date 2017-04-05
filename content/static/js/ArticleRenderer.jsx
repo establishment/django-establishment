@@ -1,8 +1,6 @@
-import {UI} from "UI";
+import {UI, SVG} from "UI";
 import "MarkupRenderer";
-import {ArticleStore, Article} from "ArticleStore";
-import {css, hover, focus, active, StyleSet} from "Style";
-import {FAIcon} from "FontAwesome";
+import {Article, ArticleStore} from "ArticleStore";
 
 class ArticleRenderer extends UI.MarkupRenderer {
     setOptions(options) {
@@ -18,7 +16,7 @@ class ArticleRenderer extends UI.MarkupRenderer {
             let url = this.options.editButtonUrl || ("/article/" + this.options.article.id + "/edit/");
             return <div className="text-left">
                 <a href={url} target="_blank">
-                    <UI.Button level={UI.Level.DEFAULT} label={UI.T("Edit")}
+                    <UI.Button label={UI.T("Edit")}
                                style={{"margin": "10px"}}/></a>
             </div>;
         }
@@ -121,6 +119,6 @@ class ArticleSwitcher extends UI.Switcher {
 }
 
 ArticleRenderer.markupClassMap.addClass("Article", RecursiveArticleRenderer);
-ArticleRenderer.markupClassMap.addClass("RawSVG", UI.SVG.RawSVG);
+ArticleRenderer.markupClassMap.addClass("RawSVG", SVG.RawSVG);
 
 export {ArticleRenderer, RecursiveArticleRenderer, ArticleSwitcher};

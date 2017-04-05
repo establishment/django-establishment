@@ -1,5 +1,6 @@
 import {Ajax} from "Ajax";
 import {UI} from "UI";
+import {GlobalState} from "State";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";

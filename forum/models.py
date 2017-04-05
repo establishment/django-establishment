@@ -141,6 +141,9 @@ class ForumThread(StreamObjectMixin):
         self.save(update_fields=["hidden"])
         self.publish_delete_event()
 
+    def get_last_active(self):
+        return self.message_thread.get_last_message().time_added
+
     def to_json(self):
         # last_active = self.message_thread.messages.order_by()
         result = {
@@ -153,7 +156,7 @@ class ForumThread(StreamObjectMixin):
             "messageThreadId": self.message_thread_id,
             "numViews": self.num_views,
             "timeAdded": self.time_added,
-            "lastActive": self.message_thread.get_last_message().time_added,
+            "lastActive": self.get_last_active(),
             "numMessages": self.message_thread.messages.filter(hidden=False).count(),
             "pinnedIndex": self.pinned_index,
         }

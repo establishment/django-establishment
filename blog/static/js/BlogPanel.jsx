@@ -1,5 +1,5 @@
 import {Ajax} from "Ajax";
-import {UI} from "UI";
+import {UI, Button} from "UI";
 import {StemDate} from "Time";
 import {GlobalState} from "State";
 import {BlogEntryStore} from "BlogStore";
@@ -19,33 +19,42 @@ import {BlogStyle} from "BlogStyle";
 let blogStyle = BlogStyle.getInstance();
 
 class BlogEntryEditModal extends UI.Modal {
+    getModalWindowStyle() {
+        return Object.assign({}, super.getModalWindowStyle(), {
+            margin: "0 auto",
+            maxHeight: "100%",
+            overflow: "initial",
+            height: "100%",
+        });
+    }
+
     getGivenChildren() {
         let entry = BlogEntryStore.get(this.options.entryId);
         let article = entry.getArticle();
 
         let discussionButton = null;
         if (!entry.discussionId) {
-            discussionButton = <UI.Button level={UI.Level.WARNING} label="Create discussion"
-                                          onClick={() => this.createDiscussion()} style={{marginLeft: "5px"}}/>;
+            discussionButton = <Button level={UI.Level.WARNING} label="Create discussion"
+                                       onClick={() => this.createDiscussion()} style={{marginLeft: "5px"}}/>;
         }
 
         return [
-            <h1>Edit Entry</h1>,
-            <div className="form form-horizontal">
-                <UI.FormGroup label="Title">
-                    <UI.TextInput ref="titleInput" value={article.name}/>
-                </UI.FormGroup>
-                <UI.FormGroup label="URL Name">
-                    <UI.TextInput ref="urlInput" value={entry.urlName}/>
-                </UI.FormGroup>
-                <UI.FormGroup label="Visible">
-                    <UI.CheckboxInput ref="visibleCheckbox" value={entry.visible}/>
-                </UI.FormGroup>
-                <UI.Button level={UI.Level.PRIMARY} label="Change settings" onClick={() => this.changeSettings()}/>
+            <h3>Edit Entry</h3>,
+            <UI.Form>
+                <UI.FormField label="Title">
+                    <UI.TextInput ref="titleInput" value={article.name} />
+                </UI.FormField>
+                <UI.FormField label="URL Name">
+                    <UI.TextInput ref="urlInput" value={entry.urlName} />
+                </UI.FormField>
+                <UI.FormField label="Visible">
+                    <UI.CheckboxInput ref="visibleCheckbox" value={entry.visible} />
+                </UI.FormField>
+                <Button level={UI.Level.PRIMARY} label="Change settings" onClick={() => this.changeSettings()} />
                 {discussionButton}
                 <UI.TemporaryMessageArea ref="messageArea"/>
-            </div>,
-            <ArticleEditor ref="contentEditor" articleId={article.id}/>
+            </UI.Form>,
+            <ArticleEditor ref="contentEditor" articleId={article.id} style={{height: "600px"}} />
         ];
     }
 
@@ -66,12 +75,8 @@ class BlogEntryEditModal extends UI.Modal {
             request.urlName = urlName;
         }
 
-        Ajax.request({
-            url: "/blog/change_entry_settings/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.postJSON("/blog/change_entry_settings/", request).then(
+            (data) => {
                 console.log("Changed contest settings!", data);
 
                 if (data.urlName) {
@@ -79,12 +84,13 @@ class BlogEntryEditModal extends UI.Modal {
                 }
                 this.redraw();
             },
-            error: (xhr, errmsg, err) => {
+            (error) => {
                 console.log("Error in changing contest settings!");
-                console.log(xhr.responseText);
+                console.log(error.message);
+                console.log(error.stack);
                 this.messageArea.showMessage("Error in changing contest settings!", "red");
             }
-        });
+        );
     }
 
     createDiscussion() {
@@ -92,22 +98,19 @@ class BlogEntryEditModal extends UI.Modal {
             entryId: this.options.entryId
         };
 
-        Ajax.request({
-            url: "/blog/create_entry_discussion/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.postJSON("/blog/create_entry_discussion/", request).then(
+            (data) => {
                 console.log("Created discussion!", data);
                 GlobalState.importState(data.state);
                 this.hide();
             },
-            error: (xhr, errmsg, err) => {
+            (error) => {
                 console.log("Error in creating discussion!");
-                console.log(xhr.responseText);
+                console.log(error.message);
+                console.log(error.stack);
                 this.messageArea.showMessage("Error in creating discussion!", "red");
             }
-        });
+        );
     }
 }
 
@@ -115,24 +118,19 @@ class NewBlogEntryModal extends UI.Modal {
     getGivenChildren() {
         return [
             <h1>New Entry</h1>,
-            <div className="form form-inline">
-                <UI.FormGroup label="Title">
-                    <UI.TextInput ref="titleInput"/>
-                </UI.FormGroup>
-                <UI.FormGroup label="URL Name">
-                    <UI.TextInput ref="urlInput"/>
-                </UI.FormGroup>
-                <UI.FormGroup>
-                    <div className="checkbox">
-                        <UI.CheckboxInput ref="visibleCheckbox"/>
-                        {"Visible"}
-                    </div>
-                </UI.FormGroup>
-                <UI.Button label="Add Entry" level={UI.Level.PRIMARY} onClick={() => {
-                    this.addEntry()
-                }}/>
-                <MarkupEditor ref="postContentMarkup" style={{height: "450px"}}/>
-            </div>
+            <UI.FormGroup>
+                <UI.FormField label="Title">
+                    <UI.TextInput ref="titleInput" />
+                </UI.FormField>
+                <UI.FormField label="URL Name">
+                    <UI.TextInput ref="urlInput" />
+                </UI.FormField>
+                <UI.FormField label="Visible">
+                    <UI.CheckboxInput ref="visibleCheckbox"/>
+                </UI.FormField>
+                <Button label="Add Entry" level={UI.Level.PRIMARY} onClick={() => {this.addEntry()}}/>
+                <MarkupEditor ref="postContentMarkup" style={{height: "450px"}} />
+            </UI.FormGroup>
         ];
     }
 
@@ -173,12 +171,8 @@ class NewBlogEntryModal extends UI.Modal {
             data.content = content;
         }
 
-        Ajax.request({
-            url: "/blog/add_entry/",
-            type: "POST",
-            dataType: "json",
-            data: data,
-            success: (data) => {
+        Ajax.postJSON("/blog/add_entry/", data).then(
+            (data) => {
                 if (data.error) {
                     ErrorHandlers.SHOW_ERROR_ALERT(data.error);
                 } else {
@@ -188,11 +182,12 @@ class NewBlogEntryModal extends UI.Modal {
                     this.hide();
                 }
             },
-            error: (xhr, errmsg, err) => {
+            (error) => {
                 console.log("Error in adding blog post!");
-                console.log(xhr.responseText);
+                console.log(error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 }
 
@@ -203,7 +198,7 @@ class BlogEntryPreview extends UI.Element {
 
         this.options.urlPrefix = this.options.urlPrefix || "";
 
-        this.options.maxHeight = "420px";
+        this.options.maxHeight = this.options.maxHeight || "240px";
 
         this.entry = BlogEntryStore.get(this.options.entryId);
         this.article = this.entry.getArticle();
@@ -211,13 +206,15 @@ class BlogEntryPreview extends UI.Element {
 
     extraNodeAttributes(attr) {
         attr.setStyle({
-            overflow: "hidden",
-            marginTop: "40px",
+            position: "relative",
+            maxHeight: "420px",
+            marginTop: "45px",
+            marginBottom: "45px",
         });
     }
 
     canOverwrite(obj) {
-        return super.canOverWrite(obj) && this.options.entryId === obj.options.entryId;
+        return super.canOverwrite(obj) && this.options.entryId === obj.options.entryId;
     }
 
     render() {
@@ -226,13 +223,21 @@ class BlogEntryPreview extends UI.Element {
         let publishedFormat = StemDate.unix(publishedDate).format("LL");
         let modifiedFormat;
 
+        let articleInfoStyle = {
+            margin: "3px",
+            color: "#777",
+            fontSize: "1em",
+            margin: "0",
+            fontStyle: "italic",
+        };
+
         if (this.article.dateModified > this.article.dateCreated) {
-            modifiedFormat = <p>Last update on {StemDate.unix(this.article.dateModified).format("LL")}.</p>
+            modifiedFormat = <p style={articleInfoStyle}>Last update on {StemDate.unix(this.article.dateModified).format("LL")}.</p>
         }
 
         return [
-            <div style={{"background-color": "#fff", "padding": "2% 4% 10px 4%", "margin": "0 auto", "width": "900px", "max-width": "100%", position: "relative"}}>
-              <div style={blogStyle.writtenBy}>
+            <div style={{height: "100%",}}>
+            <div style={{boxShadow: "0px 0px 10px rgb(160, 162, 168)", "background-color": "#fff", "padding": "1% 4% 10px 4%", "margin": "0 auto", "width": "900px", "max-width": "100%", position: "relative"}}> <div style={blogStyle.writtenBy}>
                 Written by <UserHandle userId={this.article.userCreatedId}/> on {publishedFormat}.{modifiedFormat}
               </div>
               <div style={blogStyle.title}>
@@ -245,6 +250,7 @@ class BlogEntryPreview extends UI.Element {
               <a href={this.options.urlPrefix + "#" + this.entry.urlName} style={blogStyle.link}>
                 Continue reading
               </a>
+            </div>
             </div>
         ];
     }
@@ -282,13 +288,20 @@ class BlogEntryView extends UI.Element {
         let publishedFormat = StemDate.unix(publishedDate).format("LL");
         let modifiedFormat;
 
+        let articleInfoStyle = {
+            margin: "3px",
+            color: "#777",
+            fontSize: "1em",
+            fontStyle: "italic",
+        };
+
         if (this.article.dateModified > this.article.dateCreated) {
-            modifiedFormat = <p>Last update on {StemDate.unix(this.article.dateModified).format("LL")}.</p>
+            modifiedFormat = <p style={articleInfoStyle}>Last update on {StemDate.unix(this.article.dateModified).format("LL")}.</p>
         }
 
         let blogEntryEditButton;
         if (USER.isSuperUser) {
-            blogEntryEditButton = <UI.Button level={UI.Level.DEFAULT} label="Edit" onClick={() => {
+            blogEntryEditButton = <Button level={UI.Level.DEFAULT} label="Edit" onClick={() => {
                 if (!this.blogEntryEditModal) {
                     this.blogEntryEditModal = <BlogEntryEditModal entryId={this.options.entryId} fillScreen/>;
                     this.blogEntryEditModal.mount(document.body);
@@ -343,29 +356,78 @@ class BlogEntryList extends UI.Element {
         }
 
         return [
-            USER.isSuperUser ? <UI.Button ref="newEntryButton" label="New Entry" level={UI.Level.DEFAULT}/> : null,
-            entries
+            USER.isSuperUser ?
+                <Button label="New Entry"
+                           level={UI.Level.DEFAULT}
+                           onClick={() => this.newBlogPostModal.show()}
+                />
+                : null,
+            <div ref="entriesList">
+                {entries}
+            </div>,
+            <Button label={this.options.finishedLoading ? UI.T("End of blog") : UI.T("Load More")}
+                    ref="loadMoreButton"
+                    style={{margin: "0px auto", display: "block"}}
+                    className={blogStyle.loadMoreButton}
+                    disabled={this.options.finishedLoading} />,
+            <div style={{
+                height: "45px",
+                width: "100%",
+            }}></div>
         ];
     }
 
     onMount() {
+        this.newBlogPostModal = <NewBlogEntryModal fillScreen/>;
+        this.newBlogPostModal.mount(document.body);
         super.onMount();
 
-        if (this.newEntryButton) {
-            this.newEntryButton.addClickListener(() => {
-                this.newBlogPostModal = this.newBlogPostModal || <NewBlogEntryModal fillScreen/>;
-                this.newBlogPostModal.show()
-            });
-        }
+        this.loadMoreButton.addClickListener(() => {
+            if (!this.options.finishedLoading) {
+                Ajax.getJSON("/blog/", {
+                    lastDate: Math.min.apply(null, BlogEntryStore.all().map(x => x.getArticle().dateCreated))
+                }).then(
+                    (data) => {
+                        if (data.error) {
+                            console.log(data.error);
+                        } else {
+                            GlobalState.importState(data.state || {});
+                            this.options.finishedLoading = data.finishedLoading;
+                            if (this.options.finishedLoading) {
+                                this.loadMoreButton.options.label = UI.T("No more posts");
+                                this.loadMoreButton.redraw();
+                                this.loadMoreButton.disable();
+                            }
+                            for (let entry of ((data.state || {}).blogentry || [])) {
+                                this.entriesList.appendChild(<BlogEntryPreview key={entry.id} entryId={entry.id}/>);
+                            }
+                        }
+                    },
+                    (error) => {
+                        console.log(error);
+                    });
+            }
+        })
     }
 }
 
 class BlogPanel extends UI.Panel {
     render() {
         return <UI.Switcher ref="switcher" lazyRender>
-            <BlogEntryList ref="entryList"/>
-            <BlogEntryView ref="entryView"/>
+            <BlogEntryList ref="entryList" finishedLoading={this.options.finishedLoading} />
+            <BlogEntryView ref="entryView" />
         </UI.Switcher>;
+    }
+
+    getEntryIdForURLName(entryURL) {
+        let entryId;
+        for (let entry of BlogEntryStore.all()) {
+            if (entry.urlName === entryURL) {
+                entryId = entry.id;
+                break;
+            }
+        }
+        return entryId;
     }
 
     onMount() {
@@ -377,20 +439,33 @@ class BlogPanel extends UI.Panel {
                 } else {
                     let entryURL = location.args[0];
 
-                    let entryId;
-                    for (let entry of BlogEntryStore.all()) {
-                        if (entry.urlName === entryURL) {
-                            entryId = entry.id;
-                            break;
-                        }
-                    }
+                    let entryId = this.getEntryIdForURLName(entryURL);
 
                     if (entryId) {
                         this.entryView.setOptions({entryId: entryId});
                         this.switcher.setActive(this.entryView);
                         this.entryView.redraw();
                     } else {
-                        console.log("Could not find blog entry", entryURL);
+                        Ajax.getJSON("/blog/get_blog_post/", {
+                            entryUrlName: entryURL
+                        }).then((data) => {
+                            if (data.error) {
+                                console.log(data.error);
+                            } else {
+                                GlobalState.importState(data.state || {});
+                                let entryId = this.getEntryIdForURLName(entryURL);
+                                if (entryId) {
+                                    this.entryView.setOptions({entryId: entryId});
+                                    this.switcher.setActive(this.entryView);
+                                    this.entryView.redraw();
+                                } else {
+                                    console.log("Could not find blog entry", entryURL);
+                                }
+                            }
+                        },
+                        (error) => {
+                            console.log(error);
+                        });
                     }
                 }
             } catch (e) {
@@ -400,6 +475,15 @@ class BlogPanel extends UI.Panel {
 
         handleLocation(URLRouter.getLocation());
         URLRouter.addRouteListener(handleLocation);
+
+        // TODO: have a more throught out procedure for which streams to register to
+        // for (let article of ArticleStore.all()) {
+        //     GlobalState.registerStream("article-" + article.id);
+        // }
+        //
+        // for (let entry of BlogEntryStore.all()) {
+        //     GlobalState.registerStream("blogentry-" + entry.id);
+        // }
     }
 }
 

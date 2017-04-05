@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
+from django.core import urlresolvers
 
 from .utils import get_user_search_fields
 from .models import EmailAddress, UnverifiedEmail, UserCustomSettings, EmailStatus, Email, \
@@ -52,6 +53,28 @@ class EmailAdmin(admin.ModelAdmin):
     search_fields = ("subject",)
 
 
+class UserReactionCollectionAdmin(admin.ModelAdmin):
+    list_display = ("id", "upvotes_count", "downvotes_count")
+    readonly_fields = ("users", )
+
+    def users(self, obj):
+        return ", ".join([str(reaction.user_id) for reaction in obj.reactions.all()])
+
+
+class UserReactionAdmin(admin.ModelAdmin):
+    list_display = ("id", "type", "user", "link_to_reaction_collection")
+    raw_id_fields = ("user", "reaction_collection")
+    search_fields = []
+
+    def get_search_fields(self, request):
+        return ["user__" + attr for attr in get_user_search_fields()]
+
+    def link_to_reaction_collection(self, obj):
+        link = urlresolvers.reverse("admin:accounts_userreactioncollection_change", args=[obj.reaction_collection_id]) #model name has to be lowercase
+        return u'<a href="%s">%s</a>' % (link, "UserReactionCollection-" + str(obj.reaction_collection_id))
+    link_to_reaction_collection.allow_tags = True
+
+
 class UserNotificationAdmin(admin.ModelAdmin):
     list_display = ("user", "type", "data", "read")
     list_filter = ("type", "read")
@@ -66,6 +89,6 @@ admin.site.register(UnverifiedEmail, UnverifiedEmailAdmin)
 admin.site.register(UserCustomSettings)
 admin.site.register(EmailStatus, EmailStatusAdmin)
 admin.site.register(Email, EmailAdmin)
-admin.site.register(UserReactionCollection)
-admin.site.register(UserReaction)
+admin.site.register(UserReactionCollection, UserReactionCollectionAdmin)
+admin.site.register(UserReaction, UserReactionAdmin)
 admin.site.register(UserNotification, UserNotificationAdmin)

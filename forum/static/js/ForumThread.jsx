@@ -1,4 +1,5 @@
 import {Ajax} from "Ajax";
+import {GlobalState} from "State";
 import {UI} from "UI";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
@@ -139,7 +140,7 @@ let DeleteForumThreadButton = UI.ActionModalButton(DeleteForumThreadModal);
 
 class ForumThreadReply extends UI.ConstructorInitMixin(UI.Element) {
     extraNodeAttributes(attr) {
-        attr.addClass(forumThreadReplyStyle.mainClass);
+        // attr.addClass(forumThreadReplyStyle.mainClass);
     }
 
     getMessageInstance() {
@@ -150,33 +151,50 @@ class ForumThreadReply extends UI.ConstructorInitMixin(UI.Element) {
         let messageInstance = this.getMessageInstance();
         let deleteMessage;
         let editMessage;
+        let editAndDeleteButtons = <span/>;
+
         if (USER.isSuperUser || USER.id === messageInstance.userId) {
-            deleteMessage = <DeleteThreadReplyButton faIcon="trash"
-                               level={UI.Level.DANGER}
-                               style={{"display": "inline-block", "float": "right", "margin-top": "3px", "margin-right": "6px", "margin-left": "16px"}}
-                               messageInstance={messageInstance} />;
-            editMessage = <EditThreadReplyButton faIcon={"pencil"} level={UI.Level.INFO} messageInstance={messageInstance} forumThreadPanel={this}
-                                style={{"display": "inline-block", "float": "right", "margin-top": "3px", "margin-right": "-16px"}} />;
+            deleteMessage = <DeleteThreadReplyButton
+                faIcon="trash"
+                level={UI.Level.DANGER}
+                className={forumThreadPanelStyle.deleteButton}
+                modalOptions={{messageInstance: messageInstance}} />;
+            editMessage = <EditThreadReplyButton
+                faIcon={"pencil"}
+                level={UI.Level.INFO}
+                messageInstance={messageInstance}
+                forumThreadPanel={this}
+                className={forumThreadPanelStyle.editButton} />;
+            editAndDeleteButtons = <div className={forumThreadPanelStyle.editDeleteButtons} style={{width: "auto",}}>
+                {editMessage}
+                {deleteMessage}
+            </div>;
         }
 
         return [
-            <div className={forumThreadReplyStyle.repliesUserAndDate}>
-                <div className={forumThreadReplyStyle.repliesUser}>
-                    written by <UserHandle id={messageInstance.userId} style={{
-                        "line-height": "normal",
-                    }} />
+            <div className={forumThreadPanelStyle.fullPost}>
+                <div className={forumThreadPanelStyle.author}
+                    style={{
+                        fontSize: "1em",
+                        paddingLeft: "12px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                    }}>
+                    <UserHandle id={messageInstance.userId} style={{
+                        textTransform: "initial",
+                        fontSize: "1.1em",
+                    }}/>
+                    <UI.TimePassedSpan timeStamp={messageInstance.getDate()} style={{
+                        color: "#262626 !important",
+                        paddingRight: "12px",
+                    }}/>
                 </div>
-                {editMessage}
-                {deleteMessage}
-                <div className={forumThreadReplyStyle.repliesDate}>
-                    <UI.TimePassedSpan timeStamp={messageInstance.getDate()} color="#797979"/>
+                <ChatMarkupRenderer ref={this.refLink("postContent" + messageInstance.id)} value={messageInstance.getContent()} className={forumThreadPanelStyle.message}/>
+                <div className={forumThreadPanelStyle.bottomPanel}>
+                    {editAndDeleteButtons}
+                    <CommentVotingWidgetWithThumbs height={40} balanceColor={"#313534"} notVoteColor={"#313534"} message={messageInstance} className={forumThreadPanelStyle.voting}/>
                 </div>
-            </div>,
-            <div className={forumThreadReplyStyle.repliesContent}>
-                <ChatMarkupRenderer ref={this.refLink("postContent" + messageInstance.id)} value={messageInstance.getContent()} style={{"height": "auto", }}/>
-            </div>,
-            <div style={{"height": "40px", "margin-top": "-12px", }}>
-                <CommentVotingWidgetWithThumbs height={40} balanceColor={"#313534"} notVoteColor={"#313534"} message={messageInstance} style={{"margin-left": "0"}} />
             </div>
         ];
     }
@@ -194,7 +212,7 @@ class ForumThreadReply extends UI.ConstructorInitMixin(UI.Element) {
 class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
-        attr.addClass(String(forumThreadPanelStyle.mainClass));
+        attr.addClass(forumThreadPanelStyle.mainClass);
         return attr;
     }
 
@@ -230,30 +248,28 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
 
     getTitle() {
         return [
-            <a href="/forum/#" className={forumThreadPanelStyle.backButton}>
-                <span className={"fa fa-arrow-left"} style={{
-                    "margin-top": "15px",
-                    "height": "30px",
-                    "width": "20px",
-                }} />
-            </a>,
             <div className={forumThreadPanelStyle.title}>
-                <span className={forumThreadPanelStyle.titleSpan}>
-                    {this.getForumThread().getTitle()}
-                </span>
+                <a href="/forum/#" className={forumThreadPanelStyle.backButton}>
+                    <span className="fa fa-arrow-left" style={{
+                        paddingRight: "10px",
+                        fontSize: ".8em",
+                        color: "#333",
+                    }} />
+                </a>
+                {this.getForumThread().getTitle()}
             </div>
         ];
     }
 
     getAuthor() {
         return <div className={forumThreadPanelStyle.author}>
-                <span>
-                    {UI.T("written by")}{" "}
-                    <UserHandle id={this.getForumThread().authorId} style={{
-                        "line-height": "normal",
-                    }}/>
-                </span>
-            </div>;
+            {UI.T("written by")}&nbsp;
+            <UserHandle id={this.getForumThread().authorId} style={{
+                textTransform: "initial",
+            }}/>
+            &nbsp;
+            <UI.TimePassedSpan timeStamp={this.getForumThread().getTimeAdded()} style={{color: "#262626 !important",}}/>
+        </div>;
     }
 
     getMessage() {
@@ -266,7 +282,7 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
         return [
             <div className={forumThreadPanelStyle.numReplies}>
                 <span style={{"font-weight": "bold", }}>{postsLength}</span>
-                {" replies in this thread" + (postsLength == 0 ? ", be the first one to comment" : "")}
+                &nbsp;{"replies in this thread" + (postsLength == 0 ? ", be the first one to comment" : "")}
             </div>
         ];
     }
@@ -285,14 +301,15 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
             });
             return <AjaxLoadingScreen />;
         }
-        
+
         let replies = [];
+        let spaceBetween;
         let forumThread = this.options.forumThread;
 
         // sort the forum replies by the activity date
         let forumThreadMessages = Array.from(forumThread.getMessageThread().getMessages());
         forumThreadMessages.sort((a, b) => {
-            return b.getDate() - a.getDate();
+            return a.getDate() - b.getDate();
         });
 
         for (let messageInstance of forumThreadMessages) {
@@ -301,49 +318,63 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
             }
         }
 
+        if (replies.length) {
+            spaceBetween = <div style={{
+                height: "60px",
+                borderBottom: "1px solid #ddd",
+                width: "90%",
+                maxWidth: "1200px",
+                margin: "0 auto",
+            }}></div>;
+        }
+
         let deleteButton;
         let editButton;
+        let editAndDeleteButtons;
 
         if (USER.isSuperUser || USER.id === this.getForumThread().authorId) {
             deleteButton = <DeleteForumThreadButton faIcon="trash"
                                                     level={UI.Level.DANGER}
-                                                    style={{"display": "inline-block", "float": "right", "margin-top": "18px"}}
-
+                                                    className={forumThreadPanelStyle.deleteButton}
                                                     modalOptions = {{
                                                         forumThread: this.getForumThread()
                                                     }}/>;
             editButton = <EditThreadReplyButton faIcon="pencil"
                                                 level={UI.Level.INFO}
-                                                style={{"display": "inline-block", "float": "right", "margin-top": "18px", "margin-left": "6px"}}
+                                                className={forumThreadPanelStyle.editButton}
                                                 messageInstance={this.getForumThread().getContentMessage()}/>;
+            editAndDeleteButtons = <div className={forumThreadPanelStyle.editDeleteButtons}>
+                {editButton}
+                {deleteButton}
+            </div>;
         }
 
         return [
-            <div>
+            <div style={{marginBottom: "60px",}}>
                 <div className={forumThreadPanelStyle.header}>
                     {this.getTitle()}
-                    {editButton}
-                    {deleteButton}
-                    {this.getAuthor()}
-                </div>
-                <div className={forumThreadPanelStyle.fullPost}>
-                    {this.getMessage()}
-                    <CreateThreadReplyButton
-                        label={UI.T("REPLY")}
-                        style={{
-                            "margin-left": "16px",
-                            "margin-top": "0px",
-                        }}
-                        size={UI.Size.DEFAULT}
-                        forumThreadId={forumThread.id}
-                        forumThread={this.getForumThread()}
-                        classMap={ChatMarkupRenderer.classMap}
-                    />
-                    <div className={forumThreadPanelStyle.numRepliesAndVoting}>
-                        {this.getVoting()}
-                        {this.getNumReplies(replies.length)}
+                    <div className={forumThreadPanelStyle.replyButtonDiv}>
+                        {this.getAuthor()}
+                        <CreateThreadReplyButton
+                            label={UI.T("REPLY")}
+                            className={forumThreadPanelStyle.replyButton}
+                            size={UI.Size.DEFAULT}
+                            forumThreadId={forumThread.id}
+                            forumThread={this.getForumThread()}
+                            classMap={ChatMarkupRenderer.classMap}
+                        />
                     </div>
                 </div>
+                <div style={{width: "90%", maxWidth: "1200px", margin: "0 auto", height: "3px", backgroundColor: "#333", marginTop: "10px",}}></div>
+                <div className={forumThreadPanelStyle.fullPost}>
+                    {this.getMessage()}
+                    <div className={forumThreadPanelStyle.bottomPanel}>
+                        {this.getNumReplies(replies.length)}
+                        {this.getVoting()}
+                    </div>
+                    {editAndDeleteButtons}
+                </div>
+                {spaceBetween}
                 {replies}
             </div>
         ];

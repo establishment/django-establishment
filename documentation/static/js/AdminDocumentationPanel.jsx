@@ -1,4 +1,5 @@
 import {Ajax} from "Ajax";
+import {GlobalState} from "State";
 import {UI, getOffset} from "UI";
 import {Draggable} from "Draggable";
 import {DocumentationEntryStore} from "DocumentationStore";
@@ -22,18 +23,18 @@ class EditEntryModal extends UI.ActionModal {
     getBodyContent() {
         return [
             <UI.Form style={{"margin-top": "10px", "color": "initial", "font-size": "initial"}}>
-                <UI.FormGroup label="URL name" style={{"font-weight": "initial"}}>
+                <UI.FormField label="URL name" style={{"font-weight": "initial"}}>
                     <UI.TextInput ref="urlNameInput"  value={this.options.entry.urlName}/>
-                </UI.FormGroup>
-                <UI.FormGroup label="Name" style={{"font-weight": "initial"}}>
+                </UI.FormField>
+                <UI.FormField label="Name" style={{"font-weight": "initial"}}>
                     <UI.TextInput ref="nameInput"  value={this.options.entry.name}/>
-                </UI.FormGroup>
-                <UI.FormGroup label="Article Id" style={{"font-weight": "initial"}}>
+                </UI.FormField>
+                <UI.FormField label="Article Id" style={{"font-weight": "initial"}}>
                     <UI.TextInput ref="articleIdInput"  value={this.options.entry.articleId} />
-                </UI.FormGroup>
-                <UI.FormGroup label="Parent index" style={{"font-weight": "initial"}}>
+                </UI.FormField>
+                <UI.FormField label="Parent index" style={{"font-weight": "initial"}}>
                     <UI.TextInput ref="parentIndexInput"  value={this.options.entry.parentIndex} />
-                </UI.FormGroup>
+                </UI.FormField>
             </UI.Form>
         ];
     }
@@ -68,12 +69,8 @@ class EditEntryModal extends UI.ActionModal {
         };
         let errorMessage = this.check(data);
         if (!errorMessage) {
-            Ajax.request({
-                url: "/docs/edit_entry/",
-                type: "POST",
-                dataType: "json",
-                data: data,
-                success: (data) => {
+            Ajax.postJSON("/docs/edit_entry/", data).then(
+                (data) => {
                     if (data.error) {
                         console.log(data.error);
                     } else {
@@ -81,10 +78,11 @@ class EditEntryModal extends UI.ActionModal {
                         editEntryHandler.dispatch();
                     }
                 },
-                error: (xhr, errmsg, err) => {
-                    console.log("Error in deleting workspace:\n" + xhr.status + ":\n" + xhr.responseText);
+                (error) => {
+                    console.log("Error in deleting workspace:\n" + error.message);
+                    console.log(error.stack);
                 }
-            });
+            );
         } else {
             this.messageArea.showMessage(errorMessage, "red");
         }
@@ -181,28 +179,28 @@ class CreateEntryModal extends UI.ActionModal {
         });
         return [
             <UI.Form style={{"margin-top": "10px", "color": "initial", "font-size": "initial"}}>
-                <UI.FormGroup label="URL name" style={{"font-weight": "initial"}}>
+                <UI.FormField label="URL name" style={{"font-weight": "initial"}}>
                     <UI.TextInput ref="urlNameInput"  value=""/>
-                </UI.FormGroup>
-                <UI.FormGroup label="Name" style={{"font-weight": "initial"}}>
+                </UI.FormField>
+                <UI.FormField label="Name" style={{"font-weight": "initial"}}>
                     <UI.TextInput ref="nameInput"  value=""/>
-                </UI.FormGroup>
-                <UI.FormGroup label="Article Id" style={{"font-weight": "initial"}}>
+                </UI.FormField>
+                <UI.FormField label="Article Id" style={{"font-weight": "initial"}}>
                     <UI.TextInput ref="articleIdInput"  placeholder="Enter 0 (or leave blank) to create a new article instead"/>
-                </UI.FormGroup>
-                <UI.FormGroup label="Parent" style={{"font-weight": "initial"}}>
+                </UI.FormField>
+                <UI.FormField label="Parent" style={{"font-weight": "initial"}}>
                     <UI.Select ref="parentInput" options={entries} activeIndex={entries.length - 1} style={{"height": "30px"}}/>
-                </UI.FormGroup>
-                <UI.FormGroup label="Parent index" style={{"font-weight": "initial"}}>
+                </UI.FormField>
+                <UI.FormField label="Parent index" style={{"font-weight": "initial"}}>
                     <UI.TextInput ref="parentIndexInput"  value="0"/>
-                </UI.FormGroup>
+                </UI.FormField>
             </UI.Form>
         ];
     }
 
     getFooter() {
         let content = this.getFooterContent();
-        return content ? <div className="modal-footer" style={{"color": "initial", "font-size": "initial"}}>{content}</div> : null;
+        return content ? <div style={{"color": "initial", "font-size": "initial"}}>{content}</div> : null;
     }
 
     check(data) {
@@ -232,12 +230,8 @@ class CreateEntryModal extends UI.ActionModal {
         };
         let errorMessage = this.check(data);
         if (!errorMessage) {
-            Ajax.request({
-                url: "/docs/create/",
-                type: "POST",
-                dataType: "json",
-                data: data,
-                success: (data) => {
+            Ajax.postJSON("/docs/create/", data).then(
+                (data) => {
                     if (data.error) {
                         console.log(data.error);
                     } else {
@@ -245,10 +239,11 @@ class CreateEntryModal extends UI.ActionModal {
                         this.dispatch("createdEntry");
                     }
                 },
-                error: (xhr, errmsg, err) => {
-                    console.log("Error in deleting workspace:\n" + xhr.status + ":\n" + xhr.responseText);
+                (error) => {
+                    console.log("Error in deleting workspace:\n" + error.message);
+                    console.log(error.stack);
                 }
-            });
+            );
         } else {
             this.messageArea.showMessage(errorMessage, "red");
         }
@@ -372,20 +367,15 @@ class AdminDocumentationPanel extends DocumentationPanel {
                 parentIndex: entry.parentIndex
             });
         }
-        Ajax.request({
-            url: "/docs/change_parents/",
-            type: "POST",
-            dataType: "json",
-            data: {
-                "modifiedEntries": JSON.stringify(modified)
-            },
-            success: () => {
+        Ajax.postJSON("/docs/change_parents/",{"modifiedEntries": JSON.stringify(modified)}).then(
+            () => {
                 console.log("successfully changed parent indices!");
             },
-            error: (xhr, errmsg, err) => {
-                console.log(xhr.responseText);
+            (error) => {
+                console.log(error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 
     setTarget(element, eventType, borderType, visibleEntries) {

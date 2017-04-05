@@ -30,7 +30,7 @@ class FacebookAccount(ProviderAccount):
 class FacebookProvider(OAuth2Provider):
     id = "facebook"
     name = "Facebook"
-    package = "socialaccount.providers.facebook"
+    package = "establishment.socialaccount.providers.facebook"
     account_class = FacebookAccount
 
     def get_default_scope(self):

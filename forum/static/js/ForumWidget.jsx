@@ -78,15 +78,9 @@ class ForumThreadHeader extends UI.ConstructorInitMixin(UI.Element) {
     }
 }
 
-class ForumThreadPreview extends UI.Element {
+class ForumThreadPreview extends ChatMarkupRenderer {
     extraNodeAttributes(attr) {
         attr.addClass(forumThreadPreviewStyle.forumThreadPreview);
-    }
-
-    render() {
-        return [
-            this.options.value,
-        ];
     }
 }
 
@@ -113,14 +107,14 @@ class ForumThreadBubble extends UI.Element {
     getThreadTitle() {
         let pinned = "";
         if (this.getForumThread().isPinned()) {
-            pinned = <span className={"fa fa-thumb-tack " + forumThreadBubbleStyle.pinnedIcon} aria-hidden="true" />;
+            pinned = <span className={"fa fa-thumb-tack " + forumThreadBubbleStyle.pinnedIcon} aria-hidden="true" style={{paddingTop: "0", lineHeight: "20px", height: "20px",}}/>;
         }
         let forumThread = this.getForumThread();
         // debugger;
-        console.log(forumThread.getContentMessage());
+        // console.log(forumThread.getContentMessage());
         return [
             <div className={forumThreadBubbleStyle.threadTitleAndPreview}>
-                <div className={forumThreadBubbleStyle.threadTitle} 
+                <div className={forumThreadBubbleStyle.threadTitle}
                     style={{paddingBottom: () => {
                         if (forumThread.getContentMessage().content) {
                             return forumThreadBubbleStyle.titlePaddingBottom;
@@ -149,6 +143,7 @@ class ForumThreadBubble extends UI.Element {
             <span className={forumThreadBubbleStyle.threadAuthor}>
                 <UserHandle id={this.getForumThread().authorId} style={{
                     "line-height": "normal",
+                    wordBreak: "break-word",
                 }} />
             </span>
         ];
@@ -190,7 +185,7 @@ class ForumThreadBubble extends UI.Element {
         /* TODO @mihaic, this should support custom color option (but I didn't want to change stem files on my own). check UIPrimitives.jsx line 400 */
         return [
             <div className={forumThreadBubbleStyle.threadActivity}>
-                <UI.TimePassedSpan timeStamp={threadActivity} color="#797979" />
+                <UI.TimePassedSpan timeStamp={threadActivity} />
             </div>
         ]
     }
@@ -223,8 +218,9 @@ class ForumThreadList extends UI.Element {
         attr.setStyle({
             width: "90%",
             margin: "0 auto",
-            marginTop: "30px",
+            marginTop: "10px",
             marginBottom: "60px",
+            // boxShadow: "0px 0px 10px #ddd", // TODO: Do we want this?
         });
         return attr;
     }

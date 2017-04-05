@@ -1,15 +1,30 @@
 import {StyleSet} from "Style";
 import {styleRule, styleRuleInherit} from "decorators/Style";
 
+const color = {
+    BLUE: "#20232d",
+    HOVER_BLUE: "#364251",
+    BLACK: "#181a22",
+    HOVER_BLACK: "#323539",
+    WHITE: "#eee",
+};
+
+let CSAStyle = {
+    color: color,
+};
 
 class BlogStyle extends StyleSet {
+    fontFamily = "lato, open sans";
+    titleFontSize = "2em";
+
     @styleRule
     commentsTitle = {
-        fontFamily: "montserrat",
+        fontFamily: this.fontFamily,
         height: "20px",
         color: "#333",
-        fontSize: "16px",
         marginTop: "10px",
+        fontSize: "1em",
+        textTransform: "uppercase",
     };
 
     @styleRule
@@ -17,11 +32,11 @@ class BlogStyle extends StyleSet {
         marginTop: "5px",
         height: "50px",
         width: "100%",
-    }
+    };
 
     @styleRule
     blogEntryView = {
-        "font-size": "raleway",
+        "font-size": this.fontFamily,
         "margin": "0 auto",
         "width": "900px",
         "max-width": "100%",
@@ -30,7 +45,7 @@ class BlogStyle extends StyleSet {
     };
 
     title = {
-        "font-size": "44px",
+        "font-size": this.titleFontSize,
         "padding-top": "20px",
         "padding-bottom": "10px",
         "text-decoration": "italic",
@@ -44,25 +59,25 @@ class BlogStyle extends StyleSet {
         "width": "100%",
         "text-align": "left",
         "padding-top": "20px",
-        "font-family": "montserrat",
-        "font-size": "12px",
+        "font-family": this.fontFamily,
+        "font-size": "1em",
         "color": "#666",
     };
 
     article = {
         "text-align": "justify",
-        "font-family": "raleway",
+        "font-family": this.fontFamily,
         "font-size": "17px",
     };
 
     link = {
         "text-decoration": "none",
         "text-align": "center",
-        "font-style": "italic",
-        "font-family": "montserrat",
+        // "font-style": "italic",
+        "font-family": this.fontFamily,
         position: "absolute",
         marginTop: "-15pt",
-        fontSize: "125%",
+        fontSize: "1.1em",
     };
 
     blogArticleRenderer = {
@@ -70,22 +85,93 @@ class BlogStyle extends StyleSet {
         position: "relative",
         maxHeight: "180px",
         "text-align": "justify",
-        "font-family": "raleway",
+        "font-family": this.fontFamily,
         "font-size": "17px",
+        marginBottom: "25px",
     };
 
     @styleRule
     whiteOverlay = {
-        width: "100%",
         height: "100px",
-        background: "-webkit--linear-gradient(rgba(255,255,255,0), #fff)",
-        background: "-o-linear-gradient(rgba(255,255,255,0), #fff)",
-        background: "-moz-linear-gradient(rgba(255,255,255,0), #fff)",
         background: "linear-gradient(rgba(255,255,255,0), #fff)",
         position: "absolute",
-        "margin-top": "-100px",
-        "pointer-events": "none",
+        marginTop: "-120px",
+        pointerEvents: "none",
         width: "92%",
+    };
+
+    @styleRule
+    loadMoreButton = {
+        marginLeft: "16px",
+        color: "#fff",
+        height: "40px",
+        marginTop: "10px",
+        marginBottom: "20px",
+        width: "auto",
+        borderRadius: "0px",
+        backgroundColor: CSAStyle.color.BLUE,
+        border: "0",
+        padding: "5px 10px",
+        borderColor: CSAStyle.color.BLUE,
+        fontFamily: this.fontFamily,
+        fontSize: "1em",
+        transition: ".2s",
+        textTransform: "uppercase",
+        opacity: "1",
+        ":hover": {
+            backgroundColor: CSAStyle.color.HOVER_BLUE,
+            borderColor: CSAStyle.color.HOVER_BLUE,
+            transition: ".2s",
+        },
+        ":active": {
+            backgroundColor: CSAStyle.color.HOVER_BLUE,
+            borderColor: CSAStyle.color.HOVER_BLUE,
+            transition: ".2s",
+        },
+        ":focus": {
+            backgroundColor: CSAStyle.color.HOVER_BLUE,
+            borderColor: CSAStyle.color.HOVER_BLUE,
+            transition: ".2s",
+        },
+        ":active:focus": {
+            backgroundColor: CSAStyle.color.HOVER_BLUE,
+            borderColor: CSAStyle.color.HOVER_BLUE,
+            transition: ".2s",
+        },
+    };
+
+    @styleRule
+    sendMessageButtonStyle = {
+        height: "30px",
+        marginTop: "10px",
+        marginBottom: "20px",
+        width: "auto",
+        borderRadius: "0px",
+        backgroundColor: CSAStyle.color.BLUE,
+        borderColor: "#333",
+        fontFamily: "lato",
+        fontSize: "13px",
+        transition: ".2s",
+        ":hover": {
+            backgroundColor: CSAStyle.color.HOVER_BLUE,
+            borderColor: CSAStyle.color.HOVER_BLUE,
+            transition: ".2s",
+        },
+        ":active": {
+            backgroundColor: CSAStyle.color.HOVER_BLUE,
+            borderColor: CSAStyle.color.HOVER_BLUE,
+            transition: ".2s",
+        },
+        ":focus": {
+            backgroundColor: CSAStyle.color.HOVER_BLUE,
+            borderColor: CSAStyle.color.HOVER_BLUE,
+            transition: ".2s",
+        },
+        ":focus:active": {
+            backgroundColor: CSAStyle.color.HOVER_BLUE,
+            borderColor: CSAStyle.color.HOVER_BLUE,
+            transition: ".2s",
+        },
     };
 }
 

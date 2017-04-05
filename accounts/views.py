@@ -365,7 +365,12 @@ def user_password_reset_request(request):
     # TODO: is this reverse the best way of doing this?
     path = reverse("user_password_reset_from_token", kwargs=dict(user_base36=int_to_base36(user.id), reset_token=reset_token))
     url = request.build_absolute_uri(path)
-    context = {"password_reset_url": url}
+
+    from django.contrib.sites.models import Site
+    context = {
+        "password_reset_url": url,
+        "current_site": Site.objects.get_current(request=request)
+    }
 
     send_template_mail("account/email/password_reset_key", reset_email_address, context)
 
@@ -438,5 +443,3 @@ def set_user_notifications_read(request):
     if last_user_notification:
         request.user.get_custom_settings(True).set_last_read_notification(last_user_notification)
     return JSONResponse({"success": True})
-
-

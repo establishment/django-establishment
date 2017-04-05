@@ -27,22 +27,19 @@ class FacebookManager {
     }
 
     sendData(url, data) {
-        Ajax.request({
-            url: url,
-            type: "POST",
-            dataType: "json",
-            data: data,
-            success: (dataJSON) => {
+        Ajax.postJSON(url, data).then(
+            (dataJSON) => {
                 if (dataJSON.next) {
                     window.location.href = dataJSON.next;
                 } else {
                     location.reload();
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error :\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error :\n" + error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 
     init(options) {

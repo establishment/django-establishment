@@ -1,9 +1,8 @@
-import {Ajax} from "Ajax";
-import {UI} from "UI";
-import {TabArea} from "tabs/TabArea";
+import {UI, TabArea} from "UI";
 import {UserStore} from "UserStore";
 import {FacebookManager} from "FacebookManager";
 import {GoogleManager} from "GoogleManager";
+import {Ajax} from "Ajax";
 
 class GeneralInformationPanel extends UI.Panel {
     render() {
@@ -11,21 +10,23 @@ class GeneralInformationPanel extends UI.Panel {
             <h3>General Info</h3>,
             <div>
                 <UI.Form>
-                    <UI.FormGroup ref="firstNameFormGroup" label="First Name">
-                        <UI.TextInput ref="firstNameFormInput" maxLength={this.options.user.validators.first_name_max_length} placeholder="John" value={this.options.user.firstName}/>
-                    </UI.FormGroup>
-                    <UI.FormGroup ref="lastNameFormGroup" label="Last Name">
-                        <UI.TextInput ref="lastNameFormInput" maxLength={this.options.user.validators.last_name_max_length} placeholder="Smith" value={this.options.user.lastName}/>
-                    </UI.FormGroup>
-                    <UI.FormGroup ref="userNameFormGroup" label="Username">
-                        <UI.TextInput ref="userNameFormInput" maxLength={this.options.user.validators.username_max_length} placeholder="johnsmith" value={this.options.user.username || ""}/>
-                    </UI.FormGroup>
-                    <UI.FormGroup ref="displayNameFormGroup" label="Display name">
-                        <UI.Select ref="displayNameSelect" className="form-control" options={["Name", "Username"]}/>
-                    </UI.FormGroup>
+                    <UI.FormField ref="firstNameFormField" label="First Name">
+                        <UI.TextInput ref="firstNameFormInput" placeholder="John" value={this.options.user.firstName}/>
+                    </UI.FormField>
+                    <UI.FormField ref="lastNameFormField" label="Last Name">
+                        <UI.TextInput ref="lastNameFormInput" placeholder="Smith" value={this.options.user.lastName}/>
+                    </UI.FormField>
+                    <UI.FormField ref="userNameFormField" label="Username">
+                        <UI.TextInput ref="userNameFormInput" placeholder="johnsmith" value={this.options.user.username || ""}/>
+                    </UI.FormField>
+                    <UI.FormField ref="displayNameFormField" label="Display name">
+                        <UI.Select ref="displayNameSelect" options={["Name", "Username"]}/>
+                    </UI.FormField>
                 </UI.Form>
-                <UI.AjaxButton ref="saveProfileButton" level={UI.Level.PRIMARY} className="col-sm-offset-2"
-                statusOptions={["Save changes", {faIcon: "spinner fa-spin", label:" Saving changes..."}, "Saved changes", "Save failed"]}/>
+                <UI.FormField label=" ">
+                  <div><UI.AjaxButton ref="saveProfileButton" level={UI.Level.PRIMARY}
+                                   statusOptions={["Save changes", {faIcon: "spinner fa-spin", label:" Saving changes..."}, "Saved changes", "Save failed"]}/></div>
+                </UI.FormField>
             </div>
         ];
     }
@@ -38,30 +39,6 @@ class GeneralInformationPanel extends UI.Panel {
         this.saveProfileButton.addClickListener(() => {
             this.saveProfileChanges();
         });
-
-        this.userNameFormInput.onInput(() => {
-            this.validateUsername();
-        });
-    }
-
-    validateUsername() {
-        let userName = this.userNameFormInput.getValue();
-        let validators = this.options.user.validators.username_regexes;
-
-        let usernameErrors = false;
-        for (let validator of validators) {
-            let usernameRegex = new RegExp(String.raw`${validator.pattern}`);
-            if (!usernameRegex.test(userName)) {
-                this.userNameFormGroup.setError(validator.message);
-                usernameErrors = true;
-            }
-        }
-        if (!usernameErrors) {
-            this.userNameFormGroup.removeError();
-            this.saveProfileButton.enable();
-        } else {
-            this.saveProfileButton.disable();
-        }
     }
 
     saveProfileChanges() {
@@ -87,20 +64,20 @@ class GeneralInformationPanel extends UI.Panel {
                 console.log("Profile changed", data);
                 this.saveProfileButton.setFaIcon("");
 
-                this.firstNameFormGroup.removeError();
-                this.lastNameFormGroup.removeError();
-                this.userNameFormGroup.removeError();
+                this.firstNameFormField.removeError();
+                this.lastNameFormField.removeError();
+                this.userNameFormField.removeError();
 
                 if (data.error) {
                     console.log(data.error);
                     if (data.error.first_name) {
-                        this.firstNameFormGroup.setError(data.error.first_name);
+                        this.firstNameFormField.setError(data.error.first_name);
                     }
                     if (data.error.last_name) {
-                        this.lastNameFormGroup.setError(data.error.last_name);
+                        this.lastNameFormField.setError(data.error.last_name);
                     }
                     if (data.error.username) {
-                        this.userNameFormGroup.setError(data.error.username);
+                        this.userNameFormField.setError(data.error.username);
                     }
                 } else {
                     UserStore.applyEvent({
@@ -123,18 +100,20 @@ class SecuritySettingsPanel extends UI.Panel {
             <h3>Password</h3>,
             <div>
                 <UI.Form>
-                    <UI.FormGroup ref="oldPasswordGroup" label="Current Password">
+                    <UI.FormField ref="oldPasswordGroup" label="Current Password">
                         <UI.PasswordInput ref="oldPasswordInput"/>
-                    </UI.FormGroup>
-                    <UI.FormGroup ref="newPasswordGroup" label="New Password">
+                    </UI.FormField>
+                    <UI.FormField ref="newPasswordGroup" label="New Password">
                         <UI.PasswordInput ref="newPasswordInput" required/>
-                    </UI.FormGroup>
-                    <UI.FormGroup ref="newPasswordGroup2" label="New Password (again)">
+                    </UI.FormField>
+                    <UI.FormField ref="newPasswordGroup2" label="New Password (again)">
                         <UI.PasswordInput ref="newPasswordInput2" required/>
-                    </UI.FormGroup>
+                    </UI.FormField>
                 </UI.Form>
-                <UI.AjaxButton ref="setPasswordButton" level={UI.Level.PRIMARY} className="col-sm-offset-2"
-                statusOptions={["Set Password", {faIcon: "spinner fa-spin", label:" Setting Password..."}, "Password set", "Failed"]}/>
+                <UI.FormField label=" ">
+                      <div><UI.AjaxButton ref="setPasswordButton" level={UI.Level.PRIMARY}
+                        statusOptions={["Set Password", {faIcon: "spinner fa-spin", label:" Setting Password..."}, "Password set", "Failed"]}/></div>
+                </UI.FormField>
             </div>
         ];
     }
@@ -142,7 +121,6 @@ class SecuritySettingsPanel extends UI.Panel {
     onMount() {
         super.onMount();
 
-        debugger;
         if (!this.options.user.hasPassword) {
             this.oldPasswordGroup.hide();
         } else {
@@ -218,7 +196,7 @@ class EmailPanel extends UI.Panel {
             let primaryLabel, verifiedLabel, unverifiedLabel;
             let primaryAction, removeAction, resendAction; // TODO: handle onclick
             let labelStyle = {borderRadius: "10px", "margin-left": "5px"};
-            let actionStyle = {"margin-left": "7px", "margin-top": "6px"};
+            let actionStyle = {"margin-left": "7px"};
 
             let makePrimaryCallback = () => {
                 this.makePrimaryEmail(email.email);
@@ -235,15 +213,15 @@ class EmailPanel extends UI.Panel {
 
             if (email.verified) {
                 if (email.primary) {
-                    primaryLabel = <span className="primary label label-primary" style={labelStyle}>Primary</span>;
+                    primaryLabel = <UI.Label level={UI.Level.PRIMARY} style={labelStyle} label="Primary"/>;
                 } else {
-                    verifiedLabel = <span className="verified label label-success" style={labelStyle}>Verified</span>;
+                    verifiedLabel = <UI.Label level={UI.Level.SUCCESS} style={labelStyle} label="Verified"/>;
                     primaryAction = <UI.Button onClick={makePrimaryCallback} size={UI.Size.EXTRA_SMALL} level={UI.Level.PRIMARY} label="Make Primary"
                                                style={actionStyle} />;
                 }
             } else {
-                unverifiedLabel = <span className="unverified label label-warning" style={labelStyle}>Unverified</span>;
-                resendAction = <UI.Button onClick={resendCallback} size={UI.Size.EXTRA_SMALL} level={UI.Level.DEFAULT} label="Re-send confirmation"
+                unverifiedLabel = <UI.Label level={UI.Level.DANGER} style={labelStyle} label="Unverified"/>;
+                resendAction = <UI.Button onClick={resendCallback} size={UI.Size.EXTRA_SMALL} label="Re-send confirmation"
                                           style={actionStyle} />;
             }
 
@@ -252,14 +230,14 @@ class EmailPanel extends UI.Panel {
                                           style={actionStyle} />;
             }
 
-            emailForms.push(
-                <div className="form-group col-sm-12">
-                    <label className="control-label">{email.email}</label>
+                emailForms.push(
+                    <div style={{width: "100%", position: "relative", paddingTop: "4px", paddingBottom: "4px"}}>
+                    <strong>{email.email}</strong>
                     {primaryLabel}
                     {verifiedLabel}
                     {unverifiedLabel}
 
-                    <div className="pull-right">
+                    <div style={{right: "0", top: "0", position: "absolute"}}>
                         {primaryAction}
                         {resendAction}
                         {removeAction}
@@ -272,27 +250,28 @@ class EmailPanel extends UI.Panel {
             <h3>E-mail Addresses</h3>,
             <p>The following e-mail addresses are associated with your account:</p>,
 
-            <div className="form-horizontal col-sm-offset-1">
-                {emailForms}
-            </div>,
+            emailForms,
 
             <h3>Add E-mail Address</h3>,
 
-            <div className="form-horizontal">
+            <div>
                 <UI.Form>
-                    <UI.FormGroup ref="emailFormGroup" label="Email">
+                    <UI.FormField ref="emailFormField" label="Email">
                         <UI.EmailInput ref="emailFormInput" placeholder="john.smith@mail.com"/>
-                    </UI.FormGroup>
+                    </UI.FormField>
+                    <UI.FormField label=" ">
+                      <div><UI.AjaxButton ref="addEmailButton" onClick={() => {this.addEmail()}} level={UI.Level.PRIMARY}
+                        statusOptions={["Add Email", {faIcon: "spinner fa-spin", label:" Adding Email..."}, "Email added", "Failed"]}/></div>
+                    </UI.FormField>
                 </UI.Form>
-                <UI.AjaxButton ref="addEmailButton" className="col-sm-offset-2" onClick={() => {this.addEmail()}} level={UI.Level.PRIMARY}
-                statusOptions={["Add Email", {faIcon: "spinner fa-spin", label:" Adding Email..."}, "Email added", "Failed"]}/>
             </div>,
 
             //<UI.CheckboxInput checked={this.options.user.} onClick={}/>
             <h5>
-                Receive email notifications
+              <UI.FormField label="Receive email notifications" inline={false}>
                 <UI.CheckboxInput ref="emailSubscriptionCheckbox" checked={true}
                                   onClick={() => {this.changeEmailSubscription(this.emailSubscriptionCheckbox.getValue())}}/>
+              </UI.FormField>
             </h5>,
         ];
     }
@@ -303,7 +282,7 @@ class EmailPanel extends UI.Panel {
             email: email,
         };
 
-        this.emailFormGroup.removeError();
+        this.emailFormField.removeError();
 
         console.log("adding email", request);
 
@@ -314,7 +293,7 @@ class EmailPanel extends UI.Panel {
             data: request,
             success: (data) => {
                 if (data.error) {
-                    this.emailFormGroup.setError(data.error);
+                    this.emailFormField.setError(data.error);
                 } else {
                     this.emailFormInput.setValue("");
                     UserStore.applyEvent({
@@ -340,12 +319,8 @@ class EmailPanel extends UI.Panel {
         }
 
         console.log("removing email", request);
-        Ajax.request({
-            url: "/accounts/email_address_remove/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.postJSON("/accounts/email_address_remove/", request).then(
+            (data) => {
                 if (data.error) {
                     console.log(data.error);
                 } else {
@@ -356,10 +331,11 @@ class EmailPanel extends UI.Panel {
                     console.log("Removed email", data);
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error while removing email:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error while removing email:\n" + error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 
     makePrimaryEmail(email) {
@@ -368,12 +344,8 @@ class EmailPanel extends UI.Panel {
         };
 
         console.log("Making email primary", request);
-        Ajax.request({
-            url: "/accounts/email_address_make_primary/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.postJSON("/accounts/email_address_make_primary/", request).then(
+            (data) => {
                 if (data.error) {
                     console.log(data.error);
                 } else {
@@ -384,10 +356,11 @@ class EmailPanel extends UI.Panel {
                     console.log("Email primarification successful", data);
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error while changing primary email:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error while changing primary email:\n" + error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 
     sendConfirmation(email) {
@@ -396,26 +369,19 @@ class EmailPanel extends UI.Panel {
         };
 
         console.log("sending confirmation", data);
-        Ajax.request({
-            url: "/accounts/email_address_verification_send/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (dataJSON) => {
-                if (dataJSON.error) {
-                    console.log(dataJSON.error);
+        Ajax.postJSON("/accounts/email_address_verification_send/", request).then(
+            (data) => {
+                if (data.error) {
+                    console.log(data.error);
                 } else {
-                    UserStore.applyEvent({
-                        objectId: data.user.id,
-                        data: data.user,
-                    });
-                    console.log("Confirmation sent", dataJSON);
+                    console.log("Confirmation sent", data);
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error while sending email confirmation:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error while sending email confirmation:\n" + error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 
     changeEmailSubscription(receivesEmailAnnouncements) {
@@ -423,22 +389,19 @@ class EmailPanel extends UI.Panel {
             receivesEmailAnnouncements: receivesEmailAnnouncements
         };
 
-        Ajax.request({
-            url: "/accounts/profile_changed/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.postJSON("/accounts/profile_changed/", request).then(
+            (data) => {
                 if (data.error) {
                     console.log(data.error);
                 } else {
                     console.log("Successfully changed email subscription", data);
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error while removing email:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error while removing email:\n" + error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 }
 
@@ -454,21 +417,19 @@ class SocialAccountsPanel extends UI.Panel {
     render() {
         let addSocialAccountGroup = [
             <h3>Add a 3rd Party Account</h3>,
-            <div className="form-horizontal col-sm-offset-1">
-                <div className="form-group">
-                    <a style={{cursor: "pointer"}} onClick={() => {
-                        GoogleManager.Global().handleAuthClick(window.location.pathname, "connect", (data) => this.onSocialConnect(data));
-                    }}>
-                        <i className="fa fa-google fa-2x"/>
-                        <span className="google-login-text"> Connect Google account</span>
-                    </a>
-                </div>
-                <div className="form-group">
-                    <a onClick={() => {FacebookManager.Global().login(window.location.pathname, "authenticate", "connect")}}>
-                        <i className="fa fa-facebook fa-2x"/>
-                        <span> Connect Facebook account</span>
-                    </a>
-                </div>
+            <div>
+              <a style={{cursor: "pointer"}} onClick={() => {
+                    GoogleManager.Global().handleAuthClick(window.location.pathname, "connect", (data) => this.onSocialConnect(data));
+                }}>
+                <i className="fa fa-google fa-2x"/>
+                <span className="google-login-text"> Connect Google account</span>
+              </a>
+            </div>,
+            <div>
+              <a onClick={() => {FacebookManager.Global().login(window.location.pathname, "authenticate", "connect")}}>
+                <i className="fa fa-facebook fa-2x"/>
+                <span> Connect Facebook account</span>
+              </a>
             </div>
         ];
 
@@ -476,14 +437,14 @@ class SocialAccountsPanel extends UI.Panel {
             let socialAccounts = [];
             for (let account of this.options.user.social) {
                 socialAccounts.push(
-                    <div className="form-group col-sm-12">
-                        <label className="control-label">
+                    <div>
+                        <label>
                             <img src={account.picture} height="42" width="42"/>
                             <a href={account.link} target="_blank"> {account.name}</a>
                             <span> {"- " + account.platform}</span>
                         </label>
                         <div className="pull-right">
-                            <UI.Button label="Remove" size={UI.Size.SMALL} level={UI.Level.DANGER} style={{"margin-top": "15px"}}
+                            <UI.Button label="Remove" size={UI.Size.SMALL} level={UI.Level.DANGER} style={{"margin-top": "7px"}}
                                        onClick={() => {this.removeSocialAccount(account.id)}} />
                         </div>
                     </div>
@@ -493,7 +454,7 @@ class SocialAccountsPanel extends UI.Panel {
             return [
                 <h3>Social accounts</h3>,
                 <p>You can sign in to your account using any of the following third party accounts:</p>,
-                <div className="form-horizontal col-sm-offset-1">
+                <div>
                     {socialAccounts}
                 </div>,
                 ...addSocialAccountGroup
@@ -516,12 +477,8 @@ class SocialAccountsPanel extends UI.Panel {
         let request = {
             socialAccountId: socialAccountId
         };
-        Ajax.request({
-            url: "/accounts/remove_social_account/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.postJSON("/accounts/remove_social_account/", request).then(
+            (data) => {
                 if (data.error) {
 
                 } else {
@@ -531,10 +488,11 @@ class SocialAccountsPanel extends UI.Panel {
                     });
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error while removing social account:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error while removing social account:\n" + error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 }
 
@@ -549,7 +507,7 @@ class UserSettingsPanel extends TabArea {
             <GeneralInformationPanel title="General Info" active={true} user={this.user}/>,
             <EmailPanel title="Email" user={this.user}/>,
             <SocialAccountsPanel title="Social accounts" user={this.user}/>,
-            <SecuritySettingsPanel ref={this.refLink("securitySettingsPanel")} title="Security" user={this.user} />,
+            <SecuritySettingsPanel ref={this.refLink("securitySettingsPanel")} title="Security" user={this.user} />
         ];
     }
 

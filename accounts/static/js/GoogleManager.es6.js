@@ -73,12 +73,8 @@ class GoogleManager {
     }
 
     sendData(url, data, onSuccess) {
-        Ajax.request({
-            url: url,
-            type: "POST",
-            dataType: "json",
-            data: data,
-            success: (data) => {
+        Ajax.postJSON(url, data).then(
+            (data) => {
                 if (data.error) {
                     alert(data.error.toString());
                 } else {
@@ -87,10 +83,11 @@ class GoogleManager {
                     }
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error :\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error :\n" + error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 }
 

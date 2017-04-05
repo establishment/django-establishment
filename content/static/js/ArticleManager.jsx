@@ -20,9 +20,9 @@ class TransferOwnershipModal extends UI.ActionModal {
         return [
             <UI.TextElement ref="text" value={"Set owner"}/>,
             <UI.Form style={{marginTop: "10px"}}>
-                <UI.FormGroup ref="ownerFormGroup" label="Author ID">
+                <UI.FormField ref="ownerFormField" label="Author ID">
                     <UI.TextInput ref="ownerFormInput"  value=""/>
-                </UI.FormGroup>
+                </UI.FormField>
             </UI.Form>
         ];
     }
@@ -30,7 +30,7 @@ class TransferOwnershipModal extends UI.ActionModal {
     getFooterContent() {
         return [
             <UI.TemporaryMessageArea ref="messageArea"/>,
-            <UI.Button level={UI.Level.DEFAULT} label="Close" onClick={() => this.hide()}/>,
+            <UI.Button label="Close" onClick={() => this.hide()}/>,
             <UI.AjaxButton ref="transferOwnershipButton" level={this.getActionLevel()} onClick={() => {this.action()}}
                            statusOptions={[this.getActionName(), {faIcon: "spinner fa-spin", label:" transfering ownership ..."}, this.getActionName(), "Failed"]}
             />
@@ -87,16 +87,16 @@ class TransferOwnershipModal extends UI.ActionModal {
 class DeleteArticleModal extends UI.Modal {
     getGivenChildren() {
         return [
-            <div className="modal-dialog" style={{margin: "0px"}}>
-                <div className="modal-header">
-                    <h4 className="modal-title">Delete article</h4>
+            <div style={{margin: "0px"}}>
+                <div>
+                    <h4>Delete article</h4>
                 </div>
-                <div className="modal-body">
+                <div>
                     <UI.TextElement ref="text" value={"Delete article?"}/>
                 </div>
-                <div className="modal-footer">
+                <div>
                     <UI.TemporaryMessageArea ref="messageArea"/>
-                    <UI.Button level={UI.Level.DEFAULT} label="Close" onClick={() => this.hide()}/>
+                    <UI.Button label="Close" onClick={() => this.hide()}/>
                     <UI.AjaxButton ref="deleteArticleButton" level={UI.Level.DANGER} onClick={() => {this.deleteArticle()}}
                                        statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."}, "Delete article", "Failed"]}
                         />
@@ -145,29 +145,29 @@ class DeleteArticleModal extends UI.Modal {
 class CreateArticleModal extends UI.Modal {
     getGivenChildren() {
         return [
-            <div className="modal-dialog" style={{margin: "0px"}}>
-                <div className="modal-header">
-                    <h4 className="modal-title">Create article</h4>
+            <div style={{margin: "0px"}}>
+                <div>
+                    <h4>Create article</h4>
                 </div>
-                <div className="modal-body">
+                <div>
                     <UI.Form style={{marginTop: "10px"}}>
-                        <UI.FormGroup ref="articleNameFormGroup" label="Article name">
+                        <UI.FormField ref="articleNameFormField" label="Article name">
                             <UI.TextInput ref="articleNameInput"  value=""/>
-                        </UI.FormGroup>
-                        <UI.FormGroup ref="dependencyFormGroup" label="Dependencies">
+                        </UI.FormField>
+                        <UI.FormField ref="dependencyFormField" label="Dependencies">
                             <UI.TextInput ref="dependencyInput" value=""/>
-                        </UI.FormGroup>
-                        <UI.FormGroup ref="languageFormGroup" label="Language">
-                            <UI.Select ref="languageSelect" className="form-control" options={Language.all()}/>
-                        </UI.FormGroup>
-                        <UI.FormGroup ref="publicFormGroup" label="Public">
+                        </UI.FormField>
+                        <UI.FormField ref="languageFormField" label="Language">
+                            <UI.Select ref="languageSelect" options={Language.all()}/>
+                        </UI.FormField>
+                        <UI.FormField ref="publicFormField" label="Public">
                             <UI.CheckboxInput ref="publicCheckbox" checked={false}/>
-                        </UI.FormGroup>
+                        </UI.FormField>
                     </UI.Form>
                 </div>
-                <div className="modal-footer">
+                <div>
                     <UI.TemporaryMessageArea ref="messageArea"/>
-                    <UI.Button level={UI.Level.DEFAULT} label="Close" onClick={() => this.hide()}/>
+                    <UI.Button label="Close" onClick={() => this.hide()}/>
                     <UI.AjaxButton ref="createArticleButton" level={UI.Level.PRIMARY} onClick={() => {this.createArticle()}}
                                    statusOptions={["Create article", {faIcon: "spinner fa-spin", label:" creating article ..."}, "Create article", "Failed"]}
                     />
@@ -223,29 +223,29 @@ class AddTranslationModal extends CreateArticleModal {
     getGivenChildren() {
         this.baseArticle = this.options.baseArticle;
         return [
-            <div className="modal-dialog" style={{margin: "0px"}}>
-                <div className="modal-header">
-                    <h4 className="modal-title">Add translation</h4>
+            <div style={{margin: "0px"}}>
+                <div>
+                    <h4>Add translation</h4>
                 </div>
-                <div className="modal-body">
+                <div>
                     <UI.Form style={{marginTop: "10px"}}>
-                        <UI.FormGroup ref="articleNameFormGroup" label="Article name">
+                        <UI.FormField ref="articleNameFormField" label="Article name">
                             <UI.TextInput ref="articleNameInput"  value={"Translation for " + this.baseArticle.name}/>
-                        </UI.FormGroup>
-                        <UI.FormGroup ref="dependencyFormGroup" label="Dependencies">
+                        </UI.FormField>
+                        <UI.FormField ref="dependencyFormField" label="Dependencies">
                             <UI.TextInput ref="dependencyInput" value={this.baseArticle.dependency}/>
-                        </UI.FormGroup>
-                        <UI.FormGroup ref="languageFormGroup" label="Language">
-                            <UI.Select ref="languageSelect" className="form-control" options={Language.all()}/>
-                        </UI.FormGroup>
-                        <UI.FormGroup ref="publicFormGroup" label="Public">
+                        </UI.FormField>
+                        <UI.FormField ref="languageFormField" label="Language">
+                            <UI.Select ref="languageSelect" options={Language.all()}/>
+                        </UI.FormField>
+                        <UI.FormField ref="publicFormField" label="Public">
                             <UI.CheckboxInput ref="publicCheckbox" checked={this.baseArticle.isPublic}/>
-                        </UI.FormGroup>
+                        </UI.FormField>
                     </UI.Form>
                 </div>
-                <div className="modal-footer">
+                <div>
                     <UI.TemporaryMessageArea ref="messageArea"/>
-                    <UI.Button level={UI.Level.DEFAULT} label="Close" onClick={() => this.hide()}/>
+                    <UI.Button label="Close" onClick={() => this.hide()}/>
                     <UI.AjaxButton ref="createArticleButton" level={UI.Level.PRIMARY}
                                    onClick={() => this.createArticle({
                                        baseArticleId: this.baseArticle.id,
@@ -418,25 +418,22 @@ class ArticleManager extends UI.Panel {
         }
 
         let request = {};
-        Ajax.request({
-            url: "/get_available_articles/",
-            type: "GET",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.getJSON("/get_available_articles/", request).then(
+            (data) => {
                 if (data.error) {
                     console.log(data.error);
                 } else {
                     GlobalState.importState(data.state);
-                    this.options.articles = ArticleStore.all();
-                    this.redraw();
+                    this.table.options.articles = ArticleStore.all();
+                    this.table.redraw();
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.error("Error in fetching articles");
-                console.error(xhr.responseText);
+            (error) => {
+                console.log("Error in fetching articles");
+                console.log(error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 }
 
@@ -482,12 +479,8 @@ class TranslationManager extends UI.Panel {
         if (!this.options.baseArticle)
             return;
         let request = {};
-        Ajax.request({
-            url: "/article/" + this.options.baseArticle.id + "/get_translations/",
-            type: "GET",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.getJSON("/article/" + this.options.baseArticle.id + "/get_translations/", request).then(
+            (data) => {
                 if (data.error) {
                     console.log(data.error);
                 } else {
@@ -500,11 +493,12 @@ class TranslationManager extends UI.Panel {
                     this.table.redraw();
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.error("Error in fetching articles");
-                console.error(xhr.responseText);
+            (error) => {
+                console.log("Error in fetching articles");
+                console.log(error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 }
 

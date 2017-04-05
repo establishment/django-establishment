@@ -54,12 +54,7 @@ class StreamObjectMixin(models.Model):
 
     def publish_event(self, event_type, data, extra=None, stream_names=None, persistence=True, expire_time=EVENT_PERSISTENCE_DURATION):
         event = self.make_event(event_type, data, extra)
-        if not stream_names:
-            stream_names = self.get_stream_name()
-        if not isinstance(stream_names, list):
-            stream_names = [stream_names]
-        for stream_name in stream_names:
-            RedisStreamPublisher.publish_to_stream(stream_name, event, persistence=persistence, expire_time=expire_time)
+        self.publish_event_raw(event, stream_names, persistence, expire_time)
         return event
 
     def publish_create_event(self, *args, **kwargs):
@@ -80,12 +75,16 @@ class StreamObjectMixin(models.Model):
         event = self.delete_and_make_event()
         return self.publish_event_raw(event, *args, **kwargs)
 
-    def publish_event_raw(self, event, persistence=True, expire_time=EVENT_PERSISTENCE_DURATION):
+    def publish_event_raw(self, event, stream_names=None, persistence=True, expire_time=EVENT_PERSISTENCE_DURATION):
         """
         Method that can be used to publish any event on the objects' stream
         """
-        stream_name = self.get_stream_name()
-        return RedisStreamPublisher.publish_to_stream(stream_name, event, persistence=persistence, expire_time=expire_time)
+        if not stream_names:
+            stream_names = self.get_stream_name()
+        if not isinstance(stream_names, list):
+            stream_names = [stream_names]
+        for stream_name in stream_names:
+            RedisStreamPublisher.publish_to_stream(stream_name, event, persistence=persistence, expire_time=expire_time)
 
     def add_to_state(self, state, user=None):
         state.add(self)

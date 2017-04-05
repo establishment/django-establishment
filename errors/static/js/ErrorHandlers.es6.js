@@ -12,7 +12,7 @@ ErrorHandlers.wrapError = (error) => {
     if (error.id) {
         return ErrorMessageStore.fakeCreate(error);
     } else {
-        return new ErrorMessage(error);
+        return new ErrorMessage({message: error});
     }
 };
 

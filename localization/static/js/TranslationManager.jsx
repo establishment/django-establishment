@@ -1,19 +1,16 @@
 // TODO: this whole file needs a refactoring
-import {UI} from "UI";
-import {TabArea} from "tabs/TabArea";
+import {UI, TabArea} from "UI";
 import {GlobalState} from "State";
 import {TranslationKeyStore, TranslationEntryStore} from "TranslationStore";
 import {Language} from "LanguageStore";
 import {Dispatcher} from "Dispatcher";
 import {URLRouter} from "URLRouter";
-import saveAs from "FileSaver";
+import {FileSaver} from "FileSaver";
 import {Ajax} from "Ajax";
 
 function ajaxCall(request, successOperation, failOperation) {
-    Ajax.post({
-        url: "/edit_translation/",
-        data: request,
-        success: (data) => {
+    Ajax.postJSON("/edit_translation/", request).then(
+        (data) => {
             if (data.error) {
                 console.log(data.error);
                 if (failOperation) {
@@ -26,13 +23,15 @@ function ajaxCall(request, successOperation, failOperation) {
                 }
             }
         },
-        error: (xhr, errmsg, err) => {
-            console.log(errmsg);
+        (error) => {
+            console.log("Error while editing translation");
+            console.log(error.message);
+            console.log(error.stack);
             if (failOperation) {
-                failOperation(data);
+                failOperation(error);
             }
         }
-    });
+    );
 }
 
 class TranslationEntryTableRow extends UI.TableRow {
@@ -172,8 +171,10 @@ class TranslationEntryManager extends UI.Panel {
             </div>,
             <div className="btn-group">
                 <UI.Button ref="saveAllButton" label="Save all" level={UI.Level.INFO} />
-                <UI.Button className="btn file-upload-button pull-left" level={UI.Level.INFO} label="Import" ref="importButton">
-                    <UI.FileInput ref="uploadFile"/>
+                <UI.Button className="pull-left" level={UI.Level.INFO} label="Import" ref="importButton"
+                           style={{position: "relative", overflow: "hidden"}}>
+                    <UI.FileInput ref="uploadFile" style={{position: "absolute", top: "0", right: "0", margin: "0",
+                                                           padding: "0", cursor: "pointer", opacity: "0", filter: "alpha(opacity=0)"}}/>
                 </UI.Button>
                 <UI.Button ref="exportButton" label="Export" level={UI.Level.INFO} />
             </div>
@@ -374,7 +375,7 @@ class TranslationEntryManager extends UI.Panel {
         }
         let file = new Blob([JSON.stringify(output, null, 2)], {type:'text/plain;charset=utf-8'});
 
-        saveAs(file, "translations.json");
+        FileSaver.saveAs(file, "translations.json");
     }
 }
 
@@ -647,7 +648,7 @@ class TranslationManager extends UI.Panel {
         this.showUrlTab(URLRouter.getLocation());
         URLRouter.addRouteListener((location) => this.showUrlTab(location));
 
-        this.tabArea.titleArea.addClass("align-center");
+        this.tabArea.titleArea.addClass("text-center");
 
         this.tabArea.children[1].addClickListener(() => {
             if (this.keyManager.hasChanged()) {

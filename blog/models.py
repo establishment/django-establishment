@@ -12,6 +12,10 @@ class BlogEntry(Commentable):
     class Meta:
         db_table = "BlogEntry"
 
+    @classmethod
+    def object_type(cls):
+        return "blogentry"
+
     def __str__(self):
         return "BlogEntry-" + str(self.id) + " " + self.url_name
 

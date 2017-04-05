@@ -11,26 +11,52 @@ from establishment.funnel.base_views import JSONResponse, ajax_required, superus
 
 
 def blog(request):
-    blog_posts = BlogEntry.objects.all()
+    blog_posts = BlogEntry.objects.order_by("-article__date_created").prefetch_related("article")
 
     if not request.user.is_superuser:
         blog_posts = blog_posts.filter(visible=True)
 
+    if request.is_ajax() and ("lastDate" in request.GET):
+        blog_posts = blog_posts.filter(article__date_created__lt=datetime.datetime.fromtimestamp(float(request.GET["lastDate"])))[:4]
+        count = 3
+    else:
+        blog_posts = blog_posts[:6]
+        count = 5
+
     state = GlobalObjectCache()
 
-    for blog_post in blog_posts.prefetch_related("article"):
+    for blog_post in blog_posts[:count]:
         state.add(blog_post)
         article = blog_post.article
         state.add(article)
+
+    if request.is_ajax() and ("lastDate" in request.GET):
+        return JSONResponse({"state": state, "finishedLoading": (len(blog_posts) != count + 1)})
 
     widget_options = {
         "style": {
             "background-color": "#f3f4f6",
             "min-height": "100vh",
-        }
+        },
+        "finishedLoading": (len(blog_posts) != count + 1)
     }
 
     return global_renderer.render_ui_widget(request, "BlogPanel", state, widget_options=widget_options)
+
+
+def get_blogpost(request):
+    blog_post = None
+    try:
+        blog_post = BlogEntry.objects.get(url_name=str(request.GET["entryUrlName"]))
+    except Exception as e:
+        pass
+    if blog_post and not blog_post.visible and not request.user.is_superuser:
+        blog_post = None
+    state = GlobalObjectCache()
+    if blog_post:
+        state.add(blog_post)
+        state.add(blog_post.article)
+    return JSONResponse({"state": state})
 
 
 @ajax_required

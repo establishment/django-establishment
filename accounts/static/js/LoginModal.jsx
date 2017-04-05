@@ -1,8 +1,9 @@
 import {UI} from "UI";
+import {Modal} from "modal/Modal";
 import {Login} from "Login";
 import {Device} from "Device";
 
-class LoginModal extends UI.Modal {
+class LoginModal extends Modal {
     getModalWindowStyle() {
         if (Device.isTouchDevice()) {
             return {

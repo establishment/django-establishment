@@ -164,7 +164,7 @@ class AbstractStreamObjectUser(AbstractBaseUser, SuperuserPermissionsMixin, Stre
 
     @classmethod
     def get_object_stream_name(cls, object_id):
-        return "user-" + str(object.id) + "-events"
+        return "user-" + str(object_id) + "-events"
 
     def get_stream_name(self):
         return "user-" + str(self.id) + "-events"
@@ -352,30 +352,12 @@ class PublicUserSummary(BaseUserSummary):
 
 
 class UserSummary(BaseUserSummary):
-    @property
-    # TODO: these should not be here
-    def profile_validators(self):
-        return {}
-        # rez = {
-        #     "first_name_max_length": User._meta.get_field("first_name").max_length,
-        #     "last_name_max_length": User._meta.get_field("last_name").max_length,
-        #     "username_max_length": User._meta.get_field("username").max_length,
-        #     "username_regexes": []
-        # }
-        # for validator in User._meta.get_field("username").validators:
-        #     if validator.message and hasattr(validator, "regex"):
-        #         rez["username_regexes"].append({
-        #             "pattern": validator.regex.pattern,
-        #             "message": validator.message
-        #         })
-        # return rez
-
     def to_json(self):
         rez = self.user.to_json()
         rez["emails"] = self.user.get_all_emails()
+        rez["receivesEmailAnnouncements"] = self.user.receives_email_announcements
         #TODO: validators and social should not be in here, should be in static
         rez["social"] = list(self.user.socialaccount_set.all().order_by("provider"))
-        rez["validators"] = self.profile_validators
         rez.update(self.user.get_custom_settings(True).to_json())
         return rez
 

@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from establishment.localization import views
+from . import views
 
 urlpatterns = [
     url(r"^edit_translation/$", views.edit_translation),

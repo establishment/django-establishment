@@ -7,23 +7,16 @@ let blogArticleRendererStyle = BlogArticleRendererStyle.getInstance();
 
 
 class BlogArticleRenderer extends ArticleRenderer {
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-
+    extraNodeAttributes(attr) {
+        super.extraNodeAttributes(attr);
         attr.addClass(blogArticleRendererStyle.blogArticleRenderer);
-
-        return attr;
     }
 }
 
 
 class BlogQuote extends UI.Primitive("div") {
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-
+    extraNodeAttributes(attr) {
         attr.addClass(blogArticleRendererStyle.quote);
-
-        return attr;
     }
 
     render() {

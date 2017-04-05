@@ -8,9 +8,23 @@ from establishment.funnel.throttle import UserActionThrottler, ActionThrottler
 
 def main_forum_view(request):
     main_forum = Forum.objects.get(id=1)
-    state = GlobalObjectCache()
+    state = GlobalObjectCache(request)
     main_forum.add_to_state(state)
     return global_renderer.render_ui_widget(request, "ForumWidget", state=state, widget_options={"forumId": main_forum.id})
+
+
+def latest_forum_state(request):
+    state = GlobalObjectCache()
+
+    forum_threads = ForumThread.objects.filter(hidden=False).prefetch_related("message_thread__messages")
+    forum_threads = list(forum_threads)
+    forum_threads.sort(key=lambda thread: thread.get_last_active(), reverse=True)
+    forum_threads = forum_threads[:5]
+
+    for forum_thread in forum_threads:
+        state.add(forum_thread)
+        state.add(forum_thread.parent)
+    return JSONResponse({"state": state})
 
 
 @login_required_ajax
@@ -84,7 +98,7 @@ def forum_thread_post(request):
 @ajax_required
 def forum_state(request):
     forum = Forum.objects.get(id=int(request.POST["forumId"]))
-    state = GlobalObjectCache()
+    state = GlobalObjectCache(request)
     forum.add_to_state(state)
     return state.to_response()
 
@@ -99,6 +113,6 @@ def forum_thread_state(request):
     if forum_view_throttler.increm():
         forum_thread.increment_num_views()
 
-    state = GlobalObjectCache()
+    state = GlobalObjectCache(request)
     forum_thread.add_to_state(state, request)
     return state.to_response()

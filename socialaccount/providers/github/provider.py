@@ -20,7 +20,7 @@ class GithubAccount(ProviderAccount):
 class GithubProvider(OAuth2Provider):
     id = "github"
     name = "Github"
-    package = "socialaccount.providers.github"
+    package = "establishment.socialaccount.providers.github"
     account_class = GithubAccount
 
     def get_default_scope(self):
