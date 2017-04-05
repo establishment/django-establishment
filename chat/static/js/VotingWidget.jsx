@@ -1,4 +1,4 @@
-import {UI} from "UI";
+import {UI, ConstructorInitMixin} from "UI";
 import {css, hover, focus, active, ExclusiveClassSet, StyleSet} from "Style";
 import {LoginModal} from "LoginModal";
 import {UserReactionCollection} from "UserReactionStore";
@@ -162,7 +162,7 @@ class CommentVotingWidget extends VotingWidget {
 }
 
 // TODO: rewrite
-class CommentVotingWidgetWithThumbs extends UI.ConstructorInitMixin(CommentVotingWidget) {
+class CommentVotingWidgetWithThumbs extends ConstructorInitMixin(CommentVotingWidget) {
     extraNodeAttributes(attr) {
         attr.setStyle({
             "height": "40px",
@@ -174,7 +174,7 @@ class CommentVotingWidgetWithThumbs extends UI.ConstructorInitMixin(CommentVotin
             "text-align": "right",
         });
     }
-    
+
     getNumLikes() {
         return this.options.message.getNumLikes();
     }
