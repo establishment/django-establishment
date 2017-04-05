@@ -353,6 +353,14 @@ let ChatWidget = (ChatMessageClass) => {
             });
         }
 
+        extraNodeAttributes(attr) {
+            super.extraNodeAttributes(attr);
+            attr.setStyle({
+                display: "flex",
+                flexDirection: "column",
+            });
+        }
+
         canOverwrite() {
             return false;
         }
