@@ -1,5 +1,6 @@
 import {UI} from "UI";
 import {ArticleRenderer} from "ArticleRenderer";
+import {MarkupClassMap} from "MarkupRenderer";
 import {BlogArticleRendererStyle} from "./BlogStyle";
 
 
@@ -37,7 +38,7 @@ class BlogQuote extends UI.Primitive("div") {
 }
 
 
-BlogArticleRenderer.markupClassMap = new UI.MarkupClassMap(ArticleRenderer.markupClassMap);
+BlogArticleRenderer.markupClassMap = new MarkupClassMap(ArticleRenderer.markupClassMap);
 BlogArticleRenderer.markupClassMap.addClass("Quote", BlogQuote);
 
 
