@@ -127,7 +127,7 @@ class Daemon:
             return file_pid
         self.logger.error("Pid file does not correspond with the running processes! Deleting ...")
         self.delpid()
-        return file_pid
+        return None
 
     def get_running_daemon_pid(self):
         pids = []
