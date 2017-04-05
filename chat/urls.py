@@ -1,5 +1,4 @@
 from django.conf.urls import url
-
 from establishment.chat import views
 
 urlpatterns = [
@@ -10,5 +9,4 @@ urlpatterns = [
     url(r"^group_chat_state/$", views.group_chat_state, name="group_chat_state"),
     url(r"^group_chat_post/$", views.group_chat_post, name="group_chat_post"),
     url(r"^edit_message/$", views.edit_message, name="edit_message"),
-    url(r"^", views.global_chat, name="global_chat"),
 ]
