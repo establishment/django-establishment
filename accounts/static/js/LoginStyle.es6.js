@@ -15,6 +15,8 @@ let signInButtonWidth = 120;
 
 
 class LoginStyle extends StyleSet {
+    fontFamily = "lato, open sans";
+
     @styleRule
     loginRegisterSystem = () => {
         if (Device.isTouchDevice()) {
@@ -55,7 +57,7 @@ class LoginStyle extends StyleSet {
         alignItems: "center",
         justifyContent: "center",
         textAlign: "center",
-        fontFamily: "montserrat",
+        fontFamily: this.fontFamily,
         fontSize: "100%",
         width: "50%",
         backgroundColor: "#f6f6f6",
@@ -65,6 +67,8 @@ class LoginStyle extends StyleSet {
         float: "left",
         borderLeft: "0",
         borderTop: "0",
+        textTransform: "uppercase",
+        fontSize: "1.1em",
     };
 
     @styleRule
@@ -76,7 +80,7 @@ class LoginStyle extends StyleSet {
         alignItems: "center",
         justifyContent: "center",
         textAlign: "center",
-        fontFamily: "montserrat",
+        fontFamily: this.fontFamily,
         fontSize: "100%",
         width: "50%",
         backgroundColor: "#f6f6f6",
@@ -86,12 +90,15 @@ class LoginStyle extends StyleSet {
         float: "left",
         borderRight: "0",
         borderTop: "0",
+        textTransform: "uppercase",
+        fontSize: "1.1em",
     };
 
     selectedLeft = {
         borderBottom: "0",
         borderRight: "0",
         backgroundColor: "#fff",
+        fontWeight: "bold",
     };
 
     @styleRule
@@ -105,6 +112,7 @@ class LoginStyle extends StyleSet {
         borderBottom: "0",
         borderLeft: "0",
         backgroundColor: "#fff",
+        fontWeight: "bold",
     };
 
     @styleRule
@@ -153,6 +161,7 @@ class LoginStyle extends StyleSet {
     input = {
         width: "85%",
         maxWidth: "85%",
+        paddingLeft: "10px",
         height: fontAwesomeIconHeight + "px",
         lineHeight: fontAwesomeIconHeight + "px",
         display: "inline-block",
@@ -183,7 +192,7 @@ class LoginStyle extends StyleSet {
         fontSize: "14px",
         color: "#d80000",
         textAlign: "center",
-        fontFamily: "montserrat",
+        fontFamily: this.fontFamily,
         lineHeight: "50px",
     };
 
@@ -191,14 +200,14 @@ class LoginStyle extends StyleSet {
     rememberMe = {
         display: "inline-block",
         paddingLeft: "5px",
-        fontFamily: "raleway",
+        fontFamily: this.fontFamily,
     };
 
     @styleRule
     forgotPassword = {
         display: "inline-block",
         float: "right",
-        fontFamily: "raleway",
+        fontFamily: this.fontFamily,
         paddingRight: "5px",
     };
 
@@ -215,7 +224,7 @@ class LoginStyle extends StyleSet {
         border: "0px solid #d3d5d9",
         fontSize: "18px",
         color: "#252525",
-        fontFamily: "montserrat",
+        fontFamily: this.fontFamily,
         ":hover": {
             border: "0px solid #0b79a7",
             borderBottom: "2px solid #0b79a7",
@@ -233,7 +242,7 @@ class LoginStyle extends StyleSet {
     connectWith = {
         width: "100%",
         textAlign: "center",
-        fontFamily: "raleway",
+        fontFamily: this.fontFamily,
         marginTop: "20px",
     };
 
@@ -254,7 +263,6 @@ class LoginStyle extends StyleSet {
         paddingRight: "15px",
         borderRadius: "3px",
         textAlign: "center",
-        lineHeight: "40px",
         fontSize: "18px",
         marginLeft: "5px",
         marginRight: "5px",
@@ -264,6 +272,13 @@ class LoginStyle extends StyleSet {
             transition: ".2s",
             opacity: ".9",
         }
+    };
+
+    @styleRule
+    connectWithButtonsSpan = {
+        fontFamily: "lato, open sans",
+        paddingLeft: "15px",
+        fontSize: "15px",
     };
 }
 

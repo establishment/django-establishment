@@ -1,5 +1,4 @@
-import {UI} from "UI";
-import {TabArea} from "tabs/TabArea";
+import {UI, TabArea} from "UI";
 import {GlobalState} from "State";
 import {PublicUserStore} from "UserStore";
 import {MessageThreadStore} from "MessageThreadStore";

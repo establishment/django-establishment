@@ -1,16 +1,15 @@
-import {UI} from "UI";
+import {UI, BasicTabTitle} from "UI";
+import {Panel} from "UIPrimitives";
 
 import {ensure} from "Require";
 import {Ajax} from "Ajax";
 import {GoogleManager} from "GoogleManager";
-import {GithubManager} from "GithubManager";
 import {FacebookManager} from "FacebookManager";
 
 import {css, hover, focus, active, ExclusiveClassSet, StyleSet} from "Style";
 import {FAIcon} from "FontAwesome";
-import {BasicTabTitle} from "tabs/TabArea";
 import {Device} from "Device";
-import {LoginStyle} from "LoginStyle";
+import {LoginStyle} from "./LoginStyle";
 
 
 let loginStyle = LoginStyle.getInstance();
@@ -26,58 +25,40 @@ class ThirdPartyLogin extends UI.Element {
 
     getConnectWith() {
         return <UI.Element style={loginStyle.connectWith}>
-            or connect with
+            {UI.T("or connect with")}
         </UI.Element>;
     }
 
     getConnectWithButtons() {
         return <UI.Element style={loginStyle.connectIcons}>
-
             <FAIcon icon="facebook"
                     className={loginStyle.faLogo}
                     style={{
-                        "background-color": "#3b5998",
-                        "cursor": "pointer"
+                        backgroundColor: "#3b5998",
+                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        fontWeight: "bold",
                     }}
                     ref="facebookButton">
-                <span style={{
-                    "font-family": "montserrat",
-                    "padding-left": "15px",
-                    "font-size": "15px",
-                }}>
+                <span className={loginStyle.connectWithButtonsSpan}>
                     facebook
                 </span>
             </FAIcon>
-
             <FAIcon icon="google-plus"
                     className={loginStyle.faLogo}
                     style={{
-                        "background-color": "#DE4B39",
-                        "cursor": "pointer"
+                        backgroundColor: "#DE4B39",
+                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        fontWeight: "bold",
                     }}
                     ref="googleButton">
-                <span style={{
-                    "font-family": "montserrat",
-                    "padding-left": "15px",
-                    "font-size": "15px",
-                }}>
+                <span className={loginStyle.connectWithButtonsSpan}>
                     google
-                </span>
-            </FAIcon>
-
-            <FAIcon icon="github"
-                    className={loginStyle.faLogo}
-                    style={{
-                        "background-color": "#000",
-                        "cursor": "pointer"
-                    }}
-                    ref="githubButton">
-                <span style={{
-                    "font-family": "montserrat",
-                    "padding-left": "15px",
-                    "font-size": "15px",
-                }}>
-                    github
                 </span>
             </FAIcon>
         </UI.Element>;
@@ -97,12 +78,6 @@ class ThirdPartyLogin extends UI.Element {
         });
         this.facebookButton.addClickListener(() => {
             FacebookManager.Global().login(window.location.pathname, 'authenticate', 'login');
-        });
-
-        this.githubButton.addClickListener(() => {
-            GithubManager.Global().login(() => {
-                window.location.reload();
-            });
         });
     }
 }
@@ -174,12 +149,12 @@ class LoginWidget extends UI.Element {
                                   "float": "left",
                               }}
             />,
-            <div className={loginStyle.rememberMe}>Remember me</div>,
+            <div className={loginStyle.rememberMe}>{UI.T("Remember me")}</div>,
         ];
     }
 
     getForgotPassword() {
-        return <a className={loginStyle.forgotPassword} href="/accounts/password_reset">Forgot Password?</a>;
+        return <a className={loginStyle.forgotPassword} href="/accounts/password_reset">{UI.T("Forgot Password?")}</a>;
     }
 
     getBadLogin() {
@@ -250,7 +225,7 @@ class LoginWidget extends UI.Element {
 
 class RecaptchaWidget extends UI.Element {
     redrawRecaptcha() {
-        const googleKey = "6LclHBUUAAAAANvX5bcOZydyugqFj9p5B96EQ6NG";
+        const googleKey = "6LfnRQ8TAAAAAN9rP3skbWdI9NjmJSjaE0budP1H";
         grecaptcha.render(this.node, {
             "sitekey": googleKey
         });
@@ -357,7 +332,7 @@ class NormalLogin extends UI.Element {
         return <div className={loginStyle.loginSystemButton}
                     style={style}
                     ref="loginButton">
-            Log In
+            {UI.T("Log In")}
         </div>
     }
 
@@ -371,7 +346,7 @@ class NormalLogin extends UI.Element {
         return <div className={loginStyle.registerSystemButton}
                     style={style}
                     ref="registerButton">
-            Sign Up
+            {UI.T("Sign Up")}
         </div>
     }
 
@@ -419,7 +394,7 @@ class LoginTabButton extends UI.Primitive(BasicTabTitle, "div") {
     }
 
     render() {
-        return "Log In";
+        return UI.T("Log In");
     }
 }
 
@@ -436,21 +411,12 @@ class RegisterTabButton extends UI.Primitive(BasicTabTitle, "div") {
     }
 
     render() {
-        return "Register";
+        return UI.T("Register");
     }
 }
 
 
-class Login extends UI.Panel {
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-
-        // attr.setStyle("margin-left", "20%");
-        // attr.setStyle("margin-right", "20%");
-
-        return attr;
-    }
-
+class Login extends Panel {
     render() {
         return [
             <NormalLogin/>,
@@ -459,3 +425,140 @@ class Login extends UI.Panel {
 }
 
 export {Login};
+
+
+// import {UI, Panel} from "UI";
+// import {FacebookManager} from "FacebookManager";
+// import {GoogleManager} from "GoogleManager";
+// import {GlobalStyle} from "GlobalStyle";
+// import {Ajax} from "Ajax";
+//
+// class NormalLogin extends Panel {
+//     getStyleElement() {
+//         return <UI.StyleElement>
+//             <UI.StyleInstance selector=".loginTitle" attributes={{
+//                 "text-align": "center",
+//                 "padding-bottom": "10px"
+//             }}/>
+//         </UI.StyleElement>;
+//     }
+//
+//     render() {
+//         let iconStyle = {
+//             display: "inline-block",
+//             padding: "10px 8px",
+//             verticalAlign: "middle",
+//         };
+//         return [
+//             <h3 className="loginTitle">Log in to your account</h3>,
+//             <UI.Form ref="form">
+//                 <UI.FormGroup ref="mainFormGroup" className="text-center">
+//                     {/*Email Input*/}
+//                     <div className="text-center">
+//                         <span style={iconStyle}>
+//                             <span className="glyphicon glyphicon-user"></span>
+//                         </span>
+//                         <UI.EmailInput autofocus="autofocus" placeholder="Email address" ref="formEmailInput"
+//                                            name="email" style={{verticalAlign: "middle", width: "300px"}}/>
+//                     </div>
+//
+//                     {/*Password Input*/}
+//                     <div className="text-center">
+//                         <span style={iconStyle}>
+//                             <span className="glyphicon glyphicon-lock"></span>
+//                         </span>
+//                         <UI.PasswordInput placeholder="Password" name="password" ref="formPasswordInput"
+//                                               style={{verticalAlign: "middle", width: "300px"}}/>
+//                     </div>
+//
+//                     {/*Remember Me Checkbox*/}
+//                     <div className="text-center">
+//                       <label>
+//                         <UI.CheckboxInput checked={true} ref="formRememberInput"/>
+//                         Remember Me
+//                       </label>
+//                     </div>
+//                 </UI.FormGroup>
+//
+//                 {/*Sign In Button*/}
+//                 <div className="text-center">
+//                   <UI.SubmitInput className={`${GlobalStyle.Button.DEFAULT} ${GlobalStyle.Button.PRIMARY}`} value="Sign In" style={{margin: "5px"}}/>
+//                     <a className="btn btn-link" href="/accounts/password_reset/">Forgot Password?</a>
+//                 </div>
+//             </UI.Form>,
+//             this.getStyleElement()
+//         ];
+//     }
+//
+//     sendLogin() {
+//         var data = {
+//             email: this.formEmailInput.getValue(),
+//             password: this.formPasswordInput.getValue(),
+//             remember: this.formRememberInput.getValue()
+//         };
+//         Ajax.postJSON("/accounts/login/", data).then(
+//             (data) => {
+//                 if (data["error"] != null) {
+//                     this.mainFormGroup.setError(data["error"]);
+//                 } else {
+//                     location.reload();
+//                 }
+//             },
+//             (error) => {
+//                 console.log("Error logging in:\n" + error.message);
+//                 console.log(error.stack);
+//             }
+//         );
+//     }
+//
+//     onMount() {
+//         this.form.addNodeListener("submit", (event) => {
+//             this.sendLogin();
+//             event.preventDefault();
+//         });
+//     }
+// }
+//
+// class SocialLogin extends Panel {
+//     setOptions(options) {
+//         super.setOptions(options);
+//         FacebookManager.Global();
+//         GoogleManager.Global();
+//     }
+//
+//     render() {
+//         return [
+//             <h4 className="text-center">Or connect with</h4>,
+//             <UI.ButtonGroup className="text-center">
+//                 <UI.Button ref="facebookButton" faIcon="facebook" level="FACEBOOK" size={UI.Size.LARGE} label="facebook"/>
+//                 <UI.Button ref="googleButton" faIcon="google" level="GOOGLE" size={UI.Size.LARGE} label="google"/>
+//             </UI.ButtonGroup>
+//         ];
+//     }
+//
+//     onMount() {
+//         this.googleButton.addClickListener(() => {
+//             GoogleManager.Global().handleAuthClick(window.location.pathname, "login", () => {
+//                 window.location.reload();
+//             });
+//         });
+//         this.facebookButton.addClickListener(() => {
+//             FacebookManager.Global().login(window.location.pathname, 'authenticate', 'login');
+//         });
+//     }
+// }
+//
+//
+// class Login extends Panel {
+//     render() {
+//         return [
+//             <NormalLogin/>,
+//             <hr className={GlobalStyle.Container.EXTRA_LARGE}/>,
+//             <SocialLogin/>,
+//             <hr className={GlobalStyle.Container.EXTRA_LARGE}/>,
+//             <h2 className={`${GlobalStyle.Container.EXTRA_LARGE} signupButton`} style={{"text-align": "center", "font-size": "20px"}}><a href="/accounts/signup/">Don't have an account? Sign Up!</a></h2>
+//         ];
+//     }
+// }
+//
+// export {Login};
