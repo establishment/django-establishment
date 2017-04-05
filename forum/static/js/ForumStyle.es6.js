@@ -1,14 +1,16 @@
 import {StyleSet} from "Style";
 import {styleRule, styleRuleInherit} from "decorators/Style";
+import {CSAStyle} from "CSAStyle";
 
 
 class ForumThreadReplyStyle extends StyleSet {
+    fontFamily = "lato, open sans";
+
     @styleRule
     mainClass = {
-        width: "100%",
+        width: "90%",
+        margin: "0 auto",
         maxWidth: "1200px",
-        marginLeft: "auto",
-        marginRight: "auto",
     }
 
     @styleRule
@@ -19,7 +21,7 @@ class ForumThreadReplyStyle extends StyleSet {
         fontSize: "15px",
         marginTop: "8px",
         marginBottom: "8px",
-        fontFamily: "montserrat",
+        fontFamily: this.fontFamily,
     };
 
     @styleRule
@@ -28,14 +30,14 @@ class ForumThreadReplyStyle extends StyleSet {
         float: "left",
         color: "#444",
         fontSize: "14px",
-        fontFamily: "montserrat",
+        fontFamily: this.fontFamily,
     };
 
     @styleRule
     repliesDate = {
         display: "inline-block",
         float: "right",
-        fontFamily: "montserrat",
+        fontFamily: this.fontFamily,
     };
 
     @styleRule
@@ -49,37 +51,72 @@ class ForumThreadReplyStyle extends StyleSet {
 let height = 70;
 
 class ForumThreadPanelStyle extends StyleSet {
+    fontFamily = "lato, open sans";
+    fontSize = "0.9em";
+    numRepliesFontSize = "1.03em";
+    messageFontSize = "1.2em";
+    buttonFontSize = "1em";
+
     @styleRule
     mainClass = {
-        marginTop: "-20px",
+        margin: "0 auto",
         marginBottom: "20px",
         width: "100%",
+        fontFamily: this.fontFamily,
+    };
+
+    @styleRule
+    title = {
+        width: "90%",
         maxWidth: "1200px",
-        marginLeft: "auto",
-        marginRight: "auto",
+        margin: "0 auto",
+        fontSize: "2em",
+        fontFamily: this.fontFamily,
+        color: "#333",
+        minHeight: "50px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
     };
 
     @styleRule
     backButton = {
-        paddingLeft: "16px",
         color: "#444",
+        fontSize: this.fontsize,
         textDecoration: "none",
-        display: "inline-block",
-        float: "left",
-        lineHeight: () => height + "px",
-        fontSize: "22px",
-        transition: ".25s",
-        textAlign: "center",
+        transition: ".15s",
+        opacity: "1",
         ":hover": {
             opacity: "1",
-            color: "#6436466",
-            transition: ".25s",
+            color: "#337ab7",
+            transition: ".15s",
         },
-    }
+    };
+
+    @styleRule
+    replyButtonDiv = {
+        width: "90%",
+        maxWidth: "1200px",
+        height: "50px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        margin: "0 auto",
+    };
+
+    @styleRule
+    replyButton = {
+        margin: "0",
+    };
 
     @styleRule
     fullPost = {
-        backgroundColor: "#f3f3f3",
+        width: "90%",
+        maxWidth: "1200px",
+        margin: "0 auto",
+        fontSize: this.fontSize,
+        border: "1px solid #ddd",
+        borderTop: "0",
     };
 
     @styleRule
@@ -97,55 +134,31 @@ class ForumThreadPanelStyle extends StyleSet {
     };
 
     @styleRule
-    title = {
-        height: height + "px",
-        lineHeight: height + "px",
-        width: "70%",
-        maxWidth: "70%",
-        wordWrap: "break-word",
-        textAlign: "justify",
-        color: "#464948",
-        verticalAlign: "middle",
-        display: "inline-block",
-        float: "left",
-        paddingLeft: "16px",
-        paddingRight: "4px",
-    };
-
-    @styleRule
-    titleSpan = {
-        display: "inline-block",
-        verticalAlign: "middle",
-        maxWidth: "100%",
-    };
-
-    @styleRule
     author = {
-        height: () => height + "px",
-        lineHeight: () => height + "px",
-        color: "#444",
-        marginBottom: "25px",
-        display: "inline-block",
-        float: "right",
-        fontSize: "13px",
-        paddingRight: "16px",
+        color: "#262626",
+        fontSize: this.fontSize,
+        height: "50px",
+        display: "flex",
+        alignItems: "center",
+        paddingLeft: "0",
+        // justifyContent: "center",
+        textTransform: "uppercase",
+        // fontWeight: "bold",
     };
 
     @styleRule
     header = {
-        minHeight: height + "px",
-        maxHeight: 2 * height + "px",
-        borderBottom: "2px solid #e4e6e7",
     };
 
     @styleRule
     message = {
-        paddingLeft: "16px",
-        paddingRight: "16px",
-        fontSize: "16px",
-        marginBottom: "25px",
-        paddingTop: "25px",
-        color: "#323232",
+        padding: "5px 12px",
+        fontSize: this.messageFontSize,
+        color: CSAStyle.color.BLUE,
+        " p": {
+            marginBottom: "0",
+            padding: "5px 0",
+        },
     };
 
     @styleRule
@@ -156,35 +169,86 @@ class ForumThreadPanelStyle extends StyleSet {
     };
 
     @styleRule
-    numRepliesAndVoting = {
-        height: "40px",
+    bottomPanel = {
+        height: "50px",
         width: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
     };
 
     @styleRule
     voting = {
-        paddingRight: "16px",
+        paddingRight: "12px",
+        fontFamily: this.fontFamily,
     };
 
     @styleRule
     numReplies = {
-        height: "40px",
-        lineHeight: "40px",
-        fontSize: "14px",
-        paddingLeft: "16px",
+        height: "50px",
+        fontSize: this.numRepliesFontSize,
+        paddingLeft: "12px",
         color: "#767676",
-        display: "inline-block",
-        float: "left",
-        fontFamily: "montserrat",
+        display: "flex",
+        alignItems: "center",
+        fontWeight: "bold",
+        textTransform: "uppercase",
     };
 
     @styleRule
     replies = {
-        paddingLeft: "16px",
-        paddingRight: "16px",
         width: "100%",
-        borderTop: "2px solid #e4e6e7",
         color: "#444",
+    };
+
+    @styleRule
+    editDeleteButtons = {
+        width: "100%",
+        height: "50px",
+        padding: "0 7px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "flex-start",
+    };
+
+    @styleRule
+    editButton = {
+        height: "35px",
+        width: "35px",
+        margin: "0 4px",
+        border: "0",
+        borderRadius: "0",
+        color: "#fff",
+        backgroundColor: "#333",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: this.buttonFontSize,
+        transition: ".2s",
+        ":hover": {
+            backgroundColor: "#454545",
+            transition: ".2s",
+        },
+    };
+
+    @styleRule
+    deleteButton = {
+        height: "35px",
+        width: "35px",
+        margin: "0 4px",
+        border: "0",
+        borderRadius: "0",
+        color: "#fff",
+        backgroundColor: "#333",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: this.buttonFontSize,
+        transition: ".2s",
+        ":hover": {
+            backgroundColor: "#454545",
+            transition: ".2s",
+        },
     };
 }
 
@@ -199,27 +263,28 @@ class ButtonStyle extends StyleSet {
         marginBottom: "20px",
         width: "auto",
         borderRadius: "0px",
-        backgroundColor: "#333",
+        backgroundColor: CSAStyle.color.BLUE,
         border: "0",
         padding: "5px 10px",
         marginBottom: "0",
-        borderColor: "#333",
-        fontFamily: "montserrat",
+        borderColor: CSAStyle.color.BLUE,
+        fontFamily: "lato",
         fontSize: "13px",
         transition: ".2s",
+        outline: "none",
         ":hover": {
-            backgroundColor: "#454545",
-            borderColor: "#454545",
+            backgroundColor: CSAStyle.color.HOVER_BLUE,
+            borderColor: CSAStyle.color.HOVER_BLUE,
             transition: ".2s",
         },
         ":active": {
-            backgroundColor: "#454545",
-            borderColor: "#454545",
+            backgroundColor: CSAStyle.color.HOVER_BLUE,
+            borderColor: CSAStyle.color.HOVER_BLUE,
             transition: ".2s",
         },
         ":focus": {
-            backgroundColor: "#454545",
-            borderColor: "#454545",
+            backgroundColor: CSAStyle.color.HOVER_BLUE,
+            borderColor: CSAStyle.color.HOVER_BLUE,
             transition: ".2s",
         },
     };
@@ -234,11 +299,11 @@ class ForumThreadHeaderStyle extends StyleSet {
         });
     }
 
-    fontSize = "0.8em";
+    fontSize = "0.85em";
     widthLimit = 800;
 
     tagsHeight = 50;
-    primaryFont = "lato";
+    fontFamily = "lato, open sans";
     // borderTopColor = "rgb(232, 189, 35)";
     borderTopColor = "#333";
 
@@ -246,7 +311,7 @@ class ForumThreadHeaderStyle extends StyleSet {
         height: this.tagsHeight + "px",
         // display: "inline-block",
         // float: "left",
-        fontFamily: this.primaryFont,
+        fontFamily: this.fontFamily,
         color: "#262626",
         // letterSpacing: "-0.3px",
         display: "flex",
@@ -363,7 +428,8 @@ class ForumThreadPreviewStyle extends StyleSet {
     lineHeight = this.maxHeight / this.lines;
 
     // design
-    fontSize = ".75em";
+    fontSize = ".88em";
+    fontFamily = "lato, open sans";
     color = "#aaa";
 
     @styleRule
@@ -372,7 +438,11 @@ class ForumThreadPreviewStyle extends StyleSet {
         lineHeight: this.lineHeight + "px",
         overflow: "hidden",
         fontSize: this.fontSize,
+        fontFamily: this.fontFamily,
         color: this.color,
+        " *": {
+            marginBottom: "0",
+        },
     };
 }
 
@@ -384,15 +454,16 @@ class ForumThreadBubbleStyle extends StyleSet {
         });
     }
 
-    primaryFont = "lato";
-    secondaryFont = "montserrat";
+    fontFamily = "lato, open sans";
+    fontSize = "1em";
     titlePaddingBottom = "10px";
     widthLimit = 800;
 
     baseStyleObject = {
         display: "inline-block",
         verticalAlign: "top",
-        fontFamily: this.primaryFont,
+        fontFamily: this.fontFamily,
+        fontSize: this.fontSize,
     };
 
     @styleRule
@@ -426,7 +497,7 @@ class ForumThreadBubbleStyle extends StyleSet {
         marginLeft: "auto",
         marginRight: "auto",
         color: "#555",
-        border: "1px solid #f2f2f2",
+        border: "1px solid #ddd",
         borderTop: "0",
         display: "flex",
     };
@@ -478,7 +549,7 @@ class ForumThreadBubbleStyle extends StyleSet {
         transition: "0.2s",
         fontSize: "1.2em",
         ":hover": {
-            color: "#286090",
+            color: "#337ab7",
             transition: "0.2s",
         }
     };
@@ -489,7 +560,6 @@ class ForumThreadBubbleStyle extends StyleSet {
         // maxWidth: "14%",
         flex: ".7",
         // paddingLeft: "8px",
-        fontSize: "14px",
         textAlign: "center",
         display: "flex",
         justifyContent: "center",
@@ -502,7 +572,6 @@ class ForumThreadBubbleStyle extends StyleSet {
     threadReplies = [this.baseStyleObject, {
         // width: "8%",
         flex: ".5",
-        fontSize: "14px",
         textAlign: "center",
         fontWeight: "bold",
         color: "#767676",
@@ -517,7 +586,7 @@ class ForumThreadBubbleStyle extends StyleSet {
     threadRepliesSpan = {
         transition: "0.2s",
         ":hover": {
-            color: "#286090",
+            color: "#337ab7",
             transition: "0.2s",
         }
     };
@@ -526,7 +595,6 @@ class ForumThreadBubbleStyle extends StyleSet {
     threadViews = [this.baseStyleObject, {
         // width: "8%",
         flex: ".5",
-        fontSize: "14px",
         textAlign: "center",
         color: "#767676",
         display: "flex",
@@ -546,7 +614,6 @@ class ForumThreadBubbleStyle extends StyleSet {
     threadVotes = [this.baseStyleObject, {
         // width: "8%",
         flex: ".5",
-        fontSize: "14px",
         textAlign: "center",
         color: "#767676",
         display: "flex",
@@ -566,7 +633,6 @@ class ForumThreadBubbleStyle extends StyleSet {
     threadActivity = [this.baseStyleObject, {
         // width: "20%",
         flex: ".5",
-        fontSize: "13px",
         textAlign: "center",
         color: "#767676",
         display: "flex",
@@ -574,15 +640,16 @@ class ForumThreadBubbleStyle extends StyleSet {
         alignItems: "center",
         paddingLeft: "4px",
         paddingRight: "12px",
+        fontFamily: this.fontFamily,
+        fontSize: ".85em",
     }];
 }
 
 
 class ForumPanelStyle extends StyleSet {
-    textColor = "#424242";
+    textColor = "#333";
     headerItemHeight = 50;
-    primaryFont = "raleway";
-    secondaryFont = "montserrat";
+    fontFamily = "lato, open sans";
 
     @styleRule
     mainClass = {
@@ -594,7 +661,7 @@ class ForumPanelStyle extends StyleSet {
         width: "100%",
         // textAlign: "center",
         fontSize: "2em",
-        fontFamily: this.primaryFont,
+        fontFamily: this.fontFamily,
         color: this.textColor,
         height: this.headerItemHeight + "px",
         display: "flex",
@@ -604,10 +671,12 @@ class ForumPanelStyle extends StyleSet {
 
     @styleRule
     buttonParent = {
-        width: "100%",
+        width: "90%",
+        maxWidth: "1200px",
+        margin: "0 auto",
         height: this.headerItemHeight + "px",
         display: "flex",
-        justifyContent: "center",
+        justifyContent: "flex-end",
         alignItems: "center",
     };
 

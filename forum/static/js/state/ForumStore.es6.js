@@ -1,15 +1,15 @@
-import {Ajax} from "Ajax";
 import {GlobalState} from "State";
 import {StoreObject, GenericObjectStore} from "Store";
 import {MessageThreadStore, MessageInstanceStore} from "MessageThreadStore";
 import {PublicUserStore} from "UserStore";
+import {Ajax} from "Ajax";
 
 
 class Forum extends StoreObject {
     constructor(obj) {
         super(obj);
         this.forumThreads = new Map();
-        // GlobalState.registerStream("forum-" + this.id);
+        GlobalState.registerStream("forum-" + this.id);
         ForumThreadStore.addDeleteListener((forumThread) => {
             if (forumThread.parentId === this.id && this.forumThreads.has(forumThread.id)) {
                 this.deleteForumThread(forumThread);
@@ -100,31 +100,24 @@ class ForumThread extends StoreObject {
             hidden: true,
         };
 
-        Ajax.request({
-            url: "/forum/edit_forum_thread/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.postJSON("/forum/edit_forum_thread/", request).then(
+            (data) => {
                 if (onSuccess) {
                     onSuccess(data);
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in sending delete message:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error in sending delete message:\n" + error.message);
+                console.log(error.stack);
                 if (onError) {
                     onError(xhr, errmsg, err);
                 }
             }
-        });
+        );
     }
 
     getNumMessages() {
-        let messageThreadNumMessages;
-        if (this.getMessageThread()) {
-            messageThreadNumMessages = this.getMessageThread().getNumMessages();
-        }
-        return messageThreadNumMessages || this.numMessages;
+        return this.numMessages;
     }
 
     isVisible() {
@@ -132,7 +125,8 @@ class ForumThread extends StoreObject {
     }
 
     isLoaded() {
-        return this.getMessageThread() != null;
+        // console.warn(this.getNumReplies(), this.getMessageThread().getNumMessages());
+        return this.getMessageThread() != null && this.getNumReplies() === this.getMessageThread().getNumMessages() - 1;
     }
 }
 

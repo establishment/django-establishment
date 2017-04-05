@@ -58,12 +58,8 @@ class CreateForumThreadModal extends MarkupEditorModal {
             message: this.markupEditor.getValue(),
         };
 
-        Ajax.request({
-            url: "/forum/create_forum_thread/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.postJSON("/forum/create_forum_thread/", request).then(
+            (data) => {
                 if (data.error) {
                     ErrorHandlers.SHOW_ERROR_ALERT(data.error);
                 } else {
@@ -74,10 +70,12 @@ class CreateForumThreadModal extends MarkupEditorModal {
                     this.markupEditor.redraw();
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in creating forum thread:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error in creating forum thread");
+                console.log(error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 }
 
@@ -221,12 +219,8 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
             forumThreadId: this.options.forumThread.id,
         };
 
-        Ajax.request({
-            url: "/forum/forum_thread_state/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.postJSON("/forum/forum_thread_state/", request).then(
+            (data) => {
                 if (data.error) {
                     URLRouter.route();
                 } else {
@@ -236,10 +230,12 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
                     }
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in getting forum thread:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error in getting forum thread:");
+                console.log(error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 
     getForumThread() {
