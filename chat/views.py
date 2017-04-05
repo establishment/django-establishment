@@ -4,7 +4,7 @@ from django.db.models import Q
 from establishment.chat.errors import ChatError
 from establishment.chat.models import PrivateChat, GroupChat, MessageInstance
 from establishment.errors.errors import BaseError
-from establishment.funnel.base_views import login_required_ajax, JSONResponse, ajax_required, global_renderer
+from establishment.funnel.base_views import login_required_ajax, JSONResponse, ajax_required, login_required, global_renderer
 from establishment.funnel.throttle import UserActionThrottler
 from establishment.funnel.utils import GlobalObjectCache
 
@@ -62,6 +62,11 @@ def edit_message(request):
     return JSONResponse({})
 
 
+@login_required
+def private_chat(request):
+    return global_renderer.render_ui_widget(request, "MessagesPanel", page_title="Private Messages", widget_require="SocialNotifications")
+
+
 @login_required_ajax
 def private_chat_list(request):
     # TODO: superuser shoud be able to specify a user
@@ -86,7 +91,10 @@ def private_chat_state(request):
     existing_chat = PrivateChat.get(user1=user1, user2=user2)
 
     if existing_chat:
-        existing_chat.add_to_state(state, message_count=20)
+        last_message_id = None
+        if "lastMessageId" in request.POST:
+            last_message_id = int(request.POST["lastMessageId"])
+        existing_chat.add_to_state(state, message_count=20, last_message_id=last_message_id)
         return JSONResponse({"privateChatId": existing_chat.id, "state": state})
 
     create_throttle = UserActionThrottler(request.user, "create-private-chat", 24 * 60 * 60, 10)
