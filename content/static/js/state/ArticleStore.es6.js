@@ -1,3 +1,4 @@
+import {GlobalState} from "State";
 import {StoreObject, GenericObjectStore} from "Store";
 import {AjaxFetchMixin} from "StoreMixins";
 import {Language} from "LanguageStore";
@@ -36,7 +37,15 @@ class ArticleEdit extends StoreObject {
     }
 }
 
-var ArticleStoreClass = AjaxFetchMixin(GenericObjectStore);
+class ArticleStoreClass extends AjaxFetchMixin(GenericObjectStore) {
+    getTranslation(id, language=Language.Locale) {
+        let baseArticle = this.get(id);
+        if (baseArticle) {
+            baseArticle = baseArticle.getTranslation(language);
+        }
+        return baseArticle;
+    }
+}
 
 var ArticleStore = new ArticleStoreClass("article", Article, {
     fetchURL: "/fetch_article/",

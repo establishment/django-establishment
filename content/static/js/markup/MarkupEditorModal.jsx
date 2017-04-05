@@ -1,7 +1,7 @@
-import {UI} from "UI";
+import {UI, Button, Link, Modal} from "UI";
 import {MarkupEditor} from "MarkupEditor";
 
-class MarkupEditorModal extends UI.Modal {
+class MarkupEditorModal extends Modal {
     getMarkupEditorStyle() {
         return {
             height: "85%",
@@ -26,25 +26,37 @@ class MarkupEditorModal extends UI.Modal {
         return [
             <MarkupEditor ref={this.refLink("markupEditor")} classMap={this.options.classMap} showButtons={false} style={this.getMarkupEditorStyle()}/>,
             <div ref={this.refLink("buttonPanel")} style={{"text-align": "center"}} >
-                <UI.Button ref="codeSnippetExample" level={UI.Level.DEFAULT} size={UI.Size.DEFAULT} label="Code"
+                <Button ref="graphExample" label="Graph"
+                           onClick={() => {this.appendGraphExample()}} style={this.getButtonStyle()} className="pull-left"/>
+                <Button ref="submissionExample" label="Submission"
+                           onClick={() => {this.appendSubmissionExample()}} style={this.getButtonStyle()} className="pull-left"/>
+                <Button ref="codeSnippetExample" level={UI.Level.DEFAULT} size={UI.Size.DEFAULT} label="Code"
                            onClick={() => {this.appendCodeExample()}} style={this.getButtonStyle()} className="pull-left"/>
-                <UI.Button ref="linkExample" level={UI.Level.DEFAULT} size={UI.Size.DEFAULT} label="Link"
+                <Button ref="linkExample" level={UI.Level.DEFAULT} size={UI.Size.DEFAULT} label="Link"
                            onClick={() => {this.appendLinkExample()}} style={this.getButtonStyle()} className="pull-left"/>
-                <UI.Button ref="latexExample" level={UI.Level.DEFAULT} size={UI.Size.DEFAULT} label="LaTeX"
+                <Button ref="latexExample" level={UI.Level.DEFAULT} size={UI.Size.DEFAULT} label="LaTeX"
                            onClick={() => {this.appendLatexExample()}} style={this.getButtonStyle()} className="pull-left"/>
-                <UI.Button ref={this.refLink("doneButton")} level={UI.Level.PRIMARY} label="Done"
+                <Button ref={this.refLink("doneButton")} level={UI.Level.PRIMARY} label="Done"
                            className="pull-right" style={this.getButtonStyle()}/>
             </div>,
-            //<UI.Button ref="userExample" level={UI.Level.DEFAULT} size={UI.Size.DEFAULT} label="User"
+            //<Button ref="userExample" level={UI.Level.DEFAULT} size={UI.Size.DEFAULT} label="User"
             //           onClick={() => {this.appendUserExample()}} style={this.getButtonStyle()} className="pull-left"/>
-            <div className="" style={{"position":"absolute", "width":"100%", "margin-top":"45px"}}>
-                <UI.Link href="/about/#markup" value="More details here" />
+            <div className="" style={{"position":"absolute", "width":"90%", "margin-top":"45px"}}>
+                <Link href="/about/#markup" value="More details here" />
             </div>
         ];
     }
 
     appendLatexExample() {
         this.markupEditor.appendValue("<Latex value=\"\\lim_{x\\to\\infty} f(x)\"/>");
+    }
+
+    appendGraphExample() {
+        this.markupEditor.appendValue("<Graph nodes={[{}, {}, {}]} edges={[{source:1, target:2}]} directed />");
+    }
+
+    appendSubmissionExample() {
+        this.markupEditor.appendValue("<Submission id={25717} />");
     }
 
     appendCodeExample() {

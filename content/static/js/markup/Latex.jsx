@@ -3,7 +3,22 @@ import "MarkupRenderer";
 
 let katex = null;
 
-UI.Latex = class Latex extends UI.Element {
+class Latex extends UI.Element {
+    setOptions(options) {
+        if (options.children && options.children.length) {
+            let value = "";
+            for (let child of options.children) {
+                if (child instanceof UI.TextElement) {
+                    value += child.getValue();
+                } else {
+                    value += child.toString();
+                }
+            }
+            options.value = options.value || value;
+        }
+        super.setOptions(options);
+    }
+
     getNodeType() {
         return "span";
     }
@@ -26,10 +41,10 @@ UI.Latex = class Latex extends UI.Element {
             this.updateInnerHTML();
         });
     }
-};
-
-function registerMarkup(markupClassMap) {
-    markupClassMap.addClass("Latex", UI.Latex);
 }
 
-export {registerMarkup}
+function registerMarkup(markupClassMap) {
+    markupClassMap.addClass("Latex", Latex);
+}
+
+export {Latex, registerMarkup}

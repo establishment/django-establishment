@@ -1,32 +1,15 @@
-import {UI, SectionDivider} from "UI";
-import {Dispatcher} from "Dispatcher";
-import "MarkupRenderer";
+import {UI, Panel, Button, CodeEditor, SectionDivider} from "UI";
+import {MarkupRenderer} from "markup/MarkupRenderer";
 
-
-// class SimpleCodeEditor extends UI.Element {
-class SimpleCodeEditor extends UI.TextArea {
-
-    addChangeListener(callback) {
-        super.addChangeListener(callback);
-        this.onInput(callback);
-        this.onKeyUp(callback);
-    }
-
-    // Inserts the text at the current cursor position
-    insert(text) {
-        throw Error("Insert not implemented");
-    }
-
-    // Appends the text at the end of the document
-    append(text) {
-        throw Error("Append not implemented");
-    }
-}
-
-class MarkupEditor extends UI.Panel {
+class MarkupEditor extends Panel {
     setOptions(options) {
         super.setOptions(options);
         this.options.showButtons = typeof this.options.showButtons === "undefined" ? true : this.options.showButtons;
+    }
+
+    extraNodeAttributes(attr) {
+        super.extraNodeAttributes(attr);
+        attr.setStyle("textAlign", "center");
     }
 
     getMarkupRenderer() {
@@ -34,22 +17,34 @@ class MarkupEditor extends UI.Panel {
         if (this.options.classMap) {
             rendererOptions.classMap = this.options.classMap;
         }
-        return <UI.MarkupRenderer ref={this.refLink("markupRenderer")} value={this.options.value} style={{height:"100%", overflow: "auto"}} {...rendererOptions} />;
+        return <MarkupRenderer ref={this.refLink("markupRenderer")} value={this.options.value} style={{height:"100%", overflow: "auto"}} {...rendererOptions} />;
+    }
+
+    getEditor() {
+        return <CodeEditor ref="codeEditor" lineWrapping style={{height:"100%"}} value={this.options.value} aceMode="text" />;
     }
 
     render() {
-        // let panelStyle = {display: "inline-block", verticalAlign: "top", width: "45%", height: "100%", overflow: "auto"};
-        let panelStyle = {display: "inline-block", width: "100%", height: "100%", overflow: "auto"};
+        let panelStyle = {display: "inline-block", verticalAlign: "top", width: "45%", height: "100%", overflow: "auto"};
+        let buttons;
+        if (this.options.showButtons) {
+            buttons = <UI.ButtonGroup>
+                <Button ref="toggleLeftButton" label={UI.T("Editor")} level={UI.Level.SUCCESS}/>
+                <Button ref="toggleRightButton" label={UI.T("Article")} level={UI.Level.SUCCESS}/>
+            </UI.ButtonGroup>;
+        }
 
         return [
+            buttons,
             <SectionDivider ref="sectionDivider" orientation={UI.Orientation.HORIZONTAL}
-                               style={{height: "100%", width: "100%", display:"inline-block"}}>
-                <UI.Panel ref="editorPanel" title="Editor" style={panelStyle}>
-                    <SimpleCodeEditor ref="codeEditor" style={{height:"100%", width:"100%", resize: "none"}} value={this.options.value}/>
-                </UI.Panel>
-                <UI.Panel ref="rendererPanel" title="Preview" style={panelStyle}>
+                            style={{textAlign: "initial", height: "100%", width: "100%", display:"inline-block",
+                                    overflow: "hidden"}}>
+                <Panel ref="editorPanel" style={panelStyle}>
+                    {this.getEditor()}
+                </Panel>
+                <Panel ref="rendererPanel" style={panelStyle}>
                     {this.getMarkupRenderer()}
-                </UI.Panel>
+                </Panel>
             </SectionDivider>
         ]
     }
@@ -69,31 +64,48 @@ class MarkupEditor extends UI.Panel {
         this.updateValue(value);
     }
 
+    setEditorOptions() {
+        this.codeEditor.ace.setOption("indentedSoftWrap", false);
+        this.codeEditor.ace.getSession().addEventListener("change", (event) => {
+            let markup = this.codeEditor.getValue();
+            try {
+                this.updateValue(markup);
+            } catch (e) {
+                console.error("Exception in parsing markup: ", e);
+            }
+        });
+    }
+
     onMount() {
-        if (this.codeEditor) {
-            this.codeEditor.addChangeListener((event) => {
-                try {
-                    this.refreshMarkup();
-                } catch (e) {
-                    console.error("Exception in parsing markup: ", e);
+        if (this.options.showButtons) {
+            this.toggleLeftButton.addClickListener(() => {
+                if (this.editorPanel.getWidth() === 0) {
+                    console.log("It is collapsed. It will expand.");
+                    this.sectionDivider.expandChild(0);
+                    this.toggleLeftButton.setLevel(UI.Level.SUCCESS);
+                } else {
+                    console.log("It is expanded. It will collapse.");
+                    this.sectionDivider.collapseChild(0);
+                    this.toggleLeftButton.setLevel(UI.Level.DANGER);
                 }
             });
-
-            //refresh the markup after the text has been imported
-            //TODO @ericpts: apparently setTimeout(0) is an anti-pattern
-            setTimeout(() => {this.refreshMarkup()}, 0);
+            this.toggleRightButton.addClickListener(() => {
+                if (this.rendererPanel.getWidth() === 0) {
+                    this.sectionDivider.expandChild(1);
+                    this.toggleRightButton.setLevel(UI.Level.SUCCESS);
+                } else {
+                    this.sectionDivider.collapseChild(1);
+                    this.toggleRightButton.setLevel(UI.Level.DANGER);
+                }
+            });
         }
 
+        this.setEditorOptions();
     }
 
     getValue() {
         return this.codeEditor.getValue();
     }
-
-    refreshMarkup() {
-        this.updateValue(this.getValue());
-    }
-
 
     setValue(value) {
         return this.codeEditor.setValue(value);

@@ -1,8 +1,8 @@
-import {UI} from "UI";
+import {UI, SVG} from "UI";
 import "BasicChart";
 
-UI.SVG.PointPlotElement = class PointPlotElement extends UI.SVG.Circle {
-    static getDefaultOptions() {
+SVG.PointPlotElement = class PointPlotElement extends SVG.Circle {
+    getDefaultOptions() {
         return {
             center: {x: 0, y: 0},
             radius: 5,
@@ -23,8 +23,8 @@ UI.SVG.PointPlotElement = class PointPlotElement extends UI.SVG.Circle {
     }
 };
 
-UI.SVG.PointPlot = function (PointPlotElementClass) {
-    return class PointPlot extends UI.SVG.Group {
+SVG.PointPlot = function (PointPlotElementClass) {
+    return class PointPlot extends SVG.Group {
         getNodeAttributes() {
             let attr = super.getNodeAttributes();
             attr.setAttribute("clip-path", this.options.chart.clipPath);
@@ -55,4 +55,4 @@ UI.SVG.PointPlot = function (PointPlotElementClass) {
     };
 };
 
-UI.SVG.BasePointPlot = UI.SVG.PointPlot(UI.SVG.PointPlotElement);
+SVG.BasePointPlot = SVG.PointPlot(SVG.PointPlotElement);

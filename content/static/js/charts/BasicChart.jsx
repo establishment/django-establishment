@@ -1,9 +1,10 @@
 // TODO: write own custom Scale
-import {UI} from "UI";
-import d3 from "d3";
+import {UI, SVG} from "UI";
+import {uniqueId} from "Utils";
+import {event, zoom, scaleLinear, scaleTime, select} from "d3";
 
-UI.SVG.AxisTick = class AxisTick extends UI.SVG.Group {
-    static getDefaultOptions() {
+SVG.AxisTick = class AxisTick extends SVG.Group {
+    getDefaultOptions() {
         return {
             gridLineLength: 0,
             axisLineLength: 6,
@@ -32,7 +33,7 @@ UI.SVG.AxisTick = class AxisTick extends UI.SVG.Group {
                 x: -1 * (this.options.labelPadding + this.options.axisLineLength)
             });
         }
-        return <UI.SVG.Text ref={this.refLink("label")} {...labelOptions}/>;
+        return <SVG.Text ref={this.refLink("label")} {...labelOptions}/>;
     }
 
     getGridLine() {
@@ -52,7 +53,7 @@ UI.SVG.AxisTick = class AxisTick extends UI.SVG.Group {
                 x2: this.options.chartOptions.width
             });
         }
-        return <UI.SVG.Line ref={this.refLink("gridLine")} {...gridLineOptions}/>;
+        return <SVG.Line ref={this.refLink("gridLine")} {...gridLineOptions}/>;
     }
 
     getAxisLine() {
@@ -66,7 +67,7 @@ UI.SVG.AxisTick = class AxisTick extends UI.SVG.Group {
                 x2: -1 * this.options.axisLineLength
             });
         }
-        return <UI.SVG.Line ref={this.refLink("axisLine")} {...axisLineOptions}/>
+        return <SVG.Line ref={this.refLink("axisLine")} {...axisLineOptions}/>
     }
 
     render() {
@@ -94,8 +95,8 @@ UI.SVG.AxisTick = class AxisTick extends UI.SVG.Group {
     }
 };
 
-UI.SVG.BasicAxis = class BasicAxis extends UI.SVG.Group {
-    static getDefaultOptions() {
+SVG.BasicAxis = class BasicAxis extends SVG.Group {
+    getDefaultOptions() {
         return {
             labelFormatFunction: (x) => {return x;}
         };
@@ -114,7 +115,7 @@ UI.SVG.BasicAxis = class BasicAxis extends UI.SVG.Group {
             });
             this.axisLength = this.options.chartOptions.height;
         }
-        return <UI.SVG.Line ref={this.refLink("axisLine")} {...axisLineOptions}/>;
+        return <SVG.Line ref={this.refLink("axisLine")} {...axisLineOptions}/>;
     }
 
     getTicks() {
@@ -122,7 +123,7 @@ UI.SVG.BasicAxis = class BasicAxis extends UI.SVG.Group {
         this.tickValues = this.options.scale.ticks(this.options.ticks);
         for (let i = 0; i < this.tickValues.length; i += 1) {
             let tickValue = this.tickValues[i];
-            this.ticks[i] = <UI.SVG.AxisTick ref={this.refLinkArray("ticks", i)} chartOptions={this.options.chartOptions}
+            this.ticks[i] = <SVG.AxisTick ref={this.refLinkArray("ticks", i)} chartOptions={this.options.chartOptions}
                                              scale={this.options.scale} orientation={this.options.orientation}
                                              value={tickValue} label={this.options.labelFormatFunction(tickValue)}/>;
         }
@@ -150,8 +151,8 @@ UI.SVG.BasicAxis = class BasicAxis extends UI.SVG.Group {
     }
 };
 
-UI.SVG.BasicChart = class BasicChart extends UI.SVG.Group {
-    static getDefaultOptions() {
+SVG.BasicChart = class BasicChart extends SVG.Group {
+    getDefaultOptions() {
         return {
             enableZoom: true,
             margin: {
@@ -193,6 +194,14 @@ UI.SVG.BasicChart = class BasicChart extends UI.SVG.Group {
         return [domain[0] - padding[0] * domainLength, domain[1] + padding[1] * domainLength];
     }
 
+    getScaleType(type) {
+        if (type === "linear") {
+            return scaleLinear();
+        } else if (type === "time") {
+            return scaleTime();
+        }
+    }
+
     setOptions(options) {
         super.setOptions(options);
 
@@ -205,62 +214,55 @@ UI.SVG.BasicChart = class BasicChart extends UI.SVG.Group {
         this.options.yAxisDomain = this.getPaddedDomain(this.options.yAxisDomain,
             [this.options.domainPadding[2], this.options.domainPadding[0]]);
 
-        let scaleType = (type) => {
-            if (type === "linear") {
-                return d3.scale.linear();
-            } else if (type === "time") {
-                return d3.time.scale();
-            }
-        };
-
         this.xAxisOptions = {
             orientation: UI.Direction.DOWN,
-            ticks: 16,
-            scale: scaleType(this.options.xAxisScaleType)
+            ticks: 8,
+            scale: this.getScaleType(this.options.xAxisScaleType)
                 .domain(this.options.xAxisDomain)
                 .range([0, this.options.chartOptions.width])
         };
+        this._initialXScale = this.xAxisOptions.scale.copy();
         if (this.options.xAxisLabelFormatFunction) {
             this.xAxisOptions.labelFormatFunction = this.options.xAxisLabelFormatFunction;
         }
         this.yAxisOptions = {
             orientation: UI.Direction.LEFT,
-            ticks: 10,
-            scale: scaleType(this.options.yAxisScaleType)
+            ticks: 5,
+            scale: this.getScaleType(this.options.yAxisScaleType)
                 .domain(this.options.yAxisDomain)
                 .range([this.options.chartOptions.height, 0])
         };
+        this._initialYScale = this.yAxisOptions.scale.copy();
         if (this.options.yAxisLabelFormatFunction) {
             this.yAxisOptions.labelFormatFunction = this.options.yAxisLabelFormatFunction;
         }
     }
 
     getBackground() {
-        return <UI.SVG.Group ref={this.refLink("background")}/>;
+        return <SVG.Group ref={this.refLink("background")}/>;
     }
 
     getAxes() {
         return [
-            <UI.SVG.BasicAxis ref={this.refLink("xAxis")} chartOptions={this.options.chartOptions} {...this.xAxisOptions}/>,
-            <UI.SVG.BasicAxis ref={this.refLink("yAxis")} chartOptions={this.options.chartOptions} {...this.yAxisOptions}/>
+            <SVG.BasicAxis ref={this.refLink("xAxis")} chartOptions={this.options.chartOptions} {...this.xAxisOptions}/>,
+            <SVG.BasicAxis ref={this.refLink("yAxis")} chartOptions={this.options.chartOptions} {...this.yAxisOptions}/>
         ];
     }
 
     render() {
-        this.interactiveLayer = <UI.SVG.Rect ref={this.refLink("interactiveLayer")} height={this.options.chartOptions.height}
+        let interactiveLayer = <SVG.Rect ref={this.refLink("interactiveLayer")} height={this.options.chartOptions.height}
                                              width={this.options.chartOptions.width} style={{cursor: this.options.cursorStyle}} opacity={0}/>;
-
         // Add a clipPath
-        let clipPathDef = <UI.SVG.Defs ref="defs">
-                <UI.SVG.ClipPath id={"chartClipPath" + this.uniqueId()}>
-                    <UI.SVG.Rect width={this.options.chartOptions.width} height={this.options.chartOptions.height}/>
-                </UI.SVG.ClipPath>
-            </UI.SVG.Defs>;
-        this.clipPath = "url(#chartClipPath" + this.uniqueId() + ")";
+        let clipPathDef = <SVG.Defs ref="defs">
+                <SVG.ClipPath id={"chartClipPath" + uniqueId(this)}>
+                    <SVG.Rect width={this.options.chartOptions.width} height={this.options.chartOptions.height}/>
+                </SVG.ClipPath>
+            </SVG.Defs>;
+        this.clipPath = "url(#chartClipPath" + uniqueId(this) + ")";
 
         this.translate(this.options.margin.left, this.options.margin.right);
 
-        return [this.getBackground(), ...this.getAxes(), this.interactiveLayer, ...super.render(), clipPathDef];
+        return [this.getBackground(), ...this.getAxes(), interactiveLayer, ...super.render(), clipPathDef];
     }
 
     redraw() {
@@ -271,14 +273,26 @@ UI.SVG.BasicChart = class BasicChart extends UI.SVG.Group {
     }
 
     initZoom() {
-        this.zoomBehavior = d3.behavior.zoom()
-            .x(this.xAxisOptions.scale)
-            .y(this.yAxisOptions.scale)
-            .on("zoom", () => {
+        this.options.applyZoom = true;
+        let zoomNode = select(this.interactiveLayer.node);
+        this.zoomListener = () => {
+            if (this.options.applyZoom) {
+                this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale);
+                this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale);
                 this.redraw();
-            });
+                if (!event.sourceEvent) {
+                    // Custom zoom event
+                    this.interactiveLayer.node.__zoom = event.transform;
+                }
+            }
+        };
 
-        this.zoomBehavior(d3.select(this.interactiveLayer.node));
+        this.zoomBehavior = zoom().on("zoom", this.zoomListener);
+        zoomNode.call(this.zoomBehavior);
+    }
+
+    disableZoom() {
+        this.options.applyZoom = false;
     }
 
     onMount() {
@@ -292,7 +306,7 @@ UI.SVG.BasicChart = class BasicChart extends UI.SVG.Group {
     }
 };
 
-UI.SVG.ChartSVG = class ChartSVG extends UI.SVG.SVGRoot {
+SVG.ChartSVG = class ChartSVG extends SVG.SVGRoot {
     setOptions(options) {
         super.setOptions(options);
         this.chartOptions = {
@@ -331,14 +345,14 @@ UI.SVG.ChartSVG = class ChartSVG extends UI.SVG.SVGRoot {
     }
 
     render() {
-        let PointPlot = UI.SVG.PointPlot(UI.SVG.PointPlotElement);
+        let PointPlot = SVG.PointPlot(SVG.PointPlotElement);
         return [
-            <UI.SVG.BasicChart chartOptions={Object.assign({}, this.chartOptions)}
+            <SVG.BasicChart chartOptions={Object.assign({}, this.chartOptions)}
                                 xAxisDomain={this.options.xDomain}
                                 yAxisDomain={this.options.yDomain}>
-                <UI.SVG.LinePlot plotOptions={this.plotOptions} data={this.data}/>
+                <SVG.LinePlot plotOptions={this.plotOptions} data={this.data}/>
                 <PointPlot plotOptions={this.plotOptions} data={this.data}/>
-            </UI.SVG.BasicChart>
+            </SVG.BasicChart>
         ];
     }
 };

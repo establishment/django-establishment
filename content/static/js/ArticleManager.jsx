@@ -169,8 +169,8 @@ class CreateArticleModal extends UI.Modal {
                     <UI.TemporaryMessageArea ref="messageArea"/>
                     <UI.Button label="Close" onClick={() => this.hide()}/>
                     <UI.AjaxButton ref="createArticleButton" level={UI.Level.PRIMARY} onClick={() => {this.createArticle()}}
-                                   statusOptions={["Create article", {faIcon: "spinner fa-spin", label:" creating article ..."}, "Create article", "Failed"]}
-                    />
+                                       statusOptions={["Create article", {faIcon: "spinner fa-spin", label:" creating article ..."}, "Create article", "Failed"]}
+                        />
                 </div>
             </div>
         ];

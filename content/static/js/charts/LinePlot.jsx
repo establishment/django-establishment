@@ -1,9 +1,9 @@
-import {UI} from "UI";
+import {UI, SVG} from "UI";
 import "BasicChart";
-import d3 from "d3";
+import {line} from "d3";
 
-UI.SVG.LinePlot = class LinePlot extends UI.SVG.Path {
-    static getDefaultOptions() {
+SVG.LinePlot = class LinePlot extends SVG.Path {
+    getDefaultOptions() {
         return {
             d: "",
             fill: "none",
@@ -26,11 +26,9 @@ UI.SVG.LinePlot = class LinePlot extends UI.SVG.Path {
     }
 
     getLineData() {
-        // TODO: no D3 here
-        this.linePathGenerator = d3.svg.line()
+        this.linePathGenerator = line()
             .x((data) => {return this.options.chart.xAxisOptions.scale(this.options.plotOptions.xCoordinateAlias(data))})
-            .y((data) => {return this.options.chart.yAxisOptions.scale(this.options.plotOptions.yCoordinateAlias(data))})
-            .interpolate(this.options.interpolation);
+            .y((data) => {return this.options.chart.yAxisOptions.scale(this.options.plotOptions.yCoordinateAlias(data))});
         return this.linePathGenerator(this.options.plotOptions.pointsAlias(this.options.data));
     }
 
