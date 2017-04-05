@@ -1,11 +1,10 @@
 import os
+import django
 
 # The import encodings.idna is never user explicitly, we just need it for networking
 import encodings.idna
 
 from establishment.services.daemon import Daemon
-from establishment.services.status import ServiceStatus
-
 
 class ServiceDaemon(Daemon):
     def __init__(self, service_name, pidfile=None):
@@ -14,9 +13,17 @@ class ServiceDaemon(Daemon):
 
         self.service_name = service_name
         super().__init__(service_name, pidfile)
-        self.setup_logging()
+
+    def setup(self):
+        module_name = os.environ.get("ESTABLISHMENT_DJANGO_MODULE", None)
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", module_name + ".settings")
+        django.setup()
 
     def before_run(self):
+        from establishment.services.status import ServiceStatus
+
+        self.setup_logging()
+
         ServiceStatus.init(self.service_name)
 
     def start(self):

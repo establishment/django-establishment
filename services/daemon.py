@@ -100,6 +100,8 @@ class Daemon:
         # Register SIGTERM to stop the program gracefully
         signal.signal(signal.SIGTERM, self.stop_daemon)
 
+        self.setup()
+
         self.before_run()
 
         self.run()
@@ -271,6 +273,9 @@ class Daemon:
             self.stop(sync=True)
         else:
             print("Invalid arguments, call as python3 " + sys.argv[0] + " start|stop|restart [--force]")
+
+    def setup(self):
+        pass
 
     def before_run(self):
         pass
