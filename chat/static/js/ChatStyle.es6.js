@@ -3,23 +3,24 @@ import {styleRule, styleRuleInherit} from "decorators/Style";
 
 
 class ChatStyle extends StyleSet {
-    navbarHeight = "45px";
+    navbarHeight = "50px";
     renderMessageHeight = "100px";
 
-    primaryFont = "montserrat";
-    secondaryFont = "raleway";
+    fontFamily = "lato, open sans";
+    userFontSize = "1.1em";
+    commentFontSize = "1.1em";
 
     backgroundColor = "#fff";
     hrBackgroundColor = "#ddd";
-    hoverBackgroundColor = "#f6f6f6";
+    hoverBackgroundColor = "#f8f8f8";
 
     @styleRule
     renderMessageView = {
-        height: `calc(100vh - ${this.navbarHeight} - ${this.renderMessageHeight})`,
-        maxHeight: `calc(100vh - ${this.navbarHeight} - ${this.renderMessageHeight})`,
-        minHeight: `calc(${this.navbarHeight} + ${this.renderMessageHeight})`,
+        height: "100%",
         width: "100%",
         overflowY: "auto",
+        overflowX: "hidden",
+        backgroundColor: this.backgroundColor,
     };
 
     @styleRule
@@ -28,6 +29,7 @@ class ChatStyle extends StyleSet {
         maxHeight: this.renderMessageHeight,
         width: "100%",
         borderTop: "1px solid " + this.hrBackgroundColor,
+        backgroundColor: this.backgroundColor,
     };
 
     @styleRule
@@ -39,7 +41,7 @@ class ChatStyle extends StyleSet {
         paddingBottom: "0",
         fontSize: "14px",
         borderRadius: "0",
-        fontFamily: "raleway",
+        fontFamily: this.fontFamily,
         paddingLeft: "8px",
         border: "0px",
         paddingTop: "5px",
@@ -68,7 +70,7 @@ class ChatStyle extends StyleSet {
         float: "left",
         borderRadius: "100%",
         backgroundColor: "#fff",
-        fontFamily: this.primaryFont,
+        fontFamily: this.fontFamily,
         border: "0",
         fontSize: "18px",
         transition: ".2s",
@@ -107,12 +109,14 @@ class ChatStyle extends StyleSet {
 
     loadMoreButton = {
         border: "0px",
-        fontFamily: this.primaryFont,
+        fontFamily: this.fontFamily,
         color: "#333",
         borderRadius: "0",
         borderBottom: "0",
         backgroundColor: "#eee",
         padding: "5px 10px",
+        textTransform: "uppercase",
+        marginTop: "15px",
     };
 
     @styleRule
@@ -121,10 +125,12 @@ class ChatStyle extends StyleSet {
         marginTop: "1.5em",
         marginBottom: "1.5em",
         width: "100%",
+        maxWidth: "100%",
         backgroundColor: this.hrBackgroundColor,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        textTransform: "uppercase",
     };
 
     @styleRule
@@ -135,24 +141,32 @@ class ChatStyle extends StyleSet {
         paddingRight: "10px",
         backgroundColor: this.backgroundColor,
         textAlign: "center",
-        fontFamily: this.primaryFont,
+        fontFamily: this.fontFamily,
         color: "#222",
+        fontWeight: "bold",
     };
 
     @styleRule
     groupChatMessage = {
-        // backgroundColor: "blue",
+        width: "100%",
+        backgroundColor: "#fff",
     };
-    
+
     @styleRule
     comment = {
-        paddingLeft: "25px",
-        paddingRight: "25px",
-        paddingTop: "10px",
-        paddingBottom: "10px",
+        paddingLeft: "12px",
+        paddingRight: "12px",
+        paddingTop: "12px",
+        paddingBottom: "12px",
+        fontFamily: this.fontFamily,
         ":hover": {
             backgroundColor: this.hoverBackgroundColor,
         },
+    };
+
+    @styleRule
+    userHandle = {
+        fontSize: this.userFontSize,
     };
 
     @styleRule
@@ -160,15 +174,21 @@ class ChatStyle extends StyleSet {
         " p": {
             marginTop: "0",
             marginBottom: "0",
+            fontFamily: this.fontFamily,
+            fontSize: this.commentFontSize,
+            color: "#454545",
+            // textAlign: "justify",
+            wordWrap: "break-word",
         },
     };
 
     @styleRule
     timestamp = {
-        fontFamily: this.secondaryFont,
+        fontFamily: this.fontFamily,
+        color: "#262626",
+        fontWeight: "bold",
         margin: "0 10px",
     };
 }
-
 
 export {ChatStyle};
