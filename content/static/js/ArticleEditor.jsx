@@ -1,13 +1,11 @@
-import {Ajax} from "Ajax";
-import {UI} from "UI";
-import {TabArea} from "tabs/TabArea";
+import {UI, Button, ButtonGroup, Panel, Modal, SectionDivider, TextArea, TabArea} from "UI";
 import {GlobalState} from "State";
-import {ArticleStore} from "ArticleStore";
-import {Language} from "LanguageStore";
+import {Ajax} from "Ajax";
 import {MarkupEditor} from "MarkupEditor";
 import {ArticleRenderer} from "ArticleRenderer";
+import {ArticleStore} from "ArticleStore";
+import {Language} from "LanguageStore";
 import {TranslationManager} from "ArticleManager";
-
 const deleteRedirectLink = "/";
 
 //TODO (@kira) : 4. fix line wrapping 5.Fix diffing svg gutter bug 7.Collapse button in section Divider maybe?
@@ -15,6 +13,31 @@ class ArticleMarkupEditor extends MarkupEditor {
     setOptions(options) {
         super.setOptions(options);
         this.options.value = this.options.article.markup;
+    }
+
+    setEditorOptions() {
+        this.editorPanel.addListener("resize", () => {
+            this.codeEditor.setWidth(this.editorPanel.getWidth() - 15);
+        });
+
+        this.codeEditor.addNodeListener("input", () => {
+            let markup = this.codeEditor.getValue();
+            try {
+                this.updateValue(markup);
+            } catch (e) {
+                console.error("Exception in parsing markup: ", e);
+            }
+        });
+    }
+
+    getEditor() {
+        return <TextArea ref="codeEditor" style={{
+                                            width:"calc(100% - 15px)",
+                                            fontFamily: "monospace",
+                                            minHeight: "300px",
+                                            resize: "vertical",
+                                            backgroundColor: "#F9F9F9"
+                    }} value={this.options.value}/>
     }
 
     getMarkupRenderer() {
@@ -29,19 +52,19 @@ class ArticleMarkupEditor extends MarkupEditor {
 }
 
 // TODO(@gem): refactor to ActionModal
-class DeleteArticleModal extends UI.Modal {
+class DeleteArticleModal extends Modal {
     getGivenChildren() {
         return [
-            <div className="modal-dialog" style={{margin: "0px"}}>
-                <div className="modal-header">
-                    <h4 className="modal-title">Delete article</h4>
+            <div style={{margin: "0px"}}>
+                <div>
+                    <h4>Delete article</h4>
                 </div>
-                <div className="modal-body">
+                <div>
                     <p>Delete {this.options.article.name}?</p>
                 </div>
-                <div className="modal-footer">
+                <div>
                     <UI.TemporaryMessageArea ref="messageArea"/>
-                    <UI.Button level={UI.Level.DEFAULT} label="Close" onClick={() => this.hide()}/>
+                    <UI.Button label="Close" onClick={() => this.hide()}/>
                     <UI.AjaxButton ref="deleteArticleButton" level={UI.Level.DANGER} onClick={() => {this.deleteArticle()}}
                                        statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."}, "Delete article", "Failed"]}
                         />
@@ -51,8 +74,7 @@ class DeleteArticleModal extends UI.Modal {
     }
 
     deleteArticle() {
-        let request = {
-        };
+        let request = {};
         this.deleteArticleButton.ajaxCall({
             url: "/article/" + this.options.article.id + "/delete/",
             type: "POST",
@@ -78,20 +100,26 @@ class DeleteArticleModal extends UI.Modal {
     }
 }
 
-class ArticleEditor extends UI.Panel {
+class ArticleEditor extends Panel {
     setOptions(options) {
         super.setOptions(options);
         this.options.article = ArticleStore.get(this.options.articleId);
-        this.versions = [];
-        this.versionsLabels = [];
-        for (let article of this.options.article.getEdits()) {
-            this.versions.push(article.content);
-            this.versionsLabels.push("Version " + article.id);
+
+        if (ArticleEditor.DiffWidgetClass) {
+            this.versions = [];
+            this.versionsLabels = [];
+            for (let article of this.options.article.getEdits()) {
+                this.versions.push(article.content);
+                this.versionsLabels.push("Version " + article.id);
+            }
+            this.versions.push(this.options.article.markup);
+            this.versionsLabels.push("Edit version");
+            this.versions.reverse();
+            this.versionsLabels.reverse();
+
+            this.leftEditable = true;
+            this.rightEditable = false;
         }
-        this.versions.push(this.options.article.markup);
-        this.versionsLabels.push("Edit version");
-        this.versions.reverse();
-        this.versionsLabels.reverse();
     }
 
     render() {
@@ -99,12 +127,9 @@ class ArticleEditor extends UI.Panel {
         let translationsPanel = null;
         let baseArticleForm = null;
         if (this.options.article.baseArticleId) {
-            let baseArticle = ArticleStore.get(this.options.article.baseArticleId);
-            if (baseArticle) {
-                baseArticleForm = <UI.FormGroup ref="baseArticleFormGroup" label="Base article">
-                    <a href={"/article/" + baseArticle.id + "/edit/"}>{baseArticle.name}</a>
-                </UI.FormGroup>;
-            }
+            baseArticleForm = <UI.FormField ref="baseArticleFormField" label="Base article">
+                <a href={"/article/" + this.options.article.baseArticleId + "/edit/"}>Go to base article</a>
+            </UI.FormField>;
         } else {
             translationsPanel = <UI.Panel title="Translations">
                 <TranslationManager title={"Translations for " + this.options.article.name}
@@ -115,9 +140,9 @@ class ArticleEditor extends UI.Panel {
         if (USER.isSuperUser) {
             ownershipPanel = <UI.Panel title="Ownership">
                 <UI.Form style={{marginTop: "10px"}}>
-                    <UI.FormGroup ref="ownerFormGroup" label="Author ID">
+                    <UI.FormField ref="ownerFormField" label="Author ID">
                         <UI.TextInput ref="ownerFormInput"  value={this.options.article.userCreatedId}/>
-                    </UI.FormGroup>
+                    </UI.FormField>
                 </UI.Form>
                 <UI.AjaxButton ref="setOwnerButton" level={UI.Level.INFO} onClick={() => {
                                 let newOwner = this.ownerFormInput.getValue();
@@ -128,10 +153,25 @@ class ArticleEditor extends UI.Panel {
                 <UI.TemporaryMessageArea ref="setOwnerMessageArea"/>
             </UI.Panel>
         }
+
+        let revisionsPanel;
+        if (ArticleEditor.DiffWidgetClass) {
+            let DiffWidgetClass = ArticleEditor.DiffWidgetClass;
+            revisionsPanel = <UI.Panel title="Revisions">
+                <UI.Panel>
+                    <UI.Select ref="leftTextSelector" options={this.versionsLabels}/>
+                    <UI.Select style={{float:"right", marginRight:"25px"}} ref="rightTextSelector" options={this.versionsLabels}/>
+                </UI.Panel>
+                <DiffWidgetClass ref="diffWidget" leftEditable={this.leftEditable} rightEditable={this.rightEditable}
+                                 leftTextValue={this.versions[2]} arrows={this.arrows} rightTextValue={this.versions[1]}
+                                 style={{height:"800px", width: "calc(100% - 100px)"}} />
+            </UI.Panel>;
+        }
+
         return [
             <h3>{this.options.article.name + " Id=" + this.options.article.id}</h3>,
-            <TabArea ref="tabArea" variableHeightPanels>
-                <UI.Panel title="Edit" active>
+            <TabArea ref="tabArea" variableHeightPanels style={{height: "100%"}}>
+                <UI.Panel title="Edit" active style={{height: "100%"}}>
                     <UI.AjaxButton ref="saveMarkupButton" level={UI.Level.INFO} onClick={() => {
                                     let content = this.markupEditor.getValue();
                                     this.saveMarkup(content);
@@ -139,24 +179,25 @@ class ArticleEditor extends UI.Panel {
                                statusOptions={["Save", {faIcon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
                         />
                     <UI.TemporaryMessageArea ref="saveMarkupMessageArea"/>
-                    <ArticleMarkupEditor style={{height: "650px"}} ref="markupEditor" article={this.options.article} />
+                    <ArticleMarkupEditor style={{height: "100%", marginTop: "-30px"}} ref="markupEditor" article={this.options.article} />
                 </UI.Panel>
+                {revisionsPanel}
                 <UI.Panel title="Summary">
                     <UI.Form style={{marginTop: "10px"}}>
-                        <UI.FormGroup ref="articleNameFormGroup" label="Article name">
+                        <UI.FormField ref="articleNameFormField" label="Article name">
                             <UI.TextInput ref="articleNameFormInput"  value={this.options.article.name}/>
-                        </UI.FormGroup>
-                        <UI.FormGroup ref="dependencyFormGroup" label="Dependencies">
+                        </UI.FormField>
+                        <UI.FormField ref="dependencyFormField" label="Dependencies">
                             <UI.TextInput ref="dependencyFormInput" value={this.options.article.dependency}/>
-                        </UI.FormGroup>
+                        </UI.FormField>
                         {baseArticleForm}
-                        <UI.FormGroup ref="languageFormGroup" label="Language">
-                            <UI.Select ref="languageSelect" className="form-control" options={Language.all()}
+                        <UI.FormField ref="languageFormField" label="Language">
+                            <UI.Select ref="languageSelect" options={Language.all()}
                                        selected={Language.get(this.options.article.languageId)}/>
-                        </UI.FormGroup>
-                        <UI.FormGroup ref="publicFormGroup" label="Public">
+                        </UI.FormField>
+                        <UI.FormField ref="publicFormField" label="Public">
                             <UI.CheckboxInput ref="publicCheckbox" checked={this.options.article.isPublic}/>
-                        </UI.FormGroup>
+                        </UI.FormField>
                     </UI.Form>
                     <UI.AjaxButton ref="saveOptionsButton" level={UI.Level.INFO} onClick={() => {
                                     let name = this.articleNameFormInput.getValue();
@@ -184,30 +225,6 @@ class ArticleEditor extends UI.Panel {
         ];
     }
 
-    getArticle(id) {
-        let request = {
-            ids: [id]
-        };
-        Ajax.request({
-            url: "/fetch_article/",
-            type: "GET",
-            dataType: "json",
-            data: request,
-            success: (data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    GlobalState.importState(data.state);
-                    this.redraw();
-                }
-            },
-            error: (xhr, errmsg, err) => {
-                console.error("Error in fetching articles");
-                console.error(xhr.responseText);
-            }
-        });
-    }
-
     saveMarkup(content) {
         let request = {
             markup: content
@@ -222,7 +239,9 @@ class ArticleEditor extends UI.Panel {
             data: request,
             success: (data) => {
                 // Add a new version in the dropdown if the save is a success
-                this.addNewVersion(content);
+                if (ArticleEditor.DiffWidgetClass) {
+                    this.addNewVersion(content);
+                }
                 console.log("Successfully saved article", data);
                 this.saveMarkupMessageArea.showMessage("Saved article");
             },
@@ -234,8 +253,7 @@ class ArticleEditor extends UI.Panel {
     }
 
     saveOptions(options) {
-        let request = {
-        };
+        let request = {};
         Object.assign(request, options);
 
         this.saveOptionsMessageArea.showMessage("Saving...", "black", null);
@@ -296,20 +314,59 @@ class ArticleEditor extends UI.Panel {
 
         this.versions.unshift(this.markupEditor.getValue());
         this.versionsLabels.unshift("Edit version");
+
+        let leftIndex = this.leftTextSelector.getIndex();
+        let rightIndex = this.rightTextSelector.getIndex();
+
+        this.leftTextSelector.redraw();
+        this.rightTextSelector.redraw();
+
+        this.setLeftIndex(leftIndex);
+        this.setRightIndex(rightIndex);
+    }
+
+    setLeftIndex(index) {
+        this.leftTextSelector.setIndex(index);
+        this.diffWidget.setLeftText(this.versions[index]);
+    }
+
+    setRightIndex(index) {
+        this.rightTextSelector.setIndex(index);
+        this.diffWidget.setRightText(this.versions[index]);
     }
 
     onMount() {
         this.deleteArticleModal = <DeleteArticleModal article={this.options.article}/>;
-        this.deleteArticleModal.mount(document.body);
 
-        this.tabArea.titleArea.children[1].addClickListener(() => {
-            this.versions[0] = this.markupEditor.getValue();
-        });
+        if (ArticleEditor.DiffWidgetClass) {
+            this.tabArea.titleArea.children[1].addClickListener(() => {
+                this.versions[0] = this.markupEditor.getValue();
+                this.setLeftIndex(this.leftTextSelector.getIndex());
+                this.setRightIndex(this.rightTextSelector.getIndex());
+                //this.diffWidget.diffGutterPanel.scroll();
+            });
 
-        if (this.options.article.baseArticleId) {
-            if (!ArticleStore.get(this.options.article.baseArticleId)) {
-                this.getArticle(this.options.article.baseArticleId);
-            }
+            let updateEditable = () => {
+                this.leftEditable = (this.leftTextSelector.getIndex() === 0);
+                this.rightEditable = (this.rightTextSelector.getIndex() === 0);
+                this.diffWidget.setLeftEditable(this.leftEditable);
+                this.diffWidget.setRightEditable(this.rightEditable);
+            };
+
+            this.leftTextSelector.addChangeListener(() => {
+                this.diffWidget.setLeftText(this.versions[this.leftTextSelector.getIndex()]);
+                updateEditable();
+            });
+
+            this.rightTextSelector.addChangeListener(() => {
+                this.diffWidget.setRightText(this.versions[this.rightTextSelector.getIndex()]);
+                updateEditable();
+            });
+
+            this.setLeftIndex(0);
+            this.setRightIndex(1);
+
+            //this.diffWidget.diffGutter.redraw();
         }
 
         window.onbeforeunload = () => {

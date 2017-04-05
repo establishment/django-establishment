@@ -1,8 +1,8 @@
-import {UI, SVG} from "UI";
-import "MarkupRenderer";
+import {UI, SVG, Switcher} from "UI";
+import {MarkupRenderer, MarkupClassMap} from "MarkupRenderer";
 import {Article, ArticleStore} from "ArticleStore";
 
-class ArticleRenderer extends UI.MarkupRenderer {
+class ArticleRenderer extends MarkupRenderer {
     setOptions(options) {
         if (options.article) {
             options.value = options.article.markup;
@@ -56,7 +56,7 @@ class ArticleRenderer extends UI.MarkupRenderer {
     }
 }
 
-ArticleRenderer.markupClassMap = new UI.MarkupClassMap(UI.MarkupClassMap.GLOBAL);
+ArticleRenderer.markupClassMap = new MarkupClassMap(MarkupClassMap.GLOBAL);
 
 class RecursiveArticleRenderer extends ArticleRenderer {
     setOptions(options) {
@@ -77,7 +77,7 @@ class RecursiveArticleRenderer extends ArticleRenderer {
     }
 }
 
-class ArticleSwitcher extends UI.Switcher {
+class ArticleSwitcher extends Switcher {
     constructor() {
         super(...arguments);
         this.articleChildMap = new WeakMap();

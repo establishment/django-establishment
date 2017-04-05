@@ -1,17 +1,17 @@
-import {Ajax} from "Ajax";
-import {UI} from "UI";
-import {StemDate} from "Time";
+import {UI, Panel, Modal, ActionModal, SortableTable} from "UI";
 import {GlobalState} from "State";
+import {Ajax} from "Ajax";
+import {StemDate} from "Time";
 import {ArticleStore} from "ArticleStore";
 import {PublicUserStore} from "UserStore";
 import {Language} from "LanguageStore";
 import {UserHandle} from "UserHandle";
 
-class TransferOwnershipModal extends UI.ActionModal {
+class TransferOwnershipModal extends ActionModal {
     getActionName() {
         return "Transfer ownership";
     }
-    
+
     getActionLevel() {
         return UI.Level.PRIMARY;
     }
@@ -84,7 +84,7 @@ class TransferOwnershipModal extends UI.ActionModal {
 }
 
 // TODO(@gem): refactor to ActionModal
-class DeleteArticleModal extends UI.Modal {
+class DeleteArticleModal extends Modal {
     getGivenChildren() {
         return [
             <div style={{margin: "0px"}}>
@@ -142,7 +142,7 @@ class DeleteArticleModal extends UI.Modal {
 }
 
 // TODO(@gem): refactor to ActionModal
-class CreateArticleModal extends UI.Modal {
+class CreateArticleModal extends Modal {
     getGivenChildren() {
         return [
             <div style={{margin: "0px"}}>
@@ -169,8 +169,8 @@ class CreateArticleModal extends UI.Modal {
                     <UI.TemporaryMessageArea ref="messageArea"/>
                     <UI.Button label="Close" onClick={() => this.hide()}/>
                     <UI.AjaxButton ref="createArticleButton" level={UI.Level.PRIMARY} onClick={() => {this.createArticle()}}
-                                       statusOptions={["Create article", {faIcon: "spinner fa-spin", label:" creating article ..."}, "Create article", "Failed"]}
-                        />
+                                   statusOptions={["Create article", {faIcon: "spinner fa-spin", label:" creating article ..."}, "Create article", "Failed"]}
+                    />
                 </div>
             </div>
         ];
@@ -259,7 +259,7 @@ class AddTranslationModal extends CreateArticleModal {
     }
 }
 
-class ArticleTable extends UI.SortableTable {
+class ArticleTable extends SortableTable {
     setOptions(options) {
         super.setOptions(options);
         this.resetColumnSortingOrder();
@@ -364,7 +364,7 @@ class ArticleTable extends UI.SortableTable {
     }
 }
 
-class ArticleManager extends UI.Panel {
+class ArticleManager extends Panel {
     getDefaultOptions() {
         return {
             title: "Article manager"
@@ -437,7 +437,7 @@ class ArticleManager extends UI.Panel {
     }
 }
 
-class TranslationManager extends UI.Panel {
+class TranslationManager extends Panel {
     getDefaultOptions() {
         return {
             title: "Translation manager"
