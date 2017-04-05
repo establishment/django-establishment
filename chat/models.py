@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils import timezone
 
-from establishment.accounts.models import PublicUserSummary, ReactionableMixin, UserGroup
+from establishment.accounts.models import ReactionableMixin
 from establishment.chat.errors import ChatError
 from establishment.errors.errors import BaseError
 from establishment.funnel.utils import GlobalObjectCache
@@ -171,7 +171,7 @@ class MessageInstance(ReactionableMixin):
             state.add(self.reaction_collection)
 
     def publish(self, event_type="message", virtual_id=None, stream_names=None):
-        extra = {"user": PublicUserSummary(self.user)}
+        extra = {}
         if virtual_id:
             extra["virtualId"] = virtual_id
         return self.publish_event(event_type, self, extra=extra, stream_names=stream_names)
@@ -348,9 +348,8 @@ class PrivateChat(StreamObjectMixin):
 class GroupChat(StreamObjectMixin):
     title = models.CharField(max_length=512)
     message_thread = models.ForeignKey(MessageThread, related_name="+")
-    group = models.ForeignKey(UserGroup, null=True, blank=True)
+    group = models.ForeignKey("accounts.UserGroup", null=True, blank=True)
     max_message_size = models.IntegerField(default=4096)
-    metadata = JSONField(default=dict, blank=True)
 
     stream_name_pattern = re.compile(r"messagethread-groupchat-(\d+)-m=(\d+)")
 
@@ -466,8 +465,8 @@ class MessageThreadSummary(object):
                 messages = messages.filter(id__lt=last_id)
             if not show_hidden:
                 messages = messages.filter(hidden=False)
-            self.messages = messages[:message_count]
-            self.messages = list(self.messages.prefetch_related("reaction_collection"))
+            messages = messages[:message_count]
+            self.messages = list(messages.prefetch_related("reaction_collection"))
             self.messages.reverse()
 
         self.include_online_info = include_online_info
@@ -493,9 +492,6 @@ class MessageThreadSummary(object):
         state.add(self)
         for message in self.messages:
             message.add_to_state(state)
-        if including_users:
-            user_ids = self.get_user_ids()
-            PublicUserSummary.add_users_to_state(state, user_ids)
 
     def to_json(self):
         rez = self.message_thread.to_json()
