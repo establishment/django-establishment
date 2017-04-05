@@ -6,7 +6,7 @@ import {UserReactionCollection} from "UserReactionStore";
 const VoteStatus = {
     DISLIKE: 0,
     LIKE: 1,
-}
+};
 
 class VotingWidget extends UI.Element {
     setOptions(options) {
