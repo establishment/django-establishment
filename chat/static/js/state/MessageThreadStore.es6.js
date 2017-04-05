@@ -102,12 +102,8 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
             message: content,
         };
 
-        Ajax.request({
-            url: "/chat/edit_message/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.postJSON("/chat/edit_message/", request).then(
+            (data) => {
                 if (data.error) {
                     console.log("error saving message edit", data);
                     if (onError) {
@@ -119,24 +115,23 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
                     }
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in sending chat message:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error in sending chat message:\n" + error.message);
                 if (onError) {
                     onError(xhr, errmsg, err);
                 }
             }
-        });
+        );
     }
 
     react(reaction, onSuccess, onError) {
-        Ajax.post({
-            url: "/chat/edit_message/",
-            dataType: "json",
-            data: {
-                messageId: this.id,
-                reaction: reaction,
-            },
-            success: (data) => {
+        let request = {
+            messageId: this.id,
+            reaction: reaction,
+        };
+
+        Ajax.postJSON("/chat/edit_message/", request).then(
+            (data) => {
                 if (data.error) {
                     console.log("error saving reaction", data);
                     if (onError) {
@@ -148,13 +143,14 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
                     }
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in saving reaction:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error in saving reaction:\n" + error.message);
+                console.log(error.stack);
                 if (onError) {
-                    onError(xhr, errmsg, err);
+                    onError(error);
                 }
             }
-        });
+        );
     }
 
     like(onSuccess, onError) {
@@ -176,23 +172,20 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
             hidden: true,
         };
 
-        Ajax.request({
-            url: "/chat/edit_message/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        Ajax.postJSON("/chat/edit_message/", request).then(
+            (data) => {
                 if (onSuccess) {
                     onSuccess(data);
                 }
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in sending delete message:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error in sending delete message:\n" + error.message);
+                console.log(error.stack);
                 if (onError) {
-                    onError(xhr, errmsg, err);
+                    onError(error);
                 }
             }
-        });
+        );
     }
 
     applyEvent(event) {
@@ -220,7 +213,7 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
         messageThread.messages.delete(oldId);
         messageThread.messages.set(this.id, this);
     }
-    
+
     setPostError(postError) {
         this.postError = postError;
         this.dispatch("postError", postError);
@@ -284,9 +277,13 @@ class MessageThread extends StoreObject {
         }
     }
 
-    getMessages() {
+    getMessages(orderDescending=false) {
         // TODO: should be also as iterable
-        return Array.from(this.messages.values()).sort((a, b) => {return a.id - b.id});
+        let messages = Array.from(this.messages.values());
+        if (orderDescending) {
+            return messages.sort((a, b) => {return b.id - a.id});
+        }
+        return messages.sort((a, b) => {return a.id - b.id});
     }
 
     getNumMessages() {
@@ -314,7 +311,7 @@ class MessageInstanceStoreClass extends VirtualStoreMixin(GenericObjectStore) {
             content: messageContent,
             temporaryId: temporaryId,
             id: "temp-" + temporaryId,
-            timeAdded: ServerTime.now().unix(),
+            timeAdded: ServerTime.now().toUnix(),
             userId: parseInt(USER.id),
             messageThreadId: messageThread.id,
             meta: {},
@@ -390,13 +387,8 @@ PrivateChatStore.fetchForUser = function (userId, onSuccess, onError) {
         userId: userId,
     };
 
-    Ajax.request({
-        url: "/chat/private_chat_state/",
-        type: "POST",
-        dataType: "json",
-        data: request,
-        cache: false,
-        success: (data) => {
+    Ajax.postJSON("/chat/private_chat_state/", request).then(
+        (data) => {
             if (data.error) {
                 console.error("Failed to fetch objects of type ", this.objectType, ":\n", data.error);
                 if (onError) {
@@ -407,13 +399,14 @@ PrivateChatStore.fetchForUser = function (userId, onSuccess, onError) {
             GlobalState.importState(data.state || {});
             onSuccess(PrivateChatStore.get(data.privateChatId));
         },
-        error: (xhr, errmsg, err) => {
-            console.error("Error in fetching objects:\n" + xhr.status + ":\n" + xhr.responseText);
+        (error) => {
+            console.error("Error in fetching objects:\n" + error.message);
+            console.error(error.stack);
             if (onError) {
-                onError(xhr.responseText);
+                onError(error.message);
             }
         }
-    });
+    );
 };
 
 PrivateChatStore.addListener("update", (obj, event) => {
