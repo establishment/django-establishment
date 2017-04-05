@@ -1,2 +1,13 @@
-# django-establishment
-Basic Django apps to create a webapp
+# Establishment Django app
+Establishment's basic Django apps to create a webapp.
+
+## Installation
+Just download the source from git/add this repository as a submodule to any project you would like.
+
+## License
+The Establishment Framework code (including `django-establishment`) is released explicitly under public domain (AKA The Unlicence, I just like public domain more than the term "Unlicence").
+There are no ugly copyright headers you need to keep, and you can copy/paste the code without any attribution.
+It make it easier to bundle your code, so you know a minimized production js can strip all comments away.
+In case you need extra assurance, this software is also licenced under [Creative Commons 0][license-cc0], you can pick your preferred licence.
+
+[license-cc0]: https://creativecommons.org/publicdomain/zero/1.0/
