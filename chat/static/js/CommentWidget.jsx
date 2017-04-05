@@ -2,37 +2,29 @@ import {UI} from "UI";
 import {GlobalState} from "State";
 import {GroupChatStore, MessageThreadStore, MessageThread, MessageInstance} from "MessageThreadStore";
 import {ChatMessageScrollSection, ChatWidget, PreviewMarkupButton} from "ChatWidget";
+import {isDifferentDay, StemDate} from "Time";
 import "MarkupRenderer";
 import {UserHandle} from "UserHandle";
 import {LoginModal} from "LoginModal";
-import {VotingWidget, CommentVotingWidget, CommentVotingWidgetWithThumbs} from "VotingWidget";
+import {CommentVotingWidgetWithThumbs} from "VotingWidget";
 import {css, hover, focus, active, ExclusiveClassSet, StyleSet} from "Style";
-import {isDifferentDay} from "Time";
 import {BlogStyle} from "BlogStyle";
-import {ChatStyle} from "ChatStyle";
-
-
 let blogStyle = BlogStyle.getInstance();
-let chatStyle = ChatStyle.getInstance();
 
-
-class ThreadMessage extends UI.Element {
+class ThreadMessage extends UI.Panel {
     setOptions(options) {
         super.setOptions(options);
         this.message = options.message;
     }
 
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-        return attr;
-    }
-
     render() {
-        let messageDate = <UI.TimePassedSpan timeStamp={this.message.getDate()} color="#797979"/>
+        let messageDate = <UI.TimePassedSpan timeStamp={this.message.getDate()} style={{color: "#666 !important", textTransform: "uppercase", fontSize: ".85em",}} />
 
         let editButton;
         if (this.message.userId === USER.id || USER.isSuperUser) {
-            editButton = <a style={Object.assign({"cursor": "pointer"})} onClick={() => this.toggleEditMode()}>Edit</a>;
+            editButton = <a style={Object.assign({"cursor": "pointer", padding: "0 10px", fontSize: "1.05em", lineHeight: "0px",})} onClick={() => this.toggleEditMode()}>
+                edit
+            </a>;
         }
 
         if (!this.contentSwitcher) {
@@ -41,10 +33,10 @@ class ThreadMessage extends UI.Element {
             </UI.Switcher>;
         }
 
-        let votes = <CommentVotingWidgetWithThumbs height={40} style={{float: "left"}} message={this.message} />;
+        let votes = <CommentVotingWidgetWithThumbs height={40} style={{float: "left"}} message={this.message} ref="commentVotingWidget" />;
 
         return [
-            <span style={{float: "right", display: "inline-block", height: "40px", lineHeight: "40px", fontFamily: "montserrat",}}>{messageDate}</span>,
+            <span style={{float: "right", display: "inline-block", height: "40px", lineHeight: "40px", fontFamily: "lato",}}>{messageDate}</span>,
             <div style={{
                 height: "40px",
                 lineHeight: "40px",
@@ -54,18 +46,17 @@ class ThreadMessage extends UI.Element {
                     lineHeight: "40px",
                     display: "inline-block",
                     float: "left",
-                    fontFamily: "montserrat",
-                    fontSize: "15px",
+                    fontFamily: "lato",
+                    fontSize: ".95em",
                     color: "#333",
                 }}>
-                    <span className={blogStyle.writtenBy}>written by</span>
-                    <UserHandle userId={this.message.userId} style={{paddingLeft: "5px", paddingRight: "5px",}}/>
+                    <UserHandle userId={this.message.userId} style={{fontSize: "1.1em",}}/>
                 </div>
                 {editButton}
             </div>,
             <div style={{
                 paddingTop: "5px",
-                fontFamily: "raleway",
+                fontFamily: "lato",
                 fontSize: "16px",
             }}>
                 {this.contentSwitcher}
@@ -76,7 +67,7 @@ class ThreadMessage extends UI.Element {
                 {votes}
             </div>,
             <div style={{
-                height: "2px",
+                height: "1px",
                 width: "100%",
                 backgroundColor: "#ddd",
             }}></div>,
@@ -168,13 +159,13 @@ class ToggleLogin extends UI.Primitive("span") {
     }
 }
 
-class BlogCommentWidget extends ChatWidget(ThreadMessage, false) {
+class BlogCommentWidget extends ChatWidget(ThreadMessage) {
     renderMessageView() {
         let loadMoreButton;
 
         let loadMoreButtonStyle = {
             border: "0px",
-            fontFamily: "montserrat",
+            fontFamily: "lato",
             color: "#333",
             borderRadius: "0",
             borderBottom: "0",
@@ -193,10 +184,9 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage, false) {
         }
 
         return [
-            <ChatMessageScrollSection className="auto-height"
-                                      ref="messageWindow"
+            <ChatMessageScrollSection ref="messageWindow"
                                       entryRenderer={this.options.renderMessage}
-                                      entries={this.messageThread.getMessages()}
+                                      entries={this.messageThread.getMessages(true)}
                                       staticTop={loadMoreButton} />
         ];
     }
@@ -215,7 +205,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage, false) {
             "padding-bottom": "0",
             "font-size": "14px",
             "border-radius": "0",
-            fontFamily: "raleway",
+            fontFamily: "lato",
             outline: "none",
             paddingLeft: "8px",
             paddingTop: "5px",
@@ -242,34 +232,10 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage, false) {
             "margin-left": "5px",
         };
 
-        let sendMessageButtonStyle = css({
-            height: "30px",
-            marginTop: "10px",
-            marginBottom: "20px",
-            width: "auto",
-            borderRadius: "0px",
-            backgroundColor: "#333",
-            borderColor: "#333",
-            fontFamily: "montserrat",
-            fontSize: "13px",
-            transition: ".2s",
-        }, hover({
-            backgroundColor: "#454545",
-            borderColor: "#454545",
-            transition: ".2s",
-        }), active({
-            backgroundColor: "#454545",
-            borderColor: "#454545",
-            transition: ".2s",
-        }), focus({
-            backgroundColor: "#454545",
-            borderColor: "#454545",
-            transition: ".2s",
-        }));
 
         return [
             <div ref="writingSection" style={writingSectionStyle}>
-                <UI.TextArea readOnly={this.messageThread.muted} 
+                <UI.TextArea readOnly={this.messageThread.muted}
                              ref="chatInput"
                              onChange={() => {
                                  if (this.chatInput.getValue()) {
@@ -278,12 +244,12 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage, false) {
                                      this.chatInput.removeClass(chatInputMax);
                                  }
                              }}
-                             className={chatInputStyle} 
+                             className={chatInputStyle}
                              placeholder="Leave a comment..."/>
-                <UI.Button disabled={this.messageThread.muted} 
-                           label="SUBMIT" 
-                           ref="sendMessageButton" 
-                           className={sendMessageButtonStyle} 
+                <UI.Button disabled={this.messageThread.muted}
+                           label="SUBMIT"
+                           ref="sendMessageButton"
+                           className={blogStyle.sendMessageButtonStyle}
                            level={UI.Level.PRIMARY}
                            onClick={() => this.sendMessage()} />
                 {/*{this.messageThread.hasMarkupEnabled() ?
@@ -301,8 +267,11 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage, false) {
             this.renderMessageView(),
         ];
     }
-};
 
+    createVirtualMessage(request, message) {
+        return null;
+    }
+}
 
 class CommentWidget extends BlogCommentWidget {
     setOptions(options) {
@@ -327,13 +296,13 @@ class CommentWidget extends BlogCommentWidget {
             return super.renderMessageBox();
         } else {
             return <div style={{
-                fontFamily: "montserrat",
+                fontFamily: "lato",
                 color: "#333",
                 paddingTop: "5px",
                 paddingBottom: "5px",
             }}>You need to&nbsp;
                 <ToggleLogin style={{
-                    fontFamily: "montserrat",
+                    fontFamily: "lato",
                     backgroundColor: "#eee",
                     cursor: "pointer",
                     padding: "5px 10px",
@@ -356,6 +325,7 @@ class CommentWidget extends BlogCommentWidget {
     }
 
     onMount() {
+        super.onMount();
         this.messageThread.addListener("newMessage", () => {
             this.redraw();
         });
@@ -375,6 +345,7 @@ class AsyncCommentThread extends UI.Element {
             paddingBottom: "10px",
             height: "auto",
             width: "100%",
+            marginTop: "50px",
             marginLeft: "0px",
             marginRight: "0px",
             border: "0px",
@@ -383,15 +354,30 @@ class AsyncCommentThread extends UI.Element {
 
         if (messageThread) {
             return [<CommentWidget ref="commentsSection" chatId={this.options.chatId} messageThread={messageThread}
-                                   style={commentWidgetOptions}/>];
+                                   style={commentWidgetOptions} />];
         } else {
             GroupChatStore.fetch(this.options.chatId, (groupChat) => {
                 this.redraw();
             });
-            return [<h3>Comments loading...</h3>, <span className="fa fa-spinner fa-spin"/>];
+            return [
+                <div style={{
+                    width: "100%",
+                    height: "60px",
+                    lineHeight: "60px",
+                    fontFamily: "lato",
+                    fontSize: "1em",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    fontWeight: "bold",
+                }}>
+                    <span className="fa fa-spinner fa-spin" style={{
+                        padding: "0 8px",
+                    }}/>
+                    Comments loading...
+                </div>
+            ];
         }
     }
 }
 
 export {CommentWidget, AsyncCommentThread};
-

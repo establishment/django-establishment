@@ -1,28 +1,26 @@
-import {Ajax} from "Ajax";
-import {UI} from "UI";
+import {UI, Button, Panel, InfiniteScrollable} from "UI";
+import {StemDate} from "Time";
 import {GlobalState} from "State";
 import {MessageThreadStore, MessageThread, MessageInstance, MessageInstanceStore, GroupChatStore} from "MessageThreadStore";
-import {LoginModal} from "LoginModal";
 import {UserHandle} from "UserHandle";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {CommentVotingWidgetWithThumbs} from "VotingWidget";
-import {RunOnce} from "Dispatcher";
+import {LoginModal} from "LoginModal";
 import {isDifferentDay} from "Time";
-import {css, hover, focus, active} from "Style";
-import {StemDate} from "Time";
-import {FAIcon} from "FontAwesome";
+import {RunOnce} from "Dispatcher";
+import {Ajax} from "Ajax";
 import {ChatStyle} from "ChatStyle";
+import {Pluginable} from "Plugin";
 
 let chatStyle = ChatStyle.getInstance();
 
-class PreviewMarkupButton extends UI.Button {
+class PreviewMarkupButton extends Button {
     setOptions(options) {
         if (!options.faIcon) {
             options.label = options.label || UI.T("Preview");
         }
         options.level = options.level || UI.Level.PRIMARY;
-        options.size = options.size || UI.Size.LARGE;
         super.setOptions(options);
     }
 
@@ -33,7 +31,7 @@ class PreviewMarkupButton extends UI.Button {
                 this.markupEditorModal = <MarkupEditorModal
                     classMap={ChatMarkupRenderer.classMap}
                     showCallback={() => {this.markupEditorModal.markupEditor.setValue(this.options.getValue());
-                                         /*this.markupEditorModal.markupEditor.codeEditor.getAce().focus();*/}}
+                                         this.markupEditorModal.markupEditor.codeEditor.getAce().focus();}}
                     hideCallback={() => {this.options.setValue(this.markupEditorModal.markupEditor.getValue());}}
                 />;
                 this.markupEditorModal.mount(document.body);
@@ -43,9 +41,7 @@ class PreviewMarkupButton extends UI.Button {
     }
 }
 
-//TODO(@all) Find a way to remove margin from p elements.
-
-class GroupChatMessage extends UI.Panel {
+class GroupChatMessage extends Panel {
     setOptions(options) {
         super.setOptions(options);
         this.message = options.message;
@@ -77,7 +73,7 @@ class GroupChatMessage extends UI.Panel {
         let editButton;
         //if (this.message.userId === USER.id || USER.isSuperUser) {
         if (USER.isSuperUser) {
-            editButton = <a style={Object.assign({"cursor": "pointer"}, chatStyle.timestamp)} onClick={() => this.toggleEditMode()}>Edit</a>;
+            editButton = <a style={Object.assign({"cursor": "pointer"}, chatStyle.timestamp)} onClick={() => this.toggleEditMode()}>{UI.T("Edit")}</a>;
         }
 
         if (!this.contentSwitcher) {
@@ -110,7 +106,7 @@ class GroupChatMessage extends UI.Panel {
         return [
             date,
             <div className={chatStyle.comment}>
-                <UserHandle userId={this.message.userId}/>
+                <UserHandle userId={this.message.userId} className={chatStyle.userHandle} />
                 <span className={chatStyle.timestamp}>{this.message.getTimeOfDay()}</span>
                 {editButton}
                 {errorElement}
@@ -202,7 +198,7 @@ class GroupChatMessage extends UI.Panel {
     }
 }
 
-class PrivateChatMessage extends UI.Panel {
+class PrivateChatMessage extends Panel {
     setOptions(options) {
         super.setOptions(options);
         this.message = options.message;
@@ -210,36 +206,97 @@ class PrivateChatMessage extends UI.Panel {
 
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
-        if (this.message.userId === USER.id) {
-            attr.addClass("ownMessage");
-        }
-        attr.addClass("chatMessageDiv");
+        attr.addClass(chatStyle.groupChatMessage);
         return attr;
     }
 
+    shouldShowDayTimestamp() {
+        let lastMessage = this.options.message.getPreviousMessage();
+        return !lastMessage || isDifferentDay(lastMessage.timeAdded, this.options.message.timeAdded);
+    }
+
+    isOwnMessage() {
+        return this.message.userId === USER.id;
+    }
+
     render() {
-        let userTag;
-        //if (this.message.userId !== USER.id) {
-            // TODO(@gem): Fix popup position (place popup node in the same node as trigger.node)
-            userTag = <div>
-                <UserHandle userId={this.message.userId} noPopup/>
-                <span className="chatMessageTimestamp">{this.message.getTimeOfDay()}</span>
-            </div>;
-        //}
-        return [
-            <div className="chatBubble">
-                {this.message}
-                {userTag}
-                <span className="messageText" style={{"white-space": "pre-line"}}>
-                    {this.message.hasMarkupEnabled() ? <ChatMarkupRenderer value={this.message.getContent()}
-                                   style={{height:"auto", overflow: "auto"}} /> : this.message.getContent()}
+        let editButton;
+        //if (this.message.userId === USER.id || USER.isSuperUser) {
+        if (USER.isSuperUser) {
+            editButton = <a style={Object.assign({"cursor": "pointer"}, chatStyle.timestamp)} onClick={() => this.toggleEditMode()}>Edit</a>;
+        }
+
+        if (!this.contentSwitcher) {
+            this.contentSwitcher = <UI.Switcher>
+                <span ref="contentContainer" style={{"white-space": "pre-line"}}>
+                    {this.message.hasMarkupEnabled() ?
+                        <ChatMarkupRenderer ref={this.refLink("content")} value={this.message.getContent()}
+                                           style={{height:"auto"}} /> :
+                        <UI.TextElement ref="content" value={this.message.getContent()}/>
+                    }
                 </span>
+            </UI.Switcher>;
+        }
+
+        let date = null;
+        if (this.shouldShowDayTimestamp()) {
+            date = <div className={chatStyle.messageTimeStampHr}>
+                <div ref="dayTimestamp" className={chatStyle.messageTimeStamp}>
+                    {StemDate.unix(this.message.timeAdded).format("dddd, MMMM Do")}
+                </div>
+            </div>;
+        }
+
+        let errorElement = null;
+        if (this.message.postError) {
+            errorElement = <span ref="errorArea" style={{marginLeft: "1rem"}} className="fa fa-warning"
+                                 HTMLTitle={"Error: " + this.message.postError}/>;
+        }
+
+        let content = [
+            <div className={chatStyle.comment} style={{margin: "8px 16px", backgroundColor: "#eee",}}>
+                <UserHandle userId={this.message.userId} className={chatStyle.userHandle} />
+                <span className={chatStyle.timestamp}>{this.message.getTimeOfDay()}</span>
+                {editButton}
+                {errorElement}
+                <div className={chatStyle.commentContent}>
+                    {this.contentSwitcher}
+                </div>
             </div>
         ];
+
+        let paddingDiv = <div style={{
+            flexGrow: "1000000",
+        }}></div>;
+
+        let result;
+        if (this.isOwnMessage()) {
+            result = [
+                date,
+                <div style={{
+                    display: "flex",
+                }}>
+                    {paddingDiv}
+                    {content}
+                </div>
+            ];
+        } else {
+            result = [
+                date,
+                <div style={{
+                    display: "flex",
+                }}>
+                    {content}
+                    {paddingDiv}
+                </div>
+            ];
+        }
+
+        return result;
     }
 }
 
-class ChatMessageScrollSection extends UI.InfiniteScrollable {
+class ChatMessageScrollSection extends InfiniteScrollable {
     setOptions(options) {
         options = Object.assign({
             entryComparator: (a, b) => {
@@ -250,13 +307,13 @@ class ChatMessageScrollSection extends UI.InfiniteScrollable {
     }
 }
 
-let ChatWidget = (ChatMessageClass, enterToSend=true) => {
-    return class ChatWidget extends UI.Panel {
+let ChatWidget = (ChatMessageClass) => {
+    return class ChatWidget extends Pluginable(Panel) {
         setOptions(options) {
             super.setOptions(options);
 
             this.options.renderMessage = (messageInstance) => {
-                return <ChatMessageClass key={messageInstance.getNormalizedId()} message={messageInstance} />
+                return <ChatMessageClass key={messageInstance.getNormalizedId()} message={messageInstance} />;
             };
 
             // TODO: we may not want this as default
@@ -284,7 +341,6 @@ let ChatWidget = (ChatMessageClass, enterToSend=true) => {
                 // We calculate before adding new message
                 let messageWindowScrollTop = this.messageWindow.node.scrollTop;
                 let messageWindowscrollMax = this.messageWindow.node.scrollHeight - this.messageWindow.node.offsetHeight;
-
                 this.messageWindow.insertEntry(messageInstance);
 
                 // If we were at the bottom before message was appended, scroll automatically
@@ -299,6 +355,13 @@ let ChatWidget = (ChatMessageClass, enterToSend=true) => {
 
         canOverwrite() {
             return false;
+        }
+
+        createVirtualMessage(request, message) {
+            let virtualId = this.messageThread.getMaxMessageId() + "-" + MessageInstanceStore.generateVirtualId() + "-" + Math.random();
+            let virtualMessageInstance = MessageInstanceStore.createVirtualMessageInstance(message, this.messageThread, virtualId);
+            request.virtualId = virtualId;
+            return virtualMessageInstance;
         }
 
         sendMessage(message) {
@@ -317,14 +380,7 @@ let ChatWidget = (ChatMessageClass, enterToSend=true) => {
             request.message = message;
 
             // Create a virtual message to be drawn temporarily
-            let virtualMessageInstance = null;
-
-            // TODO: this should not depend on enterToSend!
-            if (enterToSend) {
-                let virtualId = this.messageThread.getMaxMessageId() + "-" + MessageInstanceStore.generateVirtualId() + "-" + Math.random();
-                virtualMessageInstance = MessageInstanceStore.createVirtualMessageInstance(message, this.messageThread, virtualId);
-                request.virtualId = virtualId;
-            }
+            let virtualMessageInstance = this.createVirtualMessage(request, message);
 
             let onSuccess = (data) => {
                 if (data.error) {
@@ -337,25 +393,20 @@ let ChatWidget = (ChatMessageClass, enterToSend=true) => {
                 }
             };
 
-            let onError = (xhr, errmsg, err) => {
+            let onError = (error) => {
                 if (virtualMessageInstance) {
                     virtualMessageInstance.setPostError(42);
                 }
-                console.log("Error in sending chat message:\n" + xhr.status + ":\n" + xhr.responseText);
+                console.log("Error in sending chat message:\n" + error.message);
+                console.log(error.stack);
             };
 
             this.messageWindow.scrollToBottom();
 
             this.chatInput.setValue("");
+            this.chatInput.dispatch("messageSent");
 
-            Ajax.request({
-                url: this.getPostURL(),
-                type: "POST",
-                dataType: "json",
-                data: request,
-                success: onSuccess,
-                error: onError
-            });
+            Ajax.postJSON(this.getPostURL(), request).then(onSuccess, onError);
         }
 
         saveScrollPosition() {
@@ -368,26 +419,12 @@ let ChatWidget = (ChatMessageClass, enterToSend=true) => {
             this.chatInput.node.focus();
         }
 
-        onMount() {
-            super.onMount();
-
-            if (enterToSend) {
-                this.messageWindow.node.scrollTop = this.messageWindow.node.scrollHeight;
-
-                this.chatInput.addNodeListener("keydown", (event) => {
-                    if (!(event.shiftKey || event.ctrlKey) && (event.key === "Enter" || event.keyCode === 13)) {
-                        this.sendMessage();
-                        event.preventDefault();
-                    }
-                });
-            }
-
+        addResizeListeners() {
             this.messageWindow.addNodeListener("scroll", () => {
                 let scrollTop = this.messageWindow.node.scrollTop;
                 if (scrollTop < 20) {
                     this.loadMoreMessages();
                 }
-                // TODO: Remove this is you want "load more messages" ... although right now it does not work
             });
 
             this.addListener("hide", () => {this.saveScrollPosition();});
@@ -404,6 +441,16 @@ let ChatWidget = (ChatMessageClass, enterToSend=true) => {
             });
         }
 
+        onMount() {
+            super.onMount();
+
+            for (let plugin of (this.options.plugins || [])) {
+                this.registerPlugin(plugin);
+            }
+
+            this.addResizeListeners();
+        }
+
         getDesiredHeight() {
             if (this.options.style && this.options.style.height) {
                 return this.options.style.height;
@@ -416,17 +463,7 @@ let ChatWidget = (ChatMessageClass, enterToSend=true) => {
         }
 
         setAdaptiveHeight() {
-            // TODO: duplicated code from ContestWidget.ContestTaskSwitcher
-            if (!this.domAttributes) return;
-
             this.setStyle("height", this.getDesiredHeight());
-        }
-
-        getNodeAttributes() {
-            let attr = super.getNodeAttributes();
-            attr.addClass("auto-height-parent");
-            //attr.setStyle("border", "1px solid #ccc");
-            return attr;
         }
 
         setHeight(height) {
@@ -456,6 +493,10 @@ let ChatWidget = (ChatMessageClass, enterToSend=true) => {
             ];
         }
 
+        getGetType() {
+            return "GET";
+        }
+
         loadMoreMessages() {
             // TODO: wrap this in something
             if (this.outstandingRequest) {
@@ -476,11 +517,11 @@ let ChatWidget = (ChatMessageClass, enterToSend=true) => {
             if (this.loadMoreButton) {
                 this.loadMoreButton.ajaxCall({
                     url: this.getGetURL(),
-                    type: "GET",
+                    type: this.getGetType(),
                     dataType: "json",
                     data: request,
                     success: (data) => {
-                        if (data.state.MessageInstance.length < 50) {
+                        if (!data.state || !data.state.MessageInstance || data.state.MessageInstance.length < 20) {
                             if (this.loadMoreButton) {
                                 this.loadMoreButton.hide();
                             }
@@ -488,9 +529,8 @@ let ChatWidget = (ChatMessageClass, enterToSend=true) => {
                         }
                         let scrollPosition = this.messageWindow.getExcessTop();
                         let oldHeight = this.messageWindow.node.scrollHeight;
-                        GlobalState.importState(data.state);
+                        GlobalState.importState(data.state || {});
                         this.messageWindow.scrollToHeight(scrollPosition + this.messageWindow.node.scrollHeight - oldHeight);
-                        // debugger;
                         this.outstandingRequest = false;
                     },
                     error: (xhr, errmsg, err) => {
@@ -505,14 +545,14 @@ let ChatWidget = (ChatMessageClass, enterToSend=true) => {
         }
 
         renderMessageBox() {
-            return <div ref="writingSection" className={chatStyle.renderMessage}>
-                <UI.TextArea readOnly={this.messageThread.muted} 
-                             ref="chatInput"
+            return <div ref="writingSection" className={chatStyle.renderMessage} style={{flex: "1"}}>
+                <UI.TextArea readOnly={this.messageThread.muted}
+                             ref="chatInput" style={{height: "100%"}}
                              placeholder="Type a message..."
                              className={chatStyle.chatInput} />
                 <UI.Button ref="sendMessageButton"
                            faIcon="paper-plane"
-                           disabled={this.messageThread.muted} 
+                           disabled={this.messageThread.muted}
                            level={UI.Level.PRIMARY}
                            onClick={() => this.sendMessage()}
                            className={chatStyle.sendMessageButton} />
@@ -548,10 +588,6 @@ let ChatWidget = (ChatMessageClass, enterToSend=true) => {
 
 class GroupChatWidget extends ChatWidget(GroupChatMessage) {
     setOptions(options) {
-        if (!options.messageThread) {
-            let chat = GroupChatStore.get(this.options.chatId);
-            options.messageThread = MessageThreadStore.get(chat.messageThreadId);
-        }
         super.setOptions(options);
         this.options.baseRequest = {
             chatId: this.options.chatId,
@@ -562,8 +598,66 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
         return "/chat/group_chat_post/";
     }
 
+
+    extraNodeAttributes(attr) {
+        super.extraNodeAttributes(attr);
+        attr.setStyle({
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+            overflowY: "hidden",
+        });
+    }
+
     getGetURL() {
         return "/chat/group_chat_state/";
+    }
+
+    renderMessageView() {
+        let loadMoreButton;
+
+
+        if (this.showLoadMoreButton) {
+            loadMoreButton = (
+                <div className="text-center">
+                    <UI.AjaxButton ref={this.refLink("loadMoreButton")} level={UI.Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
+                                   style={chatStyle.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
+                    />
+                </div>
+            );
+        }
+
+        return [
+            <ChatMessageScrollSection className={chatStyle.renderMessageView}
+                                      ref="messageWindow"
+                                      entryRenderer={this.options.renderMessage}
+                                      entries={this.messageThread.getMessages()}
+                                      staticTop={loadMoreButton} />
+        ];
+    }
+
+    renderMessageBox() {
+        return <div ref="writingSection" className={chatStyle.renderMessage} style={{flex: "1"}}>
+            <UI.TextArea readOnly={this.messageThread.muted}
+                         ref="chatInput" style={{height: "100%"}}
+                         placeholder="Type a message..."
+                         className={chatStyle.chatInput} />
+            <UI.Button ref="sendMessageButton"
+                       faIcon="paper-plane"
+                       disabled={this.messageThread.muted}
+                       level={UI.Level.PRIMARY}
+                       onClick={() => this.sendMessage()}
+                       className={chatStyle.sendMessageButton} />
+        </div>;
+    }
+
+    render() {
+        return [
+            <div style={{flex: "5", overflowY: "auto"}}>
+                {this.renderMessageView()}
+            </div>,
+            this.renderMessageBox()
+        ];
     }
 }
 
@@ -572,6 +666,7 @@ class PrivateChatWidget extends ChatWidget(PrivateChatMessage) {
         options = Object.assign({
             messageThread: options.privateChat.getMessageThread(),
             baseRequest: {
+                userId: options.privateChat.getOtherUserId(),
                 privateChatId: options.privateChat.id
             }
         }, options);
@@ -585,6 +680,10 @@ class PrivateChatWidget extends ChatWidget(PrivateChatMessage) {
 
     getPostURL() {
         return "/chat/private_chat_post/";
+    }
+
+    getGetType() {
+        return "POST"; // It might create a chat if it doesn't have one
     }
 
     getGetURL() {
@@ -618,7 +717,7 @@ class VotableGroupChatWidget extends ChatWidget(VotableChatMessage) {
     }
 }
 
-export {ChatWidget, ChatMessageScrollSection,
+export {ChatWidget,
     GroupChatWidget, PrivateChatWidget, VotableGroupChatWidget,
     GroupChatMessage, PrivateChatMessage, VotableChatMessage,
-    PreviewMarkupButton};
+    PreviewMarkupButton, ChatMessageScrollSection};

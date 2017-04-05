@@ -1,14 +1,17 @@
-import {Ajax} from "Ajax";
-import {UI} from "UI";
-import {SectionDivider} from "SectionDivider";
+import {UI, SectionDivider} from "UI";
 import {GlobalState} from "State";
 import {PrivateChatStore, MessageThreadStore} from "MessageThreadStore";
 import {UserNotificationStore} from "UserStore";
 import {UserHandle} from "UserHandle";
 import {PrivateChatWidget} from "ChatWidget";
-import {Dispatchable} from "Dispatcher";
+import {Dispatcher, Dispatchable} from "Dispatcher";
 import {URLRouter} from "URLRouter";
+import {Ajax} from "Ajax";
 import {StemDate} from "Time";
+import {MessagesPanelListStyle} from "SocialNotificationsStyle";
+import {FAIcon} from "FontAwesome";
+
+let messagesPanelListStyle = MessagesPanelListStyle.getInstance();
 
 class MiniMessage extends UI.Element {
     constructor(options) {
@@ -23,8 +26,7 @@ class MiniMessage extends UI.Element {
     setOptions(options) {
         options = Object.assign({
             hoverColor: "rgba(0,0,0,0.05)",
-            backgroundColorActive: "#3373b7",
-            userColor: "#06B"
+            backgroundColorActive: "#3373b7"
         }, options);
         super.setOptions(options);
     }
@@ -33,19 +35,24 @@ class MiniMessage extends UI.Element {
         let attr = super.getNodeAttributes();
         attr.addClass("miniMessage" + this.options.userId);
         attr.setStyle("padding", "10px");
-        attr.setStyle("border", "1px solid #ccc");
+        attr.setStyle("border-bottom", "1px solid #ddd");
         attr.setStyle("position", "relative");
         attr.setStyle("color", (this.isRead ? (this.isActive ? "white" : "black") : (this.isActive ? "white" : "red")));
         return attr;
     }
 
     render() {
+        let callButton;
+        if (USER.isSuperUser) {
+            callButton = <span className="fa fa-phone" ref="call" style={{cursor: "pointer", paddingLeft: "7px"}}/>;
+        }
         return [
-            <UserHandle ref="userHandle" id={this.options.userId} noPopup color={this.isActive ? "white" : this.options.userColor} />,
-            <div ref="timeAttribute" className="pull-right" style={{color: (this.isActive ? "white" : "#888")}}>
-                {(this.options.lastMessage.timeAdded ? StemDate.unix(this.options.lastMessage.timeAdded).format("HH:mm, MMMM Do") : "")}
+            <UserHandle ref="userHandle" id={this.options.userId} noPopup />,
+            callButton,
+            <div ref="timeAttribute" className="pull-right" style={{color: (this.isActive ? "white" : "#888"),}}>
+                {(this.options.lastMessage.timeAdded !== 0 ? StemDate(this.options.lastMessage.timeAdded).format("HH:mm MMMM Do") : "")}
             </div>,
-            <div>{this.options.lastMessage.content}</div>,
+            <div style={{wordBreak: "break-all", paddingTop: "8px",}}>{this.options.lastMessage.content}</div>,
             <UI.StyleElement>
                 <UI.StyleInstance ref="hoverClass" selector={".miniMessage" + this.options.userId + ":hover"} attributes={{"cursor": "pointer", "background-color": this.options.hoverColor}}/>
             </UI.StyleElement>
@@ -60,12 +67,13 @@ class MiniMessage extends UI.Element {
             this.setStyle("background-color", this.options.backgroundColorActive);
             this.setStyle("color", "white");
             this.timeAttribute.setStyle("color", "white");
+            this.userColor = this.userHandle.getRatingColor();
             this.userHandle.setColor("white");
         } else {
             this.setStyle("background-color", "");
             this.setStyle("color", "black");
             this.timeAttribute.setStyle("color", "#888");
-            this.userHandle.setColor(this.options.userColor);
+            this.userHandle.setColor(this.userColor);
         }
         this.isActive = active;
     }
@@ -89,29 +97,29 @@ class MiniMessage extends UI.Element {
                 privateChatId: this.options.chatId,
             };
 
-            Ajax.request({
-                url: "/chat/private_chat_mark_read/",
-                type: "POST",
-                dataType: "json",
-                data: request,
-                cache: false,
-                success: (data) => {
+            Ajax.postJSON("/chat/private_chat_mark_read/", request).then(
+                (data) => {
                     if (data.error) {
                         console.error("Failed to fetch objects of type ", this.objectType, ":\n", data.error);
                         return;
                     }
                 },
-                error: (xhr, errmsg, err) => {
-                    console.error("Error in fetching objects:\n" + xhr.status + ":\n" + xhr.responseText);
+                (error) => {
+                    console.error("Error in fetching objects:\n" + error.message);
+                    console.error(error.stack);
                 }
-            });
+            );
         }
         this.dispatch("unreadCountChanged", -1);
         this.setStyle("color", this.isActive ? "white" : "");
         this.options.lastMessageReadId = null;
     }
 
-    setMessage(message) {
+    // Returns whether the update was successful or not
+    updateLastMessage(message) {
+        if (this.options.lastMessage && this.options.lastMessage.id > message.id) {
+            return false;
+        }
         this.options.lastMessage = message;
         if (message.userId !== USER.id) {
             this.setAsUnread();
@@ -119,6 +127,7 @@ class MiniMessage extends UI.Element {
             this.setAsRead();
         }
         this.redraw();
+        return true;
     }
 
     onMount() {
@@ -128,13 +137,24 @@ class MiniMessage extends UI.Element {
         this.addClickListener(() => {
             this.dispatch("messageSelected");
         });
+        if (USER.isSuperUser) {
+            this.call.addClickListener((event) => {
+                if (window.userMediaStreamer) {
+                    Dispatcher.Global.dispatch("startedCall", this.options.userId);
+                }
+                event.stopPropagation();
+                event.preventDefault();
+            });
+        }
     }
 };
 
 class UserSearchInput extends UI.Element {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
-        attr.setStyle("position", "relative");
+        attr.setStyle({
+            width: "100%",
+        });
         return attr;
     }
 
@@ -142,15 +162,29 @@ class UserSearchInput extends UI.Element {
         let windowStyle = {
             marginTop: "0.9px",
             position: "absolute",
-            backgroundColor: "white",
             maxWidth: "300px",
             maxHeight: "300px",
             overflow: "auto",
-            boxShadow: "0 6px 12px rgba(0,0,0,.175)",
+            marginTop: "30px",
+            backgroundColor: "#eee",
         };
 
         return [
-            <UI.TextInput ref="input" style={{width: "100%"}} />,
+            <FAIcon icon="search" style={{
+                display: "inline-block",
+                backgroundColor: "#eee",
+                color: "#999",
+                width: "15%",
+                height: "30px",
+                textAlign: "center",
+                float: "left",
+                lineHeight: "30px",
+                cursor: "pointer",
+            }} onClick={() => {
+                this.input.node.focus(); 
+                this.input.node.select();
+            }} />,
+            <UI.TextInput ref="input" className={this.options.textInputStyle || ""} placeholder={this.options.placeholder || ""} />,
             <UI.VolatileFloatingWindow className="searchList" style={windowStyle} ref="window" />,
             <UI.StyleElement>
                 <UI.StyleInstance selector=".searchList>div:hover" attributes={{"cursor": "pointer", "background-color": "#eee"}} />
@@ -192,13 +226,12 @@ class UserSearchInput extends UI.Element {
                     usernamePrefix: this.input.getValue(),
                 };
 
-                Ajax.request({
-                    url: "/public_user_profiles/",
-                    type: "GET",
+                Ajax.get("/public_user_profiles/", {
                     dataType: "json",
                     data: request,
                     cache: false,
-                    success: (data) => {
+                }).then(
+                    (data) => {
                         if (data.error) {
                             console.error("Failed to fetch objects of type ", this.objectType, ":\n", data.error);
                             return;
@@ -206,10 +239,11 @@ class UserSearchInput extends UI.Element {
                         GlobalState.importState(data.state || {});
                         this.updateList(data.state.publicuser);
                     },
-                    error: (xhr, errmsg, err) => {
-                        console.error("Error in fetching objects:\n" + xhr.status + ":\n" + xhr.responseText);
+                    (error) => {
+                        console.error("Error in fetching objects:\n" + error.message);
+                        console.error(error.stack);
                     }
-                });
+                );
             } else {
                 this.updateList();
             }
@@ -227,19 +261,20 @@ class MessagesList extends UI.Element {
 
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
-        attr.setStyle("height", "100%");
-        attr.setStyle("width", "100%");
-        attr.setStyle("display", "table-row");
+        attr.setStyle({
+            height: "100%",
+            width: "100%",
+            display: "table-row",
+        });
         return attr;
     }
 
     render() {
-        return <div style={{width: "100%", height: "100%", position: "relative"}}>
-                    <UI.Element ref="miniMessagesList" style={{position: "absolute", top: 0, bottom: 0, left: 0,
-                                                                                        right: 0, overflow: "auto"}} >
-                        {this.miniMessages}
-                    </UI.Element>
-                </div>;
+        return <div style={{width: "100%", height: "100%", position: "relative",}}>
+            <UI.Element ref="miniMessagesList" style={{position: "absolute", top: 0, bottom: 0, left: 0, right: 0, overflow: "auto"}} >
+                {this.miniMessages}
+            </UI.Element>
+        </div>;
     }
 
     updateLastReadMessage(miniMessage) {
@@ -271,8 +306,9 @@ class MessagesList extends UI.Element {
             this.changeTotalUnread(value);
         });
         messageThread.addListener("newMessage", (event) => {
-            miniMessage.setMessage(event.data);
-            this.updateLastReadMessage(miniMessage);
+            if (miniMessage.updateLastMessage(event.data)) {
+                this.updateLastReadMessage(miniMessage);
+            }
         });
         privateChat.addUpdateListener((event) => {
             if (event.type === "updateFirstUnreadMessage" && ! event.data.firstUnreadMessage["1"]) {
@@ -284,13 +320,12 @@ class MessagesList extends UI.Element {
     refreshList() {
         let request = {};
 
-        Ajax.request({
-            url: "/chat/private_chat_list/",
-            type: "GET",
+        Ajax.get("/chat/private_chat_list/", {
             dataType: "json",
             data: request,
             cache: false,
-            success: (data) => {
+        }).then(
+            (data) => {
                 if (data.error) {
                     console.error("Failed to fetch objects of type ", this.objectType, ":\n", data.error);
                     return;
@@ -325,10 +360,11 @@ class MessagesList extends UI.Element {
                 }
                 this.redraw();
             },
-            error: (xhr, errmsg, err) => {
-                console.error("Error in fetching objects:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.error("Error in fetching objects:\n" + error.message);
+                console.error(error.stack);
             }
-        });
+        );
     }
 
     onMount() {
@@ -339,19 +375,29 @@ class MessagesList extends UI.Element {
 class IconMessagesList extends MessagesList {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
-        attr.setStyle("display", "table");
-        attr.setStyle("height", "400px");
-        attr.setStyle("width", "320px");
+        // attr.setStyle("display", "table");
+        // attr.setStyle("height", "400px");
+        // attr.setStyle("width", "320px");
+        attr.setStyle({
+            display: "table",
+            lineHeight: "normal",
+            backgroundColor: "#fff",
+            width: "100%",
+            height: "100%",
+            overflow: "auto",
+            maxWidth: "100%",
+            position: "absolute",
+            right: "0px",
+        })
         return attr;
     }
 
     render() {
         return [
             <MessagesList ref="messagesList" />,
-            <span style={{padding: "3px", textAlign: "center"}} >
-                <UI.Link href="/testing/messages_panel" newTab={false} value="View all messages" style={{left: "0px",
-                            right: "0px", position: "absolute"}} />
-            </span>
+            <div style={{textAlign: "center", textAlign: "center", width: "100%", padding: "0.5em", borderTop: "1px solid #ddd"}} >
+                <UI.Link href="/messages" newTab={false} value="View all messages"/>
+            </div>
         ];
     }
 
@@ -360,7 +406,7 @@ class IconMessagesList extends MessagesList {
             this.dispatch("unreadCountChanged", value);
         });
         this.messagesList.addListener("messageSelected", (event) => {
-            window.open("/testing/messages_panel/#" + event.userId);
+            window.open("/messages/#" + event.userId);
         })
     }
 }
@@ -373,15 +419,15 @@ class MessagesPanelList extends UI.Element {
 
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
-        attr.setStyle("display", "table");
+        attr.addClass(messagesPanelListStyle.messagesPanelList);
+        attr.setStyle("display", "table"); // ?
         return attr;
     }
 
     render() {
         return [
-            <div style={{padding: "7px", boxShadow: "rgba(0, 0, 0, 0.172549) 0px 6px 12px"}}>
-                <span>Search for a user to start a conversation:</span>
-                <UserSearchInput ref="userSearchInput" style={{marginBottom: "10px"}}/>
+            <div style={{padding: "16px", height: "62px", borderBottom: "1px solid #ddd",}}>
+                <UserSearchInput ref="userSearchInput" textInputStyle={messagesPanelListStyle.textInputStyle} placeholder="Search for user"/>
             </div>,
             <MessagesList ref="messagesList"/>
         ];
@@ -454,9 +500,8 @@ class DelayedChat extends UI.Element {
             };
             if (this.options.style && this.options.style.height) {
                 widgetStyle.height = this.options.style.height;
-            }
-            this.dispatch("userChatCreated");
-            return [<PrivateChatWidget ref="chat" key={this.options.userId} style={widgetStyle} extraHeightOffset={75}
+            }            this.dispatch("userChatCreated");
+            return [<PrivateChatWidget ref="chat" style={widgetStyle} extraHeightOffset={75}
                                        privateChat={this.privateChat} />];
         } else {
             PrivateChatStore.fetchForUser(this.options.userId, (privateChat) => {
@@ -485,15 +530,11 @@ class DelayedChat extends UI.Element {
 class MessagesPanel extends UI.Element {
     render() {
         return [
-            <SectionDivider ref="sectionDivider" style={{height: this.computeHeight(), display: "flex"}} orientation={UI.Orientation.HORIZONTAL}>
-                <MessagesPanelList ref="messagesPanelList" style={{display: "inline-block", width: "30%", height: this.computeHeight()}} />
-                <DelayedChat style={{display: "inline-block", width:"70%", height: this.computeHeight()}} ref="chatWidget" fixed />
-            </SectionDivider>
+            <div ref="sectionDivider" style={{height: "calc(100vh - 50px)", maxWidth: "1280px", margin: "0 auto",}} orientation={UI.Orientation.HORIZONTAL}>
+                <MessagesPanelList ref="messagesPanelList" style={{display: "inline-block", width: "250px", height: "100%", float: "left", borderRight: "1px solid #ddd", borderLeft: "1px solid #ddd",}} />
+                <DelayedChat style={{display: "inline-block", width:"calc(100% - 250px)", height: "100%", float: "left", borderRight: "1px solid #ddd",}} ref="chatWidget" fixed />
+            </div>
         ];
-    }
-
-    computeHeight() {
-        return window.innerHeight - document.getElementById("navbar").offsetHeight - 30 + "px";
     }
 
     changeToUser(userId) {
@@ -517,11 +558,6 @@ class MessagesPanel extends UI.Element {
                 this.newUserInserted = false;
             }
         });
-        window.addEventListener("resize", () => {
-            this.sectionDivider.setHeight(this.computeHeight());
-            this.messagesPanelList.setHeight(this.computeHeight());
-            this.chatWidget.setHeight(this.computeHeight());
-        })
     }
 }
 
@@ -541,7 +577,7 @@ class ChatBox extends UI.Element {
         return [
             <div style={{width: "100%", width: "100%", padding: "5px", fontSize: "1.5em", textAlign: "center",
                             backgroundColor: "#444"}}><UserHandle id={this.options.userId} color="white" noPopup/></div>,
-            <DelayedChat ref="chatWidget" userId={this.options.userId} style={{backgroundColor: "white", width: "300px",
+            <DelayedChat ref="chatWidget" userId={this.options.userId} style={{backgroundColor: "white", width: "100%",
                 height: "400px", fontSize: "1em", padding: "0px !important"}}/>
         ];
     }
@@ -590,8 +626,8 @@ class Notification extends UI.Element {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
         attr.setStyle("padding", "10px");
-        attr.setStyle("border", "1px solid #ccc");
-        attr.setStyle("textAlign", "center");
+        attr.setStyle("borderBottom", "1px solid #ddd");
+        attr.setStyle("textAlign", "right");
         attr.addClass(this.getNotificationClass());
         return attr;
     }
@@ -622,17 +658,49 @@ class RatingNotification extends Notification {
     }
 }
 
+class AnnouncementNotification extends Notification {
+    getNotificationClass() {
+        return "announcementNotification";
+    }
+
+    getGivenChildren() {
+        return <UI.MarkupRenderer value={this.options.notification.data.value} />;
+    }
+}
+
 class NotificationsList extends UI.Element {
+    extraNodeAttributes(attr) {
+        attr.setStyle({
+            height: "100%",
+            width: "100%",
+            lineHeight: "normal",
+            overflow: "auto",
+            backgroundColor: "#fff",
+            // padding: "8px",
+            color: "#262626",
+        });
+    }
+
     constructor(options) {
         super(options);
         this.unreadNotificationsCount = 0;
         this.notificationsCount = 0;
+        this.displayedNotifications = new Set();
     }
 
     render() {
         if (this.options.children.length == 0) {
-            this.options.children.push(<div style={{cursor: "default", padding: "10px", paddingTop: "30px",
-                                            paddingBottom: "30px"}}>You don't have any notifications.</div>);
+            this.options.children.push(
+                <div style={{
+                    cursor: "default", 
+                    textAlign: "center",
+                    fontSize: "1.05em",
+                    height: "30px",
+                    lineHeight: "30px",
+                }}>
+                    You don't have any notifications.
+                </div>
+            );
         }
         return this.options.children;
     }
@@ -640,23 +708,23 @@ class NotificationsList extends UI.Element {
     getStoredNotifications() {
         let request = {};
 
-        Ajax.request({
-            url: "/accounts/get_user_notifications/",
-            type: "GET",
+        Ajax.get("/accounts/get_user_notifications/", {
             dataType: "json",
             data: request,
             cache: false,
-            success: (data) => {
+        }).then(
+            (data) => {
                 if (data.error) {
                     console.error("Failed to fetch objects of type ", this.objectType, ":\n", data.error);
                     return;
                 }
                 GlobalState.importState(data.state || {});
             },
-            error: (xhr, errmsg, err) => {
-                console.error("Error in fetching objects:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                console.log("Error in fetching objects:\n" + error.message);
+                console.log(error.stack);
             }
-        });
+        );
     }
 
     insertChild(child, position) {
@@ -669,31 +737,45 @@ class NotificationsList extends UI.Element {
         return child;
     }
 
+    handleNewNotification(notification) {
+        if (this.displayedNotifications.has(notification)) {
+            return;
+        }
+        if (!notification.isRead()) {
+            this.options.icon.increaseUnreadNotificationsCount();
+        }
+        let NotificationClass = this.constructor.NotificationClassMap.get(notification.type);
+        if (!NotificationClass) {
+            console.error("There is no notification class for ", notification.type);
+            return;
+        }
+        let notificationElement = <NotificationClass notification={notification} />;
+        this.notificationsCount += 1;
+        if (this.notificationsCount === 1) {
+            this.options.children = [notificationElement];
+            this.redraw();
+        } else {
+            this.insertChild(notificationElement, 0);
+        }
+        this.displayedNotifications.add(notification);
+    }
+
     onMount() {
         this.getStoredNotifications();
+        for (let notification of UserNotificationStore.all().sort((x, y) => {
+            return x.dateCreated - y.dateCreated;
+        })) {
+            this.handleNewNotification(notification);
+        }
         UserNotificationStore.addCreateListener((notification) => {
-            if (!notification.isRead()) {
-                this.options.icon.increaseUnreadNotificationsCount();
-            }
-            let NotificationClass = this.constructor.NotificationClassMap.get(notification.type);
-            if (!NotificationClass) {
-                console.error("There is no notification class for ", notification.type);
-                return;
-            }
-            let notificationElement = <NotificationClass notification={notification} />;
-            this.notificationsCount += 1;
-            if (this.notificationsCount === 1) {
-                this.options.children = [notificationElement];
-                this.redraw();
-            } else {
-                this.insertChild(notificationElement, 0);
-            }
+            this.handleNewNotification(notification);
         });
     }
 }
 
 NotificationsList.NotificationClassMap = new Map([
     ["ratingsChange", RatingNotification],
+    ["announcement", AnnouncementNotification]
 ]);
 
 
