@@ -1,4 +1,4 @@
-import {UI, Button, ButtonGroup, Panel, Modal, SectionDivider, TextArea, TabArea} from "UI";
+import {UI, Button, ButtonGroup, Panel, ActionModal, SectionDivider, TextArea, TabArea} from "UI";
 import {GlobalState} from "State";
 import {Ajax} from "Ajax";
 import {MarkupEditor} from "MarkupEditor";
@@ -41,7 +41,7 @@ class ArticleMarkupEditor extends MarkupEditor {
     }
 
     getMarkupRenderer() {
-        return <ArticleRenderer ref="articleRenderer" article={this.options.article} style={{height:"100%"}} />
+        return <ArticleRenderer ref="articleRenderer" article={this.options.article} style={{flex:"1", height: "100%"}} />
     }
 
     updateValue(markup) {
@@ -51,25 +51,24 @@ class ArticleMarkupEditor extends MarkupEditor {
     }
 }
 
-// TODO(@gem): refactor to ActionModal
-class DeleteArticleModal extends Modal {
-    getGivenChildren() {
-        return [
-            <div style={{margin: "0px"}}>
-                <div>
-                    <h4>Delete article</h4>
-                </div>
-                <div>
-                    <p>Delete {this.options.article.name}?</p>
-                </div>
-                <div>
-                    <UI.TemporaryMessageArea ref="messageArea"/>
-                    <UI.Button label="Close" onClick={() => this.hide()}/>
-                    <UI.AjaxButton ref="deleteArticleButton" level={UI.Level.DANGER} onClick={() => {this.deleteArticle()}}
-                                       statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."}, "Delete article", "Failed"]}
-                        />
-                </div>
-            </div>
+
+class DeleteArticleModal extends ActionModal {
+    getActionName() {
+        return "Delete Article";
+    }
+
+    getBody() {
+        return <p>Delete {this.options.article.name}?</p>;
+    }
+
+    getFooter() {
+        return [<UI.TemporaryMessageArea ref="messageArea"/>,
+            <UI.ButtonGroup>
+                <UI.Button label="Close" onClick={() => this.hide()}/>
+                <UI.AjaxButton ref="deleteArticleButton" level={UI.Level.DANGER} onClick={() => {this.deleteArticle()}}
+                               statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."},
+                                               "Delete article", "Failed"]}/>
+            </UI.ButtonGroup>
         ];
     }
 
@@ -171,7 +170,7 @@ class ArticleEditor extends Panel {
         return [
             <h3>{this.options.article.name + " Id=" + this.options.article.id}</h3>,
             <TabArea ref="tabArea" variableHeightPanels style={{height: "100%"}}>
-                <UI.Panel title="Edit" active style={{height: "100%"}}>
+                <UI.Panel title="Edit" active style={{height: "100%", overflow: "hidden"}}>
                     <UI.AjaxButton ref="saveMarkupButton" level={UI.Level.INFO} onClick={() => {
                                     let content = this.markupEditor.getValue();
                                     this.saveMarkup(content);
@@ -179,7 +178,8 @@ class ArticleEditor extends Panel {
                                statusOptions={["Save", {faIcon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
                         />
                     <UI.TemporaryMessageArea ref="saveMarkupMessageArea"/>
-                    <ArticleMarkupEditor style={{height: "100%", marginTop: "-30px"}} ref="markupEditor" article={this.options.article} />
+                    <ArticleMarkupEditor style={{height: "100%", marginTop: "-30px", display: "flex", flexDirection: "column"}}
+                                         ref="markupEditor" article={this.options.article} />
                 </UI.Panel>
                 {revisionsPanel}
                 <UI.Panel title="Summary">

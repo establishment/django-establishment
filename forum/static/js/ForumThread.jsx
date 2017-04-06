@@ -121,7 +121,7 @@ class DeleteForumThreadModal extends UI.ActionModal {
         return UI.T("Delete");
     }
 
-    getBodyContent() {
+    getBody() {
         return <p>
             {UI.T("Are you sure you want to delete thread")}
             {" \"" + this.options.forumThread.title + "\"?"}

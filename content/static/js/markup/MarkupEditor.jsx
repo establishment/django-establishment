@@ -25,7 +25,7 @@ class MarkupEditor extends Panel {
     }
 
     render() {
-        let panelStyle = {display: "inline-block", verticalAlign: "top", width: "45%", height: "100%", overflow: "auto"};
+        let panelStyle = {display: "inline-block", verticalAlign: "top", width: "50%", height: "100%", overflow: "auto"};
         let buttons;
         if (this.options.showButtons) {
             buttons = <UI.ButtonGroup>

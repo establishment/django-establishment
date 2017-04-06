@@ -16,7 +16,7 @@ class TransferOwnershipModal extends ActionModal {
         return UI.Level.PRIMARY;
     }
 
-    getBodyContent() {
+    getBody() {
         return [
             <UI.TextElement ref="text" value={"Set owner"}/>,
             <UI.Form style={{marginTop: "10px"}}>
@@ -27,13 +27,15 @@ class TransferOwnershipModal extends ActionModal {
         ];
     }
 
-    getFooterContent() {
+    getFooter() {
         return [
             <UI.TemporaryMessageArea ref="messageArea"/>,
-            <UI.Button label="Close" onClick={() => this.hide()}/>,
-            <UI.AjaxButton ref="transferOwnershipButton" level={this.getActionLevel()} onClick={() => {this.action()}}
-                           statusOptions={[this.getActionName(), {faIcon: "spinner fa-spin", label:" transfering ownership ..."}, this.getActionName(), "Failed"]}
-            />
+            <UI.ButtonGroup>
+                <UI.Button label="Close" onClick={() => this.hide()}/>
+                <UI.AjaxButton ref="transferOwnershipButton" level={this.getActionLevel()} onClick={() => {this.action()}}
+                               statusOptions={[this.getActionName(), {faIcon: "spinner fa-spin", label:" transfering ownership ..."},
+                                               this.getActionName(), "Failed"]}/>
+            </UI.ButtonGroup>
         ];
     }
 
@@ -83,25 +85,24 @@ class TransferOwnershipModal extends ActionModal {
     }
 }
 
-// TODO(@gem): refactor to ActionModal
-class DeleteArticleModal extends Modal {
-    getGivenChildren() {
-        return [
-            <div style={{margin: "0px"}}>
-                <div>
-                    <h4>Delete article</h4>
-                </div>
-                <div>
-                    <UI.TextElement ref="text" value={"Delete article?"}/>
-                </div>
-                <div>
-                    <UI.TemporaryMessageArea ref="messageArea"/>
-                    <UI.Button label="Close" onClick={() => this.hide()}/>
-                    <UI.AjaxButton ref="deleteArticleButton" level={UI.Level.DANGER} onClick={() => {this.deleteArticle()}}
-                                       statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."}, "Delete article", "Failed"]}
-                        />
-                </div>
-            </div>
+
+class DeleteArticleModal extends ActionModal {
+    getActionName() {
+        return "Delete article";
+    }
+
+    getBody() {
+        return <UI.TextElement ref="text" value={"Delete article?"}/>;
+    }
+
+    getFooter() {
+        return [<UI.TemporaryMessageArea ref="messageArea"/>,
+            <UI.ButtonGroup>
+                <UI.Button label="Close" onClick={() => this.hide()}/>
+                <UI.AjaxButton ref="deleteArticleButton" level={UI.Level.DANGER} onClick={() => {this.deleteArticle()}}
+                               statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."},
+                                               "Delete article", "Failed"]}/>
+            </UI.ButtonGroup>
         ];
     }
 
@@ -141,38 +142,36 @@ class DeleteArticleModal extends Modal {
     }
 }
 
-// TODO(@gem): refactor to ActionModal
-class CreateArticleModal extends Modal {
-    getGivenChildren() {
-        return [
-            <div style={{margin: "0px"}}>
-                <div>
-                    <h4>Create article</h4>
-                </div>
-                <div>
-                    <UI.Form style={{marginTop: "10px"}}>
-                        <UI.FormField ref="articleNameFormField" label="Article name">
-                            <UI.TextInput ref="articleNameInput"  value=""/>
-                        </UI.FormField>
-                        <UI.FormField ref="dependencyFormField" label="Dependencies">
-                            <UI.TextInput ref="dependencyInput" value=""/>
-                        </UI.FormField>
-                        <UI.FormField ref="languageFormField" label="Language">
-                            <UI.Select ref="languageSelect" options={Language.all()}/>
-                        </UI.FormField>
-                        <UI.FormField ref="publicFormField" label="Public">
-                            <UI.CheckboxInput ref="publicCheckbox" checked={false}/>
-                        </UI.FormField>
-                    </UI.Form>
-                </div>
-                <div>
-                    <UI.TemporaryMessageArea ref="messageArea"/>
-                    <UI.Button label="Close" onClick={() => this.hide()}/>
-                    <UI.AjaxButton ref="createArticleButton" level={UI.Level.PRIMARY} onClick={() => {this.createArticle()}}
-                                   statusOptions={["Create article", {faIcon: "spinner fa-spin", label:" creating article ..."}, "Create article", "Failed"]}
-                    />
-                </div>
-            </div>
+class CreateArticleModal extends ActionModal {
+    getActionName() {
+        return "Create article";
+    }
+
+    getBody() {
+        return <UI.Form style={{marginTop: "10px"}}>
+            <UI.FormField ref="articleNameFormField" label="Article name">
+                <UI.TextInput ref="articleNameInput"  value=""/>
+            </UI.FormField>
+            <UI.FormField ref="dependencyFormField" label="Dependencies">
+                <UI.TextInput ref="dependencyInput" value=""/>
+            </UI.FormField>
+            <UI.FormField ref="languageFormField" label="Language">
+                <UI.Select ref="languageSelect" options={Language.all()}/>
+            </UI.FormField>
+            <UI.FormField ref="publicFormField" label="Public">
+                <UI.CheckboxInput ref="publicCheckbox" checked={false}/>
+            </UI.FormField>
+        </UI.Form>;
+    }
+
+    getFooter() {
+        return [<UI.TemporaryMessageArea ref="messageArea"/>,
+            <UI.ButtonGroup>
+                <UI.Button label="Close" onClick={() => this.hide()}/>
+                <UI.AjaxButton ref="createArticleButton" level={UI.Level.PRIMARY} onClick={() => {this.createArticle()}}
+                               statusOptions={["Create article", {faIcon: "spinner fa-spin", label:" creating article ..."},
+                                               "Create article", "Failed"]}/>
+            </UI.ButtonGroup>
         ];
     }
 
@@ -218,43 +217,43 @@ class CreateArticleModal extends Modal {
     }
 }
 
-// TODO(@gem): refactor to ActionModal
+
 class AddTranslationModal extends CreateArticleModal {
-    getGivenChildren() {
-        this.baseArticle = this.options.baseArticle;
-        return [
-            <div style={{margin: "0px"}}>
-                <div>
-                    <h4>Add translation</h4>
-                </div>
-                <div>
-                    <UI.Form style={{marginTop: "10px"}}>
-                        <UI.FormField ref="articleNameFormField" label="Article name">
-                            <UI.TextInput ref="articleNameInput"  value={"Translation for " + this.baseArticle.name}/>
-                        </UI.FormField>
-                        <UI.FormField ref="dependencyFormField" label="Dependencies">
-                            <UI.TextInput ref="dependencyInput" value={this.baseArticle.dependency}/>
-                        </UI.FormField>
-                        <UI.FormField ref="languageFormField" label="Language">
-                            <UI.Select ref="languageSelect" options={Language.all()}/>
-                        </UI.FormField>
-                        <UI.FormField ref="publicFormField" label="Public">
-                            <UI.CheckboxInput ref="publicCheckbox" checked={this.baseArticle.isPublic}/>
-                        </UI.FormField>
-                    </UI.Form>
-                </div>
-                <div>
-                    <UI.TemporaryMessageArea ref="messageArea"/>
-                    <UI.Button label="Close" onClick={() => this.hide()}/>
-                    <UI.AjaxButton ref="createArticleButton" level={UI.Level.PRIMARY}
-                                   onClick={() => this.createArticle({
-                                       baseArticleId: this.baseArticle.id,
-                                       markup: this.baseArticle.markup
-                                   })}
-                                   statusOptions={["Add translation", {faIcon: "spinner fa-spin", label:" creating translation article ..."}, "Success", "Failed"]}
-                    />
-                </div>
-            </div>
+    getActioName() {
+        return "Add translation";
+    }
+
+    getBody() {
+        const baseArticle = this.options.baseArticle;
+        return <UI.Form style={{marginTop: "10px"}}>
+                    <UI.FormField ref="articleNameFormField" label="Article name">
+                        <UI.TextInput ref="articleNameInput"  value={"Translation for " + baseArticle.name}/>
+                    </UI.FormField>
+                    <UI.FormField ref="dependencyFormField" label="Dependencies">
+                        <UI.TextInput ref="dependencyInput" value={baseArticle.dependency}/>
+                    </UI.FormField>
+                    <UI.FormField ref="languageFormField" label="Language">
+                        <UI.Select ref="languageSelect" options={Language.all()}/>
+                    </UI.FormField>
+                    <UI.FormField ref="publicFormField" label="Public">
+                        <UI.CheckboxInput ref="publicCheckbox" checked={baseArticle.isPublic}/>
+                    </UI.FormField>
+                </UI.Form>
+    }
+
+    getFooter() {
+        const baseArticle = this.options.baseArticle;
+        return [<UI.TemporaryMessageArea ref="messageArea"/>,
+            <UI.ButtonGroup>
+                <UI.Button label="Close" onClick={() => this.hide()}/>
+                <UI.AjaxButton ref="createArticleButton" level={UI.Level.PRIMARY}
+                               onClick={() => this.createArticle({
+                                   baseArticleId: baseArticle.id,
+                                   markup: baseArticle.markup
+                               })}
+                               statusOptions={["Add translation", {faIcon: "spinner fa-spin", label:" creating translation article ..."},
+                                               "Success", "Failed"]}/>
+            </UI.ButtonGroup>
         ];
     }
 }

@@ -20,7 +20,7 @@ class EditEntryModal extends UI.ActionModal {
         return "Apply";
     }
 
-    getBodyContent() {
+    getBody() {
         return [
             <UI.Form style={{"margin-top": "10px", "color": "initial", "font-size": "initial"}}>
                 <UI.FormField label="URL name" style={{"font-weight": "initial"}}>
@@ -169,7 +169,7 @@ class CreateEntryModal extends UI.ActionModal {
         return "Create";
     }
 
-    getBodyContent() {
+    getBody() {
         let entries = DocumentationEntryStore.all();
         entries.push({
             toString: () => {
@@ -196,11 +196,6 @@ class CreateEntryModal extends UI.ActionModal {
                 </UI.FormField>
             </UI.Form>
         ];
-    }
-
-    getFooter() {
-        let content = this.getFooterContent();
-        return content ? <div style={{"color": "initial", "font-size": "initial"}}>{content}</div> : null;
     }
 
     check(data) {
