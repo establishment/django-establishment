@@ -202,7 +202,7 @@ class LoginWidget extends UI.Element {
             success: (data) => {
                 if (data["error"] != null) {
                     this.loginErrorMessage.setError("Wrong username or password");
-                    this.mainFormGroup.setError(data.error);
+                    //this.mainFormGroup.setError(data.error);
                 } else {
                     location.reload();
                 }
