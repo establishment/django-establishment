@@ -125,6 +125,7 @@ class ForumThread extends StoreObject {
     }
 
     isLoaded() {
+        // TODO: this needs to be fixed to support dynamic loading
         // console.warn(this.getNumReplies(), this.getMessageThread().getNumMessages());
         return this.getMessageThread() != null && this.getNumReplies() === this.getMessageThread().getNumMessages() - 1;
     }

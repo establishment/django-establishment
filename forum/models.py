@@ -174,5 +174,5 @@ class ForumThread(StreamObjectMixin):
     def add_to_state(self, state, request=None):
         state.add(self)
         state.add(self.content)
-        message_thread_summary = MessageThreadSummary(self.message_thread, include_online_info=False)
+        message_thread_summary = MessageThreadSummary(self.message_thread, include_online_info=False, message_count=9999)
         message_thread_summary.add_to_state(state)
