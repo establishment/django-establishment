@@ -6,16 +6,21 @@ from redis import StrictRedis, ConnectionPool
 from establishment.detoate.util import jsonify, same_dict
 from establishment.funnel.encoder import StreamJSONEncoder
 
-redis_connection_pool = ConnectionPool(**settings.REDIS_CONNECTION)
 
+redis_connection_pool = None
+
+def get_default_redis_connection_pool():
+    global redis_connection_pool
+    if redis_connection_pool is None:
+        redis_connection_pool = ConnectionPool(**settings.REDIS_CONNECTION)
+    return redis_connection_pool
 
 class RedisStreamPublisher(object):
-    global_connection = StrictRedis(connection_pool=redis_connection_pool)
     message_timeout = 60 * 60 * 5   # Default expire time - 5 hours
 
     def __init__(self, stream_name, connection=None, persistence=True, raw=False, expire_time=None):
         if not connection:
-            connection = StrictRedis(connection_pool=redis_connection_pool)
+            connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
         self.connection = connection
         self.name = stream_name
         self.persistence = persistence
@@ -37,8 +42,10 @@ class RedisStreamPublisher(object):
                                                       expire_time=self.expire_time)
 
     @classmethod
-    def publish_to_stream(cls, stream_name, message, serializer_class=StreamJSONEncoder, connection=global_connection,
-                          persistence=True, raw=False, expire_time=None):
+    def publish_to_stream(cls, stream_name, message, serializer_class=StreamJSONEncoder,
+                          connection=None, persistence=True, raw=False, expire_time=None):
+        if connection is None:
+            connection = get_default_redis_connection_pool()
         original_message = message
         if not isinstance(message, str):
             message = json.dumps(message, cls=serializer_class)
@@ -121,7 +128,7 @@ class RedisStreamSubscriber(object):
     """
     def __init__(self, connection=None):
         if not connection:
-            connection = StrictRedis(connection_pool=redis_connection_pool)
+            connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
         self.connection = connection
         self.subscription = connection.pubsub()
 

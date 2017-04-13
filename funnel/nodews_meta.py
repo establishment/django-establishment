@@ -2,6 +2,7 @@ from django.conf import settings
 from redis import StrictRedis, ConnectionPool
 
 from establishment.detoate.util import stringify, serializify
+from establishment.funnel.redis_stream import get_default_redis_connection_pool
 
 REDIS_ENTRY_CONNECTIONIDS = "nodews-meta-connectionids"
 REDIS_ENTRY_USERIDS = "nodews-meta-userids"
@@ -14,9 +15,6 @@ REDIS_ENTRY_CONNECTIONID_TO_DATA_PREFIX = "nodews-meta-connectionid-to-data-pref
 REDIS_ENTRY_USERID_TO_STREAMS_PREFIX = "nodews-meta-userid-to-streams-"
 REDIS_ENTRY_STREAM_TO_USERIDS_PREFIX = "nodews-meta-stream-to-userids-"
 REDIS_ENTRY_STREAM_TO_USERID_CONNECTION_COUNTER_PREFIX = "nodews-meta-stream-to-userid-counter-"
-
-
-redis_connection_pool = ConnectionPool(**settings.REDIS_CONNECTION)
 
 
 class WSUserData:
@@ -91,11 +89,9 @@ class WSStreamData:
 
 
 class NodeWSMeta(object):
-    global_connection = StrictRedis(connection_pool=redis_connection_pool)
-
     def __init__(self, connection=None):
         if not connection:
-            connection = StrictRedis(connection_pool=redis_connection_pool)
+            connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
         self.connection = connection
 
     def get_all(self):
