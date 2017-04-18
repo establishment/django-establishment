@@ -82,9 +82,9 @@ class BaseArticleArticle(models.Model):
 
 #TODO: ArticleEdit and Article should inherit from a base class with all shared fields
 class ArticleEdit(models.Model):
-    article = models.ForeignKey("Article")
+    article = models.ForeignKey("Article", on_delete=models.CASCADE)
     version = models.IntegerField()
-    author = models.ForeignKey(settings.AUTH_USER_MODEL)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date_modified = models.DateTimeField(auto_now_add=True)
     markup = models.TextField(default="")
 
@@ -118,7 +118,7 @@ class ArticleEdit(models.Model):
 class Article(models.Model):
     is_public = models.BooleanField("Should be accessible by ID by everyone", default=False)
     version = models.IntegerField(default=0)
-    author_created = models.ForeignKey(settings.AUTH_USER_MODEL)
+    author_created = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=256)
@@ -126,8 +126,8 @@ class Article(models.Model):
     markup = models.TextField(max_length=1<<18, default="")
     compiled_json = models.TextField(max_length=1<<18, default="{}", blank=True)
     compiled_html = models.TextField(max_length=1<<19, default="", blank=True)
-    language = models.ForeignKey(Language, default=1)
-    base_article = models.ForeignKey("Article", null=True, blank=True)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE, default=1)
+    base_article = models.ForeignKey("Article", on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         db_table = "Article"
@@ -160,7 +160,7 @@ class Article(models.Model):
             return self.version
 
     def is_available_to(self, user):
-        if user.is_authenticated() and self.author_created_id == user.id:
+        if user.is_authenticated and self.author_created_id == user.id:
             return True
         return self.is_public or user.is_superuser
 
@@ -196,7 +196,7 @@ class Article(models.Model):
 
 
 class UserFeedback(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     message = models.TextField(max_length=1 << 15)
     client_message = models.TextField(max_length=1 << 16, default="{}")

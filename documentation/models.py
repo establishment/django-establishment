@@ -7,12 +7,11 @@ from establishment.funnel.stream import StreamObjectMixin
 class DocumentationEntry(StreamObjectMixin):
     url_name = models.CharField(max_length=64, null=True, blank=True)
     name = models.CharField(max_length=255, null=True, blank=True)
-    article = models.ForeignKey(Article, related_name="+")
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="+")
     # TODO: this should really be an array field of foreign keys to sub_entries, to preserve order,
     # django doesn't support this yet
-    parent = models.ForeignKey("DocumentationEntry", related_name="sub_entries", null=True, blank=True)
+    parent = models.ForeignKey("DocumentationEntry", on_delete=models.CASCADE, related_name="sub_entries", null=True, blank=True)
     parent_index = models.IntegerField(default=0)
-    # sub_entries = models.ArrayField(models.ForeignKey("DocumentationEntry"), related_name="parent")
 
     class Meta:
         db_table = "DocumentationEntry"

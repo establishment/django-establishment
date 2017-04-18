@@ -9,7 +9,7 @@ class RequestVisitor(object):
         return get_remote_ip(self.request)
 
     def unique(self):
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             return "user-" + str(self.request.user.id)
         else:
             return "ip-" + self.ip()

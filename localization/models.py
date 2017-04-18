@@ -57,8 +57,8 @@ class TranslationKey(models.Model):
 
 
 class TranslationEntry(models.Model):
-    key = models.ForeignKey(TranslationKey)
-    language = models.ForeignKey(Language, related_name="+")
+    key = models.ForeignKey(TranslationKey, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name="+")
     value = models.CharField(max_length=4096)
 
     class Meta:

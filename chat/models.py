@@ -91,8 +91,8 @@ class MessageThread(StreamObjectMixin):
 
 
 class MessageInstance(ReactionableMixin):
-    message_thread = models.ForeignKey(MessageThread, related_name="messages")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    message_thread = models.ForeignKey(MessageThread, on_delete=models.CASCADE, related_name="messages")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     time_added = models.DateTimeField(auto_now_add=True)
     content = models.TextField(max_length=(1 << 14))
     hidden = models.BooleanField(default=False)
@@ -182,7 +182,7 @@ class MessageInstance(ReactionableMixin):
 
 # Temp testing class
 class MessageThreadWrapperMixin(StreamObjectMixin):
-    message_thread = models.OneToOneField(MessageInstance, related_name="+")
+    message_thread = models.OneToOneField(MessageInstance, on_delete=models.CASCADE, related_name="+")
 
     def get_stream_name(self):
         return self.message_thread.stream_name
@@ -229,9 +229,9 @@ class LastReadMessageMixin(StreamObjectMixin):
 
 # TODO: should PrivateChat and Group chat inherit from a common class?
 class PrivateChat(StreamObjectMixin):
-    user1 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+")
-    user2 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+")
-    message_thread = models.OneToOneField(MessageThread, related_name="+")
+    user1 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
+    user2 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
+    message_thread = models.OneToOneField(MessageThread, on_delete=models.CASCADE, related_name="+")
     first_unread_message = JSONField(default=dict)
 
     class Meta:
@@ -347,8 +347,8 @@ class PrivateChat(StreamObjectMixin):
 
 class GroupChat(StreamObjectMixin):
     title = models.CharField(max_length=512)
-    message_thread = models.ForeignKey(MessageThread, related_name="+")
-    group = models.ForeignKey("accounts.UserGroup", null=True, blank=True)
+    message_thread = models.ForeignKey(MessageThread, on_delete=models.CASCADE, related_name="+")
+    group = models.ForeignKey("accounts.UserGroup", on_delete=models.CASCADE, null=True, blank=True)
     max_message_size = models.IntegerField(default=4096)
 
     stream_name_pattern = re.compile(r"messagethread-groupchat-(\d+)-m=(\d+)")
@@ -428,7 +428,7 @@ class GroupChat(StreamObjectMixin):
 
 # TODO: rename to CommentableMixin
 class Commentable(models.Model):
-    discussion = models.OneToOneField(GroupChat, models.SET_NULL, null=True, blank=True)
+    discussion = models.OneToOneField(GroupChat, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         abstract = True

@@ -24,7 +24,7 @@ logger = logging.getLogger("django.request")
 
 @ajax_required
 def user_signup_request(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return JSONErrorResponse("You're already logged in.")
 
     if not test_recaptcha(request):
@@ -169,7 +169,7 @@ def remove_social_account(request):
 
 @ajax_required
 def user_login_view(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return JSONErrorResponse("You're already authenticated!")
 
     credentials = {

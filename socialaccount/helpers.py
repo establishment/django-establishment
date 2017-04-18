@@ -20,7 +20,7 @@ def complete_social_login(request, social_login):
 
 # TODO: this should probably be a method in social_login, connect_to_account!
 def _add_social_account(request, social_login):
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         # This should not happen.
         return HttpResponseBadRequest()
     if social_login.is_temporary():
@@ -32,7 +32,7 @@ def _add_social_account(request, social_login):
 
 
 def _complete_social_login(request, social_login):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         logout(request)
 
     if not social_login.email_addresses:

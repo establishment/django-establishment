@@ -495,7 +495,7 @@ def add_own_user_reactions_to_state(state):
     """
     Add reactions that the current user made to ReactionCollections in the state
     """
-    if not state.user or not state.user.is_authenticated():
+    if not state.user or not state.user.is_authenticated:
         return
 
     reaction_collection_ids = set()

@@ -48,7 +48,7 @@ class JSONErrorResponse(JSONResponse):
 def login_required(function=None):
     def _decorator(view_func):
         def _wrapped_view(request, *args, **kwargs):
-            if not request.user.is_authenticated():
+            if not request.user.is_authenticated:
                 return global_renderer.render_error_message(request, "Please login", "You need to login to continue."
                                                                        "You can login from the navbar (upper right corner)")
             return view_func(request, *args, **kwargs)

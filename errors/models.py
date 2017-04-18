@@ -7,7 +7,7 @@ from establishment.funnel.stream import StreamObjectMixin
 class ErrorMessage(StreamObjectMixin, Exception):
     is_public = models.BooleanField("Should be seen by non-admins", default=True)
     message = models.CharField(max_length=2048, null=True, blank=True)
-    translation_key = models.OneToOneField("localization.TranslationKey", null=True, blank=True)
+    translation_key = models.OneToOneField("localization.TranslationKey", on_delete=models.SET_NULL, null=True, blank=True)
     status_code = models.IntegerField("HTTP Status code", null=True, blank=True)
     app = models.CharField("Django app", max_length=64, null=True, blank=True)
 

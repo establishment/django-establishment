@@ -32,7 +32,7 @@ def user_can_subscribe_to_stream(user, stream_name):
     :param stream_name: The stream the user wants to subscribe to
     :return: A pair of bool and string, that mean if the user can subscribe and a reason
     """
-    if user is None or user.is_anonymous():
+    if user is None or user.is_anonymous:
         return guest_can_subscribe_to_stream(stream_name)
 
     # Admins can subscribe to anything
@@ -43,7 +43,7 @@ def user_can_subscribe_to_stream(user, stream_name):
         return False, "Invalid stream name"
 
     # Any user is allowed to subscribe to the global stream and their own
-    if stream_name == "global-events" or (user.is_authenticated() and stream_name.startswith("user-" + str(user.id) + "-")):
+    if stream_name == "global-events" or (user.is_authenticated and stream_name.startswith("user-" + str(user.id) + "-")):
         return True, "Default streams"
 
     stream_handler = get_stream_handler(stream_name)
