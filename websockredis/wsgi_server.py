@@ -2,6 +2,7 @@ import queue
 import sys
 import threading
 import time
+import logging
 from importlib import import_module
 
 from django import http
@@ -9,12 +10,14 @@ from django.conf import settings
 from django.contrib.auth import get_user
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
-from django.core.handlers.wsgi import WSGIRequest, logger
+from django.core.handlers.wsgi import WSGIRequest
 
 from establishment.detoate.threading_helper import ThreadHandler
 from establishment.funnel.redis_stream import RedisStreamSubscriber
 from establishment.funnel.permission_checking import user_can_subscribe_to_stream
 from .exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
+
+logger = logging.getLogger("django.server")
 
 # The maximum size we should allow websocket messages to have
 MAX_WEBSOCKET_MESSAGE_SIZE = 1 << 20

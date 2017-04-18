@@ -1,12 +1,14 @@
 # This code was generously pilfered from https://bitbucket.org/Jeffrey/gevent-websocket
 # written by Jeffrey Gelens (http://noppo.pro/) and licensed under the Apache License, Version 2.0
 import struct
+import logging
 from socket import error as socket_error
-
-from django.core.handlers.wsgi import logger
 
 from .utf8validator import Utf8Validator
 from .exceptions import WebSocketError, FrameTooLargeException
+
+
+logger = logging.getLogger("django.server")
 
 
 class WebSocket(object):

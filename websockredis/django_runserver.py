@@ -2,11 +2,12 @@ import base64
 import select
 import threading
 import wsgiref
+import logging
 from hashlib import sha1
 
 from django.conf import settings
-from django.core.handlers.wsgi import logger
 from django.core.management.commands import runserver
+from django.core.servers.basehttp import WSGIServer
 from django.core.wsgi import get_wsgi_application
 from django.utils.encoding import force_str
 
@@ -15,6 +16,8 @@ from .wsgi_server import WebsocketWSGIServer, HandshakeError, UpgradeRequiredErr
 
 if not settings.DEBUG:
     raise Exception("This module should only be used in DEBUG mode")
+
+logger = logging.getLogger("django.server")
 
 
 # Disable Hop-by-hop transport, Yo!
@@ -69,7 +72,7 @@ class WebsocketRunServer(WebsocketWSGIServer):
 old_runserver_run = runserver.run
 
 
-def run(addr, port, wsgi_handler, ipv6=False, threading=False):
+def run(addr, port, wsgi_handler, ipv6=False, threading=False, server_cls=WSGIServer):
     """
     Function to monkey patch the internal Django command: manage.py runserver
     Do whatever you need here
@@ -79,7 +82,7 @@ def run(addr, port, wsgi_handler, ipv6=False, threading=False):
     if not threading:
         raise Exception("Debug server must run with threading enabled")
 
-    old_runserver_run(addr, port, wsgi_handler, ipv6, threading)
+    old_runserver_run(addr, port, wsgi_handler, ipv6, threading)#, server_cls)
 
 
 runserver.run = run
