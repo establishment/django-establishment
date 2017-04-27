@@ -3,8 +3,9 @@ import {GlobalStyle} from "GlobalStyle";
 
 class EmailUnsubscribe extends UI.Element {
     extraNodeAttributes(attr) {
-        attr.addClass("col-sm-8");
-        attr.addClass("col-sm-offset-2");
+        attr.setStyle({
+            textAlign: "center",
+        });
     }
 
     render() {

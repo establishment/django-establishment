@@ -276,7 +276,7 @@ def email_address_verify(request, key):
     try:
         unverified_email = UnverifiedEmail.objects.get(key=key)
     except:
-        return JSONResponse({});
+        return JSONResponse({})
 
     if unverified_email.user is None:
         # create a new user
@@ -289,24 +289,24 @@ def email_address_verify(request, key):
 
     email_address = unverified_email.verify()
     if email_address is None:
-        return JSONResponse({});
+        return JSONResponse({})
 
     login(request, email_address.user)
 
     return JSONResponse({"confirmSuccess": True})
 
 
+@single_page_app
 def email_unsubscribe(request, key):
     try:
         user = get_user_manager().get(email_unsubscribe_key=key)
     except:
-        return global_renderer.render_ui_widget(request, "EmailUnsubscribe", page_title="Unsubscribe E-mail Address")
+        return JSONResponse({})
 
     user.receives_email_announcements = False
     user.save()
 
-    return global_renderer.render_ui_widget(request, "EmailUnsubscribe", page_title="Unsubscribe E-mail Address",
-                            widget_options={"unsubscribeSuccess": True})
+    return JSONResponse({"unsubscribeSuccess": True})
 
 
 @login_required_ajax
