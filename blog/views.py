@@ -10,14 +10,15 @@ from establishment.funnel.utils import GlobalObjectCache
 from establishment.funnel.base_views import JSONResponse, ajax_required, superuser_required, global_renderer
 
 
-def blog(request):
+def get_blog_state(request):
     blog_posts = BlogEntry.objects.order_by("-article__date_created").prefetch_related("article")
 
     if not request.user.is_superuser:
         blog_posts = blog_posts.filter(visible=True)
 
     if request.is_ajax() and ("lastDate" in request.GET):
-        blog_posts = blog_posts.filter(article__date_created__lt=datetime.datetime.fromtimestamp(float(request.GET["lastDate"])))[:4]
+        blog_posts = blog_posts.filter(
+            article__date_created__lt=datetime.datetime.fromtimestamp(float(request.GET["lastDate"])))[:4]
         count = 3
     else:
         blog_posts = blog_posts[:6]
@@ -29,16 +30,21 @@ def blog(request):
         state.add(blog_post)
         article = blog_post.article
         state.add(article)
+    return state, (len(blog_posts) != count + 1)
+
+
+def blog(request):
+    state, finished_loading = get_blog_state(request)
 
     if request.is_ajax() and ("lastDate" in request.GET):
-        return JSONResponse({"state": state, "finishedLoading": (len(blog_posts) != count + 1)})
+        return JSONResponse({"state": state, "finishedLoading": finished_loading})
 
     widget_options = {
         "style": {
             "background-color": "#f3f4f6",
             "min-height": "100vh",
         },
-        "finishedLoading": (len(blog_posts) != count + 1)
+        "finishedLoading": finished_loading
     }
 
     return global_renderer.render_ui_widget(request, "BlogPanel", state, widget_options=widget_options)
