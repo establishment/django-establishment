@@ -21,6 +21,7 @@ class ChatStyle extends StyleSet {
         overflowY: "auto",
         overflowX: "hidden",
         backgroundColor: this.backgroundColor,
+        position: "relative",
     };
 
     @styleRule
