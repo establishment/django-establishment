@@ -21,9 +21,13 @@ def default_render_error_message(request, title, message):
     pass
 
 
+def default_single_page_app(request):
+    pass
+
+
 global_renderer.render_ui_widget = default_render_ui_widget
 global_renderer.render_error_message = default_render_error_message
-
+global_renderer.render_single_page_app = default_single_page_app
 
 def get_remote_ip(request):
     """
@@ -100,6 +104,20 @@ def ajax_required(function=None):
         def _wrapped_view(request, *args, **kwargs):
             if not request.is_ajax():
                 return HttpResponseBadRequest()
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
+
+    if function is None:
+        return _decorator
+    else:
+        return _decorator(function)
+
+
+def single_page_app(function):
+    def _decorator(view_func):
+        def _wrapped_view(request, *args, **kwargs):
+            if not request.is_ajax():
+                return global_renderer.render_single_page_app(request)
             return view_func(request, *args, **kwargs)
         return _wrapped_view
 

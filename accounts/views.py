@@ -14,6 +14,7 @@ from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, log
 from establishment.funnel.throttle import ActionThrottler
 
 from establishment.funnel.utils import GlobalObjectCache, int_list
+from establishment.funnel.base_views import single_page_app
 from .adapter import login, perform_login
 from .models import EmailAddress, UnverifiedEmail, UserSummary, PublicUserSummary
 from .recaptcha_client import test_recaptcha
@@ -269,12 +270,13 @@ def email_address_verification_send(request):
     return JSONResponse({"success": True})
 
 
+@single_page_app
 def email_address_verify(request, key):
     # TODO: we'll want a nice way of protecting against spammers hitting us with heavy requests (keys over 1MB for instance)
     try:
         unverified_email = UnverifiedEmail.objects.get(key=key)
     except:
-        return global_renderer.render_ui_widget(request, "EmailConfirmed", page_title="Confirm E-mail Address")
+        return JSONResponse({});
 
     if unverified_email.user is None:
         # create a new user
@@ -287,12 +289,11 @@ def email_address_verify(request, key):
 
     email_address = unverified_email.verify()
     if email_address is None:
-        return global_renderer.render_ui_widget(request, "EmailConfirmed", page_title="Confirm E-mail Address")
+        return JSONResponse({});
 
     login(request, email_address.user)
 
-    return global_renderer.render_ui_widget(request, "EmailConfirmed", page_title="Confirm E-mail Address",
-                            widget_options={"confirmSuccess": True})
+    return JSONResponse({"confirmSuccess": True})
 
 
 def email_unsubscribe(request, key):
