@@ -249,9 +249,7 @@ class BlogEntryPreview extends UI.Element {
               </div>
               <BlogArticleRenderer article={this.article} style={blogStyle.blogArticleRenderer}/>
               <div className={blogStyle.whiteOverlay}></div>
-              <a href={this.options.urlPrefix + "#" + this.entry.urlName} style={blogStyle.link}>
-                Continue reading
-              </a>
+              <Link href={this.options.urlPrefix + this.entry.urlName + "/"} style={blogStyle.link} value="Continue reading" />
             </div>
             </div>
         ];
@@ -329,7 +327,7 @@ class BlogEntryView extends UI.Element {
                     "margin-top": "30px",
                     "margin-bottom": "10px",
                 }}>
-                    <a href="#" style={blogStyle.link}>
+                    <a href="blog/" style={blogStyle.link}>
                         Back to the Main Blog
                     </a>
                 </div>
