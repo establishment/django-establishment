@@ -327,9 +327,7 @@ class BlogEntryView extends UI.Element {
                     "margin-top": "30px",
                     "margin-bottom": "10px",
                 }}>
-                    <a href="blog/" style={blogStyle.link}>
-                        Back to the Main Blog
-                    </a>
+                    <Link href="/blog/" style={blogStyle.link} value="Back to the Main Blog" />
                 </div>
                 {this.getComments()}
             </div>,
