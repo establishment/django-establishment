@@ -441,7 +441,7 @@ class ForumThreadPanelWithUrl extends ForumThreadPanel {
     }
 
     getBackUrl() {
-        return "../../";
+        return "/forum/";
     }
 }
 

@@ -463,16 +463,21 @@ class DelayedForumWidget extends StateDependentElement(ForumWidget) {
 
         this.getUrlRouter().dispatch("change", this.getUrlRouter().getState());
 
-        Dispatcher.Global.addListener("changeURL", () => {
+        let handleChangeUrl = () => {
             let currentUrl = Router.parseURL();
             if (currentUrl.length >= this.getUrlRouter().getPrefix().length) {
                 let currentPrefix = currentUrl.slice(0, this.getUrlRouter().getPrefix().length);
                 if (currentPrefix.join("/") === this.getUrlRouter().getPrefix().join("/")) {
                     this.getUrlRouter().getParentRouter().setActiveSubrouter(this.getUrlRouter());
-                    this.getUrlRouter().setState(currentUrl.slice(currentPrefix.length));
+                    this.getUrlRouter().setState(currentUrl.slice(currentPrefix.length), true);
+                } else if (this.getUrlRouter().getParentRouter().getActiveSubrouter() === this.getUrlRouter()) {
+                    this.getUrlRouter().getParentRouter().resetActiveSubrouter();
                 }
             }
-        });
+        };
+
+        Dispatcher.Global.addListener("changeURL", handleChangeUrl);
+        Router.Global.addListener("change", handleChangeUrl);
 
         ForumThreadStore.addListener("create", () => {
             this.dispatch("shouldRedrawChild", {child: this.forumPanel});
