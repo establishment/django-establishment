@@ -5,6 +5,7 @@ import django
 import encodings.idna
 
 from establishment.services.daemon import Daemon
+from establishment.services.status import ServiceStatus
 
 class ServiceDaemon(Daemon):
     def __init__(self, service_name, pidfile=None):
@@ -20,8 +21,6 @@ class ServiceDaemon(Daemon):
         django.setup()
 
     def before_run(self):
-        from establishment.services.status import ServiceStatus
-
         self.setup_logging()
 
         ServiceStatus.init(self.service_name)
