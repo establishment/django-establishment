@@ -1,5 +1,5 @@
 import {Ajax} from "Ajax";
-import {UI, Button} from "UI";
+import {UI, Button, Link} from "UI";
 import {StemDate} from "Time";
 import {GlobalState} from "State";
 import {BlogEntryStore} from "BlogStore";
@@ -15,6 +15,9 @@ import * as Utils from "Utils";
 import {FAIcon} from "FontAwesome";
 import {css, hover, focus, active, StyleSet} from "Style";
 import {BlogStyle} from "BlogStyle";
+import {StateDependentElement} from "StateDependentElement";
+import {Subrouter, Router} from "Router";
+import {Dispatcher} from "Dispatcher";
 
 let blogStyle = BlogStyle.getInstance();
 
@@ -241,9 +244,8 @@ class BlogEntryPreview extends UI.Element {
                 Written by <UserHandle userId={this.article.userCreatedId}/> on {publishedFormat}.{modifiedFormat}
               </div>
               <div style={blogStyle.title}>
-                <a href={this.options.urlPrefix + "#" + this.entry.urlName} style={{"text-decoration": "none", "color": "inherit"}}>
-                  {this.article.name}
-                </a>
+                <Link href={this.options.urlPrefix + this.entry.urlName + "/"} value={this.article.name}
+                      style={{"text-decoration": "none", "color": "inherit"}} />
               </div>
               <BlogArticleRenderer article={this.article} style={blogStyle.blogArticleRenderer}/>
               <div className={blogStyle.whiteOverlay}></div>
@@ -487,4 +489,85 @@ class BlogPanel extends UI.Panel {
     }
 }
 
-export {BlogPanel, BlogEntryPreview};
+class DelayedBlogPanel extends StateDependentElement(BlogPanel) {
+    getAjaxUrl() {
+        return "/blog/";
+    }
+
+    importState(data) {
+        super.importState(data);
+        this.options.finishedLoading = data.finishedLoading;
+    }
+
+    getUrlRouter() {
+        return this.urlRouter;
+    }
+
+    onDelayedMount() {
+        let handleLocation = (args) => {
+            try {
+                if (args.length === 0) {
+                    this.switcher.setActive(this.entryList);
+                } else {
+                    let entryURL = args[0];
+
+                    let entryId = this.getEntryIdForURLName(entryURL);
+
+                    if (entryId) {
+                        this.entryView.setOptions({entryId: entryId});
+                        this.switcher.setActive(this.entryView);
+                        this.entryView.redraw();
+                    } else {
+                        Ajax.getJSON("/blog/get_blog_post/", {
+                            entryUrlName: entryURL
+                        }).then((data) => {
+                            if (data.error) {
+                                console.log(data.error);
+                                this.getUrlRouter().setState([]);
+                            } else {
+                                GlobalState.importState(data.state || {});
+                                let entryId = this.getEntryIdForURLName(entryURL);
+                                if (entryId) {
+                                    this.entryView.setOptions({entryId: entryId});
+                                    this.switcher.setActive(this.entryView);
+                                    this.entryView.redraw();
+                                } else {
+                                    console.log("Could not find blog entry", entryURL);
+                                    this.getUrlRouter().setState([]);
+                                }
+                            }
+                        },
+                        (error) => {
+                            console.log(error);
+                            this.getUrlRouter().setState([]);
+                        });
+                    }
+                }
+            } catch (e) {
+                this.getSubrouter().setState([]);
+            }
+        };
+
+        this.urlRouter = new Subrouter( Router.Global.getCurrentRouter(),
+                                        [...Router.Global.getCurrentRouter().getPrefix(), "blog"],
+                                        this.options.subArgs || []);
+        Router.Global.getCurrentRouter().registerSubrouter(this.urlRouter);
+        this.getUrlRouter().addChangeListener(handleLocation);
+        this.getUrlRouter().addExternalChangeListener(handleLocation);
+
+        this.getUrlRouter().dispatch("change", this.getUrlRouter().getState());
+
+        Dispatcher.Global.addListener("changeURL", () => {
+            let currentUrl = Router.parseURL();
+            if (currentUrl.length >= this.getUrlRouter().getPrefix().length) {
+                let currentPrefix = currentUrl.slice(0, this.getUrlRouter().getPrefix().length);
+                if (currentPrefix.join("/") === this.getUrlRouter().getPrefix().join("/")) {
+                    this.getUrlRouter().getParentRouter().setActiveSubrouter(this.getUrlRouter());
+                    this.getUrlRouter().setState(currentUrl.slice(currentPrefix.length));
+                }
+            }
+        });
+    }
+}
+
+export {BlogPanel, BlogEntryPreview, DelayedBlogPanel};

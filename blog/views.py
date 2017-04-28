@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from establishment.content.models import Article
 from establishment.blog.models import BlogEntry
 from establishment.funnel.utils import GlobalObjectCache
-from establishment.funnel.base_views import JSONResponse, ajax_required, superuser_required, global_renderer
+from establishment.funnel.base_views import JSONResponse, ajax_required, superuser_required, global_renderer, single_page_app
 
 
 def get_blog_state(request):
@@ -63,6 +63,12 @@ def get_blogpost(request):
         state.add(blog_post)
         state.add(blog_post.article)
     return JSONResponse({"state": state})
+
+
+@single_page_app
+def blog_single_page(request):
+    state, finished_loading = get_blog_state(request)
+    return JSONResponse({"state": state, "finishedLoading": finished_loading})
 
 
 @ajax_required
