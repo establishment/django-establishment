@@ -1,11 +1,11 @@
-import {UI} from "UI";
+import {UI, Link} from "UI";
 import {GlobalState} from "State";
 import {ForumStore, ForumThreadStore} from "ForumStore";
 import {PreviewMarkupButton} from "ChatWidget";
 import {UserHandle} from "UserHandle";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {MessageThreadStore, MessageInstanceStore} from "MessageThreadStore";
-import {ForumThreadPanel, CreateForumThreadButton} from "ForumThread";
+import {ForumThreadPanel, CreateForumThreadButton, CreateForumThreadButtonWithUrl, ForumThreadPanelWithUrl} from "ForumThread";
 import {URLRouter} from "URLRouter";
 import * as Utils from "Utils";
 import {ForumThreadHeaderStyle} from "ForumStyle";
@@ -13,7 +13,9 @@ import {ForumThreadPreviewStyle} from "ForumStyle";
 import {ForumThreadBubbleStyle} from "ForumStyle";
 import {ForumThreadPanelStyle} from "ForumStyle";
 import {ForumPanelStyle} from "ForumStyle";
-
+import {StateDependentElement} from "StateDependentElement";
+import {Subrouter, Router} from "Router";
+import {Dispatcher} from "Dispatcher";
 
 let forumThreadHeaderStyle = ForumThreadHeaderStyle.getInstance();
 let forumThreadPreviewStyle = ForumThreadPreviewStyle.getInstance();
@@ -100,6 +102,10 @@ class ForumThreadBubble extends UI.Element {
         return attr;
     }
 
+    getHref() {
+        return "#" + this.getForumThread().id + "/" + Utils.slugify(this.getForumThread().getTitle());
+    }
+
     getForumThread() {
         return this.options.forumThread;
     }
@@ -110,8 +116,6 @@ class ForumThreadBubble extends UI.Element {
             pinned = <span className={"fa fa-thumb-tack " + forumThreadBubbleStyle.pinnedIcon} aria-hidden="true" style={{paddingTop: "0", lineHeight: "20px", height: "20px",}}/>;
         }
         let forumThread = this.getForumThread();
-        // debugger;
-        // console.log(forumThread.getContentMessage());
         return [
             <div className={forumThreadBubbleStyle.threadTitleAndPreview}>
                 <div className={forumThreadBubbleStyle.threadTitle}
@@ -122,16 +126,10 @@ class ForumThreadBubble extends UI.Element {
                         return "0";
                     }}}>
                     {pinned}
-                    <a style={{
-                        "text-decoration": "none",
-                        "color": "inherit",
-                        "font-size": "14px",
-                        "text-align": "justify",
-                    }} href={"#" + this.getForumThread().id + "/" + Utils.slugify(this.getForumThread().getTitle())}>
-                        <span className={forumThreadBubbleStyle.threadTitleSpan}>
-                            {this.getForumThread().getTitle()}
-                        </span>
-                    </a>
+                    <Link style={{"text-decoration": "none", "color": "inherit", "font-size": "14px", "text-align": "justify"}} href={this.getHref()}
+                        value={<span className={forumThreadBubbleStyle.threadTitleSpan}>
+                                {this.getForumThread().getTitle()}
+                                </span>} />
                 </div>
                 <ForumThreadPreview value={this.getForumThread().getContentMessage().content} />
             </div>
@@ -152,14 +150,14 @@ class ForumThreadBubble extends UI.Element {
     getThreadReplies() {
         return [
             <div className={forumThreadBubbleStyle.threadReplies}>
-                <a style={{
+                <Link style={{
                     "text-decoration": "none",
                     "color": "inherit",
-                }} href={"#" + this.getForumThread().id + "/" + Utils.slugify(this.getForumThread().getTitle())}>
+                }} href={this.getHref()} value={
                     <span className={forumThreadBubbleStyle.threadRepliesSpan}>
                         {this.getForumThread().getNumReplies()}
                     </span>
-                </a>
+                } />
             </div>
         ];
     }
@@ -212,6 +210,12 @@ class ForumThreadBubble extends UI.Element {
     }
 }
 
+class ForumThreadBubbleWithUrl extends ForumThreadBubble {
+    getHref() {
+        return super.getHref().slice(1);
+    }
+}
+
 class ForumThreadList extends UI.Element {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
@@ -223,6 +227,10 @@ class ForumThreadList extends UI.Element {
             // boxShadow: "0px 0px 10px #ddd", // TODO: Do we want this?
         });
         return attr;
+    }
+
+    getBubbleClass() {
+        return ForumThreadBubble;
     }
 
     render() {
@@ -244,8 +252,9 @@ class ForumThreadList extends UI.Element {
         let result = [];
         let color = 1;
         result.push(<ForumThreadHeader/>);
+        let Bubble = this.getBubbleClass();
         for (let forumThread of forumThreads) {
-            result.push(<ForumThreadBubble forumThread={forumThread} color={color} isPinned={forumThread.isPinned()}/>);
+            result.push(<Bubble forumThread={forumThread} color={color} isPinned={forumThread.isPinned()}/>);
             if (!forumThread.isPinned()) {
                 color = !color;
             }
@@ -258,6 +267,12 @@ class ForumThreadList extends UI.Element {
         this.options.forum.addListener("newForumThread", () => {
             this.redraw();
         });
+    }
+}
+
+class ForumThreadListWithUrl extends ForumThreadList {
+    getBubbleClass() {
+        return ForumThreadBubbleWithUrl;
     }
 }
 
@@ -295,6 +310,24 @@ class ForumPanel extends UI.ConstructorInitMixin(UI.Panel) {
             </div>,
             this.getForumThreadList(),
         ];
+    }
+}
+
+class ForumPanelWithUrl extends ForumPanel {
+    getForumThreadList() {
+        return <ForumThreadListWithUrl forum={this.options.forum}/>;
+    }
+
+    getButton() {
+        return <div className={forumPanelStyle.buttonParent}>
+            <CreateForumThreadButtonWithUrl
+                label="NEW POST"
+                className={forumPanelStyle.button}
+                size={UI.Size.DEFAULT}
+                forumId={this.options.forum.id}
+                ref="newPostButton"
+            />
+        </div>;
     }
 }
 
@@ -372,4 +405,82 @@ class ForumWidget extends UI.Switcher {
     }
 }
 
-export {ForumWidget};
+class DelayedForumWidget extends StateDependentElement(ForumWidget) {
+    getAjaxUrl() {
+        return "/" + this.options.args.join("/") + "/";
+    }
+
+    addForumThread(forumThread) {
+        let forumThreadPanel = <ForumThreadPanelWithUrl key={forumThread.id} forumThread={forumThread} forumWidget={this} />;
+        this.forumThreadMap.set(forumThread.id, forumThreadPanel);
+        this.appendChild(forumThreadPanel);
+    }
+
+    importState(data) {
+        super.importState(data);
+        this.options.forumId = data.forumId;
+    }
+
+    renderLoaded() {
+        this.forumPanel = this.forumPanel || <ForumPanelWithUrl forum={ForumStore.get(this.options.forumId)} forumWidget={this}/>;
+        return super.renderLoaded();
+    }
+
+    registerSubrouter() {
+        let handleLocation = (args) => {
+            if (args.length !== 0) {
+                let forumThread = ForumThreadStore.get(parseInt(args[0]));
+                if (!forumThread) {
+                    this.getUrlRouter().setState([], true);
+                    return;
+                }
+                if (args.length !== 2 || args[1] !== Utils.slugify(forumThread.getTitle())) {
+                    this.getUrlRouter().setState([forumThread.id, Utils.slugify(forumThread.getTitle())], true);
+                } else {
+                    this.switchToForumThread(forumThread);
+                }
+            } else {
+                this.setActive(this.forumPanel);
+            }
+        };
+
+        this.urlRouter = new Subrouter( Router.Global.getCurrentRouter(),
+                                        [...Router.Global.getCurrentRouter().getPrefix(), "forum"],
+                                        this.options.subArgs || []);
+        Router.Global.getCurrentRouter().registerSubrouter(this.urlRouter);
+        this.getUrlRouter().addChangeListener(handleLocation);
+        this.getUrlRouter().addExternalChangeListener(handleLocation);
+    }
+
+    getUrlRouter() {
+        return this.urlRouter;
+    }
+
+    onDelayedMount() {
+        this.registerSubrouter();
+
+        this.forumPanel.newPostButton.options.urlRouter = this.getUrlRouter();
+
+        this.getUrlRouter().dispatch("change", this.getUrlRouter().getState());
+
+        Dispatcher.Global.addListener("changeURL", () => {
+            let currentUrl = Router.parseURL();
+            if (currentUrl.length >= this.getUrlRouter().getPrefix().length) {
+                let currentPrefix = currentUrl.slice(0, this.getUrlRouter().getPrefix().length);
+                if (currentPrefix.join("/") === this.getUrlRouter().getPrefix().join("/")) {
+                    this.getUrlRouter().getParentRouter().setActiveSubrouter(this.getUrlRouter());
+                    this.getUrlRouter().setState(currentUrl.slice(currentPrefix.length));
+                }
+            }
+        });
+
+        ForumThreadStore.addListener("create", () => {
+            this.dispatch("shouldRedrawChild", {child: this.forumPanel});
+        });
+        ForumThreadStore.addListener("delete", () => {
+            this.dispatch("shouldRedrawChild", {child: this.forumPanel});
+        });
+    }
+}
+
+export {ForumWidget, DelayedForumWidget};

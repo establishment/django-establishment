@@ -1,6 +1,6 @@
 import {Ajax} from "Ajax";
 import {GlobalState} from "State";
-import {UI} from "UI";
+import {UI, Link} from "UI";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {URLRouter} from "URLRouter";
@@ -51,6 +51,10 @@ class CreateForumThreadModal extends MarkupEditorModal {
         });
     }
 
+    routeToThread(forumThreadId) {
+        URLRouter.route(forumThreadId);
+    }
+
     createForumThread() {
         let request = {
             forumId: this.options.forumId,
@@ -64,7 +68,7 @@ class CreateForumThreadModal extends MarkupEditorModal {
                     ErrorHandlers.SHOW_ERROR_ALERT(data.error);
                 } else {
                     GlobalState.importState(data.state);
-                    URLRouter.route(data.forumThreadId);
+                    this.routeToThread(data.forumThreadId);
                     this.titleInput.setValue("");
                     this.markupEditor.setValue("");
                     this.markupEditor.redraw();
@@ -76,6 +80,12 @@ class CreateForumThreadModal extends MarkupEditorModal {
                 console.log(error.stack);
             }
         );
+    }
+}
+
+class CreateForumThreadModalWithUrl extends CreateForumThreadModal {
+    routeToThread(forumThreadId) {
+        this.options.urlRouter.setState([forumThreadId]);
     }
 }
 
@@ -93,6 +103,10 @@ class CreateForumThreadButton extends UI.Button {
         super.setOptions(options);
     }
 
+    getModalClass() {
+        return CreateForumThreadModal;
+    }
+
     onMount() {
         super.onMount();
         this.addClickListener(() => {
@@ -102,13 +116,19 @@ class CreateForumThreadButton extends UI.Button {
             }
             if (!this.markupEditorModal) {
                 // TODO: creating a modal should not involve explicitly calling mount
-                this.markupEditorModal = <CreateForumThreadModal forumId={this.options.forumId}
-                    classMap={ChatMarkupRenderer.classMap}
-                />;
+                let ModalClass = this.getModalClass();
+                this.markupEditorModal = <ModalClass forumId={this.options.forumId} urlRouter={this.options.urlRouter}
+                    classMap={ChatMarkupRenderer.classMap} />;
                 this.markupEditorModal.mount(document.body);
             }
             this.markupEditorModal.show();
         });
+    }
+}
+
+class CreateForumThreadButtonWithUrl extends CreateForumThreadButton {
+    getModalClass() {
+        return CreateForumThreadModalWithUrl;
     }
 }
 
@@ -214,6 +234,14 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
         return attr;
     }
 
+    returnToMain() {
+        URLRouter.route();
+    }
+
+    getBackUrl() {
+        return "/forum/#";
+    }
+
     getForumThreadState(callback) {
         let request = {
             forumThreadId: this.options.forumThread.id,
@@ -222,7 +250,7 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
         Ajax.postJSON("/forum/forum_thread_state/", request).then(
             (data) => {
                 if (data.error) {
-                    URLRouter.route();
+                    this.returnToMain();
                 } else {
                     GlobalState.importState(data.state);
                     if (callback) {
@@ -245,13 +273,12 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
     getTitle() {
         return [
             <div className={forumThreadPanelStyle.title}>
-                <a href="/forum/#" className={forumThreadPanelStyle.backButton}>
-                    <span className="fa fa-arrow-left" style={{
+                <Link href={this.getBackUrl()} className={forumThreadPanelStyle.backButton}
+                    value={<span className="fa fa-arrow-left" style={{
                         paddingRight: "10px",
                         fontSize: ".8em",
                         color: "#333",
-                    }} />
-                </a>
+                    }} />} />
                 {this.getForumThread().getTitle()}
             </div>
         ];
@@ -403,9 +430,19 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
         }
 
         this.getForumThread().addDeleteListener(() => {
-            URLRouter.route();
+            this.returnToMain();
         });
     }
 }
 
-export {CreateForumThreadButton, ForumThreadPanel};
+class ForumThreadPanelWithUrl extends ForumThreadPanel {
+    returnToMain() {
+        this.options.forumWidget.getUrlRouter().setState([]);
+    }
+
+    getBackUrl() {
+        return "../../";
+    }
+}
+
+export {CreateForumThreadButton, CreateForumThreadButtonWithUrl, ForumThreadPanel, ForumThreadPanelWithUrl};

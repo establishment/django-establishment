@@ -1,7 +1,7 @@
 from establishment.errors.errors import BaseError
 from establishment.forum.errors import ForumError
 from establishment.forum.models import ForumThread, Forum
-from establishment.funnel.base_views import ajax_required, JSONResponse, login_required_ajax, global_renderer
+from establishment.funnel.base_views import ajax_required, JSONResponse, login_required_ajax, global_renderer, single_page_app
 from establishment.funnel.utils import GlobalObjectCache
 from establishment.funnel.throttle import UserActionThrottler, ActionThrottler
 
@@ -11,6 +11,14 @@ def main_forum_view(request):
     state = GlobalObjectCache(request)
     main_forum.add_to_state(state)
     return global_renderer.render_ui_widget(request, "ForumWidget", state=state, widget_options={"forumId": main_forum.id})
+
+
+@single_page_app
+def single_page_forum(request):
+    main_forum = Forum.objects.get(id=1)
+    state = GlobalObjectCache(request)
+    main_forum.add_to_state(state)
+    return JSONResponse({"state": state, "forumId": main_forum.id})
 
 
 def latest_forum_state(request):
