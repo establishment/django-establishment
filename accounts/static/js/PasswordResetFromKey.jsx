@@ -1,4 +1,4 @@
-import {UI} from "UI";
+import {UI, Link} from "UI";
 import {Ajax} from "Ajax";
 
 class PasswordResetFromKey extends UI.Element {
@@ -9,7 +9,7 @@ class PasswordResetFromKey extends UI.Element {
                     <h1>Invalid password reset link</h1>
 
                     <p>The password reset link is invalid, either because it has already been used or has been copied incorrectly from the email.
-                        Please request a <a href="/accounts/password_reset/">new password reset</a>.</p>
+                        Please request a <Link href="/accounts/password_reset/" value="new password reset" />.</p>
                 </div>
             ];
         }

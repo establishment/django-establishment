@@ -1,4 +1,4 @@
-import {UI, Panel, Modal, ActionModal, SortableTable} from "UI";
+import {UI, Panel, Modal, ActionModal, SortableTable, Link} from "UI";
 import {GlobalState} from "State";
 import {Ajax} from "Ajax";
 import {StemDate} from "Time";
@@ -292,7 +292,7 @@ class ArticleTable extends SortableTable {
             verticalAlign: "middle"
         };
         let columns = [{
-            value: article => <a href={"/article/" + article.id + "/edit/"}>{article.name}</a>,
+            value: article => <Link href={"/article/" + article.id + "/edit/"} value={article.name} />,
             rawValue: article => article.name,
             headerName: "Article",
             headerStyle: headerStyle,

@@ -1,4 +1,4 @@
-import {UI, Button, ButtonGroup, Panel, ActionModal, SectionDivider, TextArea, TabArea} from "UI";
+import {UI, Button, ButtonGroup, Panel, ActionModal, SectionDivider, TextArea, TabArea, Link} from "UI";
 import {GlobalState} from "State";
 import {Ajax} from "Ajax";
 import {MarkupEditor} from "MarkupEditor";
@@ -127,7 +127,7 @@ class ArticleEditor extends Panel {
         let baseArticleForm = null;
         if (this.options.article.baseArticleId) {
             baseArticleForm = <UI.FormField ref="baseArticleFormField" label="Base article">
-                <a href={"/article/" + this.options.article.baseArticleId + "/edit/"}>Go to base article</a>
+                <Link href={"/article/" + this.options.article.baseArticleId + "/edit/"} value="Go to base article" />
             </UI.FormField>;
         } else {
             translationsPanel = <UI.Panel title="Translations">

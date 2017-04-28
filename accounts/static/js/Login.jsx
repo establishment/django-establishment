@@ -1,4 +1,4 @@
-import {UI, BasicTabTitle} from "UI";
+import {UI, BasicTabTitle, Link} from "UI";
 import {Panel} from "UIPrimitives";
 
 import {ensure} from "Require";
@@ -154,7 +154,8 @@ class LoginWidget extends UI.Element {
     }
 
     getForgotPassword() {
-        return <a className={loginStyle.forgotPassword} href="/accounts/password_reset">{UI.T("Forgot Password?")}</a>;
+        return <Link className={loginStyle.forgotPassword} href="/accounts/password_reset"
+                     value={UI.T("Forgot Password?")} />;
     }
 
     getBadLogin() {
@@ -425,140 +426,3 @@ class Login extends Panel {
 }
 
 export {Login};
-
-
-// import {UI, Panel} from "UI";
-// import {FacebookManager} from "FacebookManager";
-// import {GoogleManager} from "GoogleManager";
-// import {GlobalStyle} from "GlobalStyle";
-// import {Ajax} from "Ajax";
-//
-// class NormalLogin extends Panel {
-//     getStyleElement() {
-//         return <UI.StyleElement>
-//             <UI.StyleInstance selector=".loginTitle" attributes={{
-//                 "text-align": "center",
-//                 "padding-bottom": "10px"
-//             }}/>
-//         </UI.StyleElement>;
-//     }
-//
-//     render() {
-//         let iconStyle = {
-//             display: "inline-block",
-//             padding: "10px 8px",
-//             verticalAlign: "middle",
-//         };
-//         return [
-//             <h3 className="loginTitle">Log in to your account</h3>,
-//             <UI.Form ref="form">
-//                 <UI.FormGroup ref="mainFormGroup" className="text-center">
-//                     {/*Email Input*/}
-//                     <div className="text-center">
-//                         <span style={iconStyle}>
-//                             <span className="glyphicon glyphicon-user"></span>
-//                         </span>
-//                         <UI.EmailInput autofocus="autofocus" placeholder="Email address" ref="formEmailInput"
-//                                            name="email" style={{verticalAlign: "middle", width: "300px"}}/>
-//                     </div>
-//
-//                     {/*Password Input*/}
-//                     <div className="text-center">
-//                         <span style={iconStyle}>
-//                             <span className="glyphicon glyphicon-lock"></span>
-//                         </span>
-//                         <UI.PasswordInput placeholder="Password" name="password" ref="formPasswordInput"
-//                                               style={{verticalAlign: "middle", width: "300px"}}/>
-//                     </div>
-//
-//                     {/*Remember Me Checkbox*/}
-//                     <div className="text-center">
-//                       <label>
-//                         <UI.CheckboxInput checked={true} ref="formRememberInput"/>
-//                         Remember Me
-//                       </label>
-//                     </div>
-//                 </UI.FormGroup>
-//
-//                 {/*Sign In Button*/}
-//                 <div className="text-center">
-//                   <UI.SubmitInput className={`${GlobalStyle.Button.DEFAULT} ${GlobalStyle.Button.PRIMARY}`} value="Sign In" style={{margin: "5px"}}/>
-//                     <a className="btn btn-link" href="/accounts/password_reset/">Forgot Password?</a>
-//                 </div>
-//             </UI.Form>,
-//             this.getStyleElement()
-//         ];
-//     }
-//
-//     sendLogin() {
-//         var data = {
-//             email: this.formEmailInput.getValue(),
-//             password: this.formPasswordInput.getValue(),
-//             remember: this.formRememberInput.getValue()
-//         };
-//         Ajax.postJSON("/accounts/login/", data).then(
-//             (data) => {
-//                 if (data["error"] != null) {
-//                     this.mainFormGroup.setError(data["error"]);
-//                 } else {
-//                     location.reload();
-//                 }
-//             },
-//             (error) => {
-//                 console.log("Error logging in:\n" + error.message);
-//                 console.log(error.stack);
-//             }
-//         );
-//     }
-//
-//     onMount() {
-//         this.form.addNodeListener("submit", (event) => {
-//             this.sendLogin();
-//             event.preventDefault();
-//         });
-//     }
-// }
-//
-// class SocialLogin extends Panel {
-//     setOptions(options) {
-//         super.setOptions(options);
-//         FacebookManager.Global();
-//         GoogleManager.Global();
-//     }
-//
-//     render() {
-//         return [
-//             <h4 className="text-center">Or connect with</h4>,
-//             <UI.ButtonGroup className="text-center">
-//                 <UI.Button ref="facebookButton" faIcon="facebook" level="FACEBOOK" size={UI.Size.LARGE} label="facebook"/>
-//                 <UI.Button ref="googleButton" faIcon="google" level="GOOGLE" size={UI.Size.LARGE} label="google"/>
-//             </UI.ButtonGroup>
-//         ];
-//     }
-//
-//     onMount() {
-//         this.googleButton.addClickListener(() => {
-//             GoogleManager.Global().handleAuthClick(window.location.pathname, "login", () => {
-//                 window.location.reload();
-//             });
-//         });
-//         this.facebookButton.addClickListener(() => {
-//             FacebookManager.Global().login(window.location.pathname, 'authenticate', 'login');
-//         });
-//     }
-// }
-//
-//
-// class Login extends Panel {
-//     render() {
-//         return [
-//             <NormalLogin/>,
-//             <hr className={GlobalStyle.Container.EXTRA_LARGE}/>,
-//             <SocialLogin/>,
-//             <hr className={GlobalStyle.Container.EXTRA_LARGE}/>,
-//             <h2 className={`${GlobalStyle.Container.EXTRA_LARGE} signupButton`} style={{"text-align": "center", "font-size": "20px"}}><a href="/accounts/signup/">Don't have an account? Sign Up!</a></h2>
-//         ];
-//     }
-// }
-//
-// export {Login};

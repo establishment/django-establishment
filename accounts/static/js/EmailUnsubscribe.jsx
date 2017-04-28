@@ -1,4 +1,4 @@
-import {UI} from "UI";
+import {UI, Link} from "UI";
 import {GlobalStyle} from "GlobalStyle";
 
 class EmailUnsubscribe extends UI.Element {
@@ -15,7 +15,7 @@ class EmailUnsubscribe extends UI.Element {
             message = <div>
                 <h1>Email unsubscribed!</h1>
                 <h3>You can continue navigating on the website.</h3>
-                <a href="/accounts/settings" className={GlobalStyle.Button.DEFAULT}>Edit user profile</a>
+                <Link href="/accounts/settings/" className={GlobalStyle.Button.DEFAULT} value="Edit user profile" />
             </div>;
         } else {
             message = <div>
