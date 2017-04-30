@@ -9,7 +9,8 @@ from django.http import HttpResponseForbidden
 from establishment.blog.models import BlogEntry
 from establishment.content.models import TermDefinition, ArticleEdit, UserFeedback, Article
 from establishment.funnel.utils import GlobalObjectCache
-from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, login_required, login_required_ajax, ajax_required, superuser_required, global_renderer
+from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, login_required, login_required_ajax, \
+    ajax_required, superuser_required, global_renderer, single_page_app
 from establishment.funnel.throttle import UserActionThrottler
 
 
@@ -23,6 +24,18 @@ def article_manager_view(request):
     # TODO: Language should be loaded in PublicState
     state.add_all(Language.objects.all())
     return global_renderer.render_ui_widget(request, "ArticleManager", state, page_title="Article Manager")
+
+
+@superuser_required
+@single_page_app
+def article_manager_single_page_view(request):
+    from establishment.content.models import Language
+    state = GlobalObjectCache()
+    articles = Article.get_editable_articles(request.user)
+    state.add_all(articles)
+    # TODO: Language should be loaded in PublicState
+    state.add_all(Language.objects.all())
+    return JSONResponse({"state": state})
 
 
 @login_required_ajax
@@ -117,6 +130,43 @@ def full_article(request):
     return JSONResponse({"state": state})
 
 
+def check_article_change(request, article):
+    need_save = False
+    if "dependency" in request.POST:
+        # Right now regular users can't add js dependencies to an article
+        if not request.user.is_superuser:
+            return HttpResponseForbidden()
+        article.dependency = request.POST["dependency"]
+        need_save = True
+    if "languageId" in request.POST:
+        article.language_id = int(request.POST["languageId"])
+        need_save = True
+    if "name" in request.POST:
+        article.name = request.POST["name"]
+        need_save = True
+    if "isPublic" in request.POST:
+        article.is_public = json.loads(request.POST["isPublic"])
+        need_save = True
+    if "markup" in request.POST:
+        with transaction.atomic():
+            article.edit(request.user, request.POST["markup"], )
+            need_save = False
+    return need_save
+
+
+def get_article_state(article):
+    article_edits = ArticleEdit.objects.filter(article=article)
+
+    state = GlobalObjectCache()
+    state.add(article)
+    state.add_all(article_edits)
+
+    # TODO: Language should be loaded in PublicState
+    from establishment.content.models import Language
+    state.add_all(Language.objects.all())
+    return state
+
+
 @login_required
 def edit_article(request, article_id):
     article = Article.objects.get(id=article_id)
@@ -130,30 +180,7 @@ def edit_article(request, article_id):
 
     if request.is_ajax():
         # TODO: atomic transaction
-        need_save = False
-        if "dependency" in request.POST:
-            # Right now regular users can't add js dependencies to an article
-            if not request.user.is_superuser:
-                return HttpResponseForbidden()
-            article.dependency = request.POST["dependency"]
-            need_save = True
-
-        if "languageId" in request.POST:
-            article.language_id = int(request.POST["languageId"])
-            need_save = True
-
-        if "name" in request.POST:
-            article.name = request.POST["name"]
-            need_save = True
-
-        if "isPublic" in request.POST:
-            article.is_public = json.loads(request.POST["isPublic"])
-            need_save = True
-
-        if "markup" in request.POST:
-            with transaction.atomic():
-                article.edit(request.user, request.POST["markup"], )
-                need_save = False
+        need_save = check_article_change(request, article)
 
         if need_save:
             try:
@@ -165,19 +192,33 @@ def edit_article(request, article_id):
 
         return JSONResponse({"success": True})
 
-    article_edits = ArticleEdit.objects.filter(article=article)
-
-    state = GlobalObjectCache()
-    state.add(article)
-    state.add_all(article_edits)
-
-    # TODO: Language should be loaded in PublicState
-    from establishment.content.models import Language
-    state.add_all(Language.objects.all())
+    state = get_article_state(article)
     # return render(request, "content/article_edit.html", context)
     return global_renderer.render_ui_widget(request, "ArticleEditor", state,
                                             page_title="Editing" + article.name,
                                             widget_options={"articleId": article.id})
+
+
+@login_required
+@single_page_app
+def edit_article_single_page(request, article_id):
+    article = Article.objects.get(id=article_id)
+
+    if not request.user.is_superuser and request.user.id != article.author_created_id:
+        return HttpResponseForbidden()
+
+    need_save = check_article_change(request, article)
+    if need_save:
+        try:
+            article.save()
+        except IntegrityError as e:
+            if e.__cause__.pgcode == '23505':
+                return JSONErrorResponse("A translation in this language already exists.")
+            raise
+        return JSONResponse({"success": True})
+    else:
+        state = get_article_state(article)
+        return JSONResponse({"state": state, "articleId": article.id, "success": True})
 
 
 # TODO: this logic should be merged into edit_article

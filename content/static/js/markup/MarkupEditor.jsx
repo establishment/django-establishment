@@ -80,11 +80,9 @@ class MarkupEditor extends Panel {
         if (this.options.showButtons) {
             this.toggleLeftButton.addClickListener(() => {
                 if (this.editorPanel.getWidth() === 0) {
-                    console.log("It is collapsed. It will expand.");
                     this.sectionDivider.expandChild(0);
                     this.toggleLeftButton.setLevel(UI.Level.SUCCESS);
                 } else {
-                    console.log("It is expanded. It will collapse.");
                     this.sectionDivider.collapseChild(0);
                     this.toggleLeftButton.setLevel(UI.Level.DANGER);
                 }

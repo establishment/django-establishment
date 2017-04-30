@@ -6,6 +6,7 @@ import {ArticleStore} from "ArticleStore";
 import {PublicUserStore} from "UserStore";
 import {Language} from "LanguageStore";
 import {UserHandle} from "UserHandle";
+import {StateDependentElement} from "StateDependentElement";
 
 class TransferOwnershipModal extends ActionModal {
     getActionName() {
@@ -436,6 +437,26 @@ class ArticleManager extends Panel {
     }
 }
 
+class DelayedArticleManager extends StateDependentElement(ArticleManager) {
+    getAjaxUrl() {
+        return "/article/manager/";
+    }
+
+    getDefaultOptions() {
+        return {
+            style: {
+                marginLeft: "10%",
+                marginRight: "10%"
+            }
+        };
+    }
+
+    getArticles() {
+        this.table.options.articles = ArticleStore.all();
+        this.table.redraw();
+    }
+}
+
 class TranslationManager extends Panel {
     getDefaultOptions() {
         return {
@@ -501,4 +522,4 @@ class TranslationManager extends Panel {
     }
 }
 
-export {ArticleManager, TranslationManager}
+export {ArticleManager, TranslationManager, DelayedArticleManager};

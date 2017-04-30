@@ -6,6 +6,7 @@ import {ArticleRenderer} from "ArticleRenderer";
 import {ArticleStore} from "ArticleStore";
 import {Language} from "LanguageStore";
 import {TranslationManager} from "ArticleManager";
+import {StateDependentElement} from "StateDependentElement";
 const deleteRedirectLink = "/";
 
 //TODO (@kira) : 4. fix line wrapping 5.Fix diffing svg gutter bug 7.Collapse button in section Divider maybe?
@@ -103,6 +104,9 @@ class ArticleEditor extends Panel {
     setOptions(options) {
         super.setOptions(options);
         this.options.article = ArticleStore.get(this.options.articleId);
+        if (!this.options.article) {
+            return;
+        }
 
         if (ArticleEditor.DiffWidgetClass) {
             this.versions = [];
@@ -122,7 +126,6 @@ class ArticleEditor extends Panel {
     }
 
     render() {
-        console.log(this.options.article);
         let translationsPanel = null;
         let baseArticleForm = null;
         if (this.options.article.baseArticleId) {
@@ -376,4 +379,25 @@ class ArticleEditor extends Panel {
     }
 }
 
-export {ArticleEditor}
+class DelayedArticleEditor extends StateDependentElement(ArticleEditor) {
+    getDefaultOptions() {
+        return {
+            style: {
+                marginLeft: "10%",
+                marginRight: "10%"
+            }
+        };
+    }
+
+    getAjaxUrl() {
+        return "/" + this.options.args.join("/") + "/";
+    }
+
+    importState(data) {
+        super.importState(data);
+        this.options.articleId = data.articleId;
+        this.setOptions(this.options);
+    }
+}
+
+export {ArticleEditor, DelayedArticleEditor};
