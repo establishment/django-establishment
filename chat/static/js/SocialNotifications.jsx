@@ -397,10 +397,14 @@ class IconMessagesList extends MessagesList {
     render() {
         return [
             <MessagesList ref="messagesList" />,
-            <div style={{textAlign: "center", textAlign: "center", width: "100%", padding: "0.5em", borderTop: "1px solid #ddd"}} >
-                <UI.Link href="/messages" newTab={false} value="View all messages"/>
+            <div style={{textAlign: "center", width: "100%", padding: "0.5em", borderTop: "1px solid #ddd"}} >
+                <UI.Link href="/messages/" newTab={false} value="View all messages"/>
             </div>
         ];
+    }
+
+    getLink(userId) {
+        return "/messages/#" + userId;
     }
 
     onMount() {
@@ -408,8 +412,14 @@ class IconMessagesList extends MessagesList {
             this.dispatch("unreadCountChanged", value);
         });
         this.messagesList.addListener("messageSelected", (event) => {
-            window.open("/messages/#" + event.userId);
+            window.open(this.getLink(event.userId));
         })
+    }
+}
+
+class IconMessagesListWithUrl extends IconMessagesList {
+    getLink(userId) {
+        return "/messages/" + userId + "/";
     }
 }
 
@@ -846,4 +856,5 @@ NotificationsList.NotificationClassMap = new Map([
 ]);
 
 
-export {MiniMessage, MessagesPanel, RoutedMessagesPanel, MessagesList, ChatBoxesManager, NotificationsList, IconMessagesList};
+export {MiniMessage, MessagesPanel, RoutedMessagesPanel, MessagesList, ChatBoxesManager,
+            NotificationsList, IconMessagesList, IconMessagesListWithUrl};
