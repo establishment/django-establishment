@@ -1,5 +1,6 @@
 import {UI, Link} from "UI";
 import {GlobalStyle} from "GlobalStyle";
+import {StateDependentElement} from "StateDependentElement";
 
 class EmailConfirmed extends UI.Element {
     extraNodeAttributes(attr) {
@@ -28,4 +29,15 @@ class EmailConfirmed extends UI.Element {
     }
 }
 
-export {EmailConfirmed};
+class DelayedEmailConfirmed extends StateDependentElement(EmailConfirmed) {
+    getAjaxUrl() {
+        return location.pathname;
+    }
+
+    importState(data) {
+        super.importState(data);
+        this.options.confirmSuccess = data.confirmSuccess;
+    }
+}
+
+export {EmailConfirmed, DelayedEmailConfirmed};

@@ -1,5 +1,6 @@
 import {UI, Link} from "UI";
 import {GlobalStyle} from "GlobalStyle";
+import {StateDependentElement} from "StateDependentElement";
 
 class EmailUnsubscribe extends UI.Element {
     extraNodeAttributes(attr) {
@@ -28,4 +29,15 @@ class EmailUnsubscribe extends UI.Element {
     }
 }
 
-export {EmailUnsubscribe};
+class DelayedEmailUnsubscribe extends StateDependentElement(EmailUnsubscribe) {
+    getAjaxUrl() {
+        return location.pathname;
+    }
+
+    importState(data) {
+        super.importState(data);
+        this.options.unsubscribeSuccess = data.unsubscribeSuccess;
+    }
+}
+
+export {EmailUnsubscribe, DelayedEmailUnsubscribe};
