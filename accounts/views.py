@@ -270,8 +270,47 @@ def email_address_verification_send(request):
     return JSONResponse({"success": True})
 
 
-@single_page_app
 def email_address_verify(request, key):
+    # TODO: we'll want a nice way of protecting against spammers hitting us with heavy requests (keys over 1MB for instance)
+    try:
+        unverified_email = UnverifiedEmail.objects.get(key=key)
+    except:
+        return global_renderer.render_ui_widget(request, "EmailConfirmed", page_title="Confirm E-mail Address")
+
+    if unverified_email.user is None:
+        # create a new user
+        user = get_user_manager().create_user(unverified_email.email)
+        user.set_unusable_password()
+        unverified_email.user = user
+        user_created = True
+    else:
+        user_created = False
+
+    email_address = unverified_email.verify()
+    if email_address is None:
+        return global_renderer.render_ui_widget(request, "EmailConfirmed", page_title="Confirm E-mail Address")
+
+    login(request, email_address.user)
+
+    return global_renderer.render_ui_widget(request, "EmailConfirmed", page_title="Confirm E-mail Address",
+                            widget_options={"confirmSuccess": True})
+
+
+def email_unsubscribe(request, key):
+    try:
+        user = get_user_manager().get(email_unsubscribe_key=key)
+    except:
+        return global_renderer.render_ui_widget(request, "EmailUnsubscribe", page_title="Unsubscribe E-mail Address")
+
+    user.receives_email_announcements = False
+    user.save()
+
+    return global_renderer.render_ui_widget(request, "EmailUnsubscribe", page_title="Unsubscribe E-mail Address",
+                            widget_options={"unsubscribeSuccess": True})
+
+
+@single_page_app
+def email_address_verify_single_page(request, key):
     # TODO: we'll want a nice way of protecting against spammers hitting us with heavy requests (keys over 1MB for instance)
     try:
         unverified_email = UnverifiedEmail.objects.get(key=key)
@@ -297,7 +336,7 @@ def email_address_verify(request, key):
 
 
 @single_page_app
-def email_unsubscribe(request, key):
+def email_unsubscribe_single_page(request, key):
     try:
         user = get_user_manager().get(email_unsubscribe_key=key)
     except:
