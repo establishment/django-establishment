@@ -545,7 +545,26 @@ class RoutedMessagesPanelList  extends MessagesPanelList {
             this.urlRouter = new Subrouter(Router.Global.getCurrentRouter(),
                                         [...Router.Global.getCurrentRouter().getPrefix(), ...Router.Global.getCurrentRouter().getState()],
                                         this.options.subArgs);
+            Router.Global.registerSubrouter(this.urlRouter);
+
+            let handleChangeUrl = () => {
+                let currentUrl = Router.parseURL();
+                if (currentUrl.length >= this.urlRouter.getPrefix().length) {
+                    let currentPrefix = currentUrl.slice(0, this.urlRouter.getPrefix().length);
+                    if (currentPrefix.join("/") === this.urlRouter.getPrefix().join("/")) {
+                        this.urlRouter.getParentRouter().setActiveSubrouter(this.urlRouter);
+                        this.urlRouter.setState(currentUrl.slice(currentPrefix.length), true);
+                    } else if (this.urlRouter.getParentRouter().getActiveSubrouter() === this.urlRouter) {
+                        this.urlRouter.getParentRouter().resetActiveSubrouter();
+                    }
+                }
+            };
+
+            Dispatcher.Global.addListener("changeURL", handleChangeUrl);
+            Router.Global.addListener("change", handleChangeUrl);
+
             this.urlRouter.addChangeListener(this.handleLocation);
+            this.urlRouter.addExternalChangeListener(this.handleLocation);
             this.urlRouter.dispatch("change", this.urlRouter.getState());
         }, 0);
     }
