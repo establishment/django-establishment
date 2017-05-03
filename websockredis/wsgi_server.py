@@ -12,7 +12,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
 
-from establishment.detoate.threading_helper import ThreadHandler
+from establishment.misc.threading_helper import ThreadHandler
 from establishment.funnel.redis_stream import RedisStreamSubscriber
 from establishment.funnel.permission_checking import user_can_subscribe_to_stream
 from .exceptions import WebSocketError, HandshakeError, UpgradeRequiredError

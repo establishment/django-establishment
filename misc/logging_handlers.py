@@ -15,7 +15,7 @@ import time
 from inspect import istraceback
 from collections import OrderedDict
 from redis import StrictRedis
-from establishment.detoate.threading_helper import ThreadHandler
+from establishment.misc.threading_helper import ThreadHandler
 
 
 # http://docs.python.org/library/logging.html#logrecord-attributes

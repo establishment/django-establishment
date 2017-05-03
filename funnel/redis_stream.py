@@ -3,7 +3,7 @@ import json
 from django.conf import settings
 from redis import StrictRedis, ConnectionPool
 
-from establishment.detoate.util import jsonify, same_dict
+from establishment.misc.util import jsonify, same_dict
 from establishment.funnel.encoder import StreamJSONEncoder
 
 

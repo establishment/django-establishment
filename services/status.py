@@ -3,8 +3,8 @@ import resource
 import threading
 import time
 
-from establishment.detoate.ifconfig import get_default_network_interface
-from establishment.detoate.threading_helper import ThreadHandler
+from establishment.misc.ifconfig import get_default_network_interface
+from establishment.misc.threading_helper import ThreadHandler
 from establishment.funnel.redis_stream import RedisStreamPublisher
 
 #TODO: consider including https://github.com/giampaolo/psutil/ into our codebase

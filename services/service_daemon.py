@@ -36,7 +36,7 @@ class ServiceDaemon(Daemon):
         settings.LOGGING["handlers"][logging_handler_name] = {
            "level": "DEBUG",
            "formatter": "json",
-           "class": "establishment.services.logging.BackgroundRotatingFileHandler",
+           "class": "establishment.misc.logging_handlers.BackgroundRotatingFileHandler",
            "filename": os.path.join(settings.LOG_FILE_PATH, self.name + ".log"),
            "maxBytes": 32 << 20,
            "backupCount": 5,

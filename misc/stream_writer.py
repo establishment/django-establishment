@@ -4,8 +4,8 @@ import sys
 import threading
 import traceback
 
-from establishment.detoate.rotating_file import RotatingFile
-from establishment.detoate.threading_helper import ThreadHandler
+from establishment.misc.rotating_file import RotatingFile
+from establishment.misc.threading_helper import ThreadHandler
 from establishment.funnel.redis_stream import RedisStreamSubscriber
 
 

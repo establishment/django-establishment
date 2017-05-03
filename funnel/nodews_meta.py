@@ -1,7 +1,7 @@
 from django.conf import settings
 from redis import StrictRedis, ConnectionPool
 
-from establishment.detoate.util import stringify, serializify
+from establishment.misc.util import stringify, serializify
 from establishment.funnel.redis_stream import get_default_redis_connection_pool
 
 REDIS_ENTRY_CONNECTIONIDS = "nodews-meta-connectionids"
