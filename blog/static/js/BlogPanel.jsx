@@ -486,6 +486,14 @@ class BlogPanel extends UI.Panel {
 }
 
 class DelayedBlogPanel extends StateDependentElement(BlogPanel) {
+    setOptions(options) {
+        super.setOptions(options);
+        let hashArgs = URLRouter.getLocation().args;
+        if (hashArgs.length) {
+            this.options.subArgs = [...this.options.subArgs, ...hashArgs];
+        }
+    }
+
     getAjaxUrl() {
         return "/blog/";
     }

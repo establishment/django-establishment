@@ -406,6 +406,14 @@ class ForumWidget extends UI.Switcher {
 }
 
 class DelayedForumWidget extends StateDependentElement(ForumWidget) {
+    setOptions(options) {
+        super.setOptions(options);
+        let hashArgs = URLRouter.getLocation().args;
+        if (hashArgs.length) {
+            this.options.subArgs = [...this.options.subArgs, ...hashArgs];
+        }
+    }
+
     getAjaxUrl() {
         return "/" + this.options.args.join("/") + "/";
     }
