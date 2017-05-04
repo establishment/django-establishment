@@ -238,18 +238,20 @@ class BlogEntryPreview extends UI.Element {
             modifiedFormat = <p style={articleInfoStyle}>Last update on {StemDate.unix(this.article.dateModified).format("LL")}.</p>
         }
 
+        // TODO(@kira, @darius): Find a good solution for links when in singlepage or not
+
         return [
             <div style={{height: "100%",}}>
             <div style={{boxShadow: "0px 0px 10px rgb(160, 162, 168)", "background-color": "#fff", "padding": "1% 4% 10px 4%", "margin": "0 auto", "width": "900px", "max-width": "100%", position: "relative"}}> <div style={blogStyle.writtenBy}>
                 Written by <UserHandle userId={this.article.userCreatedId}/> on {publishedFormat}.{modifiedFormat}
               </div>
               <div style={blogStyle.title}>
-                <Link href={this.options.urlPrefix + this.entry.urlName + "/"} value={this.article.name}
+                <Link href={this.options.urlPrefix + "#" + this.entry.urlName + "/"} value={this.article.name}
                       style={{"text-decoration": "none", "color": "inherit"}} />
               </div>
               <BlogArticleRenderer article={this.article} style={blogStyle.blogArticleRenderer}/>
               <div className={blogStyle.whiteOverlay}></div>
-              <Link href={this.options.urlPrefix + this.entry.urlName + "/"} style={blogStyle.link} value="Continue reading" />
+              <Link href={this.options.urlPrefix + "#" + this.entry.urlName + "/"} style={blogStyle.link} value="Continue reading" />
             </div>
             </div>
         ];
