@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'^change_entry_settings/$', views.change_entry_settings),
     url(r'^create_entry_discussion/$', views.create_entry_discussion),
 
-    url(r'^get_blog_post/$', views.get_blogpost)
+    url(r'^get_blog_post/$', views.get_blogpost),
+    url(r'^latest_blog_state/$', views.latest_blog_state),
 ]

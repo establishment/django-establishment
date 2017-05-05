@@ -32,6 +32,7 @@ def latest_forum_state(request):
     for forum_thread in forum_threads:
         state.add(forum_thread)
         state.add(forum_thread.parent)
+
     return JSONResponse({"state": state})
 
 

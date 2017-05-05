@@ -3,6 +3,8 @@ from django.db import models
 from establishment.content.models import Article
 from establishment.chat.models import Commentable
 
+import logging
+
 
 class BlogEntry(Commentable):
     url_name = models.CharField(max_length=256, unique=True)
@@ -29,8 +31,15 @@ class BlogEntry(Commentable):
             "visible": self.visible,
             "urlName": self.url_name,
             "discussionId": self.discussion_id,
+            "lastActive": self.get_last_active(),
         }
 
     def add_to_state(self, state):
         state.add(self)
         state.add(self.article)
+
+    def get_last_active(self):
+        if self.discussion and self.discussion.message_thread.get_last_message():
+            return self.discussion.message_thread.get_last_message().time_added
+        else:
+            return 0

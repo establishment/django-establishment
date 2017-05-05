@@ -153,7 +153,6 @@ class NewBlogEntryModal extends UI.Modal {
         });
     }
 
-
     addEntry() {
         let data = {};
 

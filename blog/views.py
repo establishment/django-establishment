@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 
 from django.db import transaction
 from django.utils.text import slugify
@@ -62,6 +63,20 @@ def get_blogpost(request):
     if blog_post:
         state.add(blog_post)
         state.add(blog_post.article)
+    return JSONResponse({"state": state})
+
+
+def latest_blog_state(request):
+    state = GlobalObjectCache()
+
+    blog_entries = BlogEntry.objects.filter(visible=True, discussion__isnull=False).prefetch_related("article", "discussion")
+    blog_entries = list(blog_entries)
+    blog_entries.sort(key=lambda entry: entry.get_last_active(), reverse=True)
+    blog_entries = blog_entries[:5]
+
+    for blog_entry in blog_entries:
+        blog_entry.add_to_state(state)
+
     return JSONResponse({"state": state})
 
 
