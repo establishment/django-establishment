@@ -69,7 +69,7 @@ def get_blogpost(request):
 def latest_blog_state(request):
     state = GlobalObjectCache()
 
-    blog_entries = BlogEntry.objects.filter(visible=True, discussion__isnull=False).prefetch_related("article", "discussion")
+    blog_entries = BlogEntry.objects.filter(visible=True, discussion__isnull=False).prefetch_related("article", "discussion").distinct()
     blog_entries = list(blog_entries)
     blog_entries.sort(key=lambda entry: entry.get_last_active(), reverse=True)
     blog_entries = blog_entries[:5]
