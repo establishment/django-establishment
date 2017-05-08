@@ -26,7 +26,13 @@ class StreamObjectMixin(models.Model):
     def object_type(cls):
         return cls._meta.db_table
 
-    def to_json(self):
+    def to_json(self, fields=None, exclude=None):
+        # Iterate over all fields (if None, use all own fields)
+        # Remove any value in exclude
+        # cameCase all field names
+        # all_fields = self._meta.get_fields()
+        # for field in all_fields:
+        #     pass
         return {
             "id": self.id
         }

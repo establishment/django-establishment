@@ -1,6 +1,17 @@
 import {StyleSet} from "Style";
 import {styleRule, styleRuleInherit} from "decorators/Style";
-import {CSAStyle} from "CSAStyle";
+//import {CSAStyle} from "CSAStyle";
+
+const colors = {
+    // BLUE: "#20232d",
+    BLUE: "#202e3e",
+    HOVER_BLUE: "#364251",
+    // BLACK: "#181a22",
+    BLACK: "#1c2937",
+    // HOVER_BLACK: "#323539",
+    HOVER_BLACK: "#364251",
+    WHITE: "#eee",
+};
 
 
 class ForumThreadReplyStyle extends StyleSet {
@@ -154,7 +165,7 @@ class ForumThreadPanelStyle extends StyleSet {
     message = {
         padding: "5px 12px",
         fontSize: this.messageFontSize,
-        color: CSAStyle.color.BLUE,
+        color: colors.BLUE,
         " p": {
             marginBottom: "0",
             padding: "5px 0",
@@ -263,28 +274,28 @@ class ButtonStyle extends StyleSet {
         marginBottom: "20px",
         width: "auto",
         borderRadius: "0px",
-        backgroundColor: CSAStyle.color.BLUE,
+        backgroundColor: colors.BLUE,
         border: "0",
         padding: "5px 10px",
         marginBottom: "0",
-        borderColor: CSAStyle.color.BLUE,
+        borderColor: colors.BLUE,
         fontFamily: "lato",
         fontSize: "13px",
         transition: ".2s",
         outline: "none",
         ":hover": {
-            backgroundColor: CSAStyle.color.HOVER_BLUE,
-            borderColor: CSAStyle.color.HOVER_BLUE,
+            backgroundColor: colors.HOVER_BLUE,
+            borderColor: colors.HOVER_BLUE,
             transition: ".2s",
         },
         ":active": {
-            backgroundColor: CSAStyle.color.HOVER_BLUE,
-            borderColor: CSAStyle.color.HOVER_BLUE,
+            backgroundColor: colors.HOVER_BLUE,
+            borderColor: colors.HOVER_BLUE,
             transition: ".2s",
         },
         ":focus": {
-            backgroundColor: CSAStyle.color.HOVER_BLUE,
-            borderColor: CSAStyle.color.HOVER_BLUE,
+            backgroundColor: colors.HOVER_BLUE,
+            borderColor: colors.HOVER_BLUE,
             transition: ".2s",
         },
     };
