@@ -27,7 +27,10 @@ class BlogEntryEditModal extends UI.Modal {
             margin: "0 auto",
             maxHeight: "100%",
             overflow: "initial",
-            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            top: "1vh",
+            height: "98vh",
         });
     }
 
@@ -57,7 +60,7 @@ class BlogEntryEditModal extends UI.Modal {
                 {discussionButton}
                 <UI.TemporaryMessageArea ref="messageArea"/>
             </UI.Form>,
-            <ArticleEditor ref="contentEditor" articleId={article.id} style={{height: "600px"}} />
+            <ArticleEditor ref="contentEditor" articleId={article.id} style={{flex: "1"}} />
         ];
     }
 

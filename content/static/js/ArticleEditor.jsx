@@ -33,16 +33,16 @@ class ArticleMarkupEditor extends MarkupEditor {
 
     getEditor() {
         return <TextArea ref="codeEditor" style={{
-                                            width:"calc(100% - 15px)",
+                                            width:"100%",
                                             fontFamily: "monospace",
-                                            minHeight: "300px",
-                                            resize: "vertical",
+                                            height: "calc(100% - 3px)",
+                                            resize: "none",
                                             backgroundColor: "#F9F9F9"
                     }} value={this.options.value}/>
     }
 
     getMarkupRenderer() {
-        return <ArticleRenderer ref="articleRenderer" article={this.options.article} style={{flex:"1", height: "100%"}} />
+        return <ArticleRenderer ref="articleRenderer" article={this.options.article} style={{flex:"1", height: "100%", overflow: "auto"}} />
     }
 
     updateValue(markup) {
@@ -125,6 +125,15 @@ class ArticleEditor extends Panel {
         }
     }
 
+    extraNodeAttributes(attr) {
+        super.extraNodeAttributes(attr);
+        attr.setStyle({
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+        });
+    }
+
     render() {
         let translationsPanel = null;
         let baseArticleForm = null;
@@ -159,20 +168,20 @@ class ArticleEditor extends Panel {
         let revisionsPanel;
         if (ArticleEditor.DiffWidgetClass) {
             let DiffWidgetClass = ArticleEditor.DiffWidgetClass;
-            revisionsPanel = <UI.Panel title="Revisions">
+                revisionsPanel = <UI.Panel title="Revisions" style={{height: "100%", display: "flex", flexDirection: "column"}}>
                 <UI.Panel>
                     <UI.Select ref="leftTextSelector" options={this.versionsLabels}/>
                     <UI.Select style={{float:"right", marginRight:"25px"}} ref="rightTextSelector" options={this.versionsLabels}/>
                 </UI.Panel>
                 <DiffWidgetClass ref="diffWidget" leftEditable={this.leftEditable} rightEditable={this.rightEditable}
                                  leftTextValue={this.versions[2]} arrows={this.arrows} rightTextValue={this.versions[1]}
-                                 style={{height:"800px", width: "calc(100% - 100px)"}} />
+                                     style={{flex:"1", height: "100%"}} />
             </UI.Panel>;
         }
 
         return [
             <h3>{this.options.article.name + " Id=" + this.options.article.id}</h3>,
-            <TabArea ref="tabArea" variableHeightPanels style={{height: "100%"}}>
+                <TabArea ref="tabArea" variableHeightPanels style={{flex: "1", height: "100%", display: "flex", flexDirection: "column"}}>
                 <UI.Panel title="Edit" active style={{height: "100%", overflow: "hidden"}}>
                     <UI.AjaxButton ref="saveMarkupButton" level={UI.Level.INFO} onClick={() => {
                                     let content = this.markupEditor.getValue();
