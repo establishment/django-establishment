@@ -4,9 +4,6 @@ import {Article, ArticleStore} from "ArticleStore";
 
 class ArticleRenderer extends MarkupRenderer {
     setOptions(options) {
-        if (options.article) {
-            options.value = options.article.markup;
-        }
         options.classMap = options.classMap || this.constructor.markupClassMap;
         super.setOptions(options);
     }
@@ -35,6 +32,11 @@ class ArticleRenderer extends MarkupRenderer {
         if (this.node) {
             this.redraw();
         }
+    }
+
+    getValue() {
+        super.setValue(this.options.article.markup);
+        return super.getValue();
     }
 
     redraw() {
