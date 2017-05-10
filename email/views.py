@@ -1,16 +1,20 @@
 from PIL import Image
 from django.http import HttpResponse
 
-from establishment.accounts.models import EmailStatus
-from establishment.funnel.base_views import superuser_required
+from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway
+from establishment.funnel.base_views import superuser_required, single_page_app, JSONResponse
 from establishment.funnel.utils import GlobalObjectCache
 
 
 @superuser_required
+@single_page_app
 def manage_emails(request):
-    state = GlobalObjectCache()
+    state = GlobalObjectCache(request)
     state.add_all(EmailCampaign.objects.all())
     state.add_all(EmailTemplate.objects.all())
+    state.add_all(EmailGateway.objects.all())
+
+    return JSONResponse({"state": state})
 
 
 @superuser_required
