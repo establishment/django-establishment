@@ -3,6 +3,14 @@ from django.http import HttpResponse
 
 from establishment.accounts.models import EmailStatus
 from establishment.funnel.base_views import superuser_required
+from establishment.funnel.utils import GlobalObjectCache
+
+
+@superuser_required
+def manage_emails(request):
+    state = GlobalObjectCache()
+    state.add_all(EmailCampaign.objects.all())
+    state.add_all(EmailTemplate.objects.all())
 
 
 @superuser_required
