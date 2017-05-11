@@ -39,11 +39,10 @@ class EmailGateway(StreamObjectMixin):
 
 
 class EmailCampaign(StreamObjectMixin):
-    name = models.CharField(max_length=256)
-    system_use = models.BooleanField(default=False)
+    name = models.CharField(max_length=256, unique=True)
     from_address = models.CharField(max_length=512, null=True, blank=True)
     gateway = models.ForeignKey(EmailGateway, null=True, blank=True)
-    is_announcement = models.BooleanField(default=True)
+    is_newsletter = models.BooleanField(default=True) # TODO: rename to is_newsletter?
 
     class Meta:
         db_table = "EmailCampaign"
@@ -52,8 +51,16 @@ class EmailCampaign(StreamObjectMixin):
         return "Email Campaign " + self.name
 
     def send_to_user(self, user, *args, **kwargs):
+        # TODO: try to find here if there's a template for the user's language
         email_template = self.templates.first()
         return email_template.send_to_user(user, *args, **kwargs)
+
+
+def html_to_plaintext(html):
+    # TODO: this doesn't support links.
+    # TODO: First replace <a href="link">Text</a> with Text ( link )
+    from bs4 import BeautifulSoup
+    return BeautifulSoup(html).get_text()
 
 
 class EmailTemplate(StreamObjectMixin):
@@ -63,7 +70,7 @@ class EmailTemplate(StreamObjectMixin):
     campaign = models.ForeignKey(EmailCampaign, related_name="templates")
     version = models.IntegerField(default=1)
     language = models.ForeignKey(Language, default=1)
-    plaintext = models.TextField(max_length=1 << 17)
+    plaintext = models.TextField(max_length=1 << 17, null=True, blank=True)
     gateway = models.ForeignKey(EmailGateway, null=True, blank=True)
 
     class Meta:
@@ -89,7 +96,7 @@ class EmailTemplate(StreamObjectMixin):
         from django.template import Context, Template
         from django.core.mail import EmailMultiAlternatives
 
-        if self.campaign.is_announcement and not user.receives_email_announcements:
+        if self.campaign.is_newsletter and not user.receives_email_announcements:
             return False
 
         if EmailStatus.objects.filter(user=user, campaign=self.campaign).first():
@@ -110,8 +117,12 @@ class EmailTemplate(StreamObjectMixin):
         context = Context(context)
 
         subject = Template(self.subject).render(context)
-        plaintext_message = Template(self.plaintext).render(context)
-        html_message = Template(self.html).render(context)
+        html_message = Template(self.html).render(context) if self.html else None
+
+        if self.plaintext and len(self.plaintext.strip()) > 0:
+            plaintext_message = Template(self.plaintext).render(context)
+        else:
+            plaintext_message = html_to_plaintext(html_message)
 
         with self.get_connection() as connection:
             email = EmailMultiAlternatives(subject,
@@ -119,7 +130,8 @@ class EmailTemplate(StreamObjectMixin):
                                            self.get_from_address(),
                                            [user.email],
                                            connection=connection)
-            email.attach_alternative(html_message, 'text/html')
+            if html_message:
+                email.attach_alternative(html_message, "text/html")
             email.send(fail_silently=False)
 
         email_status = EmailStatus(user=user, campaign=self.campaign, template=self, key=tracking_key)
