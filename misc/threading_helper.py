@@ -19,9 +19,11 @@ class ThreadHandler(object):
                 self.exception_info = sys.exc_info()
                 print("Exception in thread\n", traceback.format_exc())
 
+        is_daemon = kwargs.pop("daemon", True)
+
         # Kick off thread
         self.thread = threading.Thread(None, wrapper, name, args, kwargs)
-        self.thread.setDaemon(True)
+        self.thread.setDaemon(is_daemon)
         self.thread.start()
 
     def restart(self):
