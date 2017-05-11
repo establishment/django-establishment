@@ -190,7 +190,7 @@ class ArticleEditor extends Panel {
                                statusOptions={["Save", {faIcon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
                         />
                     <UI.TemporaryMessageArea ref="saveMarkupMessageArea"/>
-                    <ArticleMarkupEditor style={{height: "100%", marginTop: "-30px", display: "flex", flexDirection: "column"}}
+                    <ArticleMarkupEditor style={{height: "100%", marginTop: "-31px", display: "flex", flexDirection: "column"}}
                                          ref="markupEditor" article={this.options.article} />
                 </UI.Panel>
                 {revisionsPanel}

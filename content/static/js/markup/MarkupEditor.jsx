@@ -25,7 +25,6 @@ class MarkupEditor extends Panel {
     }
 
     render() {
-        let panelStyle = {display: "inline-block", verticalAlign: "top", width: "50%", height: "100%", overflow: "auto"};
         let buttons;
         if (this.options.showButtons) {
             buttons = <UI.ButtonGroup>
@@ -39,10 +38,10 @@ class MarkupEditor extends Panel {
             <SectionDivider ref="sectionDivider" orientation={UI.Orientation.HORIZONTAL}
                             style={{textAlign: "initial", height: "100%", width: "100%", display:"inline-block",
                                     overflow: "hidden"}}>
-                <Panel ref="editorPanel" style={panelStyle}>
+                <Panel ref="editorPanel" style={{width: "50%", height: "100%", overflow: "hidden"}}>
                     {this.getEditor()}
                 </Panel>
-                <Panel ref="rendererPanel" style={panelStyle}>
+                <Panel ref="rendererPanel" style={{width: "50%", height: "100%", overflow: "auto"}}>
                     {this.getMarkupRenderer()}
                 </Panel>
             </SectionDivider>
