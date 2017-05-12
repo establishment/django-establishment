@@ -65,12 +65,11 @@ def html_to_plaintext(html):
 
 class EmailTemplate(StreamObjectMixin):
     subject = models.CharField(max_length=256)
-    plaintext = models.TextField(max_length=1 << 17)
     html = models.TextField(max_length=1 << 17)
+    plaintext = models.TextField(max_length=1 << 17, null=True, blank=True)
     campaign = models.ForeignKey(EmailCampaign, related_name="templates")
     version = models.IntegerField(default=1)
     language = models.ForeignKey(Language, default=1)
-    plaintext = models.TextField(max_length=1 << 17, null=True, blank=True)
     gateway = models.ForeignKey(EmailGateway, null=True, blank=True)
 
     class Meta:
