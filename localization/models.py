@@ -22,6 +22,29 @@ class Language(models.Model):
         }
 
 
+class Country(models.Model):
+    name = models.CharField(max_length=256, unique=True)
+    iso_code = models.CharField(max_length=2, unique=True)
+    iso3_code = models.CharField(max_length=3, unique=True)
+    phone_number_prefix = models.CharField(max_length=16, blank=True, null=True)
+
+    @classmethod
+    def object_type(cls):
+        return "country"
+
+    def __str__(self):
+        return self.name
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "isoCode": self.iso_code,
+            "iso3Code": self.iso3_code,
+            "phoneNumberPrefix": self.phone_number_prefix
+        }
+
+
 class Jurisdiction(models.Model):
     name = models.CharField(max_length=64, unique=True)
 
