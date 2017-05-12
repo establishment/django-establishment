@@ -344,6 +344,11 @@ class BlogEntryList extends UI.Element {
         attr.setStyle("paddingTop", "10px");
     }
 
+    showNewBlogPostModal() {
+        let modal = <NewBlogEntryModal fillScreen/>;
+        modal.show();
+    }
+
     render() {
         let entries = [];
 
@@ -359,7 +364,7 @@ class BlogEntryList extends UI.Element {
             USER.isSuperUser ?
                 <Button label="New Entry"
                            level={UI.Level.DEFAULT}
-                           onClick={() => this.newBlogPostModal.show()}
+                           onClick={() => this.showNewBlogPostModal()}
                 />
                 : null,
             <div ref="entriesList">
@@ -378,8 +383,6 @@ class BlogEntryList extends UI.Element {
     }
 
     onMount() {
-        this.newBlogPostModal = <NewBlogEntryModal fillScreen/>;
-        this.newBlogPostModal.mount(document.body);
         super.onMount();
 
         this.loadMoreButton.addClickListener(() => {
