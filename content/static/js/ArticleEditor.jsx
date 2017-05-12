@@ -389,13 +389,13 @@ class ArticleEditor extends Panel {
 }
 
 class DelayedArticleEditor extends StateDependentElement(ArticleEditor) {
-    getDefaultOptions() {
-        return {
-            style: {
-                marginLeft: "10%",
-                marginRight: "10%"
-            }
-        };
+    extraNodeAttributes(attr) {
+        super.extraNodeAttributes(attr);
+        attr.setStyle({
+            height: "calc(100vh - 80px)",
+            marginLeft: "10%",
+            marginRight: "10%",
+        });
     }
 
     getAjaxUrl() {
