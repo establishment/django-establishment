@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import establishment.email.models
+import establishment.emailing.models
 
 
 class Migration(migrations.Migration):
@@ -49,12 +49,12 @@ class Migration(migrations.Migration):
             name='EmailStatus',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('key', models.CharField(blank=True, default=establishment.email.models.random_key, max_length=64, null=True, unique=True)),
+                ('key', models.CharField(blank=True, default=establishment.emailing.models.random_key, max_length=64, null=True, unique=True)),
                 ('time_sent', models.DateTimeField(auto_now_add=True)),
                 ('time_first_read', models.DateTimeField(blank=True, null=True)),
                 ('time_last_read', models.DateTimeField(blank=True, null=True)),
                 ('read_count', models.IntegerField(default=0)),
-                ('campaign', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='email.EmailCampaign')),
+                ('campaign', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='emailing.EmailCampaign')),
             ],
             options={
                 'db_table': 'EmailStatus',
@@ -68,8 +68,8 @@ class Migration(migrations.Migration):
                 ('html', models.TextField(max_length=131072)),
                 ('version', models.IntegerField(default=1)),
                 ('plaintext', models.TextField(max_length=131072)),
-                ('campaign', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='templates', to='email.EmailCampaign')),
-                ('gateway', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='email.EmailGateway')),
+                ('campaign', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='templates', to='emailing.EmailCampaign')),
+                ('gateway', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='emailing.EmailGateway')),
                 ('language', models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='localization.Language')),
             ],
             options={
@@ -79,7 +79,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='emailstatus',
             name='template',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='email.EmailTemplate'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='emailing.EmailTemplate'),
         ),
         migrations.AddField(
             model_name='emailstatus',
@@ -89,7 +89,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='emailcampaign',
             name='gateway',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='email.EmailGateway'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='emailing.EmailGateway'),
         ),
         migrations.AlterUniqueTogether(
             name='emailtemplate',
