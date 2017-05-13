@@ -43,11 +43,6 @@ class LoginModal extends Modal {
         return <Login/>;
     }
 
-    static show() {
-        this.loginModal = this.loginModal || new LoginModal({});
-        this.loginModal.show();
-    }
-
     static requireLogin(func) {
         if (USER.isAuthenticated) {
             return func();
