@@ -1,10 +1,10 @@
 from PIL import Image
 from django.http import HttpResponse
 
-from establishment.accounts.utils import get_user_manager
 from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway
 from establishment.funnel.base_views import superuser_required, single_page_app, JSONResponse
 from establishment.funnel.utils import GlobalObjectCache
+from mercury.api import MercuryRedisAPI
 
 
 @superuser_required
@@ -19,14 +19,14 @@ def manage_emails(request):
 
 
 @superuser_required
-def send_campaign(request):
-    email_campaign = EmailCampaign.objects.get(id=request.GET["campaignId"])
-    first_user_id = int(request.GET["firstUserId"])
-    last_user_id = int(request.GET["lastUserId"])
-    for user_id in range(first_user_id, last_user_id + 1):
-        user = get_user_manager().get(id=user_id)
-        # TODO: should enqueue to a daemon
-        email_campaign.send_to_user(user)
+def control(request):
+    object_type = request.GET["objectType"]
+    action = request.GET["action"]
+
+    if object_type == "campaign":
+        if action in ["start", "stop", "pause", "continue"]:
+            campaign_id = request.GET["campaignId"]
+            MercuryRedisAPI.get_api().generic_action(objectType=object_type, action=action, campaign_id=campaign_id)
 
 
 def track_email(request):
