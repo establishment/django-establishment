@@ -9,7 +9,7 @@ from mercury.api import MercuryRedisAPI
 
 @superuser_required
 @single_page_app
-def manage_emails(request):
+def email_manager(request):
     state = GlobalObjectCache(request)
     state.add_all(EmailCampaign.objects.all())
     state.add_all(EmailTemplate.objects.all())

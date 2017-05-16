@@ -37,6 +37,16 @@ class EmailGateway(StreamObjectMixin):
             use_tls=self.use_tls
         )
 
+    def to_json(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "host": self.host,
+            "port": self.port,
+            "useTLS": self.use_tls,
+            "username": self.username
+        }
+
 
 class EmailCampaign(StreamObjectMixin):
     name = models.CharField(max_length=256, unique=True)
@@ -54,6 +64,15 @@ class EmailCampaign(StreamObjectMixin):
         # TODO: try to find here if there's a template for the user's language
         email_template = self.templates.first()
         return email_template.send_to_user(user, *args, **kwargs)
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "fromAddress": self.from_address,
+            "gatewayId": self.gateway_id,
+            "isNewsletter": self.is_newsletter
+        }
 
 
 def html_to_plaintext(html):
@@ -137,6 +156,18 @@ class EmailTemplate(StreamObjectMixin):
         email_status.save()
         return True
 
+    def to_json(self):
+        return {
+            "id": self.id,
+            "subject": self.subject,
+            "html": self.html,
+            "plaintext": self.plaintext,
+            "campaignId": self.campaign_id,
+            "version": self.version,
+            "languageId": self.language_id,
+            "gatewayId": self.gateway_id
+        }
+
 
 class EmailStatus(StreamObjectMixin):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+")
@@ -159,3 +190,15 @@ class EmailStatus(StreamObjectMixin):
         self.time_last_read = timestamp
         self.save(update_fields=["read_count", "time_first_read", "time_last_read"])
         self.refresh_from_db()
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "userId": self.user_id,
+            "campaignId": self.campaign_id,
+            "templateId": self.template_id,
+            "timeSent": self.time_sent,
+            "timeFirstRead": self.time_first_read,
+            "timeLastRead": self.time_last_read,
+            "readCount": self.read_count
+        }
