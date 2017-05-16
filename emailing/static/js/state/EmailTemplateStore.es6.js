@@ -12,7 +12,7 @@ class EmailTemplateStoreClass extends GenericObjectStore {
     }
 
     registerStreams() {
-        GlobalState.registerStream("admin-email-manage");
+        GlobalState.registerStream("admin-email-manager");
     }
 }
 

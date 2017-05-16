@@ -7,6 +7,7 @@ from django.db.models import F
 
 from establishment.funnel.stream import StreamObjectMixin
 from establishment.localization.models import Language
+from establishment.funnel.redis_stream import RedisStreamPublisher
 
 
 def random_key():
@@ -37,6 +38,24 @@ class EmailGateway(StreamObjectMixin):
             use_tls=self.use_tls
         )
 
+    def get_event(self, event_type="update"):
+        return {
+            "objectId": self.id,
+            "objectType": self.__class__.object_type(),
+            "eventType": event_type,
+            "data": self,
+        }
+
+    def publish_update_event(self, event_type="updateOrCreate", extra=None, extra_stream_names=None):
+        event = self.get_event(event_type=event_type)
+        if extra:
+            event.update(extra)
+        stream_name = "admin-email-manager"
+        RedisStreamPublisher.publish_to_stream(stream_name, event)
+        if extra_stream_names:
+            for extra_stream_name in extra_stream_names:
+                RedisStreamPublisher.publish_to_stream(extra_stream_name, event)
+
     def to_json(self):
         return {
             "id": self.id,
@@ -64,6 +83,24 @@ class EmailCampaign(StreamObjectMixin):
         # TODO: try to find here if there's a template for the user's language
         email_template = self.templates.first()
         return email_template.send_to_user(user, *args, **kwargs)
+
+    def get_event(self, event_type="update"):
+        return {
+            "objectId": self.id,
+            "objectType": self.__class__.object_type(),
+            "eventType": event_type,
+            "data": self,
+        }
+
+    def publish_update_event(self, event_type="updateOrCreate", extra=None, extra_stream_names=None):
+        event = self.get_event(event_type=event_type)
+        if extra:
+            event.update(extra)
+        stream_name = "admin-email-manager"
+        RedisStreamPublisher.publish_to_stream(stream_name, event)
+        if extra_stream_names:
+            for extra_stream_name in extra_stream_names:
+                RedisStreamPublisher.publish_to_stream(extra_stream_name, event)
 
     def to_json(self):
         return {
@@ -109,6 +146,24 @@ class EmailTemplate(StreamObjectMixin):
 
     def get_from_address(self):
         return self.campaign.from_address or settings.DEFAULT_FROM_EMAIL
+
+    def get_event(self, event_type="update"):
+        return {
+            "objectId": self.id,
+            "objectType": self.__class__.object_type(),
+            "eventType": event_type,
+            "data": self,
+        }
+
+    def publish_update_event(self, event_type="updateOrCreate", extra=None, extra_stream_names=None):
+        event = self.get_event(event_type=event_type)
+        if extra:
+            event.update(extra)
+        stream_name = "admin-email-manager"
+        RedisStreamPublisher.publish_to_stream(stream_name, event)
+        if extra_stream_names:
+            for extra_stream_name in extra_stream_names:
+                RedisStreamPublisher.publish_to_stream(extra_stream_name, event)
 
     def send_to_user(self, user, context_dict={}):
         from django.template import Context, Template
@@ -190,6 +245,24 @@ class EmailStatus(StreamObjectMixin):
         self.time_last_read = timestamp
         self.save(update_fields=["read_count", "time_first_read", "time_last_read"])
         self.refresh_from_db()
+
+    def get_event(self, event_type="update"):
+        return {
+            "objectId": self.id,
+            "objectType": self.__class__.object_type(),
+            "eventType": event_type,
+            "data": self,
+        }
+
+    def publish_update_event(self, event_type="updateOrCreate", extra=None, extra_stream_names=None):
+        event = self.get_event(event_type=event_type)
+        if extra:
+            event.update(extra)
+        stream_name = "admin-email-manager"
+        RedisStreamPublisher.publish_to_stream(stream_name, event)
+        if extra_stream_names:
+            for extra_stream_name in extra_stream_names:
+                RedisStreamPublisher.publish_to_stream(extra_stream_name, event)
 
     def to_json(self):
         return {
