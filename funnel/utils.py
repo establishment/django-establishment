@@ -90,6 +90,8 @@ class GlobalObjectCache:
         return object_store.get(id)
 
     def add(self, obj, timestamp=time.time()):
+        if not obj:
+            return
         self.get_store(obj.__class__).add(obj)
         if self.parent_cache:
             self.parent_cache.add(obj, timestamp)
