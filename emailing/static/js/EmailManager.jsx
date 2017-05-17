@@ -6,7 +6,7 @@ import {StateDependentElement} from "StateDependentElement";
 import {EmailGatewayWidget} from "EmailGatewayWidget";
 import {EmailCampaignWidget} from "EmailCampaignWidget";
 
-class EmailManage extends UI.Panel {
+class EmailManager extends UI.Panel {
     render() {
         return [
             <TabArea ref="tabArea" variableHeightPanels >
@@ -34,7 +34,16 @@ class EmailManage extends UI.Panel {
     }
 }
 
-class DelayedEmailManager extends StateDependentElement(EmailManage) {
+class DelayedEmailManager extends StateDependentElement(EmailManager) {
+    extraNodeAttributes(attr) {
+        super.extraNodeAttributes(attr);
+        attr.setStyle({
+            marginLeft: "10%",
+            marginRight: "10%",
+            marginTop: "20px",
+        });
+    }
+
     getAjaxUrl() {
         return location.pathname;
     }
@@ -45,4 +54,4 @@ class DelayedEmailManager extends StateDependentElement(EmailManage) {
     }
 }
 
-export {EmailManage, DelayedEmailManager};
+export {EmailManager, DelayedEmailManager};

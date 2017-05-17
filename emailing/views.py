@@ -1,5 +1,6 @@
 from PIL import Image
 from django.http import HttpResponse
+import json
 
 from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway
 from establishment.funnel.base_views import superuser_required, single_page_app, JSONResponse, JSONErrorResponse
@@ -20,8 +21,8 @@ def email_manager(request):
 
 @superuser_required
 def control(request):
-    object_type = request.GET.get("objectType")
-    action = request.GET.get("action")
+    object_type = request.POST.get("objectType")
+    action = request.POST.get("action")
 
     if object_type is None:
         return JSONErrorResponse("Invalid request! Field \"objectType\" not found!")
@@ -31,7 +32,7 @@ def control(request):
     response = {}
     if object_type == "campaign":
         if action in ["start", "stop", "pause", "continue"]:
-            campaign_id = request.GET.get("campaignId")
+            campaign_id = request.POST.get("campaignId")
             if campaign_id is None:
                 return JSONErrorResponse("Invalid request! Field \"campaignId\" not found!")
             response = MercuryRedisAPI.get_api().generic_action(objectType=object_type, action=action, campaign_id=campaign_id)
@@ -39,25 +40,25 @@ def control(request):
             return JSONErrorResponse("Invalid request! Invalid value for field \"action\"!")
     elif object_type == "gateway":
         if action == "update":
-            gateway_id = request.GET.get("id")
+            gateway_id = request.POST.get("id")
             if gateway_id is None:
                 return JSONErrorResponse("Invalid request! Field \"id\" not found!")
-            name = request.GET.get("name")
+            name = request.POST.get("name")
             if name is None:
                 return JSONErrorResponse("Invalid request! Field \"name\" not found!")
-            host = request.GET.get("host")
+            host = request.POST.get("host")
             if host is None:
                 return JSONErrorResponse("Invalid request! Field \"host\" not found!")
-            port = request.GET.get("port")
+            port = request.POST.get("port")
             if port is None:
                 return JSONErrorResponse("Invalid request! Field \"port\" not found!")
-            use_tls = request.GET.get("useTLS")
+            use_tls = json.loads(request.POST.get("useTLS"))
             if use_tls is None:
                 return JSONErrorResponse("Invalid request! Field \"useTLS\" not found!")
-            username = request.GET.get("username")
+            username = request.POST.get("username")
             if username is None:
                 return JSONErrorResponse("Invalid request! Field \"username\" not found!")
-            password = request.GET.get("password")
+            password = request.POST.get("password")
             if password is None:
                 return JSONErrorResponse("Invalid request! Field \"password\" not found!")
             try:
@@ -74,31 +75,31 @@ def control(request):
             gateway.publish_update_event()
             response = {"message": "Success!"}
         elif action == "new":
-            name = request.GET.get("name")
+            name = request.POST.get("name")
             if name is None:
                 return JSONErrorResponse("Invalid request! Field \"name\" not found!")
-            host = request.GET.get("host")
+            host = request.POST.get("host")
             if host is None:
                 return JSONErrorResponse("Invalid request! Field \"host\" not found!")
-            port = request.GET.get("port")
+            port = request.POST.get("port")
             if port is None:
                 return JSONErrorResponse("Invalid request! Field \"port\" not found!")
-            use_tls = request.GET.get("useTLS")
+            use_tls = json.loads(request.POST.get("useTLS"))
             if use_tls is None:
                 return JSONErrorResponse("Invalid request! Field \"useTLS\" not found!")
-            username = request.GET.get("username")
+            username = request.POST.get("username")
             if username is None:
                 return JSONErrorResponse("Invalid request! Field \"username\" not found!")
-            password = request.GET.get("password")
+            password = request.POST.get("password")
             if password is None:
                 return JSONErrorResponse("Invalid request! Field \"password\" not found!")
-            gateway = EmailGateway.create(name=name, host=host, port=port, use_tls=use_tls, username=username,
+            gateway = EmailGateway(name=name, host=host, port=port, use_tls=use_tls, username=username,
                                           password=password)
             gateway.save()
             gateway.publish_update_event()
             response = {"message": "Success!"}
         elif action == "delete":
-            gateway_id = request.GET.get("id")
+            gateway_id = request.POST.get("id")
             if gateway_id is None:
                 return JSONErrorResponse("Invalid request! Field \"id\" not found!")
             try:
@@ -106,7 +107,7 @@ def control(request):
                 gateway.publish_update_event(event_type="delete")
                 gateway.delete()
             except EmailGateway.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Field valud for field \"id\"!")
+                return JSONErrorResponse("Invalid request! Field value for field \"id\"!")
             response = {"message": "Success!"}
         else:
             return JSONErrorResponse("Invalid request! Invalid value for field \"action\"!")
