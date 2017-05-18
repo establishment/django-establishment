@@ -108,18 +108,34 @@ class EditEmailGatewayModal extends EmailGatewayModal {
 }
 
 
-class EmailGatewayTableRow extends UI.TableRow {
-    deleteGateway() {
+class GenericConfirmModal extends UI.ActionModal {
+    constructor(options) {
+        super(options);
+    }
+
+    getBody() {
+        return [
+            <div>{this.getActionText()}</div>
+        ];
+    }
+
+    action() {
         const request = {
-            action: "delete",
+            action: this.getAjaxAction(),
             objectType: "gateway",
-            id: this.options.entry.id,
+            d: this.options.gateway ? this.options.gateway.id : null,
         };
 
         Ajax.postJSON("/email/control/", request).then(
             (data) => {
                 if (data.error) {
                     console.log(data.error);
+                    for (let field of this.fields) {
+                        if (data.error.toString().indexOf(field) !== -1) {
+                            this[field + "Field"].setError("Invalid " + field);
+                        }
+                    }
+                    this.messageArea.showMessage("Error in campaign operation!!", "red");
                 } else {
                     this.hide();
                 }
@@ -127,14 +143,38 @@ class EmailGatewayTableRow extends UI.TableRow {
             (error) => {
                 console.log(error.message);
                 console.log(error.stack);
+                this.messageArea.showMessage("Error in campaign operation!!", "red");
             }
         );
     }
 
+    getActionName() {
+        return "Confirm!";
+    }
+
+    getActionLevel() {
+        return UI.Level.PRIMARY;
+    }
+}
+
+
+class DeleteGatewayConfirmModal extends GenericConfirmModal {
+    getActionText() {
+        return "Are you sure you want to delete this entry?";
+    }
+
+    getAjaxAction() {
+        return "delete";
+    }
+}
+
+
+class EmailGatewayTableRow extends UI.TableRow {
     onMount() {
         super.onMount();
         this.deleteGatewayButton.addClickListener(() => {
-            this.deleteGateway();
+            const deleteGatewayConfirmModal = <DeleteGatewayConfirmModal gateway={this.options.entry}/>
+            deleteGatewayConfirmModal.show();
         });
         this.editGatewayButton.addClickListener(() => {
             const editGatewayModal = <EditEmailGatewayModal gateway={this.options.entry} />;

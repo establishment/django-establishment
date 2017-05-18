@@ -4,6 +4,149 @@ import {EmailCampaignStore} from "EmailCampaignStore";
 import {EmailTemplateStore} from "EmailTemplateStore";
 import {Ajax} from "Ajax";
 
+class GenericConfirmModal extends UI.ActionModal {
+    constructor(options) {
+        super(options);
+    }
+
+    getBody() {
+        return [
+            <div>{this.getActionText()}</div>
+        ];
+    }
+
+    action() {
+        const request = {
+            action: this.getAjaxAction(),
+            objectType: "campaign",
+            d: this.options.campaign ? this.options.campaign.id : null,
+        };
+
+        Ajax.postJSON("/email/control/", request).then(
+            (data) => {
+                if (data.error) {
+                    console.log(data.error);
+                    for (let field of this.fields) {
+                        if (data.error.toString().indexOf(field) !== -1) {
+                            this[field + "Field"].setError("Invalid " + field);
+                        }
+                    }
+                    this.messageArea.showMessage("Error in campaign operation!!", "red");
+                } else {
+                    this.hide();
+                }
+            },
+            (error) => {
+                console.log(error.message);
+                console.log(error.stack);
+                this.messageArea.showMessage("Error in campaign operation!!", "red");
+            }
+        );
+    }
+
+    getActionName() {
+        return "Confirm!";
+    }
+
+    getActionLevel() {
+        return UI.Level.PRIMARY;
+    }
+}
+
+
+class DeleteCampaignConfirmModal extends GenericConfirmModal {
+    getActionText() {
+        return "Are you sure you want to delete this entry?";
+    }
+
+    getAjaxAction() {
+        return "delete";
+    }
+}
+
+
+class ClearStatusCampaignConfirmModal extends GenericConfirmModal {
+    getActionText() {
+        return "Are you sure you want to clear all status for this entry?";
+    }
+
+    getAjaxAction() {
+        return "clearStatus";
+    }
+}
+
+class SendCampaignConfirmModal extends GenericConfirmModal {
+    getActionText() {
+        return "Are you sure you want to start sending this email campaign?";
+    }
+
+    getAjaxAction() {
+        return "start";
+    }
+}
+
+
+class TestSendCampaignModal extends UI.ActionModal {
+    constructor(options) {
+        super(options);
+    }
+
+    getBody() {
+        return [
+            <UI.FormField label="Name" ref="fromIdField">
+                <UI.TextInput value={USER.id} ref="fromIdInput"/>
+            </UI.FormField>,
+            <UI.FormField label="From address" ref="toIdField">
+                <UI.TextInput value={USER.id} ref="toIdInput"/>
+            </UI.FormField>
+        ];
+    }
+
+    action() {
+        const request = {
+            action: "test",
+            objectType: "campaign",
+            fromId: this.fromIdInput.getValue(),
+            toId: this.toIdInput.getValue(),
+            id: this.options.campaign ? this.options.campaign.id : null,
+        };
+
+        Ajax.postJSON("/email/control/", request).then(
+            (data) => {
+                if (data.error) {
+                    console.log(data.error);
+                    for (let field of this.fields) {
+                        if (data.error.toString().indexOf(field) !== -1) {
+                            this[field + "Field"].setError("Invalid " + field);
+                        }
+                    }
+                    this.messageArea.showMessage("Error in campaign operation!!", "red");
+                } else {
+                    this.hide();
+                }
+            },
+            (error) => {
+                console.log(error.message);
+                console.log(error.stack);
+                this.messageArea.showMessage("Error in campaign operation!!", "red");
+            }
+        );
+    }
+
+    getTitle() {
+        return "Campaign send test";
+    }
+
+    getActionName() {
+        return "Send test emails!";
+    }
+
+    getActionLevel() {
+        return UI.Level.PRIMARY;
+    }
+}
+
+
 class EmailCampaignModal extends UI.ActionModal {
     constructor(options) {
         super(options);
@@ -102,37 +245,31 @@ class EditEmailCampaignModal extends EmailCampaignModal {
 
 
 class EmailCampaignTableRow extends UI.TableRow {
-    deleteCampaign() {
-        const request = {
-            action: "delete",
-            objectType: "campaign",
-            id: this.options.entry.id,
-        };
-
-        Ajax.postJSON("/email/control/", request).then(
-            (data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    this.hide();
-                }
-            },
-            (error) => {
-                console.log(error.message);
-                console.log(error.stack);
-            }
-        );
-    }
-
     onMount() {
         super.onMount();
         this.deleteCampaignButton.addClickListener(() => {
-            this.deleteCampaign();
+            const deleteCampaignConfirmModal = <DeleteCampaignConfirmModal campaign={this.options.entry}/>
+            deleteCampaignConfirmModal.show();
         });
 
         this.editCampaignButton.addClickListener(() => {
             const editCampaignModal = <EditEmailCampaignModal campaign={this.options.entry} />;
             editCampaignModal.show();
+        });
+
+        this.testSendCampaignButton.addClickListener(() => {
+            const testSendCampaignModal = <TestSendCampaignModal campaign={this.options.entry} />;
+            testSendCampaignModal.show();
+        });
+
+        this.sendCampaignButton.addClickListener(() => {
+            const sendCampaignConfirmModal = <SendCampaignConfirmModal campaign={this.options.entry}/>
+            sendCampaignConfirmModal.show();
+        });
+
+        this.clearStatusCampaignButton.addClickListener(() => {
+            const clearStatusCampaignConfirmModal = <ClearStatusCampaignConfirmModal campaign={this.options.entry} />
+            clearStatusCampaignConfirmModal.show();
         });
     }
 }
@@ -165,6 +302,18 @@ class EmailCampaignTable extends SortableTable {
                 return <Button level={UI.Level.INFO} ref="editCampaignButton">Edit</Button>;
             };
 
+            const testSendButton = (campaign) => {
+                return <Button level={UI.Level.INFO} ref="testSendCampaignButton">Test Send</Button>
+            };
+
+            const sendButton = (campaign) => {
+                return <Button level={UI.Level.INFO} ref="sendCampaignButton">Send</Button>
+            };
+
+            const clearStatusButton = (campaign) => {
+                return <Button level={UI.Level.DANGER} ref="clearStatusCampaignButton">Clear Status</Button>
+            };
+
             columns.push({
                 value: campaign => campaign.name,
                 headerName: UI.T("Name"),
@@ -190,6 +339,18 @@ class EmailCampaignTable extends SortableTable {
                 headerStyle: headerStyle,
             });
             columns.push({
+                value: campaign => campaign.emailsRead,
+                headerName: UI.T("Emails Read"),
+                cellStyle: cellStyle,
+                headerStyle: headerStyle
+            });
+            columns.push({
+                value: campaign => campaign.emailsSent,
+                headerName: UI.T("Emails Sent"),
+                cellStyle: cellStyle,
+                headerStyle: headerStyle
+            });
+            columns.push({
                 value: deleteButton,
                 headerName: "Delete",
                 headerStyle: {width: "10%"},
@@ -198,6 +359,21 @@ class EmailCampaignTable extends SortableTable {
                 value: editButton,
                 headerName: "Edit",
                 headerStyle: {width: "10%"},
+            });
+            columns.push({
+                value: testSendButton,
+                headerName: "Test Send",
+                headerStyle: {width: "10%"}
+            });
+            columns.push({
+                value: sendButton,
+                headerName: "Send",
+                headerStyle: {width: "10%"}
+            });
+            columns.push({
+                value: clearStatusButton,
+                headerName: "Clear Status",
+                headerStyle: {width: "10%"}
             });
         }
         super.setColumns(columns);

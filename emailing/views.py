@@ -49,10 +49,10 @@ def control(request):
                 return JSONErrorResponse("Invalid request! Field \"toId!\" not found!")
             response = MercuryRedisAPI.get_api().send_campaign_test(campaign_id, id_from, id_to)
         elif action == "clearStatus":
-            campaign_id = request.POST.ge("id")
+            campaign_id = request.POST.get("id")
             if campaign_id is None:
                 return JSONErrorResponse("Invalid request! Field \"id\" not found!")
-            EmailStatus.objecs.all().filter(campaign_id=campaign_id).delete()
+            EmailStatus.objects.all().filter(campaign_id=campaign_id).delete()
             response = {"message": "Success!"}
         elif action == "update":
             campaign_id = request.POST.get("id")
@@ -289,8 +289,11 @@ def control(request):
 
 
 def track_email(request):
-    email_status = EmailStatus.objects.get(key=request.GET["statusKey"])
-    email_status.mark_read()
+    try:
+        email_status = EmailStatus.objects.get(key=request.GET["statusKey"])
+        email_status.mark_read()
+    except:
+        pass
 
     image = Image.new('RGBA', (1, 1), (255, 255, 255, 0))
     response = HttpResponse(content_type="image/png")

@@ -11,9 +11,9 @@ class EmailManager extends UI.Panel {
     render() {
         return [
             <TabArea ref="tabArea" variableHeightPanels >
-                <EmailGatewayWidget ref="emailGatewayWidget" tabHref="#gateways" title="Gateways" active />
-                <EmailCampaignWidget ref="emailCampaignWidget" tabHref="#campaigns" title="Campaigns" />
+                <EmailCampaignWidget ref="emailCampaignWidget" tabHref="#campaigns" title="Campaigns" active/>
                 <EmailTemplateWidget ref="emailTemplateWidget" tabHref="#templates" title="Templates"/>
+                <EmailGatewayWidget ref="emailGatewayWidget" tabHref="#gateways" title="Gateways"/>
             </TabArea>
         ];
     }
@@ -33,7 +33,7 @@ class EmailManager extends UI.Panel {
         } else if (location.args[0] === "templates") {
             this.emailTemplateWidget.dispatch("show");
         } else {
-            this.emailGatewayWidget.dispatch("show");
+            this.emailCampaignWidget.dispatch("show");
         }
     }
 }

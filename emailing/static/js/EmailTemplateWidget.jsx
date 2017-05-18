@@ -138,18 +138,34 @@ class EditEmailTemplateModal extends EmailTemplateModal {
 }
 
 
-class EmailTemplateTableRow extends UI.TableRow {
-    deleteTemplate() {
+class GenericConfirmModal extends UI.ActionModal {
+    constructor(options) {
+        super(options);
+    }
+
+    getBody() {
+        return [
+            <div>{this.getActionText()}</div>
+        ];
+    }
+
+    action() {
         const request = {
-            action: "delete",
+            action: this.getAjaxAction(),
             objectType: "template",
-            id: this.options.entry.id,
+            d: this.options.template ? this.options.template.id : null,
         };
 
         Ajax.postJSON("/email/control/", request).then(
             (data) => {
                 if (data.error) {
                     console.log(data.error);
+                    for (let field of this.fields) {
+                        if (data.error.toString().indexOf(field) !== -1) {
+                            this[field + "Field"].setError("Invalid " + field);
+                        }
+                    }
+                    this.messageArea.showMessage("Error in campaign operation!!", "red");
                 } else {
                     this.hide();
                 }
@@ -157,14 +173,38 @@ class EmailTemplateTableRow extends UI.TableRow {
             (error) => {
                 console.log(error.message);
                 console.log(error.stack);
+                this.messageArea.showMessage("Error in campaign operation!!", "red");
             }
         );
     }
 
+    getActionName() {
+        return "Confirm!";
+    }
+
+    getActionLevel() {
+        return UI.Level.PRIMARY;
+    }
+}
+
+
+class DeleteTemplateConfirmModal extends GenericConfirmModal {
+    getActionText() {
+        return "Are you sure you want to delete this entry?";
+    }
+
+    getAjaxAction() {
+        return "delete";
+    }
+}
+
+
+class EmailTemplateTableRow extends UI.TableRow {
     onMount() {
         super.onMount();
         this.deleteTemplateButton.addClickListener(() => {
-            this.deleteTemplate();
+            const deleteTemplateConfirmModal = <DeleteTemplateConfirmModal template={this.options.entry}/>
+            deleteTemplateConfirmModal.show();
         });
 
         this.editTemplateButton.addClickListener(() => {
