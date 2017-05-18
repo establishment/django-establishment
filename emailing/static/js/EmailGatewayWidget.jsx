@@ -136,14 +136,9 @@ class EmailGatewayTableRow extends UI.TableRow {
         this.deleteGatewayButton.addClickListener(() => {
             this.deleteGateway();
         });
-
         this.editGatewayButton.addClickListener(() => {
             const editGatewayModal = <EditEmailGatewayModal gateway={this.options.entry} />;
             editGatewayModal.show();
-        });
-        this.options.entry.addUpdateListener((event) => {
-            // console.warn(event);
-            this.redraw();
         });
     }
 }
@@ -221,10 +216,13 @@ class EmailGatewayTable extends SortableTable {
     }
 
     onMount() {
-        // TODO: This is not working, you have to refresh the page to get updates.
-        // TODO: Also, the event is outdated, pretty sad.
-        EmailGatewayStore.addUpdateListener((event) => {
-            console.warn(event);
+        EmailGatewayStore.addUpdateListener(() => {
+            this.redraw();
+        });
+        EmailGatewayStore.addDeleteListener(() => {
+            this.redraw();
+        });
+        EmailGatewayStore.addCreateListener(() => {
             this.redraw();
         });
     }
@@ -234,7 +232,8 @@ class EmailGatewayTable extends SortableTable {
 class EmailGatewayWidget extends UI.Panel {
     render() {
         return [<EmailGatewayTable />,
-            <Button level={UI.Level.SUCCESS} ref="addGatewayButton">Add Gateway</Button>
+                <Button level={UI.Level.SUCCESS} ref="addGatewayButton">Add Gateway</Button>,
+                "Calm down"
         ];
     }
 

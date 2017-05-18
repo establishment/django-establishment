@@ -42,7 +42,7 @@ class EmailGateway(StreamObjectMixin):
         return {
             "objectId": self.id,
             "objectType": self.__class__.object_type(),
-            "eventType": event_type,
+            "type": event_type,
             "data": self,
         }
 
@@ -88,7 +88,7 @@ class EmailCampaign(StreamObjectMixin):
         return {
             "objectId": self.id,
             "objectType": self.__class__.object_type(),
-            "eventType": event_type,
+            "type": event_type,
             "data": self,
         }
 
@@ -151,7 +151,7 @@ class EmailTemplate(StreamObjectMixin):
         return {
             "objectId": self.id,
             "objectType": self.__class__.object_type(),
-            "eventType": event_type,
+            "type": event_type,
             "data": self,
         }
 
@@ -250,7 +250,7 @@ class EmailStatus(StreamObjectMixin):
         return {
             "objectId": self.id,
             "objectType": self.__class__.object_type(),
-            "eventType": event_type,
+            "type": event_type,
             "data": self,
         }
 

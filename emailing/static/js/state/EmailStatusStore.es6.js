@@ -1,16 +1,9 @@
 import {StoreObject, GenericObjectStore} from "Store";
 import {GlobalState} from "State";
 
-class EmailStatus extends StoreObject {
-    applyEvent(event) {
-    }
-}
+class EmailStatus extends StoreObject {}
 
 class EmailStatusStoreClass extends GenericObjectStore {
-    applyEvent(event) {
-        super.applyEvent(event);
-    }
-
     registerStreams() {
         GlobalState.registerStream("admin-email-manager");
     }

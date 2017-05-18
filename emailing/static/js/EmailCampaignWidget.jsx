@@ -204,10 +204,13 @@ class EmailCampaignTable extends SortableTable {
     }
 
     onMount() {
-        // TODO: This is not working, you have to refresh the page to get updates.
-        // TODO: Also, the event is outdated, pretty sad.
-        EmailCampaignStore.addUpdateListener((event) => {
-            console.warn(event);
+        EmailCampaignStore.addUpdateListener(() => {
+            this.redraw();
+        });
+        EmailCampaignStore.addCreateListener(() => {
+            this.redraw();
+        });
+        EmailCampaignStore.addDeleteListener(() => {
             this.redraw();
         });
     }
@@ -227,8 +230,6 @@ class EmailCampaignWidget extends UI.Panel {
         EmailGatewayStore.registerStreams();
         EmailCampaignStore.registerStreams();
         EmailTemplateStore.registerStreams();
-
-        console.log(EmailCampaignStore.all());
 
         this.addCampaignButton.addClickListener(() => {
             const addCampaignModal = <AddEmailCampaignModal campaign={this.options.entry} />;
