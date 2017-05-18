@@ -4,6 +4,10 @@ import {GlobalState} from "State";
 class EmailGateway extends StoreObject {
     applyEvent(event) {
     }
+
+    toString() {
+        return this.name + ":" + this.port;
+    }
 }
 
 class EmailGatewayStoreClass extends GenericObjectStore {

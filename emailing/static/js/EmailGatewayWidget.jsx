@@ -2,7 +2,7 @@ import {UI, SortableTable, Button} from "UI";
 import {EmailGatewayStore} from "EmailGatewayStore";
 import {Ajax} from "Ajax";
 
-class GatewayModal extends UI.ActionModal {
+class EmailGatewayModal extends UI.ActionModal {
     constructor(options) {
         super(options);
         this.fields = ["name", "host", "port", "useTLS", "username"];
@@ -49,16 +49,17 @@ class GatewayModal extends UI.ActionModal {
             (data) => {
                 if (data.error) {
                     console.log(data.error);
+                    for (let field of this.fields) {
+                        if (data.error.toString().indexOf(field) !== -1) {
+                            this[field + "Field"].setError("Invalid " + field);
+                        }
+                    }
+                    this.messageArea.showMessage("Error in gateway operation!!", "red");
                 } else {
                     this.hide();
                 }
             },
             (error) => {
-                for (let field of this.fields) {
-                    if (error.message.contains(field)) {
-                        this[field + "Field"].setError("Invalid " + field);
-                    }
-                }
                 console.log("Error in adding contest !!");
                 console.log(error.message);
                 console.log(error.stack);
@@ -69,13 +70,13 @@ class GatewayModal extends UI.ActionModal {
 }
 
 
-class AddGatewayModal extends GatewayModal {
+class AddEmailGatewayModal extends EmailGatewayModal {
     getTitle() {
-        return "New gateway";
+        return "New Email gateway";
     }
 
     getActionName() {
-        return "Add Gateway";
+        return "Add Email gateway";
     }
 
     getActionLevel() {
@@ -88,13 +89,13 @@ class AddGatewayModal extends GatewayModal {
 }
 
 
-class EditGatewayModal extends GatewayModal {
+class EditEmailGatewayModal extends EmailGatewayModal {
     getTitle() {
-        return "Edit gateway";
+        return "Edit Email gateway";
     }
 
     getActionName() {
-        return "Save Gateway";
+        return "Save Email gateway";
     }
 
     getActionLevel() {
@@ -115,7 +116,7 @@ class EmailGatewayTableRow extends UI.TableRow {
             id: this.options.entry.id,
         };
 
-        Ajax.getJSON("/email/control/", request).then(
+        Ajax.postJSON("/email/control/", request).then(
             (data) => {
                 if (data.error) {
                     console.log(data.error);
@@ -126,7 +127,6 @@ class EmailGatewayTableRow extends UI.TableRow {
             (error) => {
                 console.log(error.message);
                 console.log(error.stack);
-                this.messageArea.showMessage("Error in gateway deletion!!", "red");
             }
         );
     }
@@ -138,7 +138,7 @@ class EmailGatewayTableRow extends UI.TableRow {
         });
 
         this.editGatewayButton.addClickListener(() => {
-            const editGatewayModal = <EditGatewayModal gateway={this.options.entry} />;
+            const editGatewayModal = <EditEmailGatewayModal gateway={this.options.entry} />;
             editGatewayModal.show();
         });
         this.options.entry.addUpdateListener((event) => {
@@ -161,19 +161,19 @@ class EmailGatewayTable extends SortableTable {
     setColumns(columns) {
         if (!columns || columns.length === 0) {
             const cellStyle = {
-                textAlign: "right",
+                textAlign: "center",
             };
             const headerStyle = {
-                textAlign: "right",
+                textAlign: "center",
                 width: "16%",
             };
 
             const deleteButton = (gateway) => {
-                return <Button level={UI.Level.DANGER} ref="deleteGatewayButton">Delete Gateway</Button>;
+                return <Button level={UI.Level.DANGER} ref="deleteGatewayButton">Delete</Button>;
             };
 
             const editButton = (gateway) => {
-                return <Button level={UI.Level.INFO} ref="editGatewayButton">Edit Gateway</Button>;
+                return <Button level={UI.Level.INFO} ref="editGatewayButton">Edit</Button>;
             };
 
             columns.push({
@@ -232,14 +232,6 @@ class EmailGatewayTable extends SortableTable {
 
 
 class EmailGatewayWidget extends UI.Panel {
-    extraNodeAttributes(attr) {
-        attr.setStyle({
-            marginLeft: "10%",
-            marginRight: "10%",
-            marginTop: "30px",
-        });
-    }
-
     render() {
         return [<EmailGatewayTable />,
             <Button level={UI.Level.SUCCESS} ref="addGatewayButton">Add Gateway</Button>
@@ -249,7 +241,7 @@ class EmailGatewayWidget extends UI.Panel {
     onMount() {
         EmailGatewayStore.registerStreams();
         this.addGatewayButton.addClickListener(() => {
-            const addGatewayModal = <AddGatewayModal />;
+            const addGatewayModal = <AddEmailGatewayModal />;
             addGatewayModal.show();
         });
     }

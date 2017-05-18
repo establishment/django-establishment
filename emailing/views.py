@@ -32,10 +32,74 @@ def control(request):
     response = {}
     if object_type == "campaign":
         if action in ["start", "stop", "pause", "continue"]:
-            campaign_id = request.POST.get("campaignId")
+            campaign_id = request.POST.get("id")
             if campaign_id is None:
-                return JSONErrorResponse("Invalid request! Field \"campaignId\" not found!")
+                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
             response = MercuryRedisAPI.get_api().generic_action(objectType=object_type, action=action, campaign_id=campaign_id)
+        elif action == "update":
+            campaign_id = request.POST.get("id")
+            if campaign_id is None:
+                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
+            name = request.POST.get("name")
+            if name is None:
+                return JSONErrorResponse("Invalid request! Field \"name\" not found!")
+            from_address = request.POST.get("fromAddress")
+            if from_address is None:
+                return JSONErrorResponse("Invalid request! Field \"fromAddress\" not found!")
+            gateway_id = request.POST.get("gatewayId")
+            if gateway_id is None:
+                return JSONErrorResponse("Invalid request! Field \"gatewayId\" not found!")
+            try:
+                gateway = EmailGateway.objects.get(id=gateway_id)
+            except EmailGateway.DoesNotExist:
+                return JSONErrorResponse("Invalid request! Invalid value for field \"gatewayId\"!")
+            try:
+                campaign = EmailCampaign.objects.get(id=campaign_id)
+            except EmailCampaign.DoesNotExist:
+                return JSONErrorResponse("Invalid request! Invalid value for field \"id\"!")
+            is_newsletter = json.loads(request.POST.get("isNewsletter"))
+            if is_newsletter is None:
+                return JSONErrorResponse("Invalid request! Field \"isNewsletter\" not found")
+            campaign.name = name
+            campaign.from_address = from_address
+            campaign.gateway = gateway
+            campaign.is_newsletter = is_newsletter
+            campaign.save()
+            campaign.publish_update_event()
+            response = {"message": "Success!"}
+        elif action == "new":
+            name = request.POST.get("name")
+            if name is None:
+                return JSONErrorResponse("Invalid request! Field \"name\" not found!")
+            from_address = request.POST.get("fromAddress")
+            if from_address is None:
+                return JSONErrorResponse("Invalid request! Field \"fromAddress\" not found!")
+            gateway_id = request.POST.get("gatewayId")
+            if gateway_id is None:
+                return JSONErrorResponse("Invalid request! Field \"gatewayId\" not found!")
+            try:
+                gateway = EmailGateway.objects.get(id=gateway_id)
+            except EmailGateway.DoesNotExist:
+                return JSONErrorResponse("Invalid request! Invalid value for field \"gatewayId\"!")
+            is_newsletter = json.loads(request.POST.get("isNewsletter"))
+            if is_newsletter is None:
+                return JSONErrorResponse("Invalid request! Field \"isNewsletter\" not found")
+            campaign = EmailCampaign(name=name, from_address=from_address, gateway=gateway,
+                                     is_newsletter=is_newsletter)
+            campaign.save()
+            campaign.publish_update_event()
+            response = {"message": "Success!"}
+        elif action == "delete":
+            campaign_id = request.POST.get("id")
+            if campaign_id is None:
+                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
+            try:
+                campaign = EmailGateway.objects.get(id=gateway_id)
+                campaign.publish_update_event(event_type="delete")
+                campaign.delete()
+            except EmailCampaign.DoesNotExist:
+                return JSONErrorResponse("Invalid request! Field value for field \"id\"!")
+            response = {"message": "Success!"}
         else:
             return JSONErrorResponse("Invalid request! Invalid value for field \"action\"!")
     elif object_type == "gateway":
