@@ -36,7 +36,24 @@ def control(request):
             campaign_id = request.POST.get("id")
             if campaign_id is None:
                 return JSONErrorResponse("Invalid request! Field \"id\" not found!")
-            response = MercuryRedisAPI.get_api().generic_action(objectType=object_type, action=action, campaign_id=campaign_id)
+            response = MercuryRedisAPI.get_api().send_campaign_start(campaign_id)
+        elif action == "test":
+            campaign_id = request.POST.get("id")
+            if campaign_id is None:
+                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
+            id_from = request.POST.get("fromId")
+            if id_from is None:
+                return JSONErrorResponse("Invalid request! Field \"fromId\" not found!")
+            id_to = request.POST.get("toId")
+            if id_to is None:
+                return JSONErrorResponse("Invalid request! Field \"toId!\" not found!")
+            response = MercuryRedisAPI.get_api().send_campaign_test(campaign_id, id_from, id_to)
+        elif action == "clearStatus":
+            campaign_id = request.POST.ge("id")
+            if campaign_id is None:
+                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
+            EmailStatus.objecs.all().filter(campaign_id=campaign_id).delete()
+            response = {"message": "Success!"}
         elif action == "update":
             campaign_id = request.POST.get("id")
             if campaign_id is None:
@@ -95,11 +112,11 @@ def control(request):
             if campaign_id is None:
                 return JSONErrorResponse("Invalid request! Field \"id\" not found!")
             try:
-                campaign = EmailGateway.objects.get(id=gateway_id)
+                campaign = EmailCampaign.objects.get(id=campaign_id)
                 campaign.publish_update_event(event_type="delete")
                 campaign.delete()
             except EmailCampaign.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Field value for field \"id\"!")
+                return JSONErrorResponse("Invalid request! Invalid value for field \"id\"!")
             response = {"message": "Success!"}
         else:
             return JSONErrorResponse("Invalid request! Invalid value for field \"action\"!")
@@ -159,7 +176,7 @@ def control(request):
             if password is None:
                 return JSONErrorResponse("Invalid request! Field \"password\" not found!")
             gateway = EmailGateway(name=name, host=host, port=port, use_tls=use_tls, username=username,
-                                          password=password)
+                                   password=password)
             gateway.save()
             gateway.publish_update_event()
             response = {"message": "Success!"}

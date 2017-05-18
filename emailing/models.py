@@ -92,6 +92,12 @@ class EmailCampaign(StreamObjectMixin):
             "data": self,
         }
 
+    def get_emails_sent_count(self):
+        return EmailStatus.objects.all().filter(campaign_id=self.id).count()
+
+    def get_emails_read_count(self, min_count=1):
+        return EmailStatus.objects.all().filter(campaign_id=self.id, read_count__gte=min_count).count()
+
     def publish_update_event(self, event_type="updateOrCreate", extra=None, extra_stream_names=None):
         event = self.get_event(event_type=event_type)
         if extra:
@@ -108,7 +114,9 @@ class EmailCampaign(StreamObjectMixin):
             "name": self.name,
             "fromAddress": self.from_address,
             "gatewayId": self.gateway_id,
-            "isNewsletter": self.is_newsletter
+            "isNewsletter": self.is_newsletter,
+            "emailsSent": self.get_emails_sent_count(),
+            "emailsRead": self.get_emails_read_count()
         }
 
 
