@@ -3,7 +3,7 @@ import {GlobalState} from "State";
 
 class EmailGateway extends StoreObject {
     toString() {
-        return this.name + ":" + this.port;
+        return this.name;
     }
 }
 

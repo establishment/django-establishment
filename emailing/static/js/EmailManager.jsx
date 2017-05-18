@@ -5,6 +5,7 @@ import {GlobalState} from "State";
 import {StateDependentElement} from "StateDependentElement";
 import {EmailGatewayWidget} from "EmailGatewayWidget";
 import {EmailCampaignWidget} from "EmailCampaignWidget";
+import {EmailTemplateWidget} from "EmailTemplateWidget";
 
 class EmailManager extends UI.Panel {
     render() {
@@ -12,6 +13,7 @@ class EmailManager extends UI.Panel {
             <TabArea ref="tabArea" variableHeightPanels >
                 <EmailGatewayWidget ref="emailGatewayWidget" tabHref="#gateways" title="Gateways" active />
                 <EmailCampaignWidget ref="emailCampaignWidget" tabHref="#campaigns" title="Campaigns" />
+                <EmailTemplateWidget ref="emailTemplateWidget" tabHref="#templates" title="Templates"/>
             </TabArea>
         ];
     }
@@ -28,6 +30,8 @@ class EmailManager extends UI.Panel {
             this.emailGatewayWidget.dispatch("show");
         } else if (location.args[0] === "campaigns") {
             this.emailCampaignWidget.dispatch("show");
+        } else if (location.args[0] === "templates") {
+            this.emailTemplateWidget.dispatch("show");
         } else {
             this.emailGatewayWidget.dispatch("show");
         }

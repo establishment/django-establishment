@@ -229,12 +229,11 @@ class EmailCampaignWidget extends UI.Panel {
 
         EmailGatewayStore.registerStreams();
         EmailCampaignStore.registerStreams();
-        EmailTemplateStore.registerStreams();
 
         this.addCampaignButton.addClickListener(() => {
             const addCampaignModal = <AddEmailCampaignModal campaign={this.options.entry} />;
             addCampaignModal.show();
-        })
+        });
     }
 }
 

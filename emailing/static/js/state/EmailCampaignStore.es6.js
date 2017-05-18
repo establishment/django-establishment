@@ -1,7 +1,11 @@
 import {StoreObject, GenericObjectStore} from "Store";
 import {GlobalState} from "State";
 
-class EmailCampaign extends StoreObject {}
+class EmailCampaign extends StoreObject {
+    toString() {
+        return this.name;
+    }
+}
 
 class EmailCampaignStoreClass extends GenericObjectStore {
     registerStreams() {
