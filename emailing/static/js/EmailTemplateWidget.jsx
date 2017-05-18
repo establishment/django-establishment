@@ -35,13 +35,13 @@ class EmailTemplateModal extends UI.ActionModal {
                 <UI.TextInput value={templateValues.subject || ""} ref="subjectInput"/>
             </UI.FormField>,
             <UI.FormField label="Campaign" ref="campaignIdField" style={{margin: "initial"}}>
-                <UI.Select ref="campaignSelect" options={EmailCampaignStore.all()} />
+                <UI.Select ref="campaignSelect" options={EmailCampaignStore.all()} selected={EmailCampaignStore.get(templateValues.campaignId)}/>
             </UI.FormField>,
             <UI.FormField label="Language" ref="languageIdField" style={{margin: "initial"}}>
-                <UI.Select ref="languageSelect" options={Language.all()} />
+                <UI.Select ref="languageSelect" options={Language.all()} selected={Language.get(templateValues.languageId)}/>
             </UI.FormField>,
             <UI.FormField label="Gateway" ref="gatewayIdField" style={{margin: "initial"}}>
-                <UI.Select ref="gatewaySelect" options={EmailGatewayStore.all()} />
+                <UI.Select ref="gatewaySelect" options={EmailGatewayStore.all()} selected={EmailGatewayStore.get(templateValues.gatewayId)}/>
             </UI.FormField>,
             <UI.FormField label="Html" ref="htmlField" inline={false} style={{margin: "initial"}}>
             </UI.FormField>,

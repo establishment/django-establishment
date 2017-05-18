@@ -20,7 +20,7 @@ class EmailCampaignModal extends UI.ActionModal {
                 <UI.TextInput value={campaignValues.fromAddress || ""} ref="fromAddressInput"/>
             </UI.FormField>,
             <UI.FormField label="Gateway" ref="gatewayIdField">
-                <UI.Select ref="gatewaySelect" options={EmailGatewayStore.all()} />
+                <UI.Select ref="gatewaySelect" options={EmailGatewayStore.all()} selected={EmailGatewayStore.get(campaignValues.gatewayId)}/>
             </UI.FormField>,
             <UI.FormField label="Is newsletter" ref="isNewsletterField">
                 <UI.CheckboxInput value={campaignValues.isNewsletter || ""} ref="isNewsletterInput"/>

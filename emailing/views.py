@@ -176,7 +176,7 @@ def control(request):
             response = {"message": "Success!"}
         else:
             return JSONErrorResponse("Invalid request! Invalid value for field \"action\"!")
-    if object_type == "template":
+    elif object_type == "template":
         if action == "update":
             template_id = request.POST.get("id")
             if template_id is None:
