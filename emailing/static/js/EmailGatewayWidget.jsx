@@ -233,7 +233,6 @@ class EmailGatewayWidget extends UI.Panel {
     render() {
         return [<EmailGatewayTable />,
                 <Button level={UI.Level.SUCCESS} ref="addGatewayButton">Add Gateway</Button>,
-                "Calm down"
         ];
     }
 
