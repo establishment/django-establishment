@@ -4,8 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-from establishment.localization.resources.create_countries import create_countries
-
 
 def forward_func(*args):
 	create_countries()
@@ -32,5 +30,4 @@ class Migration(migrations.Migration):
                 ('phone_number_prefix', models.CharField(blank=True, max_length=16, null=True)),
             ],
         ),
-		migrations.RunPython(forward_func, reverse_func)
     ]
