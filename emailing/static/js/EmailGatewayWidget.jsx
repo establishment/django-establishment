@@ -130,11 +130,6 @@ class GenericConfirmModal extends UI.ActionModal {
             (data) => {
                 if (data.error) {
                     console.log(data.error);
-                    for (let field of this.fields) {
-                        if (data.error.toString().indexOf(field) !== -1) {
-                            this[field + "Field"].setError("Invalid " + field);
-                        }
-                    }
                     this.messageArea.showMessage("Error in campaign operation!!", "red");
                 } else {
                     this.hide();
