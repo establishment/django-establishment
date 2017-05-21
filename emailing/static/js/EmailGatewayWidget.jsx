@@ -123,7 +123,7 @@ class GenericConfirmModal extends UI.ActionModal {
         const request = {
             action: this.getAjaxAction(),
             objectType: "gateway",
-            d: this.options.gateway ? this.options.gateway.id : null,
+            id: this.options.gateway ? this.options.gateway.id : null,
         };
 
         Ajax.postJSON("/email/control/", request).then(
