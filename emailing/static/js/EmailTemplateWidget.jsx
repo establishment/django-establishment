@@ -49,7 +49,9 @@ class EmailTemplateModal extends UI.ActionModal {
                 <div style={{width: "50%", height: "100%", overflow: "hidden"}}>
                     <UI.TextArea value={templateValues.html || ""} ref="htmlInput" style={{height: "100%", width: "100%", resize: "none"}}/>
                 </div>
-                <UI.Panel ref="htmlRenderer" style={{width: "50%", height: "100%", overflow: "auto"}}/>
+                <div style={{width: "50%", height: "100%", overflow: "auto", position: "relative"}}>
+                  <UI.Panel ref="htmlRenderer" style={{height: "100%", position: "absolute"}}/>
+                </div>
             </SectionDivider>,
         ];
     }
