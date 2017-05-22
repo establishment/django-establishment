@@ -142,7 +142,7 @@ class ForumThread(StreamObjectMixin):
         self.publish_delete_event()
 
     def get_last_active(self):
-        return self.message_thread.get_last_message().time_added
+        return self.message_thread.last_activity
 
     def to_json(self):
         # last_active = self.message_thread.messages.order_by()

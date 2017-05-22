@@ -1,5 +1,6 @@
 import re
 
+from datetime import datetime
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models
@@ -20,7 +21,7 @@ class MessageThread(StreamObjectMixin):
     metadata = JSONField(blank=True)
     muted = models.BooleanField(default=False)
     markup_enabled = models.BooleanField(default=True) #TODO: should be in metadata
-    #TODO: keep for every message thread the id of the last message/last edit time?
+    last_activity = models.DateTimeField(default=datetime.fromtimestamp(0))
 
     class Meta:
         db_table = "MessageThread"
@@ -33,14 +34,15 @@ class MessageThread(StreamObjectMixin):
             return False, ChatError.INVALID_MESSAGE_CONTENT
         return True, "Ok"
 
-    def to_json(self):
-        return {
-            "id": self.id,
-            "streamName": self.stream_name,
-            "meta": self.metadata,
-            "muted": self.muted,
-            "markupEnabled": self.markup_enabled,
-        }
+    # def to_json(self):
+    #     return {
+    #         "id": self.id,
+    #         "streamName": self.stream_name,
+    #         "meta": self.metadata,
+    #         "muted": self.muted,
+    #         "markupEnabled": self.markup_enabled,
+    #         "lastActivity": self.last_activity,
+    #     }
 
     def create_message_from_request(self, request, stream_names=None):
         user = request.user
@@ -61,6 +63,7 @@ class MessageThread(StreamObjectMixin):
         message = MessageInstance(message_thread=self, user=user, content=content, metadata=metadata)
         message.save()
         message.publish("create", virtual_id=virtual_id, stream_names=stream_names)
+        self.set_last_activity(message.time_added)
         return message
 
     def set_last_message_read(self, user, message_instance, stream_names=None):
@@ -75,8 +78,9 @@ class MessageThread(StreamObjectMixin):
         # TODO: right now we send the entire metadata, just send the delta
         self.publish_event("lastMessageInstance", {"metadata": self.metadata}, stream_names=stream_names)
 
-    def set_last_edit_time(self):
-        pass
+    def set_last_activity(self, timestamp):
+        self.last_activity = timestamp
+        self.save(update_fields=["last_activity"])
 
     def get_stream_name(self):
         return self.stream_name
@@ -427,7 +431,7 @@ class GroupChat(StreamObjectMixin):
 
 
 # TODO: rename to CommentableMixin
-class Commentable(models.Model):
+class Commentable(StreamObjectMixin):
     discussion = models.OneToOneField(GroupChat, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
@@ -435,6 +439,11 @@ class Commentable(models.Model):
 
     def get_discussion_name(self):
         return "Discussion for " + str(self)
+
+    def get_discussion_last_activity(self):
+        if not self.discussion:
+            return datetime.fromtimestamp(0)
+        return self.discussion.message_thread.last_activity
 
     def create_discussion(self, group=None):
         self.refresh_from_db()

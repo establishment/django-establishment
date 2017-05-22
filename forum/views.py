@@ -24,7 +24,7 @@ def single_page_forum(request):
 def latest_forum_state(request):
     state = GlobalObjectCache()
 
-    forum_threads = ForumThread.objects.filter(hidden=False).prefetch_related("message_thread__messages")
+    forum_threads = ForumThread.objects.filter(hidden=False).prefetch_related("message_thread", "parent")
     forum_threads = list(forum_threads)
     forum_threads.sort(key=lambda thread: thread.get_last_active(), reverse=True)
     forum_threads = forum_threads[:5]

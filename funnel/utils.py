@@ -1,4 +1,5 @@
 # TODO: this file should be renamed to state.py
+# TODO: rename most of the class names to DBObjectStore and State
 import json
 import time
 

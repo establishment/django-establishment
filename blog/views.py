@@ -11,33 +11,33 @@ from establishment.funnel.utils import GlobalObjectCache
 from establishment.funnel.base_views import JSONResponse, ajax_required, superuser_required, global_renderer, single_page_app
 
 
+BLOG_FETCH_CHUNK = 5
+
+
 def get_blog_state(request):
     blog_posts = BlogEntry.objects.order_by("-article__date_created").prefetch_related("article")
 
     if not request.user.is_superuser:
         blog_posts = blog_posts.filter(visible=True)
 
-    if request.is_ajax() and ("lastDate" in request.GET):
-        blog_posts = blog_posts.filter(
-            article__date_created__lt=datetime.datetime.fromtimestamp(float(request.GET["lastDate"])))[:4]
-        count = 3
-    else:
-        blog_posts = blog_posts[:6]
-        count = 5
+    if request.is_ajax() and "lastDate" in request.GET:
+        last_date = datetime.datetime.fromtimestamp(float(request.GET["lastDate"]))
+        blog_posts = blog_posts.filter(article__date_created__lt=last_date)
+
+    blog_posts = blog_posts[:(BLOG_FETCH_CHUNK + 1)]
 
     state = GlobalObjectCache()
 
-    for blog_post in blog_posts[:count]:
-        state.add(blog_post)
-        article = blog_post.article
-        state.add(article)
-    return state, (len(blog_posts) != count + 1)
+    for blog_post in blog_posts[:BLOG_FETCH_CHUNK]:
+        blog_post.add_to_state(state)
+
+    return state, (len(blog_posts) <= BLOG_FETCH_CHUNK)
 
 
 def blog(request):
     state, finished_loading = get_blog_state(request)
 
-    if request.is_ajax() and ("lastDate" in request.GET):
+    if request.is_ajax() and "lastDate" in request.GET:
         return JSONResponse({"state": state, "finishedLoading": finished_loading})
 
     widget_options = {
@@ -63,21 +63,21 @@ def get_blogpost(request):
     if blog_post:
         state.add(blog_post)
         state.add(blog_post.article)
-    return JSONResponse({"state": state})
+    return state.to_response()
 
 
 def latest_blog_state(request):
-    state = GlobalObjectCache()
+    state = GlobalObjectCache(request)
 
-    blog_entries = BlogEntry.objects.filter(visible=True, discussion__isnull=False).prefetch_related("article", "discussion").distinct()
+    blog_entries = BlogEntry.objects.filter(visible=True, discussion__isnull=False).prefetch_related("article", "discussion", "discussion__message_thread")
     blog_entries = list(blog_entries)
-    blog_entries.sort(key=lambda entry: entry.get_last_active(), reverse=True)
+    blog_entries.sort(key=lambda entry: entry.get_discussion_last_activity(), reverse=True)
     blog_entries = blog_entries[:5]
 
     for blog_entry in blog_entries:
         blog_entry.add_to_state(state)
 
-    return JSONResponse({"state": state})
+    return state.to_response()
 
 
 @single_page_app
@@ -104,8 +104,7 @@ def add_entry(request):
 
     state = GlobalObjectCache()
     entry.add_to_state(state)
-    return JSONResponse({"state": state,
-                         "blogEntryId": entry.id})
+    return JSONResponse({"state": state, "blogEntryId": entry.id})
 
 
 @ajax_required

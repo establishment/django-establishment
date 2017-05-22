@@ -3,6 +3,7 @@ from django.db import IntegrityError
 
 from establishment.errors.errors import BaseError
 from establishment.errors.models import ErrorMessage
+from establishment.funnel.utils import GlobalObjectCache
 
 
 class ErrorMessageProcessingMiddleware(object):
@@ -11,7 +12,7 @@ class ErrorMessageProcessingMiddleware(object):
 
     def __call__(self, request):
         response = self.get_response(request)
-        if isinstance(response, ErrorMessage):
+        if hasattr(response, "to_response"):
             response = response.to_response()
         return response
 

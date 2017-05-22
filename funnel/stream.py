@@ -54,7 +54,7 @@ class StreamObjectMixin(models.Model):
 
         # One to one is mess
         if isinstance(meta_field, OneToOneField):
-            return False
+            return True
 
         # if it's our stuff, it's ok
         if isinstance(meta_field, RelatedField):
@@ -120,7 +120,7 @@ class StreamObjectMixin(models.Model):
             if not hasattr(self, name):
                 continue
 
-                # check if the attribute is a function
+            # Check if the attribute is a function
             if hasattr(getattr(self, name), "__call__"):
                 value = getattr(self, name)()
             else:
