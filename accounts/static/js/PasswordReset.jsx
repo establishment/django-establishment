@@ -32,7 +32,7 @@ class PasswordReset extends UI.Element {
         this.emailFormField.removeError();
 
         this.resetPasswordButton.ajaxCall({
-            url: window.location.href,
+            url: window.location.href + (window.location.href[window.location.href.length - 1] === "/" ? "" : "/"),
             type: "POST",
             dataType: "json",
             data: data,

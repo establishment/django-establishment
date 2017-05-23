@@ -417,6 +417,11 @@ def user_password_reset_request(request):
     return JSONResponse({"success": True})
 
 
+@single_page_app
+def user_password_reset_single_page_request(request):
+    return user_password_reset_request(request)
+
+
 def user_password_reset_from_token(request, user_base36, reset_token):
     context = {}
 

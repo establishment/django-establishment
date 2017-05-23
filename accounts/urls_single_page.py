@@ -21,7 +21,7 @@ urlpatterns = [
     # Password
     url(r"^password_change/$", views.user_password_change, name="account_password_change"),
 
-    url(r"^password_reset/$", views.user_password_reset_request, name="account_password_reset"),
+    url(r"^password_reset/$", views.user_password_reset_single_page_request, name="account_password_reset"),
     url(r"^password_reset/(?P<user_base36>[0-9A-Za-z]+)-(?P<reset_token>.+)/$", views.user_password_reset_from_token,
         name="user_password_reset_from_token"),
 
