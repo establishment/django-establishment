@@ -323,13 +323,6 @@ class CommentWidget extends BlogCommentWidget {
 
         return [commentsTitle, super.render()];
     }
-
-    onMount() {
-        super.onMount();
-        this.messageThread.addListener("newMessage", () => {
-            this.redraw();
-        });
-    }
 }
 
 class AsyncCommentThread extends UI.Element {

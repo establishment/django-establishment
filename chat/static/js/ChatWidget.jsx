@@ -327,30 +327,6 @@ let ChatWidget = (ChatMessageClass) => {
             if (this.messageThread.getNumMessages() >= 20) {
                 this.showLoadMoreButton = true;
             }
-
-            this.messageThread.addUpdateListener((event) => {
-                if (event.type === "muted") {
-                    this.redraw();
-                }
-            });
-
-            this.messageThread.addListener("newMessage", (event) => {
-                //console.log("Received chat message: ", event);
-                let messageInstance = MessageInstanceStore.get(event.data.id);
-
-                // We calculate before adding new message
-                let messageWindowScrollTop = this.messageWindow.node.scrollTop;
-                let messageWindowscrollMax = this.messageWindow.node.scrollHeight - this.messageWindow.node.offsetHeight;
-                this.messageWindow.insertEntry(messageInstance);
-
-                // If we were at the bottom before message was appended, scroll automatically
-                if (messageWindowScrollTop + 20 > messageWindowscrollMax) {
-                    setTimeout(() => {
-                        this.messageWindow.scrollToBottom();
-                    }, 0);
-                }
-
-            });
         }
 
         extraNodeAttributes(attr) {
@@ -447,16 +423,6 @@ let ChatWidget = (ChatMessageClass) => {
                 this.setAdaptiveHeight();
                 this.messageWindow.node.scrollTop = this.scrollPercent * (this.messageWindow.node.scrollHeight - this.messageWindow.node.clientHeight);
             });
-        }
-
-        onMount() {
-            super.onMount();
-
-            for (let plugin of (this.options.plugins || [])) {
-                this.registerPlugin(plugin);
-            }
-
-            this.addResizeListeners();
         }
 
         getDesiredHeight() {
@@ -590,6 +556,40 @@ let ChatWidget = (ChatMessageClass) => {
                 this.renderMessageView(),
                 this.renderMessageBox(),
             ];
+        }
+
+        onMount() {
+            super.onMount();
+
+            for (let plugin of (this.options.plugins || [])) {
+                this.registerPlugin(plugin);
+            }
+
+            this.attachUpdateListener(this.messageThread, (event) => {
+                if (event.type === "muted") {
+                    this.redraw();
+                }
+            });
+
+            this.attachListener(this.messageThread, "newMessage", (event) => {
+                //console.log("Received chat message: ", event);
+                let messageInstance = MessageInstanceStore.get(event.data.id);
+
+                // We calculate before adding new message
+                let messageWindowScrollTop = this.messageWindow.node.scrollTop;
+                let messageWindowscrollMax = this.messageWindow.node.scrollHeight - this.messageWindow.node.offsetHeight;
+                this.messageWindow.insertEntry(messageInstance);
+
+                // If we were at the bottom before message was appended, scroll automatically
+                if (messageWindowScrollTop + 20 > messageWindowscrollMax) {
+                    setTimeout(() => {
+                        this.messageWindow.scrollToBottom();
+                    }, 0);
+                }
+
+            });
+
+            this.addResizeListeners();
         }
     }
 };
