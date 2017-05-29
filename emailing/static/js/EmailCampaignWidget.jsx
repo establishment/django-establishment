@@ -328,7 +328,7 @@ class EmailCampaignTable extends SortableTable {
                 headerStyle: headerStyle,
             });
             columns.push({
-                value: campaign => EmailGatewayStore.get(campaign.gatewayId).name,
+                value: campaign => (campaign.gatewayId && EmailGatewayStore.get(campaign.gatewayId).name) || "default",
                 headerName: UI.T("Gateway"),
                 cellStyle: cellStyle,
                 headerStyle: headerStyle,
