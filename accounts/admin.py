@@ -3,7 +3,7 @@ from django.contrib.admin import SimpleListFilter
 from django.core import urlresolvers
 
 from .utils import get_user_search_fields
-from .models import EmailAddress, UnverifiedEmail, UserCustomSettings, EmailStatus, Email, \
+from .models import EmailAddress, UnverifiedEmail, UserCustomSettings, \
     UserReaction, UserReactionCollection, UserNotification
 
 
@@ -36,21 +36,6 @@ class SentEmailFilter(SimpleListFilter):
             return queryset.filter(emails__has_key=self.value())
         else:
             return queryset
-
-
-class EmailStatusAdmin(admin.ModelAdmin):
-    list_display = ("user", "emails")
-    list_filter = (SentEmailFilter,)
-    raw_id_fields = ("user",)
-    search_fields = []
-
-    def get_search_fields(self, request):
-        return ["user__" + attr for attr in get_user_search_fields()]
-
-
-class EmailAdmin(admin.ModelAdmin):
-    list_display = ("subject", "key")
-    search_fields = ("subject",)
 
 
 class UserReactionCollectionAdmin(admin.ModelAdmin):
@@ -87,8 +72,6 @@ class UserNotificationAdmin(admin.ModelAdmin):
 admin.site.register(EmailAddress, EmailAddressAdmin)
 admin.site.register(UnverifiedEmail, UnverifiedEmailAdmin)
 admin.site.register(UserCustomSettings)
-admin.site.register(EmailStatus, EmailStatusAdmin)
-admin.site.register(Email, EmailAdmin)
 admin.site.register(UserReactionCollection, UserReactionCollectionAdmin)
 admin.site.register(UserReaction, UserReactionAdmin)
 admin.site.register(UserNotification, UserNotificationAdmin)

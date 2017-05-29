@@ -20,7 +20,7 @@ def random_key():
 
 
 class UnverifiedEmail(StreamObjectMixin):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, related_name="unverified_emails")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, related_name="unverified_emails")
     email = models.EmailField(max_length=254)
     sent = models.DateTimeField(null=True)
     key = models.CharField(max_length=64, unique=True)
@@ -89,7 +89,7 @@ class EmailAddressManager(models.Manager):
 
 
 class EmailAddress(StreamObjectMixin):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="emails")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="emails")
     email = models.EmailField("Email address", unique=True, max_length=254)
     primary = models.BooleanField(default=False)
 
@@ -149,7 +149,7 @@ class AbstractStreamObjectUser(AbstractBaseUser, SuperuserPermissionsMixin, Stre
     is_active = models.BooleanField(default=True, help_text="Designates whether this user should be treated as active. "
                                                             "Unselect this instead of deleting accounts.")
     date_joined = models.DateTimeField(default=timezone.now)
-    locale_language = models.ForeignKey("localization.Language", default=1)
+    locale_language = models.ForeignKey("localization.Language", default=1, on_delete=models.PROTECT)
 
     # These are for Django,
     USERNAME_FIELD = "email"
@@ -209,7 +209,7 @@ MAX_USER_CUSTOM_SETTINGS_SIZE = 1 << 21
 
 # TODO: rethink this with UserProfile in mind
 class UserCustomSettings(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="custom_settings")
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="custom_settings")
     settings = JSONField()
     # TODO: should probably just be the number of unread notifications
     last_read_notification = models.ForeignKey("accounts.UserNotification", on_delete=models.SET_NULL, null=True, blank=True)
@@ -259,7 +259,7 @@ class UserCustomSettings(models.Model):
 
 
 class UserNotification(StreamObjectMixin):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="notifications")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notifications")
     date_created = models.DateTimeField(auto_now=True)
     type = models.CharField(max_length=128)
     read = models.BooleanField(default=False)
@@ -286,30 +286,6 @@ class UserNotification(StreamObjectMixin):
             "data": self.data,
             "type": self.type
         }
-
-
-class EmailStatus(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+")
-    emails = JSONField(default=dict)
-
-    def read_email(self, email):
-        if email.id in self.emails:
-            email_status = self.emails[email.id]
-        else:
-            email_status = {
-                "firstRead": timezone.now().timestamp(),
-                "readCount": 0
-            }
-        email_status["readCount"] += 1
-        email_status["lastRead"] = timezone.now().timestamp()
-        self.emails[email.id] = email_status
-        self.save(update_fields=["emails"])
-
-
-class Email(models.Model):
-    subject = models.CharField(max_length=256)
-    template = models.TextField(max_length=1 << 17)
-    key = models.CharField(max_length=64, default=random_key, unique=True)
 
 
 class BaseUserSummary(object):
@@ -434,8 +410,8 @@ class UserReaction(StreamObjectMixin):
         (1, "Upvote")
     )
     type = models.IntegerField(choices=TYPE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+")
-    reaction_collection = models.ForeignKey(UserReactionCollection, related_name="reactions")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
+    reaction_collection = models.ForeignKey(UserReactionCollection, on_delete=models.CASCADE, related_name="reactions")
 
     class Meta:
         db_table = "UserReaction"
@@ -513,7 +489,7 @@ def add_own_user_reactions_to_state(state):
 
 
 class OwnerUserMixin(StreamObjectMixin):
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -533,8 +509,8 @@ class UserGroup(OwnerUserMixin):
 
 
 class UserGroupMember(models.Model):
-    group = models.ForeignKey(UserGroup, related_name="members")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="custom_groups")
+    group = models.ForeignKey(UserGroup, on_delete=models.CASCADE, related_name="members")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="custom_groups")
     muted = models.BooleanField(default=False)
 
     class Meta:
@@ -542,7 +518,6 @@ class UserGroupMember(models.Model):
         unique_together = ("group", "user")
 
 
-# TODO: should this model be replaced by a specialized json field?
 class ObjectPermission(StreamObjectMixin):
     name = models.TextField(max_length=256, blank=True, null=True)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="+")
@@ -578,15 +553,11 @@ class ObjectPermission(StreamObjectMixin):
         return False
 
     def to_json(self):
-        return {
-            "id": self.id,
-            "userIds": self.users,
-            "groupIds": self.groups,
-        }
+        return self.meta_to_json(include_many_to_many=True)
 
 
-class ReadPermissionsMixin(models.Model):
-    read_permissions = models.ForeignKey(ObjectPermission, null=True, blank=True)
+class ReadPermissionsMixin(StreamObjectMixin):
+    read_permissions = models.ForeignKey(ObjectPermission, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -595,8 +566,8 @@ class ReadPermissionsMixin(models.Model):
         return self.read_permissions and self.read_permissions.allows(user)
 
 
-class EditPermissionsMixin(models.Model):
-    edit_permissions = models.ForeignKey(ObjectPermission, null=True, blank=True)
+class EditPermissionsMixin(StreamObjectMixin):
+    edit_permissions = models.ForeignKey(ObjectPermission, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         abstract = True
