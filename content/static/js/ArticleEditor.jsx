@@ -175,7 +175,7 @@ class ArticleEditor extends Panel {
                 </UI.Panel>
                 <DiffWidgetClass ref="diffWidget" leftEditable={this.leftEditable} rightEditable={this.rightEditable}
                                  leftTextValue={this.versions[2]} arrows={this.arrows} rightTextValue={this.versions[1]}
-                                     style={{flex:"1", height: "100%"}} />
+                                     style={{flex:"1", height: "calc(100% - 100px)", width: "calc(100% - 100px)"}} />
             </UI.Panel>;
         }
 
