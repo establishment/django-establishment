@@ -573,7 +573,8 @@ class DelayedChat extends UI.Element {
             };
             if (this.options.style && this.options.style.height) {
                 widgetStyle.height = this.options.style.height;
-            }            this.dispatch("userChatCreated");
+            }
+            this.dispatch("userChatCreated");
             return [<PrivateChatWidget ref="chat" style={widgetStyle} extraHeightOffset={75}
                                        privateChat={this.privateChat} />];
         } else {
@@ -597,6 +598,15 @@ class DelayedChat extends UI.Element {
     setHeight(height) {
         super.setHeight(height);
         this.chat.setHeight(height);
+        this.chat.messageWindow.scrollToBottom();
+    }
+
+    onMount() {
+        this.addListener("userChatCreated", () => {
+            setTimeout(() => {
+                this.chat.messageWindow.scrollToBottom();
+            }, 0);
+        });
     }
 }
 
