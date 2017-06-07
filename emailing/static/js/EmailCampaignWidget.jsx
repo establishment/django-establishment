@@ -243,7 +243,7 @@ class EmailCampaignTableRow extends UI.TableRow {
     onMount() {
         super.onMount();
         this.deleteCampaignButton.addClickListener(() => {
-            const deleteCampaignConfirmModal = <DeleteCampaignConfirmModal campaign={this.options.entry}/>
+            const deleteCampaignConfirmModal = <DeleteCampaignConfirmModal campaign={this.options.entry}/>;
             deleteCampaignConfirmModal.show();
         });
 
@@ -258,12 +258,12 @@ class EmailCampaignTableRow extends UI.TableRow {
         });
 
         this.sendCampaignButton.addClickListener(() => {
-            const sendCampaignConfirmModal = <SendCampaignConfirmModal campaign={this.options.entry}/>
+            const sendCampaignConfirmModal = <SendCampaignConfirmModal campaign={this.options.entry}/>;
             sendCampaignConfirmModal.show();
         });
 
         this.clearStatusCampaignButton.addClickListener(() => {
-            const clearStatusCampaignConfirmModal = <ClearStatusCampaignConfirmModal campaign={this.options.entry} />
+            const clearStatusCampaignConfirmModal = <ClearStatusCampaignConfirmModal campaign={this.options.entry} />;
             clearStatusCampaignConfirmModal.show();
         });
     }
