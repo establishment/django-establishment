@@ -401,9 +401,7 @@ class BlogEntryList extends UI.Element {
                                 this.loadMoreButton.redraw();
                                 this.loadMoreButton.disable();
                             }
-                            for (let entry of ((data.state || {}).blogentry || [])) {
-                                this.entriesList.appendChild(<BlogEntryPreview key={entry.id} entryId={entry.id}/>);
-                            }
+                            this.redraw();
                         }
                     },
                     (error) => {
