@@ -1,6 +1,7 @@
 import time
 from threading import Lock
 
+from django.conf import settings
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 
@@ -35,6 +36,66 @@ class PrivateGlobalSettings(BaseGlobalSettings):
 class PublicGlobalSettings(BaseGlobalSettings):
     class Meta:
         db_table = "PublicGlobalSettings"
+
+
+class CommandInstance(StreamObjectMixin):
+    name = models.CharField(max_length=255)
+    class_instance = models.CharField(max_length=255)
+
+    class Meta:
+        db_table = "CommandInstance"
+
+    def instantiate(self, *args, **kwargs):
+        cls = self.class_instance
+        return cls(*args, **kwargs)
+
+
+class CommandRunLogger(object):
+    def __init__(self, command_run):
+        self.command_run = command_run
+
+    # A CommandRunLogger can be
+    def __call__(self, *args, **kwargs):
+        pass
+
+    def log_message(self, level, timestamp, message):
+        self.command_run.log_message({
+            "level": level,
+            "timestamp": timestamp,
+            "message": message,
+        })
+
+
+class CommandRun(StreamObjectMixin):
+    EVENT_PERSISTENCE_DURATION = None  # Disable persistence of events
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    command_instance = models.ForeignKey(CommandInstance, on_delete=models.PROTECT)
+    date_create = models.DateTimeField(auto_now_add=True)
+    date_finished = models.DateTimeField(null=True, blank=True)
+    success = models.NullBooleanField()
+    result = JSONField(null=True, blank=True)
+    log_entries = JSONField(null=True, blank=True)
+
+    class Meta:
+        db_table = "CommandRun"
+
+    def get_stream_name(self):
+        return "GlobalCommandRuns"
+
+    @classmethod
+    def run(cls, user, command_instance, *args, **kwargs):
+        command_run = cls(user=user, command_instance=command_instance)
+        command_logger = CommandRunLogger(command_run)
+        command_run.publish_create_event()
+        command = command_instance.instantiate(logger=command_logger)
+        command_run.result = command.run_safe(*args, user=user, **kwargs)
+
+    def log(self, message_dict):
+        if self.log_entries is None:
+            self.log_entries = []
+        self.log_entries.append(message_dict)
+        self.publish_event("logMessage", message_dict)
 
 
 class GlobalSettingsCache(object):
