@@ -134,6 +134,46 @@ class StreamObjectMixin(models.Model):
     def to_json(self):
         return self.meta_to_json()
 
+    def update_from_json_dict(self, json_dict):
+        for key, value in json_dict.items():
+            pass
+
+    @classmethod
+    def get_object_from_edit_request(cls, request):
+        return cls.objects.get(id=request.POST["id"])
+
+    @classmethod
+    def edit_from_request(cls, request):
+        obj = cls.get_object_from_edit_request(request)
+        updated_fields = obj.update_from_json_dict(request)
+        if len(updated_fields):
+            # TODO: validate here
+            # obj.full_clean()
+            obj.save(update_fields=updated_fields)
+
+    @classmethod
+    def edit_view(cls):
+        def view_func(request):
+            return cls.edit_from_request(request)
+
+        return view_func
+
+    @classmethod
+    def fetch_view(cls, max_ids=256):
+        def view_func(request):
+            from .base_views import JSONResponse, JSONErrorResponse
+            from .utils import GlobalObjectCache
+            from .utils import int_list
+            ids = int_list(request.GET.getlist("ids[]"))
+            if len(ids) > max_ids:
+                # TODO: log this, may need to ban some asshole
+                return JSONErrorResponse("Requesting too many objects")
+            state = GlobalObjectCache(request)
+            state.add_all(cls.objects.get(id__in=ids))
+            return JSONResponse(state)
+
+        return view_func
+
     def make_event(self, event_type, data, extra=None):
         event_dict = {
             "objectId": self.id,
