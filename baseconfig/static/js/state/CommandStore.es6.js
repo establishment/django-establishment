@@ -1,7 +1,10 @@
-import {StoreObject} from "Store";
+import {StoreObject, GenericObjectStore} from "Store";
 import {GlobalState} from "State";
 
 export class CommandInstance extends StoreObject {
+    toString() {
+        return this.name;
+    }
 }
 
 export class CommandRun extends StoreObject {
@@ -16,5 +19,4 @@ export class CommandRun extends StoreObject {
 }
 
 export let CommandInstanceStore = new GenericObjectStore("CommandInstance", CommandInstance);
-
 export let CommandRunStore = new GenericObjectStore("CommandRun", CommandRun);

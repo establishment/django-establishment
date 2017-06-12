@@ -18,7 +18,10 @@ class BaseCommand(object):
         try:
             if not settings.DEBUG and not self.production:
                 raise RuntimeError("Only call this command in dev environments!")
+            self.logger.set_progress(0)
             self.result = self.run(*args, **kwargs)
+            self.logger.set_progress(1)
+            self.had_exception = False
         except Exception as e:
             self.logger.exception(e)
             self.result = e
@@ -29,3 +32,12 @@ class BaseCommand(object):
 
 class ProductionCommand(BaseCommand):
     production = True
+
+
+class PrintLogger:
+    def __call__(self, *args, **kwargs):
+        print(*args, **kwargs)
+
+    def set_progress(self, percent, progress_dict=None):
+        print("\r", int(100 * percent), "%", progress_dict, end="")
+print_logger = PrintLogger()

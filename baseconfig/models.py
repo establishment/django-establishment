@@ -1,8 +1,10 @@
 import time
+import importlib
 from threading import Lock
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
 
 from establishment.funnel.stream import StreamObjectMixin
@@ -39,14 +41,20 @@ class PublicGlobalSettings(BaseGlobalSettings):
 
 
 class CommandInstance(StreamObjectMixin):
-    name = models.CharField(max_length=255)
-    class_instance = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
+    prompt_for_confirmation = models.BooleanField(default=False)
+    class_instance = models.CharField(max_length=255, unique=True)
+    # arguments = JSONField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         db_table = "CommandInstance"
 
     def instantiate(self, *args, **kwargs):
-        cls = self.class_instance
+        class_path, class_name = self.class_instance.rsplit('.', 1)
+        cls = getattr(importlib.import_module(class_path), class_name)
         return cls(*args, **kwargs)
 
 
@@ -56,24 +64,41 @@ class CommandRunLogger(object):
 
     # A CommandRunLogger can be
     def __call__(self, *args, **kwargs):
-        pass
+        self.log_message("info", time.time(), ' '.join([str(arg) for arg in args]))
 
     def log_message(self, level, timestamp, message):
-        self.command_run.log_message({
+        self.command_run.log({
             "level": level,
             "timestamp": timestamp,
             "message": message,
         })
 
+    def set_progress(self, percent, progress_dict=None):
+        data = {
+            "percent": percent
+        }
+        data.update(progress_dict or {})
+        self.command_run.set_progress(data)
+
+    def exception(self, exception):
+        self.log_message("error", time.time(), exception)
+
 
 class CommandRun(StreamObjectMixin):
+    COMMAND_RUN_STATUS = (
+        (0, "Waiting"),
+        (1, "Running"),
+        (2, "Successful"),
+        (3, "Failed")
+    )
+
     EVENT_PERSISTENCE_DURATION = None  # Disable persistence of events
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     command_instance = models.ForeignKey(CommandInstance, on_delete=models.PROTECT)
-    date_create = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
     date_finished = models.DateTimeField(null=True, blank=True)
-    success = models.NullBooleanField()
+    status = models.IntegerField(choices=COMMAND_RUN_STATUS, default=0)
     result = JSONField(null=True, blank=True)
     log_entries = JSONField(null=True, blank=True)
 
@@ -85,17 +110,48 @@ class CommandRun(StreamObjectMixin):
 
     @classmethod
     def run(cls, user, command_instance, *args, **kwargs):
+        # Creating the command
         command_run = cls(user=user, command_instance=command_instance)
+        command_run.save()
         command_logger = CommandRunLogger(command_run)
         command_run.publish_create_event()
+
+        # Running the command
+
+        # Setting the command in "running" status
         command = command_instance.instantiate(logger=command_logger)
-        command_run.result = command.run_safe(*args, user=user, **kwargs)
+        command_run.date_created = timezone.now()
+        command_run.status = 1
+        command_run.publish_update_event()
+        command_run.save()
+
+        command_run.result = command.run_safe(*args, **kwargs)
+
+        # Setting the command in either "failed" or "succeeded" status
+        command_run.status = 3 if command.had_exception else 2
+        command_run.date_finished = timezone.now()
+        command_run.publish_update_event()
+        command_run.save()
+
+        return command_run
 
     def log(self, message_dict):
         if self.log_entries is None:
-            self.log_entries = []
-        self.log_entries.append(message_dict)
+            self.log_entries = {
+                "entries": [],
+                "progress": {}
+            }
+        self.log_entries["entries"].append(message_dict)
         self.publish_event("logMessage", message_dict)
+
+    def set_progress(self, progress_dict):
+        if self.log_entries is None:
+            self.log_entries = {
+                "entries": [],
+                "progress": {}
+            }
+        self.log_entries["progress"] = progress_dict
+        self.publish_event("logProgress", progress_dict)
 
 
 class GlobalSettingsCache(object):
