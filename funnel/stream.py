@@ -4,8 +4,10 @@ from django.db import models
 from django.db.models.fields.related import ManyToManyRel, RelatedField, OneToOneField
 from django.db.models.fields.reverse_related import ForeignObjectRel
 
-from establishment.funnel.redis_stream import RedisStreamPublisher
-from establishment.funnel.json_helper import to_camel_case
+from .redis_stream import RedisStreamPublisher
+from .json_helper import to_camel_case, to_underscore_case
+from .base_views import JSONResponse, JSONErrorResponse
+from .utils import GlobalObjectCache, int_list
 
 STREAM_HANDLERS = []
 
@@ -135,35 +137,71 @@ class StreamObjectMixin(models.Model):
         return self.meta_to_json()
 
     def update_from_json_dict(self, json_dict):
+        updated_fields = []
+
         for key, value in json_dict.items():
-            pass
+            attribute_name = to_underscore_case(key)
+            if hasattr(self, attribute_name):
+                setattr(self, attribute_name, value)
+                updated_fields.append(attribute_name)
+
+        return updated_fields
 
     @classmethod
     def get_object_from_edit_request(cls, request):
         return cls.objects.get(id=request.POST["id"])
 
+    def can_be_edited_by_request(self, request):
+        return self.can_be_edited_by_user(request.user)
+
+    def can_be_edited_by_user(self, user):
+        if user.is_superuser:
+            return True
+        return getattr(self, "owner_id", -1) == user.id
+
     @classmethod
     def edit_from_request(cls, request):
         obj = cls.get_object_from_edit_request(request)
-        updated_fields = obj.update_from_json_dict(request)
+        if not obj.can_be_edited_by_request(request):
+            from establishment.errors.errors import BaseError
+            raise BaseError.NOT_ALLOWED
+        updated_fields = obj.update_from_json_dict(request.POST)
         if len(updated_fields):
-            # TODO: validate here
-            # obj.full_clean()
+            # TODO: have a better validation flow
+            obj.full_clean()
             obj.save(update_fields=updated_fields)
+        return obj, len(updated_fields) > 0
 
     @classmethod
     def edit_view(cls):
         def view_func(request):
-            return cls.edit_from_request(request)
+            obj, modified = cls.edit_from_request(request)
+            return JSONResponse({"success": True})
+
+        return view_func
+
+    @classmethod
+    def create_from_request(cls, request):
+        obj = cls()
+        obj.update_from_json_dict(request.POST)
+        if not obj.can_be_created_by_request(request):
+            from establishment.errors.errors import BaseError
+            raise BaseError.NOT_ALLOWED
+        obj.full_clean()
+        return obj
+
+    @classmethod
+    def create_view(cls):
+        def view_func(request):
+            obj = cls.create_from_request(request)
+            obj.save()
+            return JSONResponse({"obj": obj})
 
         return view_func
 
     @classmethod
     def fetch_view(cls, max_ids=256):
         def view_func(request):
-            from .base_views import JSONResponse, JSONErrorResponse
-            from .utils import GlobalObjectCache
-            from .utils import int_list
             ids = int_list(request.GET.getlist("ids[]"))
             if len(ids) > max_ids:
                 # TODO: log this, may need to ban some asshole

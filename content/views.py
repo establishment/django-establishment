@@ -11,7 +11,6 @@ from establishment.content.models import TermDefinition, ArticleEdit, UserFeedba
 from establishment.funnel.utils import GlobalObjectCache
 from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, login_required, login_required_ajax, \
     ajax_required, superuser_required, global_renderer, single_page_app
-from establishment.funnel.throttle import UserActionThrottler
 
 
 @superuser_required
@@ -257,16 +256,23 @@ def delete_article(request, article_id):
     return JSONResponse({"success": True})
 
 
-@login_required_ajax
 def send_feedback(request):
-    user = request.user
-
-    if not UserActionThrottler(user, "postFeedback", 24 * 60 * 60, 5).increm():
+    if request.visitor.get_throttler("postFeedback", (24 * 60 * 60, 5)).increm():
         return JSONErrorResponse("Too many posts, ignoring")
+
+    # user_feedback = UserFeedback.create_from_request(request)
+    # user_feedback.save()
 
     message = request.POST["message"]
     client_message = request.POST.get("clientMessage", "{}")
 
-    user_feedback = UserFeedback(user=user, message=message, client_message=client_message)
+    user_feedback = UserFeedback(message=message, client_message=client_message)
+    if request.user.is_authenticated:
+        user_feedback.user = request.user
+        user_feedback.sender_email = request.user.email
+    else:
+        user_feedback.sender_email = request.POST["email"]
+
     user_feedback.save()
+
     return JSONResponse({"success": True, "feedbackId": user_feedback.id})

@@ -3,6 +3,7 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db import transaction
 
+from establishment.funnel.stream import StreamObjectMixin
 from establishment.localization.models import Language
 
 
@@ -195,8 +196,9 @@ class Article(models.Model):
         }
 
 
-class UserFeedback(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+class UserFeedback(StreamObjectMixin):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    sender_email = models.EmailField()
     date = models.DateTimeField(auto_now_add=True)
     message = models.TextField(max_length=1 << 15)
     client_message = models.TextField(max_length=1 << 16, default="{}")
@@ -207,10 +209,10 @@ class UserFeedback(models.Model):
     def __str__(self):
         return "UserFeedback-" + str(self.id)
 
-    def to_json(self):
-        return {
-            "id": self.id,
-            "userId": self.user_id,
-            "message": self.message,
-            "clientMessage": self.client_message,
-        }
+    @classmethod
+    def create_from_request(cls, request):
+        user_feedback = super().create_from_request(request)
+        if request.user.is_authenticated:
+            user_feedback.sender_email = request.user.email
+        return user_feedback
+

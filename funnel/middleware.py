@@ -1,4 +1,4 @@
-from establishment.funnel.base_views import get_remote_ip
+from .base_views import get_remote_ip
 
 
 class RequestVisitor(object):
@@ -13,6 +13,15 @@ class RequestVisitor(object):
             return "user-" + str(self.request.user.id)
         else:
             return "ip-" + self.ip()
+
+    def get_throttler(self, name, unauth_limit, auth_limit=None):
+        from .throttle import ActionThrottler, UserActionThrottler
+
+        if self.request.user.is_authenticated:
+            auth_limit = auth_limit or unauth_limit
+            return UserActionThrottler(self.request.user, name, *auth_limit)
+        else:
+            return ActionThrottler("ip-" + self.ip() + "-" + name, *unauth_limit)
 
 
 class VisitorMiddleware(object):

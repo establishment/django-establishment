@@ -48,7 +48,7 @@ class ActionThrottler(object):
         return True
 
     def clear(self):
-        raise RuntimeError("Implement it!")
+        redis_connection.delete(self.key_name)
 
 
 class UserActionThrottler(ActionThrottler):
