@@ -174,6 +174,7 @@ class GlobalSettingsCache(object):
         current_time = time.time()
         if self.last_refresh is None or (self.expiration and self.last_refresh + self.expiration <= current_time):
             self.rebuild()
+            self.last_refresh = current_time
 
     def to_dict(self):
         self.rebuild_if_needed()
