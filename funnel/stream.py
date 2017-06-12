@@ -1,3 +1,6 @@
+import json
+
+import django
 from django.db import models
 
 # for StreamObjectMixin to_json
@@ -99,6 +102,17 @@ class StreamObjectMixin(models.Model):
         else:
             return getattr(obj, meta_field.attname)
 
+    @classmethod
+    def set_value(cls, obj, meta_field, value):
+        if type(meta_field.remote_field) is ManyToManyRel:
+            raise RuntimeError("Implement")
+        internal_type = meta_field.db_type(django.db.connection)
+        if internal_type != "text" and internal_type != "varchar":
+            value = json.loads(value)
+
+        setattr(obj, meta_field.attname, value)
+        return True
+
     def meta_to_json(self, include_many_to_many=False, rename=None, exclude=None, include=None, exclude_none=True):
         json_obj = dict()
 
@@ -136,14 +150,19 @@ class StreamObjectMixin(models.Model):
     def to_json(self):
         return self.meta_to_json()
 
-    def update_from_json_dict(self, json_dict):
+    def update_field_from_json_dict(self, meta_field, json_dict, rename=None):
+        key = self.get_meta_key(meta_field, rename)
+        if key in json_dict:
+            return self.set_value(self, meta_field, json_dict[key])
+        return False
+
+    def update_from_json_dict(self, json_dict, rename=None):
         updated_fields = []
 
-        for key, value in json_dict.items():
-            attribute_name = to_underscore_case(key)
-            if hasattr(self, attribute_name):
-                setattr(self, attribute_name, value)
-                updated_fields.append(attribute_name)
+        for meta_field in self._meta.get_fields():
+            if self.update_field_from_json_dict(meta_field, json_dict, rename):
+                key = self.get_meta_key(meta_field, rename)
+                updated_fields.append(key)
 
         return updated_fields
 
