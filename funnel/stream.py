@@ -3,12 +3,11 @@ import json
 import django
 from django.db import models
 
-# for StreamObjectMixin to_json
 from django.db.models.fields.related import ManyToManyRel, RelatedField, OneToOneField
 from django.db.models.fields.reverse_related import ForeignObjectRel
 
 from .redis_stream import RedisStreamPublisher
-from .json_helper import to_camel_case, to_underscore_case
+from .json_helper import to_camel_case
 from .base_views import JSONResponse, JSONErrorResponse
 from .utils import GlobalObjectCache, int_list
 
@@ -192,10 +191,13 @@ class StreamObjectMixin(models.Model):
         return obj, len(updated_fields) > 0
 
     @classmethod
-    def edit_view(cls):
+    def edit_view(cls, decorators=[]):
         def view_func(request):
             obj, modified = cls.edit_from_request(request)
             return JSONResponse({"success": True})
+
+        for decorator in reversed(decorators):
+            view_func = decorator(view_func)
 
         return view_func
 
@@ -210,23 +212,28 @@ class StreamObjectMixin(models.Model):
         return obj
 
     @classmethod
-    def create_view(cls):
+    def create_view(cls, decorators=[]):
         def view_func(request):
             obj = cls.create_from_request(request)
             obj.save()
             return JSONResponse({"obj": obj})
 
+        for decorator in reversed(decorators):
+            view_func = decorator(view_func)
+
         return view_func
 
     @classmethod
-    def fetch_view(cls, max_ids=256):
+    def fetch_view(cls, decorators=None, permission_filter=None, max_ids=256):
         def view_func(request):
             ids = int_list(request.GET.getlist("ids[]"))
             if len(ids) > max_ids:
                 # TODO: log this, may need to ban some asshole
                 return JSONErrorResponse("Requesting too many objects")
             state = GlobalObjectCache(request)
-            state.add_all(cls.objects.get(id__in=ids))
+            for obj in cls.objects.get(id__in=ids):
+                if not permission_filter or permission_filter(obj):
+                    state.add(obj)
             return JSONResponse(state)
 
         return view_func

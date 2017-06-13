@@ -262,6 +262,7 @@ def send_feedback(request):
 
     # user_feedback = UserFeedback.create_from_request(request)
     # user_feedback.save()
+    # return JSONResponse({"success": True, "obj": user_feedback)
 
     message = request.POST["message"]
     client_message = request.POST.get("clientMessage", "{}")
