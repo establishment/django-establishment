@@ -11,9 +11,12 @@ STATE_FILTERS = []
 
 # TODO: should this be thread-safe?
 class DBObjectCache:
-    def __init__(self, object_class, objects=[]):
+    def __init__(self, object_class, objects=None, default_max_age=None):
+        if not objects:
+            objects = []
         self.object_class = object_class
         self.cache = {}
+        self.default_max_age = default_max_age
         for obj in objects:
             self.add(obj)
 
@@ -25,9 +28,11 @@ class DBObjectCache:
         return self.cache[id]
 
     def get(self, id, max_age=None):
+        if not max_age:
+            max_age = self.default_max_age
         obj, timestamp = self.get_raw(id)
         if max_age and time.time() - max_age > timestamp:
-            del obj.cache[id]
+            del self.cache[id]
             obj, timestamp = self.get_raw(id)
         return obj
 
@@ -51,6 +56,19 @@ class DBObjectCache:
 
     def to_json(self):
         return self.all()
+
+
+class DBObjectCacheWithNull(DBObjectCache):
+    def get_raw(self, id):
+        if not self.has(id):
+            try:
+                self.add(self.object_class.objects.get(id=id))
+            except self.object_class.DoesNotExist:
+                self.add_null(id)
+        return self.cache[id]
+
+    def add_null(self, id, timestamp=time.time()):
+        self.cache[id] = (None, timestamp)
 
 
 # TODO: support TTL ?
