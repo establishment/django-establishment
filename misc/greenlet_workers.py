@@ -8,10 +8,11 @@ from establishment.funnel.redis_stream import RedisStreamPublisher, RedisStreamS
 
 
 class GreenletWorker(gevent.Greenlet):
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, context=None):
         gevent.Greenlet.__init__(self)
         self.running = False
         self.logger = logger
+        self.context = context
 
     def _run(self):
         self.running = True
@@ -49,8 +50,8 @@ class GreenletWorker(gevent.Greenlet):
 
 
 class GreenletQueueWorker(GreenletWorker):
-    def __init__(self, job_queue=None, result_queue=None, logger=None):
-        super().__init__(logger=logger)
+    def __init__(self, job_queue=None, result_queue=None, logger=None, context=None):
+        super().__init__(logger=logger, context=context)
         self.job_queue = job_queue
         self.result_queue = result_queue
 
@@ -69,11 +70,15 @@ class GreenletQueueWorker(GreenletWorker):
 
 
 class GreenletRedisQueueListener(GreenletQueueWorker):
-    def __init__(self, job_queue, redis_queue_name, redis_connection=None, logger=None):
-        super().__init__(job_queue=job_queue, logger=logger)
+    def __init__(self, job_queue, redis_queue_name, redis_connection=None, logger=None, context=None,
+                 job_queue_max_size=1024, bulk_size=128):
+        super().__init__(job_queue=job_queue, logger=logger, context=context)
         self.redis_queue_name = redis_queue_name
         self.redis_queue = None
         self.redis_connection = redis_connection
+        self.job_queue_max_size = job_queue_max_size
+        self.bulk_size = bulk_size
+        self.activate_bulk_retrieval = False
 
     def init(self):
         if not self.redis_queue:
@@ -83,26 +88,38 @@ class GreenletRedisQueueListener(GreenletQueueWorker):
         self.redis_queue = None
 
     def tick(self):
-        job = self.redis_queue.pop(timeout=1)
-
-        if not job:
+        if self.job_queue.qsize() >= self.job_queue_max_size:
+            gevent.sleep(0.5)
             return
 
-        try:
-            job = str(job, "utf-8")
-        except Exception:
-            self.log_error("Failed to convert to unicode")
-            return
+        if self.activate_bulk_retrieval:
+            jobs = self.redis_queue.bulk_pop(self.bulk_size)
+            if len(jobs) == 0:
+                self.activate_bulk_retrieval = False
+        else:
+            job = self.redis_queue.pop(timeout=1)
+            if job:
+                self.activate_bulk_retrieval = True
+            jobs = [job]
+        for job in jobs:
+            if not job:
+                continue
 
-        try:
-            self.job_queue.put(json.loads(job))
-        except Exception:
-            self.log_error("Failed to parse command " + str(job))
+            try:
+                job = str(job, "utf-8")
+            except Exception:
+                self.log_error("Failed to convert to unicode")
+                continue
+
+            try:
+                self.job_queue.put(json.loads(job))
+            except Exception:
+                self.log_error("Failed to parse command " + str(job))
 
 
 class GreenletRedisStreamListener(GreenletQueueWorker):
-    def __init__(self, job_queue, redis_stream_name, logger=None):
-        super().__init__(job_queue=job_queue, logger=logger)
+    def __init__(self, job_queue, redis_stream_name, logger=None, context=None):
+        super().__init__(job_queue=job_queue, logger=logger, context=context)
         self.redis_stream_name = redis_stream_name
         self.redis_stream_subscriber = None
 
@@ -133,8 +150,8 @@ class GreenletRedisStreamListener(GreenletQueueWorker):
 
 
 class GreenletRedisStreamPublisher(GreenletQueueWorker):
-    def __init__(self, result_queue, redis_stream_name, logger=None):
-        super().__init__(result_queue=result_queue, logger=logger)
+    def __init__(self, result_queue, redis_stream_name, logger=None, context=None):
+        super().__init__(result_queue=result_queue, logger=logger, context=context)
         self.redis_stream_name = redis_stream_name
         self.redis_stream_publisher = None
 
@@ -157,18 +174,21 @@ class GreenletRedisStreamPublisher(GreenletQueueWorker):
 
 
 class GreenletRedisQueueCommandProcessor(object):
-    def __init__(self, logger_name, WorkerClass, redis_queue_name_in, redis_stream_name_out=None, num_workers=10):
+    def __init__(self, logger_name, WorkerClass, redis_queue_name_in, redis_stream_name_out=None, num_workers=10,
+                 job_queue_max_size=1024):
         self.logger = logging.getLogger(logger_name)
         self.background_thread = None
         self.workers = []
         self.job_queue = None
         self.result_queue = None
         self.num_workers = num_workers
+        self.job_queue_max_size = job_queue_max_size
         self.redis_queue_name_in = redis_queue_name_in
         self.redis_stream_name_out = redis_stream_name_out
         self.keep_running = False
         self.WorkerClass = WorkerClass
         self.running = False
+        self.worker_context = None
 
     def process(self):
         self.logger.info("Starting to process commands " + str(self.__class__.__name__))
@@ -180,14 +200,15 @@ class GreenletRedisQueueCommandProcessor(object):
         self.result_queue = gevent.queue.Queue()
 
         self.workers.append(GreenletRedisQueueListener(job_queue=self.job_queue, logger=self.logger,
-                                                       redis_queue_name=self.redis_queue_name_in))
+                                                       redis_queue_name=self.redis_queue_name_in,
+                                                       job_queue_max_size=self.job_queue_max_size))
         if self.redis_stream_name_out:
             self.workers.append(GreenletRedisStreamPublisher(result_queue=self.result_queue, logger=self.logger,
                                                              redis_stream_name=self.redis_stream_name_out))
 
         for i in range(self.num_workers):
             self.workers.append(self.WorkerClass(job_queue=self.job_queue, result_queue=self.result_queue,
-                                                 logger=self.logger))
+                                                 logger=self.logger, context=self.worker_context))
 
         for worker in self.workers:
             worker.start()
