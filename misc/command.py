@@ -1,13 +1,39 @@
+import sys
+import re
+import traceback
+
 from django.conf import settings
 
 
 class BaseCommand(object):
     production = False
+    prompt_for_confirmation = False
 
     def __init__(self, *args, **kwargs):
         self.logger = kwargs.pop("logger")
         self.had_exception = False
         self.result = None
+
+    @classmethod
+    def get_name(cls):
+        if hasattr(cls, "name"):
+            return cls.name
+        name = cls.__name__
+        name_chunks = re.findall('[A-Z][^A-Z]*', name)
+        name = name_chunks[0]
+        for i in range(1, len(name_chunks)):
+            if name_chunks[i - 1][len(name_chunks[i - 1]) - 1].isupper():
+                name += name_chunks[i]
+            else:
+                name += " "
+                name += name_chunks[i]
+        return name
+
+    @classmethod
+    def get_description(cls):
+        if hasattr(cls, "description"):
+            return cls.description
+        return ""
 
     # TODO: describe arguments, etc?
 
@@ -23,8 +49,10 @@ class BaseCommand(object):
             self.logger.set_progress(1)
             self.had_exception = False
         except Exception as e:
-            self.logger.exception(e)
-            self.result = e
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            exc_message = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            self.logger.exception(exc_message)
+            self.result = exc_message
             self.had_exception = True
 
         return self.result

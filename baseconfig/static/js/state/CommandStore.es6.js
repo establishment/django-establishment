@@ -7,6 +7,8 @@ export class CommandInstance extends StoreObject {
     }
 }
 
+const verboseStatus = ["Waiting", "Running", "Failed", "Successful"];
+
 export class CommandRun extends StoreObject {
     update(event) {
         if (event.type === "logMessage") {
@@ -15,6 +17,10 @@ export class CommandRun extends StoreObject {
         } else {
             super.update(event);
         }
+    }
+
+    getVerboseStatus() {
+        return verboseStatus[this.status];
     }
 }
 

@@ -1,5 +1,6 @@
 import time
 import importlib
+import traceback
 from threading import Lock
 
 from django.conf import settings
@@ -52,10 +53,17 @@ class CommandInstance(StreamObjectMixin):
     class Meta:
         db_table = "CommandInstance"
 
-    def instantiate(self, *args, **kwargs):
+    def get_class(self):
         class_path, class_name = self.class_instance.rsplit('.', 1)
-        cls = getattr(importlib.import_module(class_path), class_name)
-        return cls(*args, **kwargs)
+        return getattr(importlib.import_module(class_path), class_name)
+
+    def instantiate(self, *args, **kwargs):
+        return self.get_class()(*args, **kwargs)
+
+    def to_json(self):
+        result = super().to_json()
+        result["description"] = self.get_class().get_description()
+        return result
 
 
 class CommandRunLogger(object):
@@ -80,16 +88,16 @@ class CommandRunLogger(object):
         data.update(progress_dict or {})
         self.command_run.set_progress(data)
 
-    def exception(self, exception):
-        self.log_message("error", time.time(), exception)
+    def exception(self, exc_message):
+        self.log_message("error", time.time(), exc_message)
 
 
 class CommandRun(StreamObjectMixin):
     COMMAND_RUN_STATUS = (
         (0, "Waiting"),
         (1, "Running"),
-        (2, "Successful"),
-        (3, "Failed")
+        (2, "Failed"),
+        (3, "Successful")
     )
 
     EVENT_PERSISTENCE_DURATION = None  # Disable persistence of events
@@ -105,6 +113,9 @@ class CommandRun(StreamObjectMixin):
     class Meta:
         db_table = "CommandRun"
 
+    def __str__(self):
+        return str(self.id) + " - " + self.command_instance.name
+
     def get_stream_name(self):
         return "GlobalCommandRuns"
 
@@ -113,25 +124,28 @@ class CommandRun(StreamObjectMixin):
         # Creating the command
         command_run = cls(user=user, command_instance=command_instance)
         command_run.save()
-        command_logger = CommandRunLogger(command_run)
         command_run.publish_create_event()
 
         # Running the command
 
         # Setting the command in "running" status
+        command_logger = CommandRunLogger(command_run)
         command = command_instance.instantiate(logger=command_logger)
         command_run.date_created = timezone.now()
         command_run.status = 1
-        command_run.publish_update_event()
         command_run.save()
+        command_run.publish_update_event()
 
         command_run.result = command.run_safe(*args, **kwargs)
 
         # Setting the command in either "failed" or "succeeded" status
-        command_run.status = 3 if command.had_exception else 2
+        if command.had_exception:
+            command_run.status = 2
+        else:
+            command_run.status = 3
         command_run.date_finished = timezone.now()
-        command_run.publish_update_event()
         command_run.save()
+        command_run.publish_update_event()
 
         return command_run
 

@@ -18,10 +18,10 @@ class CommandRunStatus extends UI.Element {
                 return <ProgressBar ref="progressBar" style={{margin: "0 auto"}}/>;
             }
             case 2: {
-                return <FAIcon icon="check" style={{color: "green"}}/>;
+                return <FAIcon icon="times" style={{color: "red"}}/>;
             }
             case 3: {
-                return <FAIcon icon="times" style={{color: "red"}}/>;
+                return <FAIcon icon="check" style={{color: "green"}}/>;
             }
         }
     }
@@ -37,18 +37,22 @@ class CommandRunStatus extends UI.Element {
     }
 }
 
-const verboseCommandStatus = ["Waiting", "Running", "Successful", "Failed"];
-
 class CommandRunDetailsModal extends Modal {
     getGivenChildren() {
-        return [
+        let children = [
             <h2>Command run #{this.options.commandRun.id}</h2>,
             <h4>Ran by <UserHandle userId={this.options.commandRun.userId} /></h4>,
             <h4>Command instance: {CommandInstanceStore.get(this.options.commandRun.commandInstanceId).name}</h4>,
-            <h4 ref="statusField">Status: {verboseCommandStatus[this.options.commandRun.status]}</h4>,
+            <h4 ref="statusField">Status: {this.options.commandRun.getVerboseStatus()}</h4>,
             <h4>Logs</h4>,
             <UI.StaticCodeHighlighter ref="logger" numLines={40} readOnly={true} />
         ];
+        if (this.options.commandRun.status >= 2) {
+            // The command is finished, show the result
+            children.push(<h4>Result:</h4>);
+            children.push(<UI.StaticCodeHighlighter ref="resultField" numLines={15} readOnly={true} />);
+        }
+        return children;
     }
 
     getFormattedMessage(logEntry) {
@@ -58,6 +62,13 @@ class CommandRunDetailsModal extends Modal {
         message += logEntry.message;
         message += "\n";
         return message;
+    }
+
+    getFormattedResult(resultJson) {
+        if (!resultJson) {
+            return "Success!";
+        }
+        return JSON.stringify(resultJson);
     }
 
     onMount() {
@@ -71,8 +82,14 @@ class CommandRunDetailsModal extends Modal {
             this.logger.append(this.getFormattedMessage(event.data));
         });
         this.attachEventListener(this.options.commandRun, "updateOrCreate", () => {
-            this.statusField.node.textContent = "Status: " + verboseCommandStatus[this.options.commandRun.status];
+            this.redraw();
+            if (this.options.commandRun.status >= 2) {
+                this.resultField.append(this.getFormattedResult(this.options.commandRun.result));
+            }
         });
+        if (this.options.commandRun.status >= 2) {
+            this.resultField.append(this.getFormattedResult(this.options.commandRun.result));
+        }
     }
 }
 
@@ -117,7 +134,7 @@ class CommandRunDuration extends UI.Primitive("span") {
             } else {
                 this.redraw();
             }
-        }, 80);
+        }, 700);
     }
 }
 
