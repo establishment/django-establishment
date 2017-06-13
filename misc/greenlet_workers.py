@@ -1,0 +1,210 @@
+import gevent
+import gevent.queue
+import json
+import logging
+
+from establishment.misc.threading_helper import ThreadHandler
+from establishment.funnel.redis_stream import RedisStreamPublisher, RedisStreamSubscriber, RedisQueue
+
+
+class GreenletWorker(gevent.Greenlet):
+    def __init__(self, logger=None):
+        gevent.Greenlet.__init__(self)
+        self.running = False
+        self.logger = logger
+
+    def _run(self):
+        self.running = True
+
+        self.init()
+
+        while self.running:
+            try:
+                self.tick()
+                gevent.sleep(0)
+            except Exception:
+                self.log_exception("Error in worker " + str(self.__class__.__name__))
+                self.cleanup()
+                self.init()
+
+    def init(self):
+        pass
+
+    def cleanup(self):
+        pass
+
+    def tick(self):
+        pass
+
+    def stop(self):
+        self.running = False
+
+    def log_exception(self, message):
+        if self.logger:
+            self.logger.exception(message)
+
+    def log_error(self, message):
+        if self.logger:
+            self.logger.error(message)
+
+
+class GreenletQueueWorker(GreenletWorker):
+    def __init__(self, job_queue=None, result_queue=None, logger=None):
+        super().__init__(logger=logger)
+        self.job_queue = job_queue
+        self.result_queue = result_queue
+
+    def tick(self):
+        try:
+            command = self.job_queue.get(timeout=1)
+        except gevent.queue.Empty:
+            return
+
+        result = self.process_command(command)
+        if result:
+            self.result_queue.put(result)
+
+    def process_command(self, command):
+        return None
+
+
+class GreenletRedisQueueListener(GreenletQueueWorker):
+    def __init__(self, job_queue, redis_queue_name, redis_connection=None, logger=None):
+        super().__init__(job_queue=job_queue, logger=logger)
+        self.redis_queue_name = redis_queue_name
+        self.redis_queue = None
+        self.redis_connection = redis_connection
+
+    def init(self):
+        if not self.redis_queue:
+            self.redis_queue = RedisQueue(self.redis_queue_name, connection=self.redis_connection)
+
+    def cleanup(self):
+        self.redis_queue = None
+
+    def tick(self):
+        job = self.redis_queue.pop(timeout=1)
+
+        if not job:
+            return
+
+        try:
+            job = str(job, "utf-8")
+        except Exception:
+            self.log_error("Failed to convert to unicode")
+            return
+
+        try:
+            self.job_queue.put(json.loads(job))
+        except Exception:
+            self.log_error("Failed to parse command " + str(job))
+
+
+class GreenletRedisStreamListener(GreenletQueueWorker):
+    def __init__(self, job_queue, redis_stream_name, logger=None):
+        super().__init__(job_queue=job_queue, logger=logger)
+        self.redis_stream_name = redis_stream_name
+        self.redis_stream_subscriber = None
+
+    def init(self):
+        if not self.redis_stream_subscriber:
+            self.redis_stream_subscriber = RedisStreamSubscriber()
+            self.redis_stream_subscriber.subscribe(self.redis_stream_name)
+
+    def cleanup(self):
+        self.redis_stream_subscriber = None
+
+    def tick(self):
+        message, stream_name = self.redis_stream_subscriber.next_message()
+
+        if not message:
+            return
+
+        try:
+            message = str(message, "utf-8")
+        except Exception:
+            self.log_error("Failed to convert to unicode")
+            return
+
+        try:
+            self.job_queue.put(json.loads(message))
+        except Exception:
+            self.log_error("Failed to parse command " + str(message))
+
+
+class GreenletRedisStreamPublisher(GreenletQueueWorker):
+    def __init__(self, result_queue, redis_stream_name, logger=None):
+        super().__init__(result_queue=result_queue, logger=logger)
+        self.redis_stream_name = redis_stream_name
+        self.redis_stream_publisher = None
+
+    def init(self):
+        if not self.redis_stream_publisher:
+            self.redis_stream_publisher = RedisStreamPublisher(self.redis_stream_name, raw=True)
+
+    def cleanup(self):
+        self.redis_stream_publisher = None
+
+    def tick(self):
+        try:
+            result = self.result_queue.get(timeout=1)
+        except gevent.queue.Empty:
+            return
+
+        if not result:
+            return
+        self.redis_stream_publisher.publish_json(result)
+
+
+class GreenletRedisQueueCommandProcessor(object):
+    def __init__(self, logger_name, WorkerClass, redis_queue_name_in, redis_stream_name_out=None, num_workers=10):
+        self.logger = logging.getLogger(logger_name)
+        self.background_thread = None
+        self.workers = []
+        self.job_queue = None
+        self.result_queue = None
+        self.num_workers = num_workers
+        self.redis_queue_name_in = redis_queue_name_in
+        self.redis_stream_name_out = redis_stream_name_out
+        self.keep_running = False
+        self.WorkerClass = WorkerClass
+        self.running = False
+
+    def process(self):
+        self.logger.info("Starting to process commands " + str(self.__class__.__name__))
+
+        self.keep_running = True
+
+        self.workers = []
+        self.job_queue = gevent.queue.Queue()
+        self.result_queue = gevent.queue.Queue()
+
+        self.workers.append(GreenletRedisQueueListener(job_queue=self.job_queue, logger=self.logger,
+                                                       redis_queue_name=self.redis_queue_name_in))
+        if self.redis_stream_name_out:
+            self.workers.append(GreenletRedisStreamPublisher(result_queue=self.result_queue, logger=self.logger,
+                                                             redis_stream_name=self.redis_stream_name_out))
+
+        for i in range(self.num_workers):
+            self.workers.append(self.WorkerClass(job_queue=self.job_queue, result_queue=self.result_queue,
+                                                 logger=self.logger))
+
+        for worker in self.workers:
+            worker.start()
+        self.running = True
+        gevent.joinall(self.workers)
+        self.workers = []
+        self.job_queue = None
+        self.result_queue = None
+        self.logger.info("Gracefully stopped to process commands " + str(self.__class__.__name__))
+        self.running = False
+
+    def start(self):
+        self.background_thread = ThreadHandler("Command processor " + str(self.__class__.__name__), self.process,
+                                               daemon=False)
+
+    def stop(self):
+        self.keep_running = False
+        for worker in self.workers:
+            worker.stop()
+
