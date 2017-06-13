@@ -5,6 +5,7 @@ import time
 from establishment.misc.threading_helper import ThreadHandler
 from establishment.funnel.redis_stream import RedisStreamPublisher, RedisStreamSubscriber
 
+
 class BaseCommandProcessor(object):
     def __init__(self, logger_name):
         self.logger = logging.getLogger(logger_name)
@@ -82,3 +83,30 @@ class BaseRedisCommandProcessor(BaseCommandProcessor):
         self.redis_stream_subscriber = None
         self.redis_stream_publisher = None
         time.sleep(1.0)
+
+
+class CommandProcessorHandler(object):
+    def __init__(self, command_processors=None):
+        if command_processors is None:
+            command_processors = []
+        self.command_processors = command_processors
+
+    def add(self, command_processor):
+        self.command_processors.append(command_processor)
+
+    def start(self):
+        for command_processor in self.command_processors:
+            command_processor.start()
+
+    def stop(self):
+        for command_processor in self.command_processors:
+            command_processor.stop()
+
+    def wait_to_finish(self):
+        finished = False
+        while not finished:
+            finished = True
+            for command_processor in self.command_processors:
+                if command_processor.running:
+                    finished = False
+            time.sleep(1)
