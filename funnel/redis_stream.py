@@ -139,6 +139,7 @@ class RedisQueue(object):
         self.redis_connection = connection
         self.max_size = max_size
         self.last_size = None
+        self.pipe = self.redis_connection.pipeline(transaction=True)
 
     def push(self, value):
         self.last_size = self.redis_connection.lpush(self.queue_name, value)
@@ -163,6 +164,11 @@ class RedisQueue(object):
         if result:
             return result[1]
         return None
+
+    def bulk_pop(self, bulk_size):
+        self.pipe.lrange(self.queue_name, 0, bulk_size)
+        self.pipe.ltrim(self.queue_name, bulk_size + 1, -1)
+        return self.pipe.execute()[0]
 
 
 class RedisStreamSubscriber(object):
