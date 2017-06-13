@@ -9,11 +9,13 @@ from establishment.funnel.encoder import StreamJSONEncoder
 
 redis_connection_pool = None
 
+
 def get_default_redis_connection_pool():
     global redis_connection_pool
     if redis_connection_pool is None:
         redis_connection_pool = ConnectionPool(**settings.REDIS_CONNECTION)
     return redis_connection_pool
+
 
 class RedisStreamPublisher(object):
     message_timeout = 60 * 60 * 5   # Default expire time - 5 hours
@@ -127,6 +129,29 @@ class RedisPriorityQueue(object):
             return result[0][0]
         else:
             return None
+
+
+class RedisQueue(object):
+    def __init__(self, queue_name, connection=None, max_size=16*1024):
+        self.queue_name = queue_name
+        if not connection:
+            connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
+        self.redis_connection = connection
+        self.max_size = max_size
+
+    def push(self, value):
+        result = self.redis_connection.lpush(self.queue_name, value)
+        if result:
+            if result > self.max_size:
+                self.redis_connection.rpop(self.queue_name)
+
+    def pop(self, timeout=None):
+        if not timeout:
+            return self.redis_connection.rpop(self.queue_name)
+        result = self.redis_connection.brpop(self.queue_name, timeout=timeout)
+        if result:
+            return result[1]
+        return None
 
 
 class RedisStreamSubscriber(object):
