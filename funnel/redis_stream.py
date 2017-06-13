@@ -138,12 +138,23 @@ class RedisQueue(object):
             connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
         self.redis_connection = connection
         self.max_size = max_size
+        self.last_size = None
 
     def push(self, value):
-        result = self.redis_connection.lpush(self.queue_name, value)
-        if result:
-            if result > self.max_size:
+        self.last_size = self.redis_connection.lpush(self.queue_name, value)
+        if self.last_size:
+            if self.last_size > self.max_size:
                 self.redis_connection.rpop(self.queue_name)
+                return False
+        return True
+
+    def update_length(self):
+        self.last_size = self.redis_connection.llen(self.queue_name)
+
+    def length(self, update=False):
+        if update:
+            self.update_length()
+        return self.last_size
 
     def pop(self, timeout=None):
         if not timeout:
