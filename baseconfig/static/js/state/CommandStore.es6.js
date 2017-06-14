@@ -12,8 +12,11 @@ const verboseStatus = ["Waiting", "Running", "Failed", "Successful"];
 export class CommandRun extends StoreObject {
     update(event) {
         if (event.type === "logMessage") {
-            this.logs = this.logs || [];
-            this.logs.push(event.data);
+            this.logEntries = this.logEntries || {
+                entries: [],
+                progress: {}
+            };
+            this.logEntries.entries.push(event.data);
         } else {
             super.update(event);
         }

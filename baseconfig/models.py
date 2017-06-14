@@ -42,13 +42,11 @@ class PublicGlobalSettings(BaseGlobalSettings):
 
 
 class CommandInstance(StreamObjectMixin):
-    name = models.CharField(max_length=255, unique=True)
-    prompt_for_confirmation = models.BooleanField(default=False)
     class_instance = models.CharField(max_length=255, unique=True)
     # arguments = JSONField(null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.class_instance
 
     class Meta:
         db_table = "CommandInstance"
@@ -63,6 +61,8 @@ class CommandInstance(StreamObjectMixin):
     def to_json(self):
         result = super().to_json()
         result["description"] = self.get_class().get_description()
+        result["name"] = self.get_class().get_name()
+        result["promptForConfirmation"] = self.get_class().prompt_for_confirmation
         return result
 
 
@@ -114,7 +114,7 @@ class CommandRun(StreamObjectMixin):
         db_table = "CommandRun"
 
     def __str__(self):
-        return str(self.id) + " - " + self.command_instance.name
+        return str(self.id) + " - " + self.command_instance.get_class().get_name()
 
     def get_stream_name(self):
         return "GlobalCommandRuns"

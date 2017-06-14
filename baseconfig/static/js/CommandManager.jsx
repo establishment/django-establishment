@@ -100,14 +100,12 @@ class CommandRunDetails extends UI.Element {
     }
 
     render() {
-        return "Details";
+        return UI.T("Details");
     }
 
     onMount() {
-        this.commandRunDetailsModal = <CommandRunDetailsModal commandRun={this.options.commandRun} destroyOnHide={false}/>;
-        this.commandRunDetailsModal.mount(document.body);
         this.addClickListener(() => {
-            this.commandRunDetailsModal.show();
+            CommandRunDetailsModal.show({commandRun: this.options.commandRun});
         });
     }
 }
@@ -241,6 +239,8 @@ class CommandManager extends UI.Element {
                 <Button level={UI.Level.PRIMARY} size={UI.Size.SMALL} ref="runCommandButton"
                         faIcon="cogs" style={{marginLeft: "10px"}}/>
             </div>,
+            <div ref="descriptionArea" style={{margin: "10px"}}>
+            </div>,
             <div style={{marginTop: "20px"}}>
                 <h4>Past commands</h4>
                 <PastCommandsTable ref="pastCommandsTable" />
@@ -250,23 +250,27 @@ class CommandManager extends UI.Element {
 
     onMount() {
         GlobalState.registerStream("GlobalCommandRuns");
-        CommandRunStore.addCreateListener(() => {
+
+        let redrawPastCommandsTable = () => {
             this.pastCommandsTable.redraw();
+        };
+
+        this.attachCreateListener(CommandRunStore, redrawPastCommandsTable);
+        this.attachListener(CommandRunStore, "redrawTable", redrawPastCommandsTable);
+
+        this.descriptionArea.node.textContent = this.commandSelect.get().description;
+        this.commandSelect.addChangeListener(() => {
+            this.descriptionArea.node.textContent = this.commandSelect.get().description;
         });
-        CommandRunStore.addListener("redrawTable", () => {
-            this.pastCommandsTable.redraw();
-        });
+
         this.runCommandButton.addClickListener(() => {
             let commandInstance = this.commandSelect.get();
-            if (commandInstance.promptForConfirmation || commandInstance.arguments) {
-                let commandRunCreationModal = <CommandRunCreationModal commandInstance={commandInstance} />;
-                commandRunCreationModal.show();
+            if (commandInstance.promptForConfirmation) {
+                CommandRunCreationModal.show({commandInstance});
             } else {
                 runCommand({
                     commandInstanceId: commandInstance.id
-                }, () => {
-                    this.pastCommandsTable.redraw();
-                });
+                }, redrawPastCommandsTable);
             }
         });
     }
