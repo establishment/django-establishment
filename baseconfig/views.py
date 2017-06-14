@@ -1,5 +1,8 @@
+import threading
+
 from establishment.funnel.base_views import superuser_required, ajax_required, JSONErrorResponse, JSONResponse, single_page_app
 from establishment.funnel.utils import GlobalObjectCache
+from establishment.misc.threading_helper import ThreadHandler
 from .models import CommandInstance, CommandRun
 
 
@@ -11,10 +14,12 @@ def run_command(request):
         command_instance = CommandInstance.objects.get(id=command_instance_id)
     except Exception:
         return JSONErrorResponse("Invalid command id")
-    command_run = CommandRun.run(request.user, command_instance)
-    state = GlobalObjectCache()
-    state.add(command_run)
-    return JSONResponse({"state": state})
+
+    def run():
+        CommandRun.run(request.user, command_instance)
+    ThreadHandler("commandthread", run)
+
+    return JSONResponse({})
 
 
 @superuser_required

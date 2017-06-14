@@ -34,6 +34,9 @@ class CommandRunStatus extends UI.Element {
                 this.redraw();
             }
         });
+        this.attachEventListener(this.options.commandRun, "updateOrCreate", (event) => {
+            this.redraw();
+        });
     }
 }
 
@@ -112,11 +115,11 @@ class CommandRunDetails extends UI.Element {
 
 class CommandRunDuration extends UI.Primitive("span") {
     render() {
-        if (this.options.commandRun.status == 0) {
+        if (this.options.commandRun.status === 0) {
             return "-";
         }
         let time;
-        if (this.options.commandRun.status == 1) {
+        if (this.options.commandRun.status === 1) {
             time = StemDate.now() / 1000 - this.options.commandRun.dateCreated;
         } else {
             time = this.options.commandRun.dateFinished - this.options.commandRun.dateCreated
@@ -133,6 +136,9 @@ class CommandRunDuration extends UI.Primitive("span") {
                 this.redraw();
             }
         }, 700);
+        this.attachEventListener(this.options.commandRun, "updateOrCreate", (event) => {
+            this.redraw();
+        });
     }
 }
 

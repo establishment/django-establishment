@@ -119,6 +119,26 @@ class CommandRun(StreamObjectMixin):
     def get_stream_name(self):
         return "GlobalCommandRuns"
 
+    def execute(self, *args, **kwargs):
+        # Setting the command in "running" status
+        command_logger = CommandRunLogger(self)
+        command = self.command_instance.instantiate(logger=command_logger)
+        self.date_created = timezone.now()
+        self.status = 1
+        self.save()
+        self.publish_update_event()
+
+        self.result = command.run_safe(*args, **kwargs)
+
+        # Setting the command in either "failed" or "succeeded" status
+        if command.had_exception:
+            self.status = 2
+        else:
+            self.status = 3
+        self.date_finished = timezone.now()
+        self.save()
+        self.publish_update_event()
+
     @classmethod
     def run(cls, user, command_instance, *args, **kwargs):
         # Creating the command
@@ -127,25 +147,7 @@ class CommandRun(StreamObjectMixin):
         command_run.publish_create_event()
 
         # Running the command
-
-        # Setting the command in "running" status
-        command_logger = CommandRunLogger(command_run)
-        command = command_instance.instantiate(logger=command_logger)
-        command_run.date_created = timezone.now()
-        command_run.status = 1
-        command_run.save()
-        command_run.publish_update_event()
-
-        command_run.result = command.run_safe(*args, **kwargs)
-
-        # Setting the command in either "failed" or "succeeded" status
-        if command.had_exception:
-            command_run.status = 2
-        else:
-            command_run.status = 3
-        command_run.date_finished = timezone.now()
-        command_run.save()
-        command_run.publish_update_event()
+        command_run.execute(*args, **kwargs)
 
         return command_run
 
