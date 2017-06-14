@@ -11,6 +11,9 @@ from .json_helper import to_camel_case
 from .base_views import JSONResponse, JSONErrorResponse
 from .utils import GlobalObjectCache, int_list
 
+import json
+import datetime
+
 STREAM_HANDLERS = []
 
 
@@ -237,6 +240,59 @@ class StreamObjectMixin(models.Model):
             return JSONResponse(state)
 
         return view_func
+
+    @classmethod
+    def update_object_from_json(cls, my_object, my_name, json_value, meta_field):
+        local_type = str(meta_field.get_internal_type())
+        # should remain string
+        if local_type in ["SlugField", "TextField"]:
+            value = json_value
+        # should be json.loads
+        elif local_type in ["BooleanField"]:
+            value = json.loads(json_value)
+        # should be casted to int
+        elif local_type in ["IntegerField"]:
+            value = int(json_value)
+        # datetime
+        elif local_type in ["DateTimeField"]:
+            value = datetime.datetime.fromtimestamp(int(json_value))
+        else:
+            raise Exception("Unknown apply type for ", local_type)
+
+        # print("Update my field:", my_name, " json value:", json_value, #" meta field:", vars(meta_field))
+        #         "Meta field type:", str(meta_field.get_internal_type()))
+
+        setattr(my_object, my_name, value)
+
+    @classmethod
+    def apply_json(cls, json_obj, rename=None):
+        id_name = rename["id"] or "id"
+        try:
+            my_id = int(json_obj[id_name])
+        except Exception as e:
+            raise e
+
+        try:
+            my_object = cls.objects.get(id=my_id)
+        except Exception as e:
+            raise e
+
+        # add all fields
+        for meta_field in my_object._meta.get_fields():
+            if not cls.should_include_field(meta_field, include=None, exclude=None, include_many_to_many=True):
+                continue
+
+            json_name = cls.get_meta_key(meta_field, rename)
+            my_name = meta_field.attname
+
+            # do not touch "id"
+            if my_name == "id":
+                continue
+
+            if json_name in json_obj:
+                cls.update_object_from_json(my_object, my_name, json_obj[json_name], meta_field)
+
+        return my_object
 
     def make_event(self, event_type, data, extra=None):
         event_dict = {
