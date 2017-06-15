@@ -7,7 +7,8 @@ class MessagesPanelListStyle extends StyleSet {
     @styleRule
     messagesPanelList = {
         backgroundColor: "#fff",
-        display: "table",
+        display: "flex",
+        flexDirection: "column",
     };
 
     @styleRule

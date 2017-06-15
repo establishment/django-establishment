@@ -22,6 +22,7 @@ class ChatStyle extends StyleSet {
         overflowX: "hidden",
         backgroundColor: this.backgroundColor,
         position: "relative",
+        wordBreak: "break-word",
     };
 
     @styleRule
@@ -35,7 +36,7 @@ class ChatStyle extends StyleSet {
 
     @styleRule
     chatInput = {
-        height: this.renderMessageHeight,
+        height: "100%",
         width: "calc(100% - 50px)",
         // "line-height": "30px",
         paddingTop: "0",

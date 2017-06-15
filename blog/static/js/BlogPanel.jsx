@@ -83,18 +83,18 @@ class BlogEntryEditModal extends UI.Modal {
 
         Ajax.postJSON("/blog/change_entry_settings/", request).then(
             (data) => {
-                console.log("Changed contest settings!", data);
+                console.log("Changed entry settings!", data);
 
                 if (data.urlName) {
-                    URLRouter.route(data.urlName, "edit");
+                    Router.changeURL(["blog", data.urlName]);
                 }
-                this.redraw();
+                this.hide();
             },
             (error) => {
-                console.log("Error in changing contest settings!");
+                console.log("Error in changing entry settings!");
                 console.log(error.message);
                 console.log(error.stack);
-                this.messageArea.showMessage("Error in changing contest settings!", "red");
+                this.messageArea.showMessage("Error in changing entry settings!", "red");
             }
         );
     }

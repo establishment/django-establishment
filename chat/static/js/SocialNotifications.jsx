@@ -1,4 +1,4 @@
-import {UI, SectionDivider} from "UI";
+import {UI, SectionDivider, Button} from "UI";
 import {GlobalState} from "State";
 import {PrivateChatStore, MessageThreadStore} from "MessageThreadStore";
 import {UserNotificationStore} from "UserStore";
@@ -14,6 +14,22 @@ import {FAIcon} from "FontAwesome";
 import {Router, Subrouter} from "Router";
 
 let messagesPanelListStyle = MessagesPanelListStyle.getInstance();
+
+const formatMiniMessageLastTime = (timeStamp) => {
+    const presentTimeStamp = StemDate.now();
+    const fullDateFormat = "DD/MM/YYYY";
+    if (presentTimeStamp.format(fullDateFormat) === timeStamp.format(fullDateFormat)) {
+        return timeStamp.format("HH:mm");
+    } else if (presentTimeStamp.getYear() === timeStamp.getYear()) {
+        if (presentTimeStamp.getWeekInYear() === timeStamp.getWeekInYear()) {
+            return timeStamp.format("ddd");
+        } else {
+            return timeStamp.format("MMM Do");
+        }
+    } else {
+        return timeStamp.format(fullDateFormat);
+    }
+};
 
 class MiniMessage extends UI.Element {
     constructor(options) {
@@ -33,14 +49,15 @@ class MiniMessage extends UI.Element {
         super.setOptions(options);
     }
 
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
+    extraNodeAttributes(attr) {
+        super.extraNodeAttributes(attr);
         attr.addClass("miniMessage" + this.options.userId);
-        attr.setStyle("padding", "10px");
-        attr.setStyle("border-bottom", "1px solid #ddd");
-        attr.setStyle("position", "relative");
-        attr.setStyle("color", (this.isRead ? (this.isActive ? "white" : "black") : (this.isActive ? "white" : "red")));
-        return attr;
+        attr.setStyle({
+            padding: "10px",
+            borderBottom: "1px solid #ddd",
+            whiteSpace: "nowrap",
+            color: this.isRead ? (this.isActive ? "white" : "black") : (this.isActive ? "white" : "red"),
+        });
     }
 
     render() {
@@ -52,9 +69,11 @@ class MiniMessage extends UI.Element {
             <UserHandle ref="userHandle" id={this.options.userId} noPopup />,
             callButton,
             <div ref="timeAttribute" className="pull-right" style={{color: (this.isActive ? "white" : "#888"),}}>
-                {(this.options.lastMessage.timeAdded !== 0 ? StemDate(this.options.lastMessage.timeAdded).format("HH:mm MMMM Do") : "")}
+                {(this.options.lastMessage.timeAdded !== 0 ? formatMiniMessageLastTime(StemDate(this.options.lastMessage.timeAdded)) : "")}
             </div>,
-            <div style={{wordBreak: "break-all", paddingTop: "8px",}}>{this.options.lastMessage.content}</div>,
+            <div style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingTop: "8px",}}>
+                {this.options.lastMessage.content}
+            </div>,
             <UI.StyleElement>
                 <UI.StyleInstance ref="hoverClass" selector={".miniMessage" + this.options.userId + ":hover"} attributes={{"cursor": "pointer", "background-color": this.options.hoverColor}}/>
             </UI.StyleElement>
@@ -261,16 +280,6 @@ class MessagesList extends UI.Element {
         this.unreadMessages = 0;
     }
 
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-        attr.setStyle({
-            height: "100%",
-            width: "100%",
-            display: "table-row",
-        });
-        return attr;
-    }
-
     render() {
         return <div style={{width: "100%", height: "100%", position: "relative",}}>
             <UI.Element ref="miniMessagesList" style={{position: "absolute", top: 0, bottom: 0, left: 0, right: 0, overflow: "auto"}} >
@@ -381,7 +390,6 @@ class IconMessagesList extends MessagesList {
         // attr.setStyle("height", "400px");
         // attr.setStyle("width", "320px");
         attr.setStyle({
-            display: "table",
             lineHeight: "normal",
             backgroundColor: "#fff",
             width: "100%",
@@ -390,13 +398,15 @@ class IconMessagesList extends MessagesList {
             maxWidth: "100%",
             position: "absolute",
             right: "0px",
-        })
+            display: "flex",
+            flexDirection: "column",
+        });
         return attr;
     }
 
     render() {
         return [
-            <MessagesList ref="messagesList" />,
+            <MessagesList ref="messagesList" style={{flex: "1", overflow: "auto"}}/>,
             <div style={{textAlign: "center", width: "100%", padding: "0.5em", borderTop: "1px solid #ddd"}} >
                 <UI.Link href="/messages/" newTab={false} value="View all messages"/>
             </div>
@@ -432,16 +442,15 @@ class MessagesPanelList extends UI.Element {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
         attr.addClass(messagesPanelListStyle.messagesPanelList);
-        attr.setStyle("display", "table"); // ?
         return attr;
     }
 
     render() {
         return [
-            <div style={{padding: "16px", height: "62px", borderBottom: "1px solid #ddd",}}>
+            <div style={{padding: "16px", paddingRight: "50px", height: "62px", borderBottom: "1px solid #ddd",}}>
                 <UserSearchInput ref="userSearchInput" textInputStyle={messagesPanelListStyle.textInputStyle} placeholder="Search for user"/>
             </div>,
-            <MessagesList ref="messagesList"/>
+            <MessagesList ref="messagesList" style={{flex: "1", overflow: "auto"}}/>
         ];
     }
 
@@ -612,14 +621,28 @@ class DelayedChat extends UI.Element {
 
 let BaseMessagesPanel = function(MessageListClass) {
     return class MessagesPanel extends UI.Element {
+        extraNodeAttributes(attr) {
+            super.extraNodeAttributes(attr);
+            attr.setStyle({
+                border: "1px solid #ddd",
+                height: "calc(100vh - 50px)",
+                maxWidth: "1280px",
+                margin: "0 auto",
+                position: "relative",
+            });
+        }
+
         render() {
             return [
-                <div ref="sectionDivider" style={{height: "calc(100vh - 50px)", maxWidth: "1280px", margin: "0 auto",}} orientation={UI.Orientation.HORIZONTAL}>
+                <div style={{display: "inline-flex", height: "100%", overflow: "hidden", position: "relative"}}>
                     <MessageListClass ref="messagesPanelList" subArgs={this.options.subArgs}
-                                      style={{display: "inline-block", width: "250px", height: "100%", float: "left", borderRight: "1px solid #ddd", borderLeft: "1px solid #ddd",}} />
-                    <DelayedChat style={{display: "inline-block", width:"calc(100% - 250px)", height: "100%",
-                                            float: "left", borderRight: "1px solid #ddd",}} ref="chatWidget" fixed />
-                </div>
+                                      style={{height: "100%", overflow: "auto", width: "250px",
+                                              borderRight: "1px solid #ddd", transition: "margin .7s ease"}} />
+                </div>,
+                <Button ref="collapseButton" size={UI.Size.SMALL} faIcon="chevron-left" level={UI.Level.DARK}
+                        style={{position: "absolute", top: "15px", left: "208px", zIndex: "2017", transition: "all .7s ease"}}/>,
+                <DelayedChat style={{display: "inline-block", flex: "1", width: "calc(100% - 260px)", height: "100%",
+                                         transition: "width .7s ease", verticalAlign: "top"}} ref="chatWidget" />
             ];
         }
 
@@ -644,6 +667,24 @@ let BaseMessagesPanel = function(MessageListClass) {
                     this.newUserInserted = false;
                 }
             });
+            //TODO: use classes here
+            this.collapseButton.addClickListener(() => {
+                if (!this.collapsed) {
+                    this.messagesPanelList.setStyle("marginLeft", "-250px");
+                    this.collapseButton.setFaIcon("chevron-right");
+                    this.collapseButton.setStyle("left", "8px");
+                    this.collapseButton.setStyle("opacity", ".3");
+                    this.chatWidget.setWidth("100%");
+                    this.collapsed = true;
+                } else {
+                    this.messagesPanelList.setStyle("marginLeft", "0");
+                    this.collapseButton.setFaIcon("chevron-left");
+                    this.collapseButton.setStyle("left", "208px");
+                    this.collapseButton.setStyle("opacity", "1");
+                    this.chatWidget.setWidth("calc(100% - 250px)");
+                    this.collapsed = false;
+                }
+            })
         }
     }
 };

@@ -90,8 +90,8 @@ class GroupChatMessage extends Panel {
 
         let date = null;
         if (this.shouldShowDayTimestamp()) {
-            date = <div className={chatStyle.messageTimeStampHr}>
-                <div ref="dayTimestamp" className={chatStyle.messageTimeStamp}>
+            date = <div ref="dayTimestamp" className={chatStyle.messageTimeStampHr}>
+                <div className={chatStyle.messageTimeStamp}>
                     {StemDate.unix(this.message.timeAdded).format("dddd, MMMM Do")}
                 </div>
             </div>;
@@ -305,6 +305,10 @@ class ChatMessageScrollSection extends InfiniteScrollable {
         }, options);
         super.setOptions(options);
     }
+
+    getTopMessage() {
+        return this.children[1];
+    }
 }
 
 let ChatWidget = (ChatMessageClass) => {
@@ -478,6 +482,8 @@ let ChatWidget = (ChatMessageClass) => {
             }
             this.outstandingRequest = true;
 
+            const topMessage = this.messageWindow.getTopMessage();
+
             let messageInstances = this.messageThread.getMessages();
             let lastMessageId = 999999999;
             if (messageInstances.length) {
@@ -504,7 +510,14 @@ let ChatWidget = (ChatMessageClass) => {
                         let scrollPosition = this.messageWindow.getExcessTop();
                         let oldHeight = this.messageWindow.node.scrollHeight;
                         GlobalState.importState(data.state || {});
-                        this.messageWindow.scrollToHeight(scrollPosition + this.messageWindow.node.scrollHeight - oldHeight);
+
+                        let scrollDelta = 0;
+                        if (!topMessage.shouldShowDayTimestamp()) {
+                            scrollDelta += topMessage.dayTimestamp.getHeight();
+                            topMessage.dayTimestamp.addClass("hidden");
+                        }
+                        this.messageWindow.scrollToHeight(scrollPosition + this.messageWindow.node.scrollHeight - oldHeight - scrollDelta);
+
                         this.outstandingRequest = false;
                     },
                     error: (xhr, errmsg, err) => {
