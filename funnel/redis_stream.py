@@ -13,6 +13,37 @@ from establishment.funnel.encoder import StreamJSONEncoder
 redis_connection_pool = None
 
 
+def redis_response_to_json(data):
+    if data is None:
+        return None
+
+    try:
+        data = str(data, "utf-8")
+    except Exception:
+        print("Failed to convert Redis string to unicode!")
+        return None
+
+    try:
+        return json.loads(data)
+    except Exception:
+        print("Failed to parse Redis string to json " + str(data))
+    return None
+
+def redis_response_to_bool(data):
+    if data is None:
+        return False
+    elif data.lower() == "true":
+        return True
+    return False
+
+def redis_response_to_int(data):
+    if data is None:
+        return None
+    try:
+        return int(data)
+    except ValueError:
+        return 0
+
 def get_default_redis_connection_pool():
     global redis_connection_pool
     if redis_connection_pool is None:
@@ -208,6 +239,8 @@ class RedisMutex(object):
         self.expire = expire
 
     def try_acquire(self):
+        if self.acquired:
+            return True
         result = self.redis_connection.get(self.redis_mutex_key)
         if result is not None:
             self.acquired = False
@@ -244,7 +277,103 @@ class RedisMutex(object):
         self.acquire()
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.release()
+
+
+class RedisScheduledJob(object):
+    @classmethod
+    def get_timestamp(cls):
+        return int(time.time() * 1000)
+
+    def __init__(self, name, connection=None, time_interval=1000):
+        if not connection:
+            connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
+        self.redis_connection = connection
+        self.name = name
+        self.redis_mutex_name = "scheduled-job." + self.name
+        self.redis_job_data_key = "scheduled-job." + self.name + ".job_data"
+        self.redis_timestamp_key = "scheduled-job." + self.name + ".timestamp"
+        self.redis_time_interval_key = "scheduler-job." + self.name + ".time_interval"
+        self.redis_mutex = RedisMutex(self.redis_mutex_name, connection=connection)
+        self.redis_job_data = {}
+        self.redis_timestamp = None
+        self.redis_time_interval = None
+        self.time_interval = time_interval
+        self.job_start_timestamp = 0
+        self.acquired = False
+        self.acquire_fail_code = 0
+
+    def get_field_job_data(self):
+        self.redis_job_data = redis_response_to_json(self.redis_connection.get(self.redis_job_data_key))
+        if self.redis_job_data is None:
+            self.redis_job_data = {}
+
+    def get_field_timestamp(self):
+        self.redis_timestamp = redis_response_to_int(self.redis_connection.get(self.redis_timestamp_key))
+
+    def get_field_time_interval(self):
+        self.redis_time_interval = redis_response_to_int(self.redis_connection.get(self.redis_time_interval_key))
+
+    def set_field_job_data(self):
+        self.redis_connection.set(self.redis_job_data_key, json.dumps(self.redis_job_data))
+
+    def set_field_timestamp(self):
+        self.redis_connection.set(self.redis_timestamp_key, str(self.redis_timestamp))
+
+    def set_field_time_interval(self):
+        self.redis_connection.set(self.redis_time_interval_key, str(self.redis_time_interval))
+
+    def recalculate_next_job_timestamp(self):
+        if self.redis_time_interval is None or self.redis_time_interval <= 0:
+            self.redis_time_interval = self.time_interval
+        current_timestamp = RedisScheduledJob.get_timestamp()
+        diff = current_timestamp - self.redis_timestamp
+        count = int(diff / self.redis_time_interval)
+        if diff % self.redis_time_interval > 0:
+            count += 1
+        if count == 0:
+            count = 1
+        self.redis_timestamp += self.redis_time_interval * count
+
+    def try_acquire(self):
+        self.acquire_fail_code = 0
+        if self.acquired:
+            return True
+        if not self.redis_mutex.try_acquire():
+            self.acquire_fail_code = 1
+            return False
+        self.get_field_timestamp()
+        current_timestamp = RedisScheduledJob.get_timestamp()
+        if self.redis_timestamp is None:
+            self.redis_timestamp = current_timestamp
+        if current_timestamp < self.redis_timestamp:
+            self.acquire_fail_code = 2
+            return False
+        self.job_start_timestamp = current_timestamp
+        self.get_field_job_data()
+        self.get_field_time_interval()
+        self.acquired = True
+        return True
+
+    def release(self):
+        if not self.acquired:
+            return
+        self.recalculate_next_job_timestamp()
+        self.set_field_time_interval()
+        self.set_field_timestamp()
+        self.set_field_job_data()
+        self.redis_mutex.release()
+        self.acquired = False
+
+    def acquire(self, interval=0.5):
+        while not self.try_acquire():
+            time.sleep(interval)
+
+    def __enter__(self):
+        self.acquire()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self.release()
 
 

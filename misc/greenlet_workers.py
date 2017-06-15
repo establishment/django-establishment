@@ -1,10 +1,10 @@
 import gevent
 import gevent.queue
-import json
 import logging
 
 from establishment.misc.threading_helper import ThreadHandler
-from establishment.funnel.redis_stream import RedisStreamPublisher, RedisStreamSubscriber, RedisQueue
+from establishment.funnel.redis_stream import RedisStreamPublisher, RedisStreamSubscriber, RedisQueue, \
+    redis_string_to_json
 
 
 class GreenletWorker(gevent.Greenlet):
@@ -102,19 +102,9 @@ class GreenletRedisQueueListener(GreenletQueueWorker):
                 self.activate_bulk_retrieval = True
             jobs = [job]
         for job in jobs:
-            if not job:
-                continue
-
-            try:
-                job = str(job, "utf-8")
-            except Exception:
-                self.log_error("Failed to convert to unicode")
-                continue
-
-            try:
-                self.job_queue.put(json.loads(job))
-            except Exception:
-                self.log_error("Failed to parse command " + str(job))
+            job = redis_string_to_json(job)
+            if job:
+                self.job_queue.put(job)
 
 
 class GreenletRedisStreamListener(GreenletQueueWorker):
@@ -134,19 +124,9 @@ class GreenletRedisStreamListener(GreenletQueueWorker):
     def tick(self):
         message, stream_name = self.redis_stream_subscriber.next_message()
 
-        if not message:
-            return
-
-        try:
-            message = str(message, "utf-8")
-        except Exception:
-            self.log_error("Failed to convert to unicode")
-            return
-
-        try:
-            self.job_queue.put(json.loads(message))
-        except Exception:
-            self.log_error("Failed to parse command " + str(message))
+        message = redis_string_to_json(message)
+        if message:
+            self.job_queue.put(message)
 
 
 class GreenletRedisStreamPublisher(GreenletQueueWorker):
