@@ -1,9 +1,12 @@
 import json
+import time
+import threading
 
 from django.conf import settings
 from redis import StrictRedis, ConnectionPool
 
 from establishment.misc.util import jsonify, same_dict
+from establishment.misc.threading_helper import ThreadIntervalHandler
 from establishment.funnel.encoder import StreamJSONEncoder
 
 
@@ -169,6 +172,80 @@ class RedisQueue(object):
         self.pipe.lrange(self.queue_name, 0, bulk_size)
         self.pipe.ltrim(self.queue_name, bulk_size + 1, -1)
         return self.pipe.execute()[0]
+
+
+class RedisMutex(object):
+    keep_alive_thread = None
+    acquired_mutexes_mutex = threading.Lock()
+    acquired_mutexes = set()
+
+    @classmethod
+    def keep_alive_thread_worker(cls):
+        with cls.acquired_mutexes_mutex:
+            if len(cls.acquired_mutexes) == 0:
+                cls.keep_alive_thread = None
+                return True
+            for redis_mutex in cls.acquired_mutexes:
+                redis_mutex.renew()
+        return False
+
+    @classmethod
+    def ensure_keep_alive_thread(cls):
+        if cls.keep_alive_thread:
+            return
+        cls.keep_alive_thread = ThreadIntervalHandler("RedisMutex.KeepAlive", cls.keep_alive_thread_worker, 10)
+
+    def __init__(self, mutex_name, connection=None, expire=30, owner_id=None):
+        if not owner_id:
+            owner_id = "default_id"
+        self.owner_id = owner_id
+        self.mutex_name = mutex_name
+        if not connection:
+            connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
+        self.redis_connection = connection
+        self.redis_mutex_key = "redis-mutex." + self.mutex_name
+        self.acquired = False
+        self.expire = expire
+
+    def try_acquire(self):
+        result = self.redis_connection.get(self.redis_mutex_key)
+        if result is not None:
+            self.acquired = False
+            return False
+        result = self.redis_connection.getset(self.redis_mutex_key, self.owner_id)
+        if result is not None:
+            self.redis_connection.set(self.redis_mutex_key, result)
+            self.redis_connection.expire(self.redis_mutex_key, self.expire)
+            self.acquired = False
+            return False
+        self.redis_connection.expire(self.redis_mutex_key, self.expire)
+        self.acquired = True
+        with RedisMutex.acquired_mutexes_mutex:
+            RedisMutex.acquired_mutexes.add(self)
+        RedisMutex.ensure_keep_alive_thread()
+        return True
+
+    def renew(self):
+        if self.acquired:
+            self.redis_connection.expire(self.redis_mutex_key, self.expire)
+
+    def release(self):
+        if self.acquired:
+            self.redis_connection.delete(self.redis_mutex_key)
+            with RedisMutex.acquired_mutexes_mutex:
+                RedisMutex.acquired_mutexes.remove(self)
+            self.acquired = False
+
+    def acquire(self, interval=0.5):
+        while not self.try_acquire():
+            time.sleep(interval)
+
+    def __enter__(self):
+        self.acquire()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.release()
 
 
 class RedisStreamSubscriber(object):
