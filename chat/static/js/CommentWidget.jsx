@@ -1,7 +1,7 @@
 import {UI} from "UI";
 import {GlobalState} from "State";
 import {GroupChatStore, MessageThreadStore, MessageThread, MessageInstance} from "MessageThreadStore";
-import {ChatMessageScrollSection, ChatWidget, PreviewMarkupButton} from "ChatWidget";
+import {ChatMessageScrollSection, ChatWidget, EditableMessage} from "ChatWidget";
 import {isDifferentDay, StemDate} from "Time";
 import "MarkupRenderer";
 import {UserHandle} from "UserHandle";
@@ -11,10 +11,11 @@ import {css, hover, focus, active, ExclusiveClassSet, StyleSet} from "Style";
 import {BlogStyle} from "BlogStyle";
 let blogStyle = BlogStyle.getInstance();
 
-class ThreadMessage extends UI.Panel {
-    setOptions(options) {
-        super.setOptions(options);
-        this.message = options.message;
+class ThreadMessage extends EditableMessage {
+    getDefaultOptions() {
+        return Object.assign({}, super.getDefaultOptions(), {
+            deletable: false,
+        });
     }
 
     render() {
@@ -29,7 +30,9 @@ class ThreadMessage extends UI.Panel {
 
         if (!this.contentSwitcher) {
             this.contentSwitcher = <UI.Switcher>
-                <UI.MarkupRenderer ref="content" value={this.message.getContent()} />
+                <div ref="contentContainer">
+                    <UI.MarkupRenderer ref="content" value={this.message.getContent()} />
+                </div>
             </UI.Switcher>;
         }
 
@@ -73,80 +76,6 @@ class ThreadMessage extends UI.Panel {
             }}></div>,
         ];
     }
-
-    showEditMode() {
-        if (!this.editContent) {
-            //TODO: duplicated from ChatWidget.renderMessageBox, refactor to common class (UI.MessageBox)
-            let writingSectionStyle = {
-                "margin-top": "5px"
-            };
-            let chatInputStyle = {
-                display: "inline-block",
-                overflow: "auto",
-                resize: "none",
-                height: "46px",
-                "vertical-align": "top"
-            };
-            let buttonContainerStyle = {
-                display: "inline-block",
-                "vertical-align": "top"
-            };
-            let buttonStyle = {
-                "margin-left": "5px"
-            };
-
-            this.editContent = <div style={writingSectionStyle}>
-                <UI.TextArea ref={this.refLink("messageInput")} style={chatInputStyle} className="form-control"
-                             value={this.message.getContent()}/>
-                <div style={buttonContainerStyle}>
-                    <UI.Button label={UI.T("Cancel")} level={UI.Level.DEFAULT} onClick={() => {this.hideEditMode()}} />
-                    <PreviewMarkupButton style={buttonStyle} size={UI.Size.DEFAULT}
-                                         getValue={() => {return this.messageInput.getValue();}}
-                                         setValue={(value) => {this.messageInput.setValue(value);this.messageInput.node.focus();}}
-                    />
-                    <UI.Button label={UI.T("Save changes")} style={buttonStyle} level={UI.Level.PRIMARY}
-                               onClick={() => this.saveMessageChanges()} />
-                </div>
-            </div>;
-        } else {
-            this.messageInput.setValue(this.message.getContent());
-        }
-
-        if (!this.contentSwitcher.hasChild(this.editContent)) {
-            this.contentSwitcher.appendChild(this.editContent);
-        }
-        this.contentSwitcher.setActive(this.editContent);
-    }
-
-    hideEditMode() {
-        this.contentSwitcher.setActive(this.content);
-    }
-
-    toggleEditMode() {
-        if (this.contentSwitcher.getActive() === this.content) {
-            this.showEditMode();
-        } else {
-            this.hideEditMode();
-        }
-    }
-
-    saveMessageChanges() {
-        let content = this.messageInput.getValue();
-
-        if (content) {
-            this.message.edit(content, () => {
-                this.hideEditMode();
-            });
-        }
-    }
-
-    onMount() {
-        this.message.addListener("edit", () => {
-            this.content.setValue(this.message.getContent());
-            this.content.redraw();
-            this.redraw();
-        })
-    }
 }
 
 class ToggleLogin extends UI.Primitive("span") {
@@ -160,6 +89,14 @@ class ToggleLogin extends UI.Primitive("span") {
 }
 
 class BlogCommentWidget extends ChatWidget(ThreadMessage) {
+    getDefaultOptions() {
+        return Object.assign({}, super.getDefaultOptions(), {
+            entryComparator: (a, b) => {
+                return b.getNormalizedId() - a.getNormalizedId();
+            }
+        })
+    }
+
     renderMessageView() {
         let loadMoreButton;
 
@@ -187,6 +124,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
             <ChatMessageScrollSection ref="messageWindow"
                                       entryRenderer={this.options.renderMessage}
                                       entries={this.messageThread.getMessages(true)}
+                                      entryComparator={this.options.entryComparator}
                                       staticTop={loadMoreButton} />
         ];
     }

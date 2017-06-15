@@ -75,6 +75,11 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
         // TODO: this should be cached and kept by the message thread
         let ans = null;
         let currentId = this.getNormalizedId();
+        // If message has temporary id, then it is identical with the previous message id, so instead the
+        // previous previous message would be found instead.
+        if (this.hasTemporaryId()) {
+            currentId += 1;
+        }
         for (let message of this.getMessageThread().getMessages()) {
             if (message.id < currentId && (!ans || ans.id < message.id)) {
                 ans = message;

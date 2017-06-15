@@ -19,14 +19,10 @@ class EditThreadReplyButton extends UI.Button {
                 LoginModal.show();
                 return;
             }
-            if (!this.markupEditorModal) {
-                this.markupEditorModal = <EditThreadReplyModal
-                    messageInstance={this.options.messageInstance}
-                    classMap={ChatMarkupRenderer.classMap}
-                />;
-                this.markupEditorModal.mount(document.body);
-            }
-            this.markupEditorModal.show();
+            EditThreadReplyModal.show({
+                messageInstance: this.options.messageInstance,
+                classMap: ChatMarkupRenderer.classMap
+            });
         });
     }
 }

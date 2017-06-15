@@ -114,14 +114,11 @@ class CreateForumThreadButton extends UI.Button {
                 LoginModal.show();
                 return;
             }
-            if (!this.markupEditorModal) {
-                // TODO: creating a modal should not involve explicitly calling mount
-                let ModalClass = this.getModalClass();
-                this.markupEditorModal = <ModalClass forumId={this.options.forumId} urlRouter={this.options.urlRouter}
-                    classMap={ChatMarkupRenderer.classMap} />;
-                this.markupEditorModal.mount(document.body);
-            }
-            this.markupEditorModal.show();
+            this.getModalClass().show({
+                forumId: this.options.forumId,
+                urlRouter: this.options.urlRouter,
+                classMap: ChatMarkupRenderer.classMap,
+            });
         });
     }
 }

@@ -29,25 +29,125 @@ class PreviewMarkupButton extends Button {
         this.addClickListener(() => {
             MarkupEditorModal.show({
                 classMap: ChatMarkupRenderer.classMap,
-                showCallback: (modal) => {
-                    modal.markupEditor.setValue(this.options.getValue());
-                    modal.markupEditor.codeEditor.getAce().focus();
-                },
-                hideCallback: (modal) => {
-                    this.options.setValue(modal.markupEditor.getValue());
-                }
+                showCallback: (modal) => {modal.markupEditor.setValue(this.options.getValue());
+                                          modal.markupEditor.codeEditor.getAce().focus();},
+                hideCallback: (modal) => {this.options.setValue(modal.markupEditor.getValue());}
             });
         });
     }
 }
 
-class GroupChatMessage extends Panel {
+class EditableMessage extends UI.Element {
+    getDefaultOptions() {
+        return Object.assign({}, super.getDefaultOptions(), {
+            deletable: true,
+        });
+    }
+
     setOptions(options) {
         super.setOptions(options);
         this.message = options.message;
+    }
+
+    render() {
+        return [<UI.Button ref="editButton" onClick={() => this.toggleEditMode()}>{UI.T("Edit")}</UI.Button>,
+            <UI.Switcher ref="contentSwitcher">
+                <span ref="contentContainer" style={{"white-space": "pre-line"}}>
+                    {this.message.hasMarkupEnabled() ?
+                        <ChatMarkupRenderer ref={this.refLink("content")} value={this.message.getContent()}
+                                           style={{height:"auto"}} /> :
+                        <UI.TextElement ref="content" value={this.message.getContent()}/>
+                    }
+                </span>
+            </UI.Switcher>
+        ];
+    }
+
+    showEditMode() {
+        if (!this.editContent) {
+            let writingSectionStyle = {
+                "margin-top": "5px"
+            };
+            let chatInputStyle = {
+                overflow: "auto",
+                height: "60px",
+                width: "100%",
+            };
+
+            this.editContent = <div style={writingSectionStyle}>
+                <UI.TextArea ref={this.refLink("messageInput")} style={chatInputStyle} className="form-control"
+                             value={this.message.getContent()}/>
+                <UI.ButtonGroup>
+                    <UI.Button label={UI.T("Cancel")} level={UI.Level.DEFAULT} size={UI.Size.SMALL}
+                               onClick={() => {this.hideEditMode()}} />
+                    <PreviewMarkupButton size={UI.Size.SMALL}
+                                         getValue={() => {return this.messageInput.getValue();}}
+                                         setValue={(value) => {this.messageInput.setValue(value);this.messageInput.node.focus();}}
+                    />
+                    <UI.Button label={UI.T("Save changes")} level={UI.Level.PRIMARY}
+                               onClick={() => this.saveMessageChanges()} size={UI.Size.SMALL} />
+                    {this.options.deletable ? <UI.Button level={UI.Level.DANGER} label={UI.T("Delete")} size={UI.Size.SMALL}
+                                                         onClick={() => this.deleteMessage()}/> : ""}
+                </UI.ButtonGroup>
+            </div>;
+        } else {
+            this.messageInput.setValue(this.message.getContent());
+        }
+
+        if (!this.contentSwitcher.hasChild(this.editContent)) {
+            this.contentSwitcher.appendChild(this.editContent);
+        }
+        this.contentSwitcher.setActive(this.editContent);
+    }
+
+    hideEditMode() {
+        this.contentSwitcher.setActive(this.contentContainer);
+    }
+
+    toggleEditMode() {
+        if (this.contentSwitcher.getActive() === this.contentContainer) {
+            this.showEditMode();
+        } else {
+            this.hideEditMode();
+        }
+    }
+
+    saveMessageChanges() {
+        let content = this.messageInput.getValue();
+
+        if (content) {
+            this.message.edit(content, () => {
+                this.hideEditMode();
+            });
+        }
+    }
+
+    deleteMessage() {
+        if (this.options.deletable) {
+            this.message.deleteMessage();
+        }
+    }
+
+    onMount() {
+        this.message.addListener("edit", () => {
+            this.content.setValue(this.message.getContent());
+            this.redraw();
+        });
+
+        this.message.addListener("delete", () => {
+            // TODO: refactor this, should delete message, not hide
+            this.hide();
+        });
+    }
+}
+
+
+class GroupChatMessage extends EditableMessage {
+    setOptions(options) {
+        super.setOptions(options);
         if (this.message.hasTemporaryId()) {
             // TODO: this can also happen when editing a message, another case for later
-            this.message.addListener("postError", (postError) => {
+            this.message.addListener("postError", () => {
                 this.redraw();
             });
             this.message.addListener("updateId", () => {
@@ -73,7 +173,8 @@ class GroupChatMessage extends Panel {
         let editButton;
         //if (this.message.userId === USER.id || USER.isSuperUser) {
         if (USER.isSuperUser) {
-            editButton = <a style={Object.assign({"cursor": "pointer"}, chatStyle.timestamp)} onClick={() => this.toggleEditMode()}>{UI.T("Edit")}</a>;
+            editButton = <a style={Object.assign({"cursor": "pointer"}, chatStyle.timestamp)}
+                            onClick={() => this.toggleEditMode()}>{UI.T("Edit")}</a>;
         }
 
         if (!this.contentSwitcher) {
@@ -116,87 +217,8 @@ class GroupChatMessage extends Panel {
             </div>
         ];
     }
-
-    showEditMode() {
-        if (!this.editContent) {
-            //TODO: duplicated from ChatWidget.renderMessageBox, refactor to common class (UI.MessageBox)
-            let writingSectionStyle = {
-                "margin-top": "5px"
-            };
-            let chatInputStyle = {
-                display: "inline-block",
-                overflow: "auto",
-                resize: "none",
-                height: "46px",
-                "vertical-align": "top"
-            };
-            let buttonStyle = {
-                "margin-left": "5px"
-            };
-
-            this.editContent = <div style={writingSectionStyle}>
-                <UI.TextArea ref={this.refLink("messageInput")} style={chatInputStyle} className="form-control"
-                             value={this.message.getContent()}/>
-                <div>
-                    <UI.Button label={UI.T("Cancel")} level={UI.Level.DEFAULT} onClick={() => {this.hideEditMode()}} />
-                    <PreviewMarkupButton style={buttonStyle} size={UI.Size.DEFAULT}
-                                         getValue={() => {return this.messageInput.getValue();}}
-                                         setValue={(value) => {this.messageInput.setValue(value);this.messageInput.node.focus();}}
-                    />
-                    <UI.Button label={UI.T("Save changes")} style={buttonStyle} level={UI.Level.PRIMARY}
-                               onClick={() => this.saveMessageChanges()} />
-                    <UI.Button level={UI.Level.DANGER} label={UI.T("Delete")} onClick={() => this.deleteMessage()} className="pull-right"/>
-                </div>
-            </div>;
-        } else {
-            this.messageInput.setValue(this.message.getContent());
-        }
-
-        if (!this.contentSwitcher.hasChild(this.editContent)) {
-            this.contentSwitcher.appendChild(this.editContent);
-        }
-        this.contentSwitcher.setActive(this.editContent);
-    }
-
-    hideEditMode() {
-        this.contentSwitcher.setActive(this.contentContainer);
-    }
-
-    toggleEditMode() {
-        if (this.contentSwitcher.getActive() === this.contentContainer) {
-            this.showEditMode();
-        } else {
-            this.hideEditMode();
-        }
-    }
-
-    saveMessageChanges() {
-        let content = this.messageInput.getValue();
-
-        if (content) {
-            this.message.edit(content, () => {
-                this.hideEditMode();
-            });
-        }
-    }
-
-    deleteMessage() {
-        this.message.deleteMessage();
-    }
-
-    onMount() {
-        this.message.addListener("edit", () => {
-            this.content.setValue(this.message.getContent());
-            this.content.redraw();
-            this.redraw();
-        });
-
-        this.message.addListener("delete", () => {
-            // TODO: refactor this, should delete message, not hide
-            this.hide();
-        });
-    }
 }
+
 
 class PrivateChatMessage extends Panel {
     setOptions(options) {
@@ -220,12 +242,6 @@ class PrivateChatMessage extends Panel {
     }
 
     render() {
-        let editButton;
-        //if (this.message.userId === USER.id || USER.isSuperUser) {
-        if (USER.isSuperUser) {
-            editButton = <a style={Object.assign({"cursor": "pointer"}, chatStyle.timestamp)} onClick={() => this.toggleEditMode()}>Edit</a>;
-        }
-
         if (!this.contentSwitcher) {
             this.contentSwitcher = <UI.Switcher>
                 <span ref="contentContainer" style={{"white-space": "pre-line"}}>
@@ -257,7 +273,6 @@ class PrivateChatMessage extends Panel {
             <div className={chatStyle.comment} style={{margin: "8px 16px", backgroundColor: "#eee",}}>
                 <UserHandle userId={this.message.userId} className={chatStyle.userHandle} />
                 <span className={chatStyle.timestamp}>{this.message.getTimeOfDay()}</span>
-                {editButton}
                 {errorElement}
                 <div className={chatStyle.commentContent}>
                     {this.contentSwitcher}
@@ -296,6 +311,7 @@ class PrivateChatMessage extends Panel {
     }
 }
 
+
 class ChatMessageScrollSection extends InfiniteScrollable {
     setOptions(options) {
         options = Object.assign({
@@ -310,6 +326,7 @@ class ChatMessageScrollSection extends InfiniteScrollable {
         return this.children[1];
     }
 }
+
 
 let ChatWidget = (ChatMessageClass) => {
     return class ChatWidget extends Pluginable(Panel) {
@@ -537,12 +554,18 @@ let ChatWidget = (ChatMessageClass) => {
                              ref="chatInput" style={{height: "100%"}}
                              placeholder="Type a message..."
                              className={chatStyle.chatInput} />
-                <UI.Button ref="sendMessageButton"
-                           faIcon="paper-plane"
-                           disabled={this.messageThread.muted}
-                           level={UI.Level.PRIMARY}
-                           onClick={() => this.sendMessage()}
-                           className={chatStyle.sendMessageButton} />
+                <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
+                    <UI.Button ref="sendMessageButton"
+                               faIcon="paper-plane"
+                               disabled={this.messageThread.muted}
+                               onClick={() => this.sendMessage()}
+                               className={chatStyle.messageBoxButton} />
+                    <PreviewMarkupButton ref="previewMessageButton"
+                                   getValue={() => {return this.chatInput.getValue();}}
+                                   setValue={(value) => {this.chatInput.setValue(value);this.chatInput.node.focus();}}
+                                   className={chatStyle.messageBoxButton}
+                                   faIcon="eye" />
+                </div>
             </div>;
         }
 
@@ -599,7 +622,6 @@ let ChatWidget = (ChatMessageClass) => {
                         this.messageWindow.scrollToBottom();
                     }, 0);
                 }
-
             });
 
             this.addResizeListeners();
@@ -653,23 +675,8 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
                                       ref="messageWindow"
                                       entryRenderer={this.options.renderMessage}
                                       entries={this.messageThread.getMessages()}
-                                      staticTop={loadMoreButton} />
+                                      staticTop={loadMoreButton}/>
         ];
-    }
-
-    renderMessageBox() {
-        return <div ref="writingSection" className={chatStyle.renderMessage} style={{flex: "1"}}>
-            <UI.TextArea readOnly={this.messageThread.muted}
-                         ref="chatInput" style={{height: "100%"}}
-                         placeholder="Type a message..."
-                         className={chatStyle.chatInput} />
-            <UI.Button ref="sendMessageButton"
-                       faIcon="paper-plane"
-                       disabled={this.messageThread.muted}
-                       level={UI.Level.PRIMARY}
-                       onClick={() => this.sendMessage()}
-                       className={chatStyle.sendMessageButton} />
-        </div>;
     }
 
     render() {
@@ -738,7 +745,7 @@ class VotableGroupChatWidget extends ChatWidget(VotableChatMessage) {
     }
 }
 
-export {ChatWidget,
+export {ChatWidget, EditableMessage,
     GroupChatWidget, PrivateChatWidget, VotableGroupChatWidget,
     GroupChatMessage, PrivateChatMessage, VotableChatMessage,
     PreviewMarkupButton, ChatMessageScrollSection};

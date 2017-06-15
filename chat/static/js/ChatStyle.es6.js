@@ -63,14 +63,9 @@ class ChatStyle extends StyleSet {
     };
 
     @styleRule
-    sendMessageButton = {
-        height: "50px",
-        lineHeight: "50px",
+    messageBoxButton = {
         textAlign: "center",
-        width: "50px",
-        display: "inline-block",
-        float: "left",
-        borderRadius: "100%",
+        flex: "1",
         backgroundColor: "#fff",
         fontFamily: this.fontFamily,
         border: "0",
