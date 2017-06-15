@@ -64,7 +64,8 @@ class ThreadIntervalHandler(ThreadHandler):
             try:
                 last_start_time = time.time()
                 self.is_working = True
-                self.worker(*args, **kwargs)
+                if self.worker(*args, **kwargs):
+                    self.terminate = True
             except Exception as e:
                 current_time = time.time()
                 error_message = self.get_error_message(e)
