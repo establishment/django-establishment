@@ -27,16 +27,16 @@ class PreviewMarkupButton extends Button {
     onMount() {
         super.onMount();
         this.addClickListener(() => {
-            if (!this.markupEditorModal) {
-                this.markupEditorModal = <MarkupEditorModal
-                    classMap={ChatMarkupRenderer.classMap}
-                    showCallback={() => {this.markupEditorModal.markupEditor.setValue(this.options.getValue());
-                                         this.markupEditorModal.markupEditor.codeEditor.getAce().focus();}}
-                    hideCallback={() => {this.options.setValue(this.markupEditorModal.markupEditor.getValue());}}
-                />;
-                this.markupEditorModal.mount(document.body);
-            }
-            this.markupEditorModal.show();
+            MarkupEditorModal.show({
+                classMap: ChatMarkupRenderer.classMap,
+                showCallback: (modal) => {
+                    modal.markupEditor.setValue(this.options.getValue());
+                    modal.markupEditor.codeEditor.getAce().focus();
+                },
+                hideCallback: (modal) => {
+                    this.options.setValue(modal.markupEditor.getValue());
+                }
+            });
         });
     }
 }

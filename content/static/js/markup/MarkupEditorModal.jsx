@@ -81,14 +81,14 @@ class MarkupEditorModal extends Modal {
     hide() {
         super.hide();
         if(this.options.hideCallback) {
-            this.options.hideCallback();
+            this.options.hideCallback(this);
         }
     }
 
     show() {
         super.show();
         if (this.options.showCallback) {
-            this.options.showCallback();
+            this.options.showCallback(this);
         }
     }
 
