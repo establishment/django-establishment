@@ -39,7 +39,7 @@ class StreamObjectMixin(models.Model):
         return cls._meta.db_table
 
     @classmethod
-    def should_include_field(cls, meta_field, include, exclude, include_many_to_many):
+    def should_include_field(cls, meta_field, include = None, exclude = None, include_many_to_many = False):
         # check if this should be there or it shouldn't be
         try:
             name = meta_field.attname
@@ -88,7 +88,7 @@ class StreamObjectMixin(models.Model):
     @classmethod
     def get_meta_key(cls, meta_field, rename):
         # check if meta_field's a ManyToMany so we can change 'tests' to 'test_ids' for example
-        name = meta_field.attname
+        name = meta_field.name
         if type(meta_field.remote_field) is ManyToManyRel:
             name = name[:-1]
             name += "_ids"
@@ -105,15 +105,56 @@ class StreamObjectMixin(models.Model):
             return getattr(obj, meta_field.attname)
 
     @classmethod
-    def set_value(cls, obj, meta_field, value):
+    def set_value(cls, obj, meta_field, json_value):
         if type(meta_field.remote_field) is ManyToManyRel:
             raise RuntimeError("Implement")
-        internal_type = meta_field.db_type(django.db.connection)
-        if internal_type != "text" and internal_type != "varchar":
-            value = json.loads(value)
 
-        setattr(obj, meta_field.attname, value)
-        return True
+        # returns true if the field was modified
+        if meta_field.name == "id":
+            return False
+
+        # a meta_field is concrete if it was defined in the model (it's not related to the model)
+        if not meta_field.concrete:
+            return False
+
+        if meta_field.remote_field:
+            # check if we should change the id
+            new_id = int(json_value)
+            my_id = getattr(obj, meta_field.name + "_id")
+
+            if my_id == new_id:
+                return False
+
+            # TODO - here change the id, somehow.
+            #   maybe just set field_id to the new id and it will be ok
+            return False
+
+        internal_type = str(meta_field.get_internal_type())
+        if internal_type == "DateTimeField":
+            # TODO - it seems that when converting the unix time to datetime. it will always see that they're different
+            #   maybe do not use == when comparing to see if the object needs an update
+            #   also, maybe this might help
+            # RuntimeWarning: DateTimeField Contest.start_date received a naive datetime (2017-05-09 12:00:00) while time zone support is active
+
+            new_value = datetime.datetime.fromtimestamp(float(json_value))
+        elif internal_type == "BooleanField":
+            # TODO fix this - in the request is true/false not True/False so to_python fails. Expects True/False/1/0
+            if json_value == "true":
+                new_value = True
+            elif json_value == "false":
+                new_value = False
+            else:
+                new_value = meta_field.to_python(json_value)
+        else:
+            new_value = meta_field.to_python(json_value)
+
+        # check if an update is really needed
+        current_value = getattr(obj, meta_field.name)
+        if current_value != new_value:
+            setattr(obj, meta_field.name, new_value)
+            return True
+
+        return False
 
     def meta_to_json(self, include_many_to_many=False, rename=None, exclude=None, include=None, exclude_none=True):
         json_obj = dict()
@@ -155,7 +196,12 @@ class StreamObjectMixin(models.Model):
     def update_field_from_json_dict(self, meta_field, json_dict, rename=None):
         key = self.get_meta_key(meta_field, rename)
         if key in json_dict:
-            return self.set_value(self, meta_field, json_dict[key])
+            old_value = getattr(self, meta_field.name)  # debug purpose
+            if self.set_value(self, meta_field, json_dict[key]):
+                new_value = getattr(self, meta_field.name)  # debug purpose
+                print("edited ", meta_field.name, 'old value:', old_value, "new value:", new_value)  # debug purpose
+                return True
+
         return False
 
     def update_from_json_dict(self, json_dict, rename=None):
@@ -163,13 +209,16 @@ class StreamObjectMixin(models.Model):
 
         for meta_field in self._meta.get_fields():
             if self.update_field_from_json_dict(meta_field, json_dict, rename):
-                key = self.get_meta_key(meta_field, rename)
+                # key = self.get_meta_key(meta_field, rename)
+                key = meta_field.name  # I think it's better to return the fields that were updated (in undersore case)
                 updated_fields.append(key)
 
         return updated_fields
 
     @classmethod
-    def get_object_from_edit_request(cls, request):
+    def get_object_from_edit_request(cls, request, rename=None):
+        if rename is not None and "id" in rename:
+            return cls.objects.get(id=request.POST[rename["id"]])
         return cls.objects.get(id=request.POST["id"])
 
     def can_be_edited_by_request(self, request):
@@ -181,12 +230,14 @@ class StreamObjectMixin(models.Model):
         return getattr(self, "owner_id", -1) == user.id
 
     @classmethod
-    def edit_from_request(cls, request):
-        obj = cls.get_object_from_edit_request(request)
+    def edit_from_request(cls, request, rename=None):
+        obj = cls.get_object_from_edit_request(request, rename)
         if not obj.can_be_edited_by_request(request):
             from establishment.errors.errors import BaseError
             raise BaseError.NOT_ALLOWED
-        updated_fields = obj.update_from_json_dict(request.POST)
+
+        updated_fields = obj.update_from_json_dict(request.POST, rename)
+
         if len(updated_fields):
             # TODO: have a better validation flow
             obj.full_clean()
@@ -240,59 +291,6 @@ class StreamObjectMixin(models.Model):
             return JSONResponse(state)
 
         return view_func
-
-    @classmethod
-    def update_object_from_json(cls, my_object, my_name, json_value, meta_field):
-        local_type = str(meta_field.get_internal_type())
-        # should remain string
-        if local_type in ["SlugField", "TextField"]:
-            value = json_value
-        # should be json.loads
-        elif local_type in ["BooleanField"]:
-            value = json.loads(json_value)
-        # should be casted to int
-        elif local_type in ["IntegerField"]:
-            value = int(json_value)
-        # datetime
-        elif local_type in ["DateTimeField"]:
-            value = datetime.datetime.fromtimestamp(int(json_value))
-        else:
-            raise Exception("Unknown apply type for ", local_type)
-
-        # print("Update my field:", my_name, " json value:", json_value, #" meta field:", vars(meta_field))
-        #         "Meta field type:", str(meta_field.get_internal_type()))
-
-        setattr(my_object, my_name, value)
-
-    @classmethod
-    def apply_json(cls, json_obj, rename=None):
-        id_name = rename["id"] or "id"
-        try:
-            my_id = int(json_obj[id_name])
-        except Exception as e:
-            raise e
-
-        try:
-            my_object = cls.objects.get(id=my_id)
-        except Exception as e:
-            raise e
-
-        # add all fields
-        for meta_field in my_object._meta.get_fields():
-            if not cls.should_include_field(meta_field, include=None, exclude=None, include_many_to_many=True):
-                continue
-
-            json_name = cls.get_meta_key(meta_field, rename)
-            my_name = meta_field.attname
-
-            # do not touch "id"
-            if my_name == "id":
-                continue
-
-            if json_name in json_obj:
-                cls.update_object_from_json(my_object, my_name, json_obj[json_name], meta_field)
-
-        return my_object
 
     def make_event(self, event_type, data, extra=None):
         event_dict = {
