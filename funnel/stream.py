@@ -86,14 +86,18 @@ class StreamObjectMixin(models.Model):
         return to_camel_case(name)
 
     @classmethod
-    def get_meta_key(cls, meta_field, rename):
-        # check if meta_field's a ManyToMany so we can change 'tests' to 'test_ids' for example
+    def get_object_key_from_meta_field(cls, meta_field):
         name = meta_field.name
         if type(meta_field.remote_field) is ManyToManyRel:
             name = name[:-1]
             name += "_ids"
+        elif meta_field.remote_field:
+            name += "_id"
+        return name
 
-        return cls.get_key_name(name, rename)
+    @classmethod
+    def get_meta_key(cls, meta_field, rename):
+        return cls.get_key_name(cls.get_object_key_from_meta_field(meta_field), rename)
 
     @classmethod
     def get_value(cls, obj, meta_field):
@@ -105,29 +109,29 @@ class StreamObjectMixin(models.Model):
             return getattr(obj, meta_field.attname)
 
     @classmethod
+    # returns True if the field was modified
     def set_value(cls, obj, meta_field, json_value):
-        if type(meta_field.remote_field) is ManyToManyRel:
-            raise RuntimeError("Implement")
-
-        # returns true if the field was modified
-        if meta_field.name == "id":
+        field_name = cls.get_object_key_from_meta_field(meta_field)
+        if field_name == "id":
             return False
 
         # a meta_field is concrete if it was defined in the model (it's not related to the model)
         if not meta_field.concrete:
-            return False
+            raise RuntimeError("Implement")
+
+        if type(meta_field.remote_field) is ManyToManyRel:
+            raise RuntimeError("Implement")
 
         if meta_field.remote_field:
             # check if we should change the id
             new_id = int(json_value)
-            my_id = getattr(obj, meta_field.name + "_id")
+            my_id = getattr(obj, field_name)
 
             if my_id == new_id:
                 return False
 
-            # TODO - here change the id, somehow.
-            #   maybe just set field_id to the new id and it will be ok
-            return False
+            setattr(obj, field_name, new_id)
+            return True
 
         internal_type = str(meta_field.get_internal_type())
         if internal_type == "DateTimeField":
@@ -149,9 +153,9 @@ class StreamObjectMixin(models.Model):
             new_value = meta_field.to_python(json_value)
 
         # check if an update is really needed
-        current_value = getattr(obj, meta_field.name)
+        current_value = getattr(obj, field_name)
         if current_value != new_value:
-            setattr(obj, meta_field.name, new_value)
+            setattr(obj, field_name, new_value)
             return True
 
         return False
@@ -209,8 +213,7 @@ class StreamObjectMixin(models.Model):
 
         for meta_field in self._meta.get_fields():
             if self.update_field_from_json_dict(meta_field, json_dict, rename):
-                # key = self.get_meta_key(meta_field, rename)
-                key = meta_field.name  # I think it's better to return the fields that were updated (in undersore case)
+                key = self.get_object_key_from_meta_field(meta_field)
                 updated_fields.append(key)
 
         return updated_fields
