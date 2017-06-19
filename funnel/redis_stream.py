@@ -30,23 +30,6 @@ def redis_response_to_json(data):
     return None
 
 
-def redis_response_to_bool(data):
-    if data is None:
-        return False
-    elif data.lower() == "true":
-        return True
-    return False
-
-
-def redis_response_to_int(data):
-    if data is None:
-        return None
-    try:
-        return int(data)
-    except ValueError:
-        return 0
-
-
 def get_default_redis_connection_pool():
     global redis_connection_pool
     if redis_connection_pool is None:
@@ -229,9 +212,7 @@ class RedisMutex(object):
             return
         cls.keep_alive_thread = ThreadIntervalHandler("RedisMutex.KeepAlive", cls.keep_alive_thread_worker, 10)
 
-    def __init__(self, mutex_name, connection=None, expire=30, owner_id=None):
-        if not owner_id:
-            owner_id = "default_id"
+    def __init__(self, mutex_name, connection=None, expire=30, owner_id="default_id"):
         self.owner_id = owner_id
         self.mutex_name = mutex_name
         if not connection:
@@ -285,59 +266,58 @@ class RedisMutex(object):
 
 
 class RedisScheduledJob(object):
-    @classmethod
-    def get_timestamp(cls):
-        return int(time.time() * 1000)
-
-    def __init__(self, name, connection=None, time_interval=1000):
+    def __init__(self, name, connection=None, time_interval=1):
         if not connection:
             connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
         self.redis_connection = connection
         self.name = name
         self.redis_mutex_name = "scheduled-job." + self.name
         self.redis_job_data_key = "scheduled-job." + self.name + ".job_data"
-        self.redis_timestamp_key = "scheduled-job." + self.name + ".timestamp"
-        self.redis_time_interval_key = "scheduler-job." + self.name + ".time_interval"
         self.redis_mutex = RedisMutex(self.redis_mutex_name, connection=connection)
         self.redis_job_data = {}
         self.redis_timestamp = None
-        self.redis_time_interval = None
+        self.redis_time_interval = time_interval
+        self.job_data = None
         self.time_interval = time_interval
         self.job_start_timestamp = 0
         self.acquired = False
         self.acquire_fail_code = 0
 
-    def get_field_job_data(self):
+    def get_data(self):
+        self.redis_timestamp = None
+        self.redis_time_interval = None
+        self.job_data = None
         self.redis_job_data = redis_response_to_json(self.redis_connection.get(self.redis_job_data_key))
         if self.redis_job_data is None:
-            self.redis_job_data = {}
+            return
+        if "data" in self.redis_job_data:
+            self.job_data = self.redis_job_data["data"]
+        if "timestamp" in self.redis_job_data:
+            self.redis_timestamp = float(self.redis_job_data["timestamp"])
+        if "timeInterval" in self.redis_job_data:
+            self.redis_time_interval = float(self.redis_job_data["timeInterval"])
 
-    def get_field_timestamp(self):
-        self.redis_timestamp = redis_response_to_int(self.redis_connection.get(self.redis_timestamp_key))
-
-    def get_field_time_interval(self):
-        self.redis_time_interval = redis_response_to_int(self.redis_connection.get(self.redis_time_interval_key))
-
-    def set_field_job_data(self):
+    def set_data(self):
+        self.redis_job_data = {
+            "data": self.job_data,
+            "timestamp": self.redis_timestamp,
+            "timeInterval": self.redis_time_interval
+        }
         self.redis_connection.set(self.redis_job_data_key, json.dumps(self.redis_job_data))
 
-    def set_field_timestamp(self):
-        self.redis_connection.set(self.redis_timestamp_key, str(self.redis_timestamp))
-
-    def set_field_time_interval(self):
-        self.redis_connection.set(self.redis_time_interval_key, str(self.redis_time_interval))
-
+    # TODO: consider moving this logic into a more general form when the time comes (duplicate logic).
+    # Not the same as ThreadIntervalHandler which uses datetime not time. Maybe this should use datetime as well?
     def recalculate_next_job_timestamp(self):
         if self.redis_time_interval is None or self.redis_time_interval <= 0:
             self.redis_time_interval = self.time_interval
-        current_timestamp = RedisScheduledJob.get_timestamp()
+        current_timestamp = time.time()
         diff = current_timestamp - self.redis_timestamp
         count = int(diff / self.redis_time_interval)
-        if diff % self.redis_time_interval > 0:
-            count += 1
         if count == 0:
             count = 1
         self.redis_timestamp += self.redis_time_interval * count
+        if self.redis_timestamp <= current_timestamp:
+            self.redis_timestamp += self.redis_time_interval
 
     def try_acquire(self):
         self.acquire_fail_code = 0
@@ -346,16 +326,14 @@ class RedisScheduledJob(object):
         if not self.redis_mutex.try_acquire():
             self.acquire_fail_code = 1
             return False
-        self.get_field_timestamp()
-        current_timestamp = RedisScheduledJob.get_timestamp()
+        self.get_data()
+        current_timestamp = time.time()
         if self.redis_timestamp is None:
             self.redis_timestamp = current_timestamp
         if current_timestamp < self.redis_timestamp:
             self.acquire_fail_code = 2
             return False
         self.job_start_timestamp = current_timestamp
-        self.get_field_job_data()
-        self.get_field_time_interval()
         self.acquired = True
         return True
 
@@ -363,15 +341,17 @@ class RedisScheduledJob(object):
         if not self.acquired:
             return
         self.recalculate_next_job_timestamp()
-        self.set_field_time_interval()
-        self.set_field_timestamp()
-        self.set_field_job_data()
+        self.set_data()
         self.redis_mutex.release()
         self.acquired = False
 
     def acquire(self, interval=0.5):
         while not self.try_acquire():
             time.sleep(interval)
+
+    def create(self):
+        self.acquire()
+        self.release()
 
     def __enter__(self):
         self.acquire()
