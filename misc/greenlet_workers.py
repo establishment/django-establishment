@@ -4,7 +4,7 @@ import logging
 
 from establishment.misc.threading_helper import ThreadHandler
 from establishment.funnel.redis_stream import RedisStreamPublisher, RedisStreamSubscriber, RedisQueue, \
-    redis_string_to_json
+    redis_response_to_json
 
 
 class GreenletWorker(gevent.Greenlet):
@@ -102,7 +102,7 @@ class GreenletRedisQueueListener(GreenletQueueWorker):
                 self.activate_bulk_retrieval = True
             jobs = [job]
         for job in jobs:
-            job = redis_string_to_json(job)
+            job = redis_response_to_json(job)
             if job:
                 self.job_queue.put(job)
 
@@ -124,7 +124,7 @@ class GreenletRedisStreamListener(GreenletQueueWorker):
     def tick(self):
         message, stream_name = self.redis_stream_subscriber.next_message()
 
-        message = redis_string_to_json(message)
+        message = redis_response_to_json(message)
         if message:
             self.job_queue.put(message)
 

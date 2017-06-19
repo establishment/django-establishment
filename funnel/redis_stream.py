@@ -29,12 +29,14 @@ def redis_response_to_json(data):
         print("Failed to parse Redis string to json " + str(data))
     return None
 
+
 def redis_response_to_bool(data):
     if data is None:
         return False
     elif data.lower() == "true":
         return True
     return False
+
 
 def redis_response_to_int(data):
     if data is None:
@@ -43,6 +45,7 @@ def redis_response_to_int(data):
         return int(data)
     except ValueError:
         return 0
+
 
 def get_default_redis_connection_pool():
     global redis_connection_pool
