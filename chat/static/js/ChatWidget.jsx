@@ -551,10 +551,10 @@ let ChatWidget = (ChatMessageClass) => {
         renderMessageBox() {
             return <div ref="writingSection" className={chatStyle.renderMessage} style={{flex: "1"}}>
                 <UI.TextArea readOnly={this.messageThread.muted}
-                             ref="chatInput" style={{height: "100%"}}
+                             ref="chatInput"
                              placeholder="Type a message..."
                              className={chatStyle.chatInput} />
-                <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
+                <div style={{display: "flex", flexDirection: "column", height: "100%", position: "absolute", right: "0px", width: "50px"}}>
                     <UI.Button ref="sendMessageButton"
                                faIcon="paper-plane"
                                disabled={this.messageThread.muted}
@@ -647,7 +647,6 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
         attr.setStyle({
             display: "flex",
             flexDirection: "column",
-            position: "relative",
             overflowY: "hidden",
         });
     }

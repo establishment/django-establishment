@@ -32,6 +32,7 @@ class ChatStyle extends StyleSet {
         width: "100%",
         borderTop: "1px solid " + this.hrBackgroundColor,
         backgroundColor: this.backgroundColor,
+        position: "relative",
     };
 
     @styleRule
@@ -52,6 +53,7 @@ class ChatStyle extends StyleSet {
         display: "inline-block",
         float: "left",
         outline: "none",
+        position: "absolute",
         ":focus": {
             outline: "none",
             boxShadow: "none",
@@ -90,6 +92,10 @@ class ChatStyle extends StyleSet {
             outline: "none",
         },
         ":focus:active": {
+            backgroundColor: "transparent",
+            color: "#2089b5",
+        },
+        ":hover:active": {
             backgroundColor: "transparent",
             color: "#2089b5",
         },
