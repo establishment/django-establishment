@@ -86,7 +86,7 @@ class BlogEntryEditModal extends UI.Modal {
                 console.log("Changed entry settings!", data);
 
                 if (data.urlName) {
-                    Router.changeURL(["blog", data.urlName]);
+                    Dispatcher.Global.dispatch("changeURL", "/blog/" + data.urlName + "/");
                 }
                 this.hide();
             },
@@ -237,13 +237,13 @@ class BlogEntryPreview extends UI.Element {
         };
 
         if (this.article.dateModified > this.article.dateCreated) {
-            modifiedFormat = <p style={articleInfoStyle}>Last update on {StemDate.unix(this.article.dateModified).format("LL")}.</p>
+            modifiedFormat = <p style={articleInfoStyle}>{UI.T("Last update on")} {StemDate.unix(this.article.dateModified).format("LL")}.</p>
         }
 
         return [
             <div style={{height: "100%",}}>
             <div style={{boxShadow: "0px 0px 10px rgb(160, 162, 168)", "background-color": "#fff", "padding": "1% 4% 10px 4%", "margin": "0 auto", "width": "900px", "max-width": "100%", position: "relative"}}> <div style={blogStyle.writtenBy}>
-                Written by <UserHandle userId={this.article.userCreatedId}/> on {publishedFormat}.{modifiedFormat}
+                {UI.T("Written by")} <UserHandle userId={this.article.userCreatedId}/>, {publishedFormat}.{modifiedFormat}
               </div>
               <div style={blogStyle.title}>
                 <Link href={this.options.urlPrefix + this.entry.urlName + "/"} value={this.article.name}
@@ -251,7 +251,7 @@ class BlogEntryPreview extends UI.Element {
               </div>
               <BlogArticleRenderer article={this.article} style={blogStyle.blogArticleRenderer}/>
               <div className={blogStyle.whiteOverlay}></div>
-              <Link href={this.options.urlPrefix + this.entry.urlName + "/"} style={blogStyle.link} value="Continue reading" />
+              <Link href={this.options.urlPrefix + this.entry.urlName + "/"} style={blogStyle.link} value={UI.T("Continue reading")} />
             </div>
             </div>
         ];
@@ -551,7 +551,7 @@ class DelayedBlogPanel extends StateDependentElement(BlogPanel) {
                     }
                 }
             } catch (e) {
-                this.getSubrouter().setState([]);
+                this.getUrlRouter().setState([]);
             }
         };
 
