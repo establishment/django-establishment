@@ -7,7 +7,6 @@ import {Dispatcher} from "Dispatcher";
 import {URLRouter} from "URLRouter";
 import {FileSaver} from "FileSaver";
 import {Ajax} from "Ajax";
-import {StateDependentElement} from "StateDependentElement";
 
 function ajaxCall(request, successOperation, failOperation) {
     Ajax.postJSON("/edit_translation/", request).then(
@@ -674,10 +673,4 @@ class TranslationManager extends UI.Panel {
     }
 }
 
-class DelayedTranslationManager extends StateDependentElement(TranslationManager) {
-    getAjaxUrl() {
-        return "/manage/translation/";
-    }
-}
-
-export {TranslationManager, DelayedTranslationManager};
+export {TranslationManager};

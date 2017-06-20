@@ -497,10 +497,6 @@ class DelayedBlogPanel extends StateDependentElement(BlogPanel) {
         }
     }
 
-    getAjaxUrl() {
-        return "/blog/";
-    }
-
     importState(data) {
         super.importState(data);
         this.options.finishedLoading = data.finishedLoading;

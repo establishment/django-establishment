@@ -414,10 +414,6 @@ class DelayedForumWidget extends StateDependentElement(ForumWidget) {
         }
     }
 
-    getAjaxUrl() {
-        return "/" + this.options.args.join("/") + "/";
-    }
-
     addForumThread(forumThread) {
         let forumThreadPanel = <ForumThreadPanelWithUrl key={forumThread.id} forumThread={forumThread} forumWidget={this} />;
         this.forumThreadMap.set(forumThread.id, forumThreadPanel);

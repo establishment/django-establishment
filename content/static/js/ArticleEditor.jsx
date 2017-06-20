@@ -6,7 +6,7 @@ import {ArticleRenderer} from "ArticleRenderer";
 import {ArticleStore} from "ArticleStore";
 import {Language} from "LanguageStore";
 import {TranslationManager} from "ArticleManager";
-import {StateDependentElement} from "StateDependentElement";
+import {Router} from "Router";
 const deleteRedirectLink = "/";
 
 //TODO (@kira) : 4. fix line wrapping 5.Fix diffing svg gutter bug 7.Collapse button in section Divider maybe?
@@ -103,19 +103,22 @@ class DeleteArticleModal extends ActionModal {
 class ArticleEditor extends Panel {
     setOptions(options) {
         super.setOptions(options);
-        this.options.article = ArticleStore.get(this.options.articleId);
-        if (!this.options.article) {
-            return;
-        }
 
+    }
+
+    getArticle() {
+        return ArticleStore.get(this.options.articleId);
+    }
+
+    initializeVersioning() {
         if (ArticleEditor.DiffWidgetClass) {
             this.versions = [];
             this.versionsLabels = [];
-            for (let article of this.options.article.getEdits()) {
+            for (let article of this.getArticle().getEdits()) {
                 this.versions.push(article.content);
                 this.versionsLabels.push("Version " + article.id);
             }
-            this.versions.push(this.options.article.markup);
+            this.versions.push(this.getArticle().markup);
             this.versionsLabels.push("Edit version");
             this.versions.reverse();
             this.versionsLabels.reverse();
@@ -128,23 +131,26 @@ class ArticleEditor extends Panel {
     extraNodeAttributes(attr) {
         super.extraNodeAttributes(attr);
         attr.setStyle({
-            height: "100%",
             display: "flex",
             flexDirection: "column",
+            height: "calc(100vh - 80px)",
+            marginLeft: "10%",
+            marginRight: "10%",
         });
     }
 
     render() {
+        this.initializeVersioning();
         let translationsPanel = null;
         let baseArticleForm = null;
-        if (this.options.article.baseArticleId) {
+        if (this.getArticle().baseArticleId) {
             baseArticleForm = <UI.FormField ref="baseArticleFormField" label="Base article">
-                <Link href={"/article/" + this.options.article.baseArticleId + "/edit/"} value="Go to base article" />
+                <Link href={"/article/" + this.getArticle().baseArticleId + "/edit/"} value="Go to base article" />
             </UI.FormField>;
         } else {
             translationsPanel = <UI.Panel title="Translations">
-                <TranslationManager title={"Translations for " + this.options.article.name}
-                                    baseArticle={this.options.article}/>
+                <TranslationManager title={"Translations for " + this.getArticle().name}
+                                    baseArticle={this.getArticle()}/>
             </UI.Panel>
         }
         let ownershipPanel = null;
@@ -152,7 +158,7 @@ class ArticleEditor extends Panel {
             ownershipPanel = <UI.Panel title="Ownership">
                 <UI.Form style={{marginTop: "10px"}}>
                     <UI.FormField ref="ownerFormField" label="Author ID">
-                        <UI.TextInput ref="ownerFormInput"  value={this.options.article.userCreatedId}/>
+                        <UI.TextInput ref="ownerFormInput"  value={this.getArticle().userCreatedId}/>
                     </UI.FormField>
                 </UI.Form>
                 <UI.AjaxButton ref="setOwnerButton" level={UI.Level.INFO} onClick={() => {
@@ -180,7 +186,7 @@ class ArticleEditor extends Panel {
         }
 
         return [
-            <h3>{this.options.article.name + " Id=" + this.options.article.id}</h3>,
+            <h3>{this.getArticle().name + " Id=" + this.options.articleId}</h3>,
                 <TabArea ref="tabArea" variableHeightPanels style={{flex: "1", height: "100%", display: "flex", flexDirection: "column"}}>
                 <UI.Panel title="Edit" active style={{height: "100%", overflow: "hidden"}}>
                     <UI.AjaxButton ref="saveMarkupButton" level={UI.Level.INFO} onClick={() => {
@@ -191,24 +197,24 @@ class ArticleEditor extends Panel {
                         />
                     <UI.TemporaryMessageArea ref="saveMarkupMessageArea"/>
                     <ArticleMarkupEditor style={{height: "100%", marginTop: "-31px", display: "flex", flexDirection: "column"}}
-                                         ref="markupEditor" article={this.options.article} />
+                                         ref="markupEditor" article={this.getArticle()} />
                 </UI.Panel>
                 {revisionsPanel}
                 <UI.Panel title="Summary">
                     <UI.Form style={{marginTop: "10px"}}>
                         <UI.FormField ref="articleNameFormField" label="Article name">
-                            <UI.TextInput ref="articleNameFormInput"  value={this.options.article.name}/>
+                            <UI.TextInput ref="articleNameFormInput"  value={this.getArticle().name}/>
                         </UI.FormField>
                         <UI.FormField ref="dependencyFormField" label="Dependencies">
-                            <UI.TextInput ref="dependencyFormInput" value={this.options.article.dependency}/>
+                            <UI.TextInput ref="dependencyFormInput" value={this.getArticle().dependency}/>
                         </UI.FormField>
                         {baseArticleForm}
                         <UI.FormField ref="languageFormField" label="Language">
                             <UI.Select ref="languageSelect" options={Language.all()}
-                                       selected={Language.get(this.options.article.languageId)}/>
+                                       selected={Language.get(this.getArticle().languageId)}/>
                         </UI.FormField>
                         <UI.FormField ref="publicFormField" label="Public">
-                            <UI.CheckboxInput ref="publicCheckbox" checked={this.options.article.isPublic}/>
+                            <UI.CheckboxInput ref="publicCheckbox" checked={this.getArticle().isPublic}/>
                         </UI.FormField>
                     </UI.Form>
                     <UI.AjaxButton ref="saveOptionsButton" level={UI.Level.INFO} onClick={() => {
@@ -245,7 +251,7 @@ class ArticleEditor extends Panel {
         this.saveMarkupMessageArea.showMessage("Saving...", "black", null);
 
         this.saveMarkupButton.ajaxCall({
-            url: "/article/" + this.options.article.id + "/edit/",
+            url: "/article/" + this.options.articleId + "/edit/",
             type: "POST",
             dataType: "json",
             data: request,
@@ -271,7 +277,7 @@ class ArticleEditor extends Panel {
         this.saveOptionsMessageArea.showMessage("Saving...", "black", null);
 
         this.saveOptionsButton.ajaxCall({
-            url: "/article/" + this.options.article.id + "/edit/",
+            url: "/article/" + this.options.articleId + "/edit/",
             type: "POST",
             dataType: "json",
             data: request,
@@ -282,7 +288,7 @@ class ArticleEditor extends Panel {
                 } else {
                     console.log("Successfully saved article", data);
                     this.saveOptionsMessageArea.showMessage("Successfully saved article");
-                    window.location.replace("/article/" + this.options.article.id + "/edit/");
+                    window.location.replace("/article/" + this.options.articleId + "/edit/");
                 }
             },
             error: (xhr, errmsg, err) => {
@@ -300,7 +306,7 @@ class ArticleEditor extends Panel {
         this.setOwnerMessageArea.showMessage("Saving...", "black", null);
 
         this.setOwnerButton.ajaxCall({
-            url: "/article/" + this.options.article.id + "/set_owner/",
+            url: "/article/" + this.options.articleId + "/set_owner/",
             type: "POST",
             dataType: "json",
             data: request,
@@ -348,7 +354,7 @@ class ArticleEditor extends Panel {
     }
 
     onMount() {
-        this.deleteArticleModal = <DeleteArticleModal article={this.options.article}/>;
+        this.deleteArticleModal = <DeleteArticleModal article={this.getArticle()}/>;
 
         if (ArticleEditor.DiffWidgetClass) {
             this.tabArea.titleArea.children[1].addClickListener(() => {
@@ -388,25 +394,4 @@ class ArticleEditor extends Panel {
     }
 }
 
-class DelayedArticleEditor extends StateDependentElement(ArticleEditor) {
-    extraNodeAttributes(attr) {
-        super.extraNodeAttributes(attr);
-        attr.setStyle({
-            height: "calc(100vh - 80px)",
-            marginLeft: "10%",
-            marginRight: "10%",
-        });
-    }
-
-    getAjaxUrl() {
-        return "/" + this.options.args.join("/") + "/";
-    }
-
-    importState(data) {
-        super.importState(data);
-        this.options.articleId = data.articleId;
-        this.setOptions(this.options);
-    }
-}
-
-export {ArticleEditor, DelayedArticleEditor};
+export {ArticleEditor};

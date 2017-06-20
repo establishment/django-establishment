@@ -2,12 +2,19 @@ import {UI} from "UI";
 import {TabArea} from "TabArea";
 import {URLRouter} from "URLRouter";
 import {GlobalState} from "State";
-import {StateDependentElement} from "StateDependentElement";
 import {EmailGatewayWidget} from "EmailGatewayWidget";
 import {EmailCampaignWidget} from "EmailCampaignWidget";
 import {EmailTemplateWidget} from "EmailTemplateWidget";
 
 class EmailManager extends UI.Panel {
+    extraNodeAttributes(attr) {
+        attr.setStyle({
+            marginLeft: "10%",
+            marginRight: "10%",
+            marginTop: "20px",
+        });
+    }
+
     render() {
         return [
             <TabArea ref="tabArea" variableHeightPanels >
@@ -38,24 +45,4 @@ class EmailManager extends UI.Panel {
     }
 }
 
-class DelayedEmailManager extends StateDependentElement(EmailManager) {
-    extraNodeAttributes(attr) {
-        super.extraNodeAttributes(attr);
-        attr.setStyle({
-            marginLeft: "10%",
-            marginRight: "10%",
-            marginTop: "20px",
-        });
-    }
-
-    getAjaxUrl() {
-        return location.pathname;
-    }
-
-    importState(data) {
-        super.importState(data);
-        this.options.confirmSuccess = data.confirmSuccess;
-    }
-}
-
-export {EmailManager, DelayedEmailManager};
+export {EmailManager};

@@ -2,7 +2,6 @@ import {UI, Select, Button, Table, ProgressBar, Modal, ActionModal, Form, FormFi
 import {FAIcon} from "FontAwesome";
 import {Ajax} from "Ajax";
 import {StemDate} from "Time";
-import {StateDependentElement} from "StateDependentElement";
 import {CommandInstanceStore, CommandRunStore} from "CommandStore";
 import {GlobalState} from "State";
 import {UserHandle} from "UserHandle";
@@ -282,10 +281,4 @@ class CommandManager extends UI.Element {
     }
 }
 
-class DelayedCommandManager extends StateDependentElement(CommandManager) {
-    getAjaxUrl() {
-        return "/baseconfig/command/manager/";
-    }
-}
-
-export {CommandManager, DelayedCommandManager};
+export {CommandManager};
