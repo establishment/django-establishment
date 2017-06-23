@@ -9,7 +9,7 @@ import {Ajax} from "Ajax";
 import {StemDate} from "Time";
 import {MessagesPanelListStyle} from "SocialNotificationsStyle";
 import {FAIcon} from "FontAwesome";
-import {Router, Route, TerminalRoute} from "CSARouter";
+import {Router, Route, TerminalRoute} from "Router";
 
 let messagesPanelListStyle = MessagesPanelListStyle.getInstance();
 
