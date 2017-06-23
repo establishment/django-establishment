@@ -5,13 +5,11 @@ import {UserNotificationStore} from "UserStore";
 import {UserHandle} from "UserHandle";
 import {PrivateChatWidget} from "ChatWidget";
 import {Dispatcher, Dispatchable} from "Dispatcher";
-import {URLRouter} from "URLRouter";
 import {Ajax} from "Ajax";
 import {StemDate} from "Time";
 import {MessagesPanelListStyle} from "SocialNotificationsStyle";
 import {FAIcon} from "FontAwesome";
-
-import {Router, Subrouter} from "Router";
+import {Router, Route, TerminalRoute} from "CSARouter";
 
 let messagesPanelListStyle = MessagesPanelListStyle.getInstance();
 
@@ -30,6 +28,10 @@ const formatMiniMessageLastTime = (timeStamp) => {
         return timeStamp.format(fullDateFormat);
     }
 };
+
+function getUserMessagesUrl(userId) {
+    return "/messages/" + userId + "/";
+}
 
 class MiniMessage extends UI.Element {
     constructor(options) {
@@ -413,36 +415,21 @@ class IconMessagesList extends MessagesList {
         ];
     }
 
-    getLink(userId) {
-        return "/messages/#" + userId;
-    }
-
     onMount() {
-        this.messagesList.addListener("unreadCountChanged", (value) => {
+        this.attachListener(this.messagesList, "unreadCountChanged", (value) => {
             this.dispatch("unreadCountChanged", value);
         });
-        this.messagesList.addListener("messageSelected", (event) => {
-            window.open(this.getLink(event.userId));
-        })
-    }
-}
-
-class IconMessagesListWithUrl extends IconMessagesList {
-    getLink(userId) {
-        return "/messages/" + userId + "/";
+        this.attachListener(this.messagesList, "messageSelected", (event) => {
+            window.open(getUserMessagesUrl(event.userId));
+        });
     }
 }
 
 class MessagesPanelList extends UI.Element {
-    constructor(options) {
-        super(options);
-        this.urlMiniMessageMap = new Map();
-    }
+    urlMiniMessageMap = new Map();
 
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
+    extraNodeAttributes(attr) {
         attr.addClass(messagesPanelListStyle.messagesPanelList);
-        return attr;
     }
 
     render() {
@@ -454,154 +441,68 @@ class MessagesPanelList extends UI.Element {
         ];
     }
 
-    setActiveMiniMessage(miniMessage) {
+    setActiveMiniMessage(userId) {
         if (this.activeMiniMessage) {
             this.activeMiniMessage.setActive(false);
+            delete this.activeMiniMessage;
         }
-        this.activeMiniMessage = miniMessage;
-        this.activeMiniMessage.setActive(true);
-    }
-
-    handleMiniMessage(miniMessage) {
-        let userId = parseInt(miniMessage.options.userId);
-        this.urlMiniMessageMap.set(userId, miniMessage);
-        if (userId === parseInt(URLRouter.getLocation().args[0])) {
-            setTimeout(() => {this.handleLocation(URLRouter.getLocation());}, 0);
+        let miniMessage = userId && this.urlMiniMessageMap.get(parseInt(userId));
+        if (miniMessage) {
+            this.activeMiniMessage = miniMessage;
+            this.activeMiniMessage.setActive(true);
         }
     }
 
     routeToUser(userId) {
-        URLRouter.route(userId);
-    }
-
-    initializeUrlHandling() {
-        this.handleLocation = (location) => {
-            if (!location)
-                return;
-            try {
-                let url = parseInt(location.args[0]);
-                let miniMessage = this.urlMiniMessageMap.get(url);
-                if(miniMessage) {
-                    this.setActiveMiniMessage(miniMessage);
-                    this.dispatch("userChanged", parseInt(url));
-                } else {
-                    this.dispatch("createUserChat", parseInt(url));
-                }
-            } catch (e) {
-                console.log("Failed to handle location. ", e);
-            }
-        };
-        URLRouter.addRouteListener(this.handleLocation);
+        Router.changeURL(getUserMessagesUrl(userId));
+        Router.Global.updateURL();
     }
 
     onMount() {
-        this.initializeUrlHandling();
-
-        this.messagesList.addListener("miniMessageCreated", (miniMessage) => {
-            this.handleMiniMessage(miniMessage);
-        });
         this.addListener("userChatCreated", () => {
             this.messagesList.refreshList();
         });
-        this.userSearchInput.addListener("userChosen", (userId) => {
-            this.dispatch("createUserChat", userId);
+        this.attachListener(this.messagesList, "miniMessageCreated", (miniMessage) => {
+            const userId = parseInt(miniMessage.options.userId);
+            this.urlMiniMessageMap.set(userId, miniMessage);
+        });
+        this.attachListener(this.userSearchInput, "userChosen", (userId) => {
+            this.dispatch("userChatCreated", userId);
             this.routeToUser(userId);
         });
-        this.messagesList.addListener("messageSelected", (event) => {
-            this.setActiveMiniMessage(event.miniMessage);
+        this.attachListener(this.messagesList, "messageSelected", (event) => {
+            this.setActiveMiniMessage(event.userId);
             this.dispatch("userChanged", event.userId);
             this.routeToUser(event.userId);
         });
     }
 }
 
-class RoutedMessagesPanelList  extends MessagesPanelList {
-    handleMiniMessage(miniMessage) {
-        let userId = parseInt(miniMessage.options.userId);
-        this.urlMiniMessageMap.set(userId, miniMessage);
-        if (userId === this.urlRouter.getState()[0]) {
-            setTimeout(() => {
-                this.urlRouter.dispatch("change");
-            }, 0);
-        }
-    }
-
-    routeToUser(userId) {
-        this.urlRouter.setState([userId]);
-    }
-
-    initializeUrlHandling() {
-        this.handleLocation = (urlState) => {
-            if (urlState.length === 0) {
-                return;
-            }
-            if (urlState.length === 1) {
-                let userId = parseInt(urlState[0]);
-                let miniMessage = this.urlMiniMessageMap.get(userId);
-                if (miniMessage) {
-                    this.setActiveMiniMessage(miniMessage);
-                    this.dispatch("userChanged", userId);
-                } else {
-                    this.dispatch("createUserChat", userId);
-                }
-            }
-            if (urlState.length > 1) {
-                this.urlRouter.setState([urlState[0]]);
-            }
-        };
-
-        setTimeout(() => {
-            this.urlRouter = new Subrouter(Router.Global.getCurrentRouter(),
-                                        [...Router.Global.getCurrentRouter().getPrefix(), ...Router.Global.getCurrentRouter().getState()],
-                                        this.options.subArgs);
-            Router.Global.registerSubrouter(this.urlRouter);
-
-            this.urlRouter.addChangeListener(this.handleLocation);
-            this.urlRouter.addExternalChangeListener(this.handleLocation);
-            this.urlRouter.dispatch("change", this.urlRouter.getState());
-        }, 0);
-    }
-}
-
-class DelayedPrivateChat extends UI.Element {
+class PrivateChatWidgetWrapper extends UI.Element {
     render() {
-        if (!this.options.userId) {
-            return <h3 style={{marginTop: "40px", textAlign: "center"}}>Click on a chat box to start a conversation.</h3>;
-        }
-        if (!this.ok) {
-            this.privateChat = PrivateChatStore.getChatWithUser(this.options.userId);
-            this.ok = true;
-        }
-        if (this.privateChat) {
+        const privateChat = PrivateChatStore.getChatWithUser(parseInt(this.options.userId));
+        if (privateChat) {
             let widgetStyle = {
                 marginLeft: "0px",
                 marginRight: "0px",
                 width: "100%",
                 paddingLeft: "0px !important",
                 paddingRight: "0px !important",
+                height: "100%"
             };
             if (this.options.style && this.options.style.height) {
                 widgetStyle.height = this.options.style.height;
             }
-            this.dispatch("userChatCreated");
-            return [<PrivateChatWidget ref="chat" style={widgetStyle} extraHeightOffset={75}
-                                       privateChat={this.privateChat} />];
-        } else {
-            PrivateChatStore.fetchForUser(this.options.userId, (privateChat) => {
-                this.privateChat = privateChat;
-                this.redraw();
-            });
-            return [<h3>Chat loading...</h3>, <span className="fa fa-spinner fa-spin"/>];
+            return <PrivateChatWidget ref="chat" style={widgetStyle} extraHeightOffset={75}
+                               privateChat={privateChat} />;
         }
-    }
-
-    changeToUser(userId) {
-        if (this.options.userId === userId) {
-            return;
-        }
-        this.options.userId = userId;
-        this.ok = false;
-        this.redraw();
+        PrivateChatStore.fetchForUser(this.options.userId, (privateChat) => {
+            this.updateOptions({ privateChat });
+        });
+        return [
+            <h3>Chat loading...</h3>,
+            <span className="fa fa-spinner fa-spin"/>
+        ];
     }
 
     setHeight(height) {
@@ -609,88 +510,74 @@ class DelayedPrivateChat extends UI.Element {
         this.chat.setHeight(height);
         this.chat.messageWindow.scrollToBottom();
     }
+}
 
-    onMount() {
-        this.addListener("userChatCreated", () => {
-            setTimeout(() => {
-                this.chat.messageWindow.scrollToBottom();
-            }, 0);
-        });
+class DelayedPrivateChat extends Router {
+    getNoChat() {
+        return <h3 style={{marginTop: "40px", textAlign: "center"}}>Click on a chat box to start a conversation.</h3>;
+    }
+
+    getRoutes() {
+        this.routes = this.routes || new Route(null, () => this.getNoChat(), [
+            new Route("%s", (options) => {
+                return <PrivateChatWidgetWrapper userId={parseInt(options.args[0])} />;
+            })
+        ]);
+        return this.routes;
     }
 }
 
-let BaseMessagesPanel = function(MessageListClass) {
-    return class MessagesPanel extends UI.Element {
-        extraNodeAttributes(attr) {
-            super.extraNodeAttributes(attr);
-            attr.setStyle({
-                border: "1px solid #ddd",
-                height: "calc(100vh - 50px)",
-                maxWidth: "1280px",
-                margin: "0 auto",
-                position: "relative",
-            });
-        }
-
-        render() {
-            return [
-                <div style={{display: "inline-flex", height: "100%", overflow: "hidden", position: "relative"}}>
-                    <MessageListClass ref="messagesPanelList" subArgs={this.options.subArgs}
-                                      style={{height: "100%", overflow: "auto", width: "250px",
-                                              borderRight: "1px solid #ddd", transition: "margin .7s ease"}} />
-                </div>,
-                <Button ref="collapseButton" size={UI.Size.SMALL} faIcon="chevron-left" level={UI.Level.DARK}
-                        style={{position: "absolute", top: "15px", left: "208px", zIndex: "2017", transition: "all .7s ease"}}/>,
-                <DelayedPrivateChat style={{display: "inline-block", flex: "1", width: "calc(100% - 260px)", height: "100%",
-                                         transition: "width .7s ease", verticalAlign: "top"}} ref="chatWidget"/>
-            ];
-        }
-
-        changeToUser(userId) {
-            this.chatWidget.changeToUser(userId);
-        }
-
-        onMount() {
-            this.messagesPanelList.addListener("userChanged", (userId) => {
-                this.changeToUser(userId);
-            });
-
-            this.messagesPanelList.addListener("createUserChat", (userId) => {
-                this.changeToUser(userId);
-                this.newUserInserted = true;
-                this.messagesPanelList.dispatch("userChatCreated");
-            });
-
-            this.chatWidget.addListener("userChatCreated", () => {
-                if (this.newUserInserted) {
-                    this.messagesPanelList.dispatch("userChatCreated");
-                    this.newUserInserted = false;
-                }
-            });
-            //TODO: use classes here
-            this.collapseButton.addClickListener(() => {
-                if (!this.collapsed) {
-                    this.messagesPanelList.setStyle("marginLeft", "-250px");
-                    this.collapseButton.setFaIcon("chevron-right");
-                    this.collapseButton.setStyle("left", "8px");
-                    this.collapseButton.setStyle("opacity", ".3");
-                    this.chatWidget.setWidth("100%");
-                    this.collapsed = true;
-                } else {
-                    this.messagesPanelList.setStyle("marginLeft", "0");
-                    this.collapseButton.setFaIcon("chevron-left");
-                    this.collapseButton.setStyle("left", "208px");
-                    this.collapseButton.setStyle("opacity", "1");
-                    this.chatWidget.setWidth("calc(100% - 250px)");
-                    this.collapsed = false;
-                }
-            })
-        }
+class MessagesPanel extends UI.Element {
+    extraNodeAttributes(attr) {
+        super.extraNodeAttributes(attr);
+        attr.setStyle({
+            border: "1px solid #ddd",
+            height: "calc(100vh - 50px)",
+            maxWidth: "1280px",
+            margin: "0 auto",
+            position: "relative",
+        });
     }
-};
 
-let MessagesPanel = BaseMessagesPanel(MessagesPanelList);
-let RoutedMessagesPanel = BaseMessagesPanel(RoutedMessagesPanelList);
+    setURL(urlParts) {
+        this.chatWidget.setURL(urlParts);
+    }
+
+    render() {
+        return [
+            <div style={{display: "inline-flex", height: "100%", overflow: "hidden", position: "relative"}}>
+                <MessagesPanelList ref="messagesPanelList"
+                                  style={{height: "100%", overflow: "auto", width: "250px",
+                                          borderRight: "1px solid #ddd", transition: "margin .7s ease"}} />
+            </div>,
+            <Button ref="collapseButton" size={UI.Size.SMALL} faIcon="chevron-left" level={UI.Level.DARK}
+                    style={{position: "absolute", top: "15px", left: "208px", zIndex: "2017", transition: "all .7s ease"}}/>,
+            <DelayedPrivateChat style={{display: "inline-block", flex: "1", width: "calc(100% - 260px)", height: "100%",
+                                     transition: "width .7s ease", verticalAlign: "top"}} ref="chatWidget"/>
+        ];
+    }
+
+    onMount() {
+        //TODO: use classes here
+        this.collapseButton.addClickListener(() => {
+            if (!this.collapsed) {
+                this.messagesPanelList.setStyle("marginLeft", "-250px");
+                this.collapseButton.setFaIcon("chevron-right");
+                this.collapseButton.setStyle("left", "8px");
+                this.collapseButton.setStyle("opacity", ".3");
+                this.chatWidget.setWidth("100%");
+                this.collapsed = true;
+            } else {
+                this.messagesPanelList.setStyle("marginLeft", "0");
+                this.collapseButton.setFaIcon("chevron-left");
+                this.collapseButton.setStyle("left", "208px");
+                this.collapseButton.setStyle("opacity", "1");
+                this.chatWidget.setWidth("calc(100% - 250px)");
+                this.collapsed = false;
+            }
+        })
+    }
+}
 
 class ChatBox extends UI.Element {
     getNodeAttributes() {
@@ -910,5 +797,5 @@ NotificationsList.NotificationClassMap = new Map([
 ]);
 
 
-export {MiniMessage, MessagesPanel, RoutedMessagesPanel, MessagesList, ChatBoxesManager,
-            NotificationsList, IconMessagesList, IconMessagesListWithUrl};
+export {MiniMessage, MessagesPanel, MessagesList, ChatBoxesManager,
+            NotificationsList, IconMessagesList};
