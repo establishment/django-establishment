@@ -1,9 +1,8 @@
 import {Ajax} from "Ajax";
 import {GlobalState} from "State";
-import {UI, Link} from "UI";
+import {UI, Link, Router} from "UI";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
-import {URLRouter} from "URLRouter";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {UserHandle} from "UserHandle";
 import {EditThreadReplyButton} from "EditThreadReplyButton";
@@ -12,12 +11,10 @@ import {CreateThreadReplyButton} from "CreateThreadReplyButton";
 import {CommentVotingWidgetWithThumbs} from "VotingWidget";
 import {ErrorHandlers} from "ErrorHandlers";
 import {AjaxLoadingScreen} from "AjaxLoadingScreen";
-import {ForumThreadPanelStyle} from "ForumStyle";
-import {ForumThreadReplyStyle} from "ForumStyle";
+import {ForumThreadPanelStyle, ForumThreadReplyStyle} from "ForumStyle";
 import {ButtonStyle} from "ForumStyle";
 
 
-let forumThreadReplyStyle = ForumThreadReplyStyle.getInstance();
 let forumThreadPanelStyle = ForumThreadPanelStyle.getInstance();
 let buttonStyle = ButtonStyle.getInstance();
 
@@ -52,7 +49,8 @@ class CreateForumThreadModal extends MarkupEditorModal {
     }
 
     routeToThread(forumThreadId) {
-        URLRouter.route(forumThreadId);
+        // TODO: add the temp forum title
+        Router.changeURL(["forum", forumThreadId, "title"])
     }
 
     createForumThread() {
@@ -83,12 +81,6 @@ class CreateForumThreadModal extends MarkupEditorModal {
     }
 }
 
-class CreateForumThreadModalWithUrl extends CreateForumThreadModal {
-    routeToThread(forumThreadId) {
-        this.options.urlRouter.setState([forumThreadId]);
-    }
-}
-
 class CreateForumThreadButton extends UI.Button {
     extraNodeAttributes(attr) {
         attr.addClass(buttonStyle.button);
@@ -116,16 +108,9 @@ class CreateForumThreadButton extends UI.Button {
             }
             this.getModalClass().show({
                 forumId: this.options.forumId,
-                urlRouter: this.options.urlRouter,
                 classMap: ChatMarkupRenderer.classMap,
             });
         });
-    }
-}
-
-class CreateForumThreadButtonWithUrl extends CreateForumThreadButton {
-    getModalClass() {
-        return CreateForumThreadModalWithUrl;
     }
 }
 
@@ -231,12 +216,12 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
         return attr;
     }
 
-    returnToMain() {
-        URLRouter.route();
+    returnToMainForum() {
+        Router.changeURL(this.getMainForumURL());
     }
 
-    getBackUrl() {
-        return "/forum/#";
+    getMainForumURL() {
+        return "/forum/";
     }
 
     getForumThreadState(callback) {
@@ -247,7 +232,7 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
         Ajax.postJSON("/forum/forum_thread_state/", request).then(
             (data) => {
                 if (data.error) {
-                    this.returnToMain();
+                    this.returnToMainForum();
                 } else {
                     GlobalState.importState(data.state);
                     if (callback) {
@@ -270,7 +255,7 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
     getTitle() {
         return [
             <div className={forumThreadPanelStyle.title}>
-                <Link href={this.getBackUrl()} className={forumThreadPanelStyle.backButton}
+                <Link href={this.getMainForumURL()} className={forumThreadPanelStyle.backButton}
                     value={<span className="fa fa-arrow-left" style={{
                         paddingRight: "10px",
                         fontSize: ".8em",
@@ -427,19 +412,9 @@ class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
         }
 
         this.getForumThread().addDeleteListener(() => {
-            this.returnToMain();
+            this.returnToMainForum();
         });
     }
 }
 
-class ForumThreadPanelWithUrl extends ForumThreadPanel {
-    returnToMain() {
-        this.options.forumWidget.getUrlRouter().setState([]);
-    }
-
-    getBackUrl() {
-        return "/forum/";
-    }
-}
-
-export {CreateForumThreadButton, CreateForumThreadButtonWithUrl, ForumThreadPanel, ForumThreadPanelWithUrl};
+export {CreateForumThreadButton, ForumThreadPanel};

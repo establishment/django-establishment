@@ -7,6 +7,16 @@ class BlogEntry extends StoreObject {
     }
 }
 
-var BlogEntryStore = new GenericObjectStore("blogentry", BlogEntry);
+class BlogEntryStoreClass extends GenericObjectStore {
+    constructor(objectType="BlogEntry", ObjectWrapper=BlogEntry, ...args) {
+        super(objectType, ObjectWrapper, ...args);
+    }
+
+    getEntryForURL(urlName) {
+        return this.all().find(blogEntry => blogEntry.urlName === urlName);
+    }
+}
+
+var BlogEntryStore = new BlogEntryStoreClass();
 
 export {BlogEntryStore};

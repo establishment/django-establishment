@@ -1,5 +1,5 @@
 import {Ajax} from "Ajax";
-import {UI, Button, Link} from "UI";
+import {UI, Button, Link, Modal} from "UI";
 import {StemDate} from "Time";
 import {GlobalState} from "State";
 import {BlogEntryStore} from "BlogStore";
@@ -9,19 +9,18 @@ import {UserHandle} from "UserHandle";
 import {BlogArticleRenderer} from "./BlogArticleRenderer";
 import {ArticleEditor} from "ArticleEditor";
 import {AsyncCommentThread} from "CommentWidget";
-import {URLRouter} from "URLRouter";
 import {ErrorHandlers} from "ErrorHandlers";
-import * as Utils from "Utils";
+import {slugify} from "Utils";
 import {FAIcon} from "FontAwesome";
 import {css, hover, focus, active, StyleSet} from "Style";
 import {BlogStyle} from "BlogStyle";
 import {StateDependentElement} from "StateDependentElement";
-import {Subrouter, Router} from "Router";
+import {Route, Router} from "Router";
 import {Dispatcher} from "Dispatcher";
 
 let blogStyle = BlogStyle.getInstance();
 
-class BlogEntryEditModal extends UI.Modal {
+class BlogEntryEditModal extends Modal {
     getModalWindowStyle() {
         return Object.assign({}, super.getModalWindowStyle(), {
             margin: "0 auto",
@@ -120,7 +119,7 @@ class BlogEntryEditModal extends UI.Modal {
     }
 }
 
-class NewBlogEntryModal extends UI.Modal {
+class NewBlogEntryModal extends Modal {
     getGivenChildren() {
         return [
             <h1>New Entry</h1>,
@@ -143,16 +142,8 @@ class NewBlogEntryModal extends UI.Modal {
     onMount() {
         super.onMount();
 
-        let modifiedURLInput = false;
-
         this.titleInput.onKeyUp(() => {
-            if (!modifiedURLInput) {
-                this.urlInput.setValue(Utils.slugify(this.titleInput.getValue()));
-            }
-        });
-
-        this.urlInput.addChangeListener(() => {
-            modifiedURLInput = true;
+            this.urlInput.setValue(slugify(this.titleInput.getValue()));
         });
     }
 
@@ -183,7 +174,7 @@ class NewBlogEntryModal extends UI.Modal {
                 } else {
                     GlobalState.importState(data.state);
                     let blogEntry = BlogEntryStore.get(data.blogEntryId);
-                    URLRouter.route(blogEntry.urlName);
+                    Router.changeURL(["blog", blogEntry.urlName]);
                     this.hide();
                 }
             },
@@ -259,13 +250,12 @@ class BlogEntryPreview extends UI.Element {
 }
 
 class BlogEntryView extends UI.Element {
-    setOptions(options) {
-        super.setOptions(options);
+    getBlogEntry() {
+        return BlogEntryStore.get(this.options.entryId);
+    }
 
-        if (this.options.entryId) {
-            this.entry = BlogEntryStore.get(this.options.entryId);
-            this.article = this.entry.getArticle();
-        }
+    getBlogArticle() {
+        return this.getBlogEntry().getArticle();
     }
 
     getNodeAttributes() {
@@ -275,7 +265,7 @@ class BlogEntryView extends UI.Element {
     }
 
     getComments() {
-        let chatId = this.entry.discussionId;
+        let chatId = this.getBlogEntry().discussionId;
         if (!chatId) {
             return null;
         }
@@ -285,8 +275,9 @@ class BlogEntryView extends UI.Element {
     }
 
     render() {
+        const article = this.getBlogArticle();
         // TODO: not actually the published date
-        let publishedDate = this.article.dateCreated;
+        let publishedDate = article.dateCreated;
         let publishedFormat = StemDate.unix(publishedDate).format("LL");
         let modifiedFormat;
 
@@ -297,14 +288,16 @@ class BlogEntryView extends UI.Element {
             fontStyle: "italic",
         };
 
-        if (this.article.dateModified > this.article.dateCreated) {
-            modifiedFormat = <p style={articleInfoStyle}>Last update on {StemDate.unix(this.article.dateModified).format("LL")}.</p>
+        if (article.dateModified > article.dateCreated) {
+            modifiedFormat = <p style={articleInfoStyle}>Last update on {StemDate.unix(article.dateModified).format("LL")}.</p>
         }
 
         let blogEntryEditButton;
+        // TODO: should use proper rights
         if (USER.isSuperUser) {
             blogEntryEditButton = <Button level={UI.Level.DEFAULT} label="Edit" onClick={() => {
                 if (!this.blogEntryEditModal) {
+                    // TODO: use new pattern, or do we want persistance?
                     this.blogEntryEditModal = <BlogEntryEditModal entryId={this.options.entryId} fillScreen/>;
                     this.blogEntryEditModal.mount(document.body);
                 }
@@ -320,11 +313,11 @@ class BlogEntryView extends UI.Element {
             }}>
                 {blogEntryEditButton}
                 <div style={blogStyle.writtenBy}>
-                    Written by <UserHandle userId={this.article.userCreatedId}/> on {publishedFormat}.
+                    Written by <UserHandle userId={article.userCreatedId}/> on {publishedFormat}.
                     {modifiedFormat}
                 </div>
-                <div style={blogStyle.title}>{this.article.name}</div>
-                <BlogArticleRenderer style={blogStyle.article} article={this.article}/>
+                <div style={blogStyle.title}>{article.name}</div>
+                <BlogArticleRenderer style={blogStyle.article} article={article}/>
                 <div style={{
                     "margin-top": "30px",
                     "margin-bottom": "10px",
@@ -412,154 +405,47 @@ class BlogEntryList extends UI.Element {
     }
 }
 
-class BlogPanel extends UI.Panel {
-    render() {
-        return <UI.Switcher ref="switcher" lazyRender>
-            <BlogEntryList ref="entryList" finishedLoading={this.options.finishedLoading} />
-            <BlogEntryView ref="entryView" />
-        </UI.Switcher>;
+class DelayedBlogEntryList extends StateDependentElement(BlogEntryList) {
+}
+
+class DelayedBlogEntryView extends StateDependentElement(BlogEntryView) {
+    getBlogEntry() {
+        return BlogEntryStore.getEntryForURL(this.options.entryURL);
     }
 
-    getEntryIdForURLName(entryURL) {
-        let entryId;
-        for (let entry of BlogEntryStore.all()) {
-            if (entry.urlName === entryURL) {
-                entryId = entry.id;
-                break;
-            }
+    getAjaxUrl() {
+        return "/blog/get_blog_post/";
+    }
+
+    getAjaxRequest() {
+        return {
+            entryUrlName: this.options.entryURL,
         }
-        return entryId;
-    }
-
-    onMount() {
-        let handleLocation = (location) => {
-            if (!location) return;
-            try {
-                if (location.args.length === 0) {
-                    this.switcher.setActive(this.entryList);
-                } else {
-                    let entryURL = location.args[0];
-
-                    let entryId = this.getEntryIdForURLName(entryURL);
-
-                    if (entryId) {
-                        this.entryView.setOptions({entryId: entryId});
-                        this.switcher.setActive(this.entryView);
-                        this.entryView.redraw();
-                    } else {
-                        Ajax.getJSON("/blog/get_blog_post/", {
-                            entryUrlName: entryURL
-                        }).then((data) => {
-                            if (data.error) {
-                                console.log(data.error);
-                            } else {
-                                GlobalState.importState(data.state || {});
-                                let entryId = this.getEntryIdForURLName(entryURL);
-                                if (entryId) {
-                                    this.entryView.setOptions({entryId: entryId});
-                                    this.switcher.setActive(this.entryView);
-                                    this.entryView.redraw();
-                                } else {
-                                    console.log("Could not find blog entry", entryURL);
-                                }
-                            }
-                        },
-                        (error) => {
-                            console.log(error);
-                        });
-                    }
-                }
-            } catch (e) {
-                console.log("Failed to handle location. ", e);
-            }
-        };
-
-        handleLocation(URLRouter.getLocation());
-        URLRouter.addRouteListener(handleLocation);
-
-        // TODO: have a more throught out procedure for which streams to register to
-        // for (let article of ArticleStore.all()) {
-        //     GlobalState.registerStream("article-" + article.id);
-        // }
-        //
-        // for (let entry of BlogEntryStore.all()) {
-        //     GlobalState.registerStream("blogentry-" + entry.id);
-        // }
     }
 }
 
-class DelayedBlogPanel extends StateDependentElement(BlogPanel) {
-    setOptions(options) {
-        super.setOptions(options);
-        let hashArgs = URLRouter.getLocation().args;
-        if (hashArgs.length) {
-            this.options.subArgs = [...this.options.subArgs, ...hashArgs];
-        }
-    }
+class BlogRoute extends Route {
+    getSubroutes() {
+        return [
+            new Route("%s", (options) => {
+                let entryURL = options.args[options.args.length - 1];
 
-    importState(data) {
-        super.importState(data);
-        this.options.finishedLoading = data.finishedLoading;
-    }
+                let blogEntry = BlogEntryStore.getEntryForURL(entryURL);
 
-    getUrlRouter() {
-        return this.urlRouter;
-    }
-
-    onDelayedMount() {
-        let handleLocation = (args) => {
-            try {
-                if (args.length === 0) {
-                    this.switcher.setActive(this.entryList);
+                if (blogEntry) {
+                    return <BlogEntryView entryId={blogEntry.id} />;
                 } else {
-                    let entryURL = args[0];
-
-                    let entryId = this.getEntryIdForURLName(entryURL);
-
-                    if (entryId) {
-                        this.entryView.setOptions({entryId: entryId});
-                        this.switcher.setActive(this.entryView);
-                        this.entryView.redraw();
-                    } else {
-                        Ajax.getJSON("/blog/get_blog_post/", {
-                            entryUrlName: entryURL
-                        }).then((data) => {
-                            if (data.error) {
-                                console.log(data.error);
-                                this.getUrlRouter().setState([]);
-                            } else {
-                                GlobalState.importState(data.state || {});
-                                let entryId = this.getEntryIdForURLName(entryURL);
-                                if (entryId) {
-                                    this.entryView.setOptions({entryId: entryId});
-                                    this.switcher.setActive(this.entryView);
-                                    this.entryView.redraw();
-                                } else {
-                                    console.log("Could not find blog entry", entryURL);
-                                    this.getUrlRouter().setState([]);
-                                }
-                            }
-                        },
-                        (error) => {
-                            console.log(error);
-                            this.getUrlRouter().setState([]);
-                        });
-                    }
+                    return <DelayedBlogEntryView entryURL={entryURL} />;
                 }
-            } catch (e) {
-                this.getUrlRouter().setState([]);
-            }
-        };
 
-        this.urlRouter = new Subrouter( Router.Global.getCurrentRouter(),
-                                        [...Router.Global.getCurrentRouter().getPrefix(), "blog"],
-                                        this.options.subArgs || []);
-        Router.Global.getCurrentRouter().registerSubrouter(this.urlRouter);
-        this.getUrlRouter().addChangeListener(handleLocation);
-        this.getUrlRouter().addExternalChangeListener(handleLocation);
+            }),
+        ]
+    }
 
-        this.getUrlRouter().dispatch("change", this.getUrlRouter().getState());
+    constructor(expr="blog", options={}) {
+        super(expr, DelayedBlogEntryList, [], options);
+        this.subroutes = this.getSubroutes();
     }
 }
 
-export {BlogPanel, BlogEntryPreview, DelayedBlogPanel};
+export {BlogEntryPreview, BlogRoute};

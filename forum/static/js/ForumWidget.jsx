@@ -1,26 +1,20 @@
-import {UI, Link} from "UI";
+import {UI, Panel, Link, Route, Router} from "UI";
+import {Dispatcher} from "base/Dispatcher";
+import {Ajax} from "base/Ajax";
 import {GlobalState} from "State";
 import {ForumStore, ForumThreadStore} from "ForumStore";
 import {PreviewMarkupButton} from "ChatWidget";
 import {UserHandle} from "UserHandle";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {MessageThreadStore, MessageInstanceStore} from "MessageThreadStore";
-import {ForumThreadPanel, CreateForumThreadButton, CreateForumThreadButtonWithUrl, ForumThreadPanelWithUrl} from "ForumThread";
-import {URLRouter} from "URLRouter";
-import * as Utils from "Utils";
-import {ForumThreadHeaderStyle} from "ForumStyle";
-import {ForumThreadPreviewStyle} from "ForumStyle";
-import {ForumThreadBubbleStyle} from "ForumStyle";
-import {ForumThreadPanelStyle} from "ForumStyle";
-import {ForumPanelStyle} from "ForumStyle";
+import {ForumThreadPanel, CreateForumThreadButton} from "ForumThread";
+import {slugify} from "base/Utils"; // TODO: import the individual methods
+import {ForumThreadHeaderStyle, ForumThreadPreviewStyle, ForumThreadBubbleStyle, ForumPanelStyle} from "ForumStyle";
 import {StateDependentElement} from "StateDependentElement";
-import {Subrouter, Router} from "Router";
-import {Dispatcher} from "Dispatcher";
 
 let forumThreadHeaderStyle = ForumThreadHeaderStyle.getInstance();
 let forumThreadPreviewStyle = ForumThreadPreviewStyle.getInstance();
 let forumThreadBubbleStyle = ForumThreadBubbleStyle.getInstance();
-let forumThreadPanelStyle = ForumThreadPanelStyle.getInstance();
 let forumPanelStyle = ForumPanelStyle.getInstance();
 
 
@@ -89,7 +83,6 @@ class ForumThreadPreview extends ChatMarkupRenderer {
 class ForumThreadBubble extends UI.Element {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
-        // TODO: this should not be cast as a String here!
         attr.addClass(forumThreadBubbleStyle.mainClass);
         // couldn't figure out how to solve this easier and better
         // if (this.options.isPinned) {
@@ -103,7 +96,7 @@ class ForumThreadBubble extends UI.Element {
     }
 
     getHref() {
-        return "#" + this.getForumThread().id + "/" + Utils.slugify(this.getForumThread().getTitle());
+        return "/forum/" + this.getForumThread().id + "/" + slugify(this.getForumThread().getTitle());
     }
 
     getForumThread() {
@@ -210,12 +203,6 @@ class ForumThreadBubble extends UI.Element {
     }
 }
 
-class ForumThreadBubbleWithUrl extends ForumThreadBubble {
-    getHref() {
-        return super.getHref().slice(1);
-    }
-}
-
 class ForumThreadList extends UI.Element {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
@@ -270,13 +257,7 @@ class ForumThreadList extends UI.Element {
     }
 }
 
-class ForumThreadListWithUrl extends ForumThreadList {
-    getBubbleClass() {
-        return ForumThreadBubbleWithUrl;
-    }
-}
-
-class ForumPanel extends UI.ConstructorInitMixin(UI.Panel) {
+class ForumPanel extends UI.ConstructorInitMixin(Panel) {
     extraNodeAttributes(attr) {
         attr.addClass(forumPanelStyle.mainClass);
     }
@@ -311,169 +292,63 @@ class ForumPanel extends UI.ConstructorInitMixin(UI.Panel) {
             this.getForumThreadList(),
         ];
     }
-}
-
-class ForumPanelWithUrl extends ForumPanel {
-    getForumThreadList() {
-        return <ForumThreadListWithUrl forum={this.options.forum}/>;
-    }
-
-    getButton() {
-        return <div className={forumPanelStyle.buttonParent}>
-            <CreateForumThreadButtonWithUrl
-                label="NEW POST"
-                className={forumPanelStyle.button}
-                size={UI.Size.DEFAULT}
-                forumId={this.options.forum.id}
-                ref="newPostButton"
-            />
-        </div>;
-    }
-}
-
-class ForumWidget extends UI.Switcher {
-    setOptions(options) {
-        super.setOptions(options);
-        this.forumThreadMap = new Map();
-    }
-
-    render() {
-        this.forumPanel = this.forumPanel || <ForumPanel forum={ForumStore.get(this.options.forumId)}/>;
-
-        this.options.children = Utils.unwrapArray([
-            this.forumPanel,
-            Array.from(this.forumThreadMap.values()),
-        ]);
-        return super.render();
-    }
-
-    addForumThread(forumThread) {
-        let forumThreadPanel = <ForumThreadPanel key={forumThread.id} forumThread={forumThread}/>;
-        this.forumThreadMap.set(forumThread.id, forumThreadPanel);
-        this.appendChild(forumThreadPanel);
-    }
-
-    switchToForumThread(forumThread) {
-        if (!this.forumThreadMap.has(forumThread.id)) {
-            this.addForumThread(forumThread);
-        }
-        this.setActive(this.forumThreadMap.get(forumThread.id));
-    }
-
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-        attr.setStyle("margin-top", "40px");
-        return attr;
-    }
 
     onMount() {
-        super.onMount();
-
-        let handleLocation = (location) => {
-            if (!location) {
-                return;
-            }
-            try {
-                if (location.args.length !== 0) {
-                    let forumThread = ForumThreadStore.get(parseInt(location.args[0]));
-                    if (!forumThread) {
-                        URLRouter.route();
-                        return;
-                    }
-                    if (location.args.length === 1) {
-                        URLRouter.route(forumThread.id, Utils.slugify(forumThread.getTitle()));
-                    } else {
-                        this.switchToForumThread(forumThread);
-                    }
-                } else {
-                    this.setActive(this.forumPanel);
-                }
-            } catch (e) {
-                console.log("Failed to handle location. ", e);
-            }
-        };
-
-        handleLocation(URLRouter.getLocation());
-        URLRouter.addRouteListener(handleLocation);
-
-        ForumThreadStore.addListener("create", () => {
-            this.dispatch("shouldRedrawChild", {child: this.forumPanel});
-        });
-        ForumThreadStore.addListener("delete", () => {
-            this.dispatch("shouldRedrawChild", {child: this.forumPanel});
-        });
+        this.attachListener(ForumThreadStore, "create", () => this.redraw());
+        this.attachListener(ForumThreadStore, "delete", () => this.redraw());
     }
 }
 
-class DelayedForumWidget extends StateDependentElement(ForumWidget) {
-    setOptions(options) {
-        super.setOptions(options);
-        let hashArgs = URLRouter.getLocation().args;
-        if (hashArgs.length) {
-            this.options.subArgs = [...this.options.subArgs, ...hashArgs];
-        }
+class DelayedForumPanel extends StateDependentElement(ForumPanel) {
+    importState(data) {
+        super.importState(data);
+        this.options.forum = ForumStore.get(this.options.forumId);
     }
+}
 
-    addForumThread(forumThread) {
-        let forumThreadPanel = <ForumThreadPanelWithUrl key={forumThread.id} forumThread={forumThread} forumWidget={this} />;
-        this.forumThreadMap.set(forumThread.id, forumThreadPanel);
-        this.appendChild(forumThreadPanel);
+class DelayedForumThreadPanel extends StateDependentElement(ForumThreadPanel) {
+    // TODO: must be able to specify if URL is POST or GET in StateDependentElement
+    beforeRedrawNotLoaded() {
+        Ajax.postJSON("/forum/forum_thread_state/", {
+            forumThreadId: this.options.forumThreadId,
+        }).then(
+            (data) => {
+                this.importState(data);
+                this.setLoaded();
+            },
+            (error) => {
+                console.error(error);
+            }
+        );
     }
 
     importState(data) {
         super.importState(data);
-        this.options.forumId = data.forumId;
-    }
-
-    renderLoaded() {
-        this.forumPanel = this.forumPanel || <ForumPanelWithUrl forum={ForumStore.get(this.options.forumId)} forumWidget={this}/>;
-        return super.renderLoaded();
-    }
-
-    registerSubrouter() {
-        let handleLocation = (args) => {
-            if (args.length !== 0) {
-                let forumThread = ForumThreadStore.get(parseInt(args[0]));
-                if (!forumThread) {
-                    this.getUrlRouter().setState([], true);
-                    return;
-                }
-                if (args.length !== 2 || args[1] !== Utils.slugify(forumThread.getTitle())) {
-                    this.getUrlRouter().setState([forumThread.id, Utils.slugify(forumThread.getTitle())], true);
-                } else {
-                    this.switchToForumThread(forumThread);
-                }
-            } else {
-                this.setActive(this.forumPanel);
-            }
-        };
-
-        this.urlRouter = new Subrouter( Router.Global.getCurrentRouter(),
-                                        [...Router.Global.getCurrentRouter().getPrefix(), "forum"],
-                                        this.options.subArgs || []);
-        Router.Global.getCurrentRouter().registerSubrouter(this.urlRouter);
-        this.getUrlRouter().addChangeListener(handleLocation);
-        this.getUrlRouter().addExternalChangeListener(handleLocation);
-    }
-
-    getUrlRouter() {
-        return this.urlRouter;
-    }
-
-    onDelayedMount() {
-        this.registerSubrouter();
-
-        this.forumPanel.newPostButton.options.urlRouter = this.getUrlRouter();
-
-        this.getUrlRouter().dispatch("change", this.getUrlRouter().getState());
-
-        ForumThreadStore.addListener("create", () => {
-            this.dispatch("shouldRedrawChild", {child: this.forumPanel});
-        });
-        ForumThreadStore.addListener("delete", () => {
-            this.dispatch("shouldRedrawChild", {child: this.forumPanel});
-        });
+        this.options.forumThread = ForumThreadStore.get(this.options.forumThreadId);
     }
 }
 
-export {ForumWidget, DelayedForumWidget};
+class ForumRoute extends Route {
+    getSubroutes() {
+        return [
+            new Route(["%s", "%s"], (options) => {
+                const forumThreadId = options.args[options.args.length - 2];
+
+                const forumThread = ForumThreadStore.get(forumThreadId);
+
+                if (forumThread) {
+                    return <ForumThreadPanel forumThread={forumThread} />;
+                } else {
+                    return <DelayedForumThreadPanel forumThreadId={forumThreadId} />;
+                }
+            }),
+        ]
+    }
+
+    constructor(expr="forum", options={}) {
+        super(expr, DelayedForumPanel, [], options);
+        this.subroutes = this.getSubroutes();
+    }
+}
+
+export {ForumRoute};

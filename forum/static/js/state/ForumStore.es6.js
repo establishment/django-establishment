@@ -42,7 +42,7 @@ class ForumThread extends StoreObject {
     constructor(obj) {
         super(obj);
         let parent = this.getParent();
-        parent.addForumThread(this);
+        parent && parent.addForumThread(this);
     }
 
     getAuthor() {
@@ -131,12 +131,8 @@ class ForumThread extends StoreObject {
     }
 }
 
-var ForumThreadStore = new GenericObjectStore("forumthread", ForumThread, {
+const ForumThreadStore = new GenericObjectStore("forumthread", ForumThread, {
     dependencies: ["forum", "messageinstance"]
-});
-
-ForumThreadStore.addCreateListener((forumThread, createEvent) => {
-    forumThread.getParent().addForumThread(forumThread, createEvent);
 });
 
 

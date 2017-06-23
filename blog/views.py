@@ -41,10 +41,6 @@ def blog(request):
         return JSONResponse({"state": state, "finishedLoading": finished_loading})
 
     widget_options = {
-        "style": {
-            "background-color": "#f3f4f6",
-            "min-height": "100vh",
-        },
         "finishedLoading": finished_loading
     }
 
