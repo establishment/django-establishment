@@ -415,7 +415,7 @@ class DelayedPrivateChat extends Router {
     getRoutes() {
         this.routes = this.routes || new Route(null, () => this.getNoChat(), [
             new Route("%s", (options) => {
-                return <PrivateChatWidgetWrapper userId={parseInt(options.args[0])} />;
+                return <PrivateChatWidgetWrapper userId={parseInt(options.args[0])} style={{height: "100%"}}/>;
             })
         ]);
         return this.routes;

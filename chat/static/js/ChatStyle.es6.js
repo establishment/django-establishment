@@ -23,6 +23,7 @@ class ChatStyle extends StyleSet {
         backgroundColor: this.backgroundColor,
         position: "relative",
         wordBreak: "break-word",
+        flex: "5"
     };
 
     @styleRule
