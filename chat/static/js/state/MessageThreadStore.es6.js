@@ -304,6 +304,19 @@ class MessageThread extends StoreObject {
         }
         return value;
     }
+
+    // This method will return the last message of the message thread,
+    // regardless of whether it is virtual or real.
+    getLastMessage() {
+        let lastMessage = null;
+        for (let messageInstance of this.messages.values()) {
+            if (!lastMessage || lastMessage.getNormalizedId() < messageInstance.getNormalizedId() ||
+                    (lastMessage.getNormalizedId() === messageInstance.getNormalizedId() && messageInstance.hasTemporaryId())) {
+                lastMessage = messageInstance;
+            }
+        }
+        return lastMessage;
+    }
 }
 
 class MessageInstanceStoreClass extends VirtualStoreMixin(GenericObjectStore) {
