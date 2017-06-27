@@ -15,25 +15,38 @@ class Country extends StoreObject {
     }
 }
 
+const ALL_COUNTRIES_PLACEHOLDER = {id: 0, name: "", toString: () => "All Countries"};
+const NO_COUNTRY_PLACEHOLDER = {id: -1, name: "", toString: () => "None"};
+
+const COUNTRY_COMPARATOR = (a, b) => {
+    if (a.name > b.name) {
+        return 1;
+    }
+    return -1;
+};
+
 class CountryStoreClass extends GenericObjectStore {
     allWithNone() {
          return [
-            {
-                id: 0,
-                name: "",
-                toString: () => "None"
-            },
-            ...this.all().sort((a, b) => {
-                if (a > b) {
-                    return 1;
-                }
-                return -1;
-            })
+            NO_COUNTRY_PLACEHOLDER,
+            ...this.all().sort(COUNTRY_COMPARATOR)
         ];
+    }
+
+    getCountriesFromIds(countriesIds, allCountries=true) {
+        let countries = [];
+        for (let countryId of countriesIds) {
+            countries.push(CountryStore.get(countryId));
+        }
+        let result = countries.sort(COUNTRY_COMPARATOR);
+        if (allCountries) {
+            result.unshift(ALL_COUNTRIES_PLACEHOLDER);
+        }
+        return result;
     }
 }
 
-let CountryStore = new CountryStoreClass("country", Country);
+const CountryStore = new CountryStoreClass("country", Country);
 
 
-export {Country, CountryStore};
+export {Country, CountryStore, ALL_COUNTRIES_PLACEHOLDER};
