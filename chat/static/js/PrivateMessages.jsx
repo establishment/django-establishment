@@ -399,11 +399,21 @@ class PrivateChatWidgetWrapper extends UI.Element {
         }
         PrivateChatStore.fetchForUser(this.options.userId, (privateChat) => {
             this.updateOptions({ privateChat });
+            this.chat.messageWindow.scrollToBottom();
         });
         return [
             <h3>Chat loading...</h3>,
             <span className="fa fa-spinner fa-spin"/>
         ];
+    }
+
+    onMount() {
+        this.addListener("hide", () => {
+            this.chat && this.chat.dispatch("hide");
+        });
+        this.addListener("show", () => {
+            this.chat && this.chat.dispatch("show");
+        });
     }
 }
 
@@ -427,7 +437,7 @@ class MessagesPanel extends UI.Element {
         super.extraNodeAttributes(attr);
         attr.setStyle({
             border: "1px solid #ddd",
-            height: "calc(100vh - 50px)",
+            height: "100%",
             maxWidth: "1280px",
             margin: "0 auto",
             position: "relative",
@@ -448,7 +458,7 @@ class MessagesPanel extends UI.Element {
             </div>,
             <Button ref="collapseButton" size={UI.Size.SMALL} faIcon="chevron-left" level={UI.Level.DARK}
                     style={{position: "absolute", top: "15px", left: "208px", zIndex: "2017", transition: "all .7s ease"}}/>,
-            <DelayedPrivateChat style={{display: "inline-block", flex: "1", width: "calc(100% - 260px)", height: "100%",
+            <DelayedPrivateChat style={{display: "inline-block", flex: "1", width: "calc(100% - 250px)", height: "100%",
                                      transition: "width .7s ease", verticalAlign: "top"}} ref="chatWidget"/>
         ];
     }

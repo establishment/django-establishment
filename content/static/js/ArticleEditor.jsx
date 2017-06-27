@@ -133,9 +133,7 @@ class ArticleEditor extends Panel {
         attr.setStyle({
             display: "flex",
             flexDirection: "column",
-            height: "calc(100vh - 80px)",
-            marginLeft: "10%",
-            marginRight: "10%",
+            height: "100%",
         });
     }
 

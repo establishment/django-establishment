@@ -41,7 +41,7 @@ class MarkupEditor extends Panel {
                 <Panel ref="editorPanel" style={{width: "50%", height: "100%", overflow: "hidden"}}>
                     {this.getEditor()}
                 </Panel>
-                <Panel ref="rendererPanel" style={{width: "50%", height: "100%", overflow: "auto"}}>
+                <Panel ref="rendererPanel" style={{width: "50%", height: "100%", overflow: "auto", padding: "10px"}}>
                     {this.getMarkupRenderer()}
                 </Panel>
             </SectionDivider>

@@ -549,7 +549,7 @@ let ChatWidget = (ChatMessageClass) => {
         }
 
         renderMessageBox() {
-            return <div ref="writingSection" className={chatStyle.renderMessage} style={{flex: "1"}}>
+            return <div ref="writingSection" className={chatStyle.renderMessage}>
                 <UI.TextArea readOnly={this.messageThread.muted}
                              ref="chatInput"
                              placeholder="Type a message..."
@@ -658,7 +658,6 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
     renderMessageView() {
         let loadMoreButton;
 
-
         if (this.showLoadMoreButton) {
             loadMoreButton = (
                 <div className="text-center">
@@ -675,15 +674,6 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
                                       entryRenderer={this.options.renderMessage}
                                       entries={this.messageThread.getMessages()}
                                       staticTop={loadMoreButton}/>
-        ];
-    }
-
-    render() {
-        return [
-            <div style={{flex: "5", overflowY: "auto"}}>
-                {this.renderMessageView()}
-            </div>,
-            this.renderMessageBox()
         ];
     }
 }

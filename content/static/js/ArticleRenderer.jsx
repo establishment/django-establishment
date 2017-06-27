@@ -80,6 +80,12 @@ class RecursiveArticleRenderer extends ArticleRenderer {
 }
 
 class ArticleSwitcher extends Switcher {
+    getDefaultOptions() {
+        return Object.assign({}, super.getDefaultOptions(), {
+            fullHeight: true,
+        });
+    }
+
     constructor() {
         super(...arguments);
         this.articleChildMap = new WeakMap();
