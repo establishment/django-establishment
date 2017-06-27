@@ -18,9 +18,9 @@ import {StateDependentElement} from "StateDependentElement";
 import {Route, Router} from "Router";
 import {Dispatcher} from "Dispatcher";
 
-let blogStyle = BlogStyle.getInstance();
+import {Theme} from "ui/style/Theme";
 
-class BlogEntryEditModal extends Modal {
+export class BlogEntryEditModal extends Modal {
     getModalWindowStyle() {
         return Object.assign({}, super.getModalWindowStyle(), {
             margin: "0 auto",
@@ -119,7 +119,7 @@ class BlogEntryEditModal extends Modal {
     }
 }
 
-class NewBlogEntryModal extends Modal {
+export class NewBlogEntryModal extends Modal {
     getGivenChildren() {
         return [
             <h1>New Entry</h1>,
@@ -187,7 +187,6 @@ class NewBlogEntryModal extends Modal {
     }
 }
 
-
 class BlogEntryPreview extends UI.Element {
     setOptions(options) {
         super.setOptions(options);
@@ -214,6 +213,8 @@ class BlogEntryPreview extends UI.Element {
     }
 
     render() {
+        const blogStyle = this.getStyleSheet();
+
         // TODO: not actually the published date
         let publishedDate = this.article.dateCreated;
         let publishedFormat = StemDate.unix(publishedDate).format("LL");
@@ -258,10 +259,8 @@ class BlogEntryView extends UI.Element {
         return this.getBlogEntry().getArticle();
     }
 
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-        attr.addClass(blogStyle.blogEntryView);
-        return attr;
+    extraNodeAttributes(attr) {
+        attr.addClass(this.getStyleSheet().blogEntryView);
     }
 
     getComments() {
@@ -276,6 +275,8 @@ class BlogEntryView extends UI.Element {
 
     render() {
         const article = this.getBlogArticle();
+        const blogStyle = this.getStyleSheet();
+
         // TODO: not actually the published date
         let publishedDate = article.dateCreated;
         let publishedFormat = StemDate.unix(publishedDate).format("LL");
@@ -343,6 +344,8 @@ class BlogEntryList extends UI.Element {
     }
 
     render() {
+        const blogStyle = this.getStyleSheet();
+
         let entries = [];
 
         let blogEntries = BlogEntryStore.all().sort((a, b) => {
@@ -405,6 +408,10 @@ class BlogEntryList extends UI.Element {
     }
 }
 
+Theme.register(BlogEntryView, BlogStyle);
+Theme.register(BlogEntryPreview, BlogStyle);
+Theme.register(BlogEntryList, BlogStyle);
+
 class DelayedBlogEntryList extends StateDependentElement(BlogEntryList) {
 }
 
@@ -448,4 +455,4 @@ class BlogRoute extends Route {
     }
 }
 
-export {BlogEntryPreview, BlogRoute};
+export {BlogEntryPreview, DelayedBlogEntryList, DelayedBlogEntryView, BlogEntryView, BlogRoute};
