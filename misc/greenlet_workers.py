@@ -1,7 +1,7 @@
 import gevent
 import gevent.queue
-import logging
 
+from establishment.misc.command_processor import BaseProcessor
 from establishment.misc.threading_helper import ThreadHandler
 from establishment.funnel.redis_stream import RedisStreamPublisher, RedisStreamSubscriber, RedisQueue, \
     redis_response_to_json
@@ -153,11 +153,10 @@ class GreenletRedisStreamPublisher(GreenletQueueWorker):
         self.redis_stream_publisher.publish_json(result)
 
 
-class GreenletRedisQueueCommandProcessor(object):
+class GreenletRedisQueueCommandProcessor(BaseProcessor):
     def __init__(self, logger_name, WorkerClass, redis_queue_name_in, redis_stream_name_out=None, num_workers=10,
                  job_queue_max_size=1024):
-        self.logger = logging.getLogger(logger_name)
-        self.background_thread = None
+        super().__init__(logger_name=logger_name)
         self.workers = []
         self.job_queue = None
         self.result_queue = None
@@ -165,16 +164,10 @@ class GreenletRedisQueueCommandProcessor(object):
         self.job_queue_max_size = job_queue_max_size
         self.redis_queue_name_in = redis_queue_name_in
         self.redis_stream_name_out = redis_stream_name_out
-        self.keep_running = False
         self.WorkerClass = WorkerClass
-        self.running = False
         self.worker_context = None
 
-    def process(self):
-        self.logger.info("Starting to process commands " + str(self.__class__.__name__))
-
-        self.keep_running = True
-
+    def main(self):
         self.workers = []
         self.job_queue = gevent.queue.Queue()
         self.result_queue = gevent.queue.Queue()
@@ -192,20 +185,19 @@ class GreenletRedisQueueCommandProcessor(object):
 
         for worker in self.workers:
             worker.start()
-        self.running = True
+
         gevent.joinall(self.workers)
         self.workers = []
         self.job_queue = None
         self.result_queue = None
         self.logger.info("Gracefully stopped to process commands " + str(self.__class__.__name__))
-        self.running = False
 
     def start(self):
         self.background_thread = ThreadHandler("Command processor " + str(self.__class__.__name__), self.process,
                                                daemon=False)
 
     def stop(self):
-        self.keep_running = False
+        super().stop()
         for worker in self.workers:
             worker.stop()
 
