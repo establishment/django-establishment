@@ -45,7 +45,10 @@ class RedisScheduledJobProcessor(BaseProcessor):
     def main(self):
         while self.keep_working:
             if self.redis_scheduled_job.try_acquire():
-                self.callback(redis_scheduled_job=self.redis_scheduled_job)
+                try:
+                    self.callback(redis_scheduled_job=self.redis_scheduled_job)
+                except:
+                    self.logger.error("Unhandled error in acquired RedisLock! Critical!")
                 self.redis_scheduled_job.release()
             time.sleep(self.try_lock_interval)
 
