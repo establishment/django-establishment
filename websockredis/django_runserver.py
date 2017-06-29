@@ -77,23 +77,19 @@ def run(addr, port, wsgi_handler, ipv6=False, threading=False, server_cls=WSGISe
     Function to monkey patch the internal Django command: manage.py runserver
     Do whatever you need here
     """
-    print("Websockets module running at", addr, port)
-
     if not threading:
         raise Exception("Debug server must run with threading enabled")
 
-    old_runserver_run(addr, port, wsgi_handler, ipv6, threading)#, server_cls)
+    old_runserver_run(addr, port, wsgi_handler, ipv6, threading)
 
 
 runserver.run = run
 
 _django_app = get_wsgi_application()
 _websocket_app = WebsocketRunServer()
-_websocket_url = getattr(settings, "WEBSOCKET_URL")
 
 
 def application(environ, start_response):
-    # TODO: this should be based on the protocol ("ws://" or "wss://") and not the url
-    if _websocket_url and environ.get("PATH_INFO").startswith(_websocket_url):
+    if environ.get("PATH_INFO").startswith("ws://"):
         return _websocket_app(environ, start_response)
     return _django_app(environ, start_response)
