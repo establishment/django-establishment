@@ -6,6 +6,7 @@ import {ArticleStore} from "ArticleStore";
 import {PublicUserStore} from "UserStore";
 import {Language} from "LanguageStore";
 import {UserHandle} from "UserHandle";
+import {GlobalStyle} from "GlobalStyle";
 
 class TransferOwnershipModal extends ActionModal {
     getActionName() {
@@ -368,11 +369,12 @@ class ArticleManager extends Panel {
         return {
             title: "Article manager",
             articles: [],
-            style: {
-                marginLeft: "10%",
-                marginRight: "10%"
-            }
         };
+    }
+
+    extraNodeAttributes(attr) {
+        super.extraNodeAttributes(attr);
+        attr.addClass(GlobalStyle.Container.SMALL);
     }
 
     setOptions(options) {

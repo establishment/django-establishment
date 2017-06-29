@@ -5,14 +5,12 @@ import {GlobalState} from "State";
 import {EmailGatewayWidget} from "EmailGatewayWidget";
 import {EmailCampaignWidget} from "EmailCampaignWidget";
 import {EmailTemplateWidget} from "EmailTemplateWidget";
+import {GlobalStyle} from "GlobalStyle";
 
 class EmailManager extends UI.Panel {
     extraNodeAttributes(attr) {
-        attr.setStyle({
-            marginLeft: "10%",
-            marginRight: "10%",
-            marginTop: "20px",
-        });
+        super.extraNodeAttributes(attr);
+        attr.addClass(GlobalStyle.Container.SMALL);
     }
 
     render() {

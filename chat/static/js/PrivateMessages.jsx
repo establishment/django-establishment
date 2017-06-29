@@ -437,7 +437,7 @@ class MessagesPanel extends UI.Element {
         super.extraNodeAttributes(attr);
         attr.setStyle({
             border: "1px solid #ddd",
-            height: "calc(100vh - 60px)", //TODO(GlobalContainer): change this to 100%
+            height: "100%",
             maxWidth: "1280px",
             margin: "0 auto",
             position: "relative",
