@@ -20,7 +20,10 @@ class BaseProcessor(object):
         self.logger.info("Starting to process: " + str(self.__class__.__name__))
 
         self.running = True
-        self.main()
+        try:
+            self.main()
+        except:
+            self.logger.error("Unhandled error in main(): " + str(self.__class__.__name__))
         self.running = False
 
     def start(self):
