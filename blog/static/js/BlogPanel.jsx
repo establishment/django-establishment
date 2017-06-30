@@ -236,17 +236,27 @@ class BlogEntryPreview extends UI.Element {
 
         return [
             <div style={{height: "100%",}}>
-            <div style={{boxShadow: "0px 0px 10px rgb(160, 162, 168)", "background-color": "#fff", "padding": "1% 4% 10px 4%", "margin": "0 auto", "width": "900px", "max-width": "100%", position: "relative"}}> <div style={blogStyle.writtenBy}>
-                {UI.T("Written by")} <UserHandle userId={article.userCreatedId}/>, {publishedFormat}.{modifiedFormat}
-              </div>
-              <div style={blogStyle.title}>
-                <Link href={this.getEntryURL()} value={article.name}
-                      style={{"text-decoration": "none", "color": "inherit"}} />
-              </div>
-              <BlogArticleRenderer article={article} style={blogStyle.blogArticleRenderer}/>
-              <div className={blogStyle.whiteOverlay}></div>
-              <Link href={this.getEntryURL()} style={blogStyle.link} value={UI.T("Continue reading")} />
-            </div>
+                <div style={{
+                    boxShadow: "0px 0px 10px rgb(160, 162, 168)",
+                    "background-color": "#fff",
+                    "padding": "1% 4% 10px 4%",
+                    "margin": "0 auto",
+                    "width": "900px",
+                    "max-width": "100%",
+                    position: "relative"
+                }}>
+                    <div style={blogStyle.writtenBy}>
+                        {UI.T("Written by")} <UserHandle
+                        userId={article.userCreatedId}/>, {publishedFormat}.{modifiedFormat}
+                    </div>
+                    <div style={blogStyle.title}>
+                        <Link href={this.getEntryURL()} value={article.name}
+                              style={{"text-decoration": "none", "color": "inherit"}}/>
+                    </div>
+                    <BlogArticleRenderer article={article} style={blogStyle.blogArticleRenderer}/>
+                    <div className={blogStyle.whiteOverlay}></div>
+                    <Link href={this.getEntryURL()} style={blogStyle.link} value={UI.T("Continue reading")}/>
+                </div>
             </div>
         ];
     }
