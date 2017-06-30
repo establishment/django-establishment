@@ -188,17 +188,6 @@ export class NewBlogEntryModal extends Modal {
 }
 
 class BlogEntryPreview extends UI.Element {
-    setOptions(options) {
-        super.setOptions(options);
-
-        this.options.urlPrefix = this.options.urlPrefix || "";
-
-        this.options.maxHeight = this.options.maxHeight || "240px";
-
-        this.entry = BlogEntryStore.get(this.options.entryId);
-        this.article = this.entry.getArticle();
-    }
-
     extraNodeAttributes(attr) {
         attr.setStyle({
             position: "relative",
@@ -212,11 +201,24 @@ class BlogEntryPreview extends UI.Element {
         return super.canOverwrite(obj) && this.options.entryId === obj.options.entryId;
     }
 
+    getBlogEntry() {
+        return BlogEntryStore.get(this.options.entryId);
+    }
+
+    getBlogArticle() {
+        return this.getBlogEntry().getArticle();
+    }
+
+    getEntryURL() {
+        return "/blog/" + this.getBlogEntry().urlName + "/";
+    }
+
     render() {
         const blogStyle = this.getStyleSheet();
+        const article = this.getBlogArticle();
 
         // TODO: not actually the published date
-        let publishedDate = this.article.dateCreated;
+        let publishedDate = article.dateCreated;
         let publishedFormat = StemDate.unix(publishedDate).format("LL");
         let modifiedFormat;
 
@@ -228,22 +230,22 @@ class BlogEntryPreview extends UI.Element {
             fontStyle: "italic",
         };
 
-        if (this.article.dateModified > this.article.dateCreated) {
-            modifiedFormat = <p style={articleInfoStyle}>{UI.T("Last update on")} {StemDate.unix(this.article.dateModified).format("LL")}.</p>
+        if (article.dateModified > article.dateCreated) {
+            modifiedFormat = <p style={articleInfoStyle}>{UI.T("Last update on")} {StemDate.unix(article.dateModified).format("LL")}.</p>
         }
 
         return [
             <div style={{height: "100%",}}>
             <div style={{boxShadow: "0px 0px 10px rgb(160, 162, 168)", "background-color": "#fff", "padding": "1% 4% 10px 4%", "margin": "0 auto", "width": "900px", "max-width": "100%", position: "relative"}}> <div style={blogStyle.writtenBy}>
-                {UI.T("Written by")} <UserHandle userId={this.article.userCreatedId}/>, {publishedFormat}.{modifiedFormat}
+                {UI.T("Written by")} <UserHandle userId={article.userCreatedId}/>, {publishedFormat}.{modifiedFormat}
               </div>
               <div style={blogStyle.title}>
-                <Link href={this.options.urlPrefix + this.entry.urlName + "/"} value={this.article.name}
+                <Link href={this.getEntryURL()} value={article.name}
                       style={{"text-decoration": "none", "color": "inherit"}} />
               </div>
-              <BlogArticleRenderer article={this.article} style={blogStyle.blogArticleRenderer}/>
+              <BlogArticleRenderer article={article} style={blogStyle.blogArticleRenderer}/>
               <div className={blogStyle.whiteOverlay}></div>
-              <Link href={this.options.urlPrefix + this.entry.urlName + "/"} style={blogStyle.link} value={UI.T("Continue reading")} />
+              <Link href={this.getEntryURL()} style={blogStyle.link} value={UI.T("Continue reading")} />
             </div>
             </div>
         ];
@@ -318,7 +320,7 @@ class BlogEntryView extends UI.Element {
                     "margin-top": "30px",
                     "margin-bottom": "10px",
                 }}>
-                    <Link href="../" style={blogStyle.link} value="Back to the Main Blog"/>
+                    <Link href="/blog/" style={blogStyle.link} value="Back to the Main Blog"/>
                 </div>
                 {this.getComments()}
             </div>,
