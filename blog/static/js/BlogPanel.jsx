@@ -297,12 +297,7 @@ class BlogEntryView extends UI.Element {
         // TODO: should use proper rights
         if (USER.isSuperUser) {
             blogEntryEditButton = <Button level={UI.Level.DEFAULT} label="Edit" onClick={() => {
-                if (!this.blogEntryEditModal) {
-                    // TODO: use new pattern, or do we want persistance?
-                    this.blogEntryEditModal = <BlogEntryEditModal entryId={this.options.entryId} fillScreen/>;
-                    this.blogEntryEditModal.mount(document.body);
-                }
-                this.blogEntryEditModal.show();
+                BlogEntryEditModal.show({entryId: this.getBlogEntry().id, fillScreen: true});
             }}/>
         }
 

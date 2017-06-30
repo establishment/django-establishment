@@ -39,7 +39,7 @@ class SocialApp(models.Model):
 
 
 class SocialAccount(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     provider = models.CharField(max_length=30, choices=providers.registry.as_choices())
     uid = models.CharField(max_length=512, unique=True)
     last_login = models.DateTimeField(auto_now=True)
@@ -83,8 +83,8 @@ class SocialAccount(models.Model):
 
 # TODO: rename to SocialAppToken
 class SocialToken(models.Model):
-    app = models.ForeignKey(SocialApp)
-    account = models.ForeignKey(SocialAccount)
+    app = models.ForeignKey(SocialApp, on_delete=models.PROTECT)
+    account = models.ForeignKey(SocialAccount, on_delete=models.CASCADE)
     token = models.TextField(help_text="oauth_token (OAuth1) or access token (OAuth2)")
     token_secret = models.TextField(blank=True, help_text="oauth_token_secret (OAuth1) or refresh token (OAuth2)")
     expires_at = models.DateTimeField(blank=True, null=True)

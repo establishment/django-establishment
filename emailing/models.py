@@ -70,7 +70,7 @@ class EmailGateway(StreamObjectMixin):
 class EmailCampaign(StreamObjectMixin):
     name = models.CharField(max_length=256, unique=True)
     from_address = models.CharField(max_length=512, null=True, blank=True)
-    gateway = models.ForeignKey(EmailGateway, null=True, blank=True)
+    gateway = models.ForeignKey(EmailGateway, on_delete=models.PROTECT, null=True, blank=True)
     is_newsletter = models.BooleanField(default=True) # TODO: rename to is_newsletter?
 
     class Meta:
@@ -131,10 +131,10 @@ class EmailTemplate(StreamObjectMixin):
     subject = models.CharField(max_length=256)
     html = models.TextField(max_length=1 << 17)
     plaintext = models.TextField(max_length=1 << 17, null=True, blank=True)
-    campaign = models.ForeignKey(EmailCampaign, related_name="templates")
+    campaign = models.ForeignKey(EmailCampaign, on_delete=models.CASCADE, related_name="templates")
     version = models.IntegerField(default=1)
-    language = models.ForeignKey(Language, default=1)
-    gateway = models.ForeignKey(EmailGateway, null=True, blank=True)
+    language = models.ForeignKey(Language, on_delete=models.PROTECT, default=1)
+    gateway = models.ForeignKey(EmailGateway, on_delete=models.PROTECT, null=True, blank=True)
 
     class Meta:
         db_table = "EmailTemplate"
@@ -233,9 +233,9 @@ class EmailTemplate(StreamObjectMixin):
 
 
 class EmailStatus(StreamObjectMixin):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+")
-    campaign = models.ForeignKey(EmailCampaign, related_name="+")
-    template = models.ForeignKey(EmailTemplate, related_name="+")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
+    campaign = models.ForeignKey(EmailCampaign, on_delete=models.PROTECT, related_name="+")
+    template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, related_name="+")
     key = models.CharField(max_length=64, default=random_key, unique=True, null=True, blank=True)
     time_sent = models.DateTimeField(auto_now_add=True)
     time_first_read = models.DateTimeField(null=True, blank=True)

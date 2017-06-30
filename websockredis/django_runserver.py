@@ -90,6 +90,6 @@ _websocket_app = WebsocketRunServer()
 
 
 def application(environ, start_response):
-    if environ.get("PATH_INFO").startswith("ws://"):
+    if environ.get("HTTP_UPGRADE") == "websocket":
         return _websocket_app(environ, start_response)
     return _django_app(environ, start_response)
