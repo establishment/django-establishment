@@ -71,11 +71,9 @@ class BlogStyle extends StyleSet {
     };
 
     link = {
-        "text-decoration": "none",
-        "text-align": "center",
-        // "font-style": "italic",
-        "font-family": this.fontFamily,
-        position: "absolute",
+        textDecoration: "none",
+        textAlign: "center",
+        fontFamily: this.fontFamily,
         marginTop: "-15pt",
         fontSize: "1.1em",
     };
