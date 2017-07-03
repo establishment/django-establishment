@@ -2,9 +2,10 @@ import {UI, Panel, Button, CodeEditor, SectionDivider} from "UI";
 import {MarkupRenderer} from "markup/MarkupRenderer";
 
 class MarkupEditor extends Panel {
-    setOptions(options) {
-        super.setOptions(options);
-        this.options.showButtons = typeof this.options.showButtons === "undefined" ? true : this.options.showButtons;
+    getDefaultOptions() {
+        return {
+            showButtons: true
+        };
     }
 
     extraNodeAttributes(attr) {
@@ -64,8 +65,8 @@ class MarkupEditor extends Panel {
     }
 
     setEditorOptions() {
-        this.codeEditor.ace.setOption("indentedSoftWrap", false);
-        this.codeEditor.ace.getSession().addEventListener("change", (event) => {
+        this.codeEditor.setIndentedSoftWrap(false);
+        this.codeEditor.addAceSessionChangeListener((event) => {
             let markup = this.codeEditor.getValue();
             try {
                 this.updateValue(markup);
