@@ -363,7 +363,6 @@ class MessagesPanelList extends UI.Element {
 
     routeToUser(userId) {
         Router.changeURL(getUserMessagesUrl(userId));
-        Router.Global.updateURL();
     }
 
     onMount() {

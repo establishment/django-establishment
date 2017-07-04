@@ -1,6 +1,6 @@
 import {Ajax} from "Ajax";
 import {GlobalState} from "State";
-import {UI, Link, Router} from "UI";
+import {UI, Panel, Link, Router} from "UI";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
@@ -138,7 +138,7 @@ class DeleteForumThreadModal extends UI.ActionModal {
 
 let DeleteForumThreadButton = UI.ActionModalButton(DeleteForumThreadModal);
 
-class ForumThreadReply extends UI.ConstructorInitMixin(UI.Element) {
+class ForumThreadReply extends UI.Element {
     extraNodeAttributes(attr) {
         // attr.addClass(forumThreadReplyStyle.mainClass);
     }
@@ -200,20 +200,18 @@ class ForumThreadReply extends UI.ConstructorInitMixin(UI.Element) {
     }
 
     onMount() {
-        this.getMessageInstance().addEventListener("messageDelete", () => {
+        this.attachEventListener(this.getMessageInstance(), "messageDelete", () => {
             this.hide();
         });
-        this.getMessageInstance().addEventListener("messageEdit", () => {
+        this.attachEventListener(this.getMessageInstance(), "messageEdit", () => {
             this.redraw();
         });
     }
 }
 
-class ForumThreadPanel extends UI.ConstructorInitMixin(UI.Panel) {
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
+class ForumThreadPanel extends Panel {
+    extraNodeAttributes(attr) {
         attr.addClass(forumThreadPanelStyle.mainClass);
-        return attr;
     }
 
     returnToMainForum() {

@@ -263,6 +263,10 @@ class BlogEntryPreview extends UI.Element {
 }
 
 class BlogEntryView extends UI.Element {
+    get pageTitle() {
+        return this.getBlogArticle().name;
+    }
+
     getBlogEntry() {
         return BlogEntryStore.get(this.options.entryId);
     }
@@ -427,6 +431,22 @@ class DelayedBlogEntryView extends StateDependentElement(BlogEntryView) {
         return BlogEntryStore.getEntryForURL(this.options.entryURL);
     }
 
+    get pageTitle() {
+        if (this.getBlogEntry()) {
+            return super.pageTitle;
+        } else {
+            return null;
+        }
+    }
+
+    set pageTitle(value) {
+    }
+
+    onDelayedMount() {
+        super.onDelayedMount();
+        Router.updateURL();
+    }
+
     getAjaxUrl() {
         return "/blog/get_blog_post/";
     }
@@ -451,12 +471,12 @@ class BlogRoute extends Route {
                 } else {
                     return <DelayedBlogEntryView entryURL={entryURL} />;
                 }
-
             }),
         ]
     }
 
     constructor(expr="blog", options={}) {
+        options.title = options.title || "Blog";
         super(expr, DelayedBlogEntryList, [], options);
         this.subroutes = this.getSubroutes();
     }

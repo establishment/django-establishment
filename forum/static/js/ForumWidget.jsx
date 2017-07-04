@@ -18,12 +18,9 @@ let forumThreadBubbleStyle = ForumThreadBubbleStyle.getInstance();
 let forumPanelStyle = ForumPanelStyle.getInstance();
 
 
-class ForumThreadHeader extends UI.ConstructorInitMixin(UI.Element) {
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-        // TODO: this should not be cast as a String here!
+class ForumThreadHeader extends UI.Element {
+    extraNodeAttributes(attr) {
         attr.addClass(forumThreadHeaderStyle.mainClass);
-        return attr;
     }
 
     getTitle() {
@@ -257,7 +254,7 @@ class ForumThreadList extends UI.Element {
     }
 }
 
-class ForumPanel extends UI.ConstructorInitMixin(Panel) {
+class ForumPanel extends Panel {
     extraNodeAttributes(attr) {
         attr.addClass(forumPanelStyle.mainClass);
     }

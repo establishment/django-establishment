@@ -165,13 +165,13 @@ class CommentVotingWidget extends VotingWidget {
 class CommentVotingWidgetWithThumbs extends ConstructorInitMixin(CommentVotingWidget) {
     extraNodeAttributes(attr) {
         attr.setStyle({
-            "height": "40px",
-            "line-height": "40px",
-            "font-size": "14px",
-            "color": "#767676",
-            "display": "inline-block",
-            "float": "right",
-            "text-align": "right",
+            height: "40px",
+            lineHeight: "40px",
+            fontSize: "14px",
+            color: "#767676",
+            display: "inline-block",
+            float: "right",
+            textAlign: "right",
         });
     }
 
