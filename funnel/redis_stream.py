@@ -3,6 +3,7 @@ import time
 import threading
 
 from django.conf import settings
+from psycopg2.extensions import JSON
 from redis import StrictRedis, ConnectionPool
 
 from establishment.misc.util import jsonify, same_dict
@@ -17,17 +18,10 @@ def redis_response_to_json(data):
     if data is None:
         return None
 
-    try:
+    if isinstance(data, bytes):
         data = str(data, "utf-8")
-    except Exception:
-        print("Failed to convert Redis string to unicode!")
-        return None
 
-    try:
-        return json.loads(data)
-    except Exception:
-        print("Failed to parse Redis string to json " + str(data))
-    return None
+    return json.loads(data)
 
 
 def get_default_redis_connection_pool():
@@ -105,6 +99,41 @@ class RedisStreamPublisher(object):
     @classmethod
     def format_message_vanilla(cls, message):
         return "v " + message
+
+
+class RedisCache(object):
+    def __init__(self, redis_connection=None):
+        self.redis_connection = redis_connection or StrictRedis(connection_pool=get_default_redis_connection_pool())
+
+    @staticmethod
+    def serialize(value, cls=StreamJSONEncoder):
+        return json.dumps(value, cls=cls)
+
+    @staticmethod
+    def deserialize(value):
+        return redis_response_to_json(value)
+
+    def get_or_set(self, key, expiration, generator):
+        value = self.redis_connection.get(key)
+        if value:
+            return self.deserialize(value)
+
+        value = generator()
+        serialized_value = self.serialize(value)
+        self.redis_connection.setex(key, expiration, serialized_value)
+
+        # Returning the deserialized value to be consistent between calls `or cached/uncached values
+        return self.deserialize(serialized_value)
+
+
+def redis_cached(expiration):
+    def _decorator(func):
+        def _wrapped_call():
+            redis_cache = RedisCache()
+            return redis_cache.get_or_set(func.__name__, expiration, func)
+        return _wrapped_call
+
+    return _decorator
 
 
 class RedisPriorityQueue(object):
