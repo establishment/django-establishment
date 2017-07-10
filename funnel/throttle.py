@@ -47,8 +47,16 @@ class ActionThrottler(object):
         # TODO: set expire to self.key_name in timeframe
         return True
 
+    def increm_or_raise(self, error):
+        if not self.increm():
+            raise error
+
     def clear(self):
         redis_connection.delete(self.key_name)
+
+    @classmethod
+    def increm_or_raise(cls, error, timeframe, limit):
+        cls(error.__name__, timeframe, limit).increm_or_raise()
 
 
 class UserActionThrottler(ActionThrottler):
@@ -56,3 +64,9 @@ class UserActionThrottler(ActionThrottler):
         user_id = user if isinstance(user, int) else user.id
 
         super().__init__("user-" + str(user_id) + "-" + name, timeframe, limit)
+
+    @classmethod
+    def increm_or_raise(cls, error, user, timeframe, limit):
+        cls(user, error.__name__, timeframe, limit)
+
+# TODO: include visitor_throttle and user_throttle(error, time, limit) as decorators for views
