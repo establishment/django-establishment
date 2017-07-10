@@ -2,7 +2,8 @@ import json
 
 from establishment.content.models import Article
 from establishment.documentation.models import DocumentationEntry
-from establishment.funnel.base_views import ajax_required, JSONResponse, superuser_required, global_renderer
+from establishment.funnel.base_views import ajax_required, JSONResponse, superuser_required, global_renderer, \
+    single_page_app
 from establishment.funnel.utils import GlobalObjectCache
 
 
@@ -68,6 +69,7 @@ def change_parents(request):
     return JSONResponse({"success": True})
 
 
+@single_page_app
 @superuser_required
 def edit_documentation(request):
     state = GlobalObjectCache()
@@ -77,13 +79,10 @@ def edit_documentation(request):
         state.add(entry)
         state.add(entry.article)
 
-    widget_options = {
-        "documentationEntryId": 1,
-    }
-
-    return global_renderer.render_ui_widget(request, "AdminDocumentationPanel", state=state, widget_options=widget_options)
+    return JSONResponse({"state": state, "documentationEntryId": 1})
 
 
+@single_page_app
 def documentation(request):
     state = GlobalObjectCache()
 
@@ -92,8 +91,4 @@ def documentation(request):
         state.add(entry)
         state.add(entry.article)
 
-    widget_options = {
-        "documentationEntryId": 1,
-    }
-
-    return global_renderer.render_ui_widget(request, "DocumentationPanel", state=state, widget_options=widget_options)
+    return JSONResponse({"state": state, "documentationEntryId": 1})

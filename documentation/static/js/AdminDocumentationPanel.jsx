@@ -290,8 +290,7 @@ class AdminDocumentationPanel extends DocumentationPanel {
         ]
     }
 
-    redraw() {
-        super.redraw();
+    explore() {
         this.entryNavElementMap = new Map();
         let explore = (entryNavElement) => {
             this.entryNavElementMap.set(entryNavElement.getDocumentationEntry(), entryNavElement);
@@ -300,6 +299,13 @@ class AdminDocumentationPanel extends DocumentationPanel {
             }
         };
         explore(this.root);
+    }
+
+    redraw() {
+        super.redraw();
+        if (this.root) {
+            this.explore();
+        }
     }
 
     modifyEntry(entry, newParent, nextSibling) {

@@ -4,7 +4,6 @@ import {GlobalState} from "State";
 import {TranslationKeyStore, TranslationEntryStore} from "TranslationStore";
 import {Language} from "LanguageStore";
 import {Dispatcher} from "Dispatcher";
-import {URLRouter} from "URLRouter";
 import {FileSaver} from "FileSaver";
 import {Ajax} from "Ajax";
 
@@ -633,20 +632,36 @@ class TranslationKeyManager extends UI.Panel {
 }
 
 class TranslationManager extends UI.Panel {
+    getUrlPrefix(urlPart) {
+        let url = "/manage/translation/";
+        if (urlPart) {
+            url += urlPart + "/";
+        }
+        return url;
+    }
+
     render() {
         return [
             <TabArea ref="tabArea" variableHeightPanels >
-                <TranslationKeyManager ref="keyManager" tabHref="#keys" title="Edit keys" active/>
-                <TranslationEntryManager ref="entryManager" tabHref="#entries" title="Edit entries"/>
+                <TranslationKeyManager ref="keyManager" tabHref={this.getUrlPrefix("keys")} title="Edit keys" active/>
+                <TranslationEntryManager ref="entryManager" tabHref={this.getUrlPrefix("entries")} title="Edit entries"/>
             </TabArea>
         ];
+    }
+
+    setURL(urlParts) {
+        if (!this.tabArea) {
+            this.initialUrlParts = urlParts;
+        } else {
+            this.showUrlTab(urlParts[0] || "keys");
+        }
     }
 
     onMount() {
         super.onMount();
 
-        this.showUrlTab(URLRouter.getLocation());
-        URLRouter.addRouteListener((location) => this.showUrlTab(location));
+        this.setURL(this.initialUrlParts);
+        delete this.initialUrlParts;
 
         this.tabArea.titleArea.addClass("text-center");
 
@@ -658,17 +673,15 @@ class TranslationManager extends UI.Panel {
         });
     }
 
-    showUrlTab(location) {
-        if (location.args[0] === "keys") {
+    showUrlTab(urlPart) {
+        if (urlPart === "keys") {
             this.keyManager.dispatch("show");
-        } else if (location.args[0] === "entries") {
+        } else if (urlPart === "entries") {
             this.entryManager.dispatch("show");
             if (this.keyManager.hasChanged()) {
                 this.entryManager.redraw();
                 this.keyManager.setUnchanged();
             }
-        } else {
-            this.keyManager.dispatch("show");
         }
     }
 }

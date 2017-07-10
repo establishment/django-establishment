@@ -98,15 +98,19 @@ class ArticleSwitcher extends Switcher {
         super.setOptions(options);
     }
 
+    getPageForArticle(article) {
+        if (!this.articleChildMap.has(article)) {
+            this.articleChildMap.set(article, <ArticleRenderer article={article} showEditButton={this.options.showEditButton} />);
+        }
+        return this.articleChildMap.get(article);
+    }
+
     setActive(article) {
         if (!(article instanceof Article)) {
             super.setActive(article);
             return;
         }
-        if (!this.articleChildMap.has(article)) {
-            this.articleChildMap.set(article, <ArticleRenderer article={article} showEditButton={this.options.showEditButton} />);
-        }
-        super.setActive(this.articleChildMap.get(article));
+        super.setActive(this.getPageForArticle(article));
     }
 
     setActiveArticleId(articleId) {
