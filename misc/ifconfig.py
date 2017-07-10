@@ -14,9 +14,19 @@ def get_ifconfig(from_cache=False):
     for interface_name in netifaces.interfaces():
         current_network = dict()
         addrs = netifaces.ifaddresses(interface_name)
-        current_network["mac"] = addrs[netifaces.AF_LINK][0]["addr"]
-        current_network["ip"] = addrs[netifaces.AF_INET][0]["addr"]
-        current_network["ipv6"] = addrs[netifaces.AF_INET6][0]["addr"]
+        try:
+            current_network["mac"] = addrs[netifaces.AF_LINK][0]["addr"]
+        except:
+            current_network["mac"] = "00:00:00:00"
+        try:
+            current_network["ip"] = addrs[netifaces.AF_INET][0]["addr"]
+        except:
+            current_network["ip"] = "00:00:00:00"
+        try:
+            current_network["ipv6"] = addrs[netifaces.AF_INET6][0]["addr"]
+        except:
+            current_network["ipv6"] = "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00"
+
         network_interface_dict[interface_name] = current_network
 
     cached_network_interface_dict = network_interface_dict
