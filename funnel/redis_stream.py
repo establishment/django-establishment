@@ -102,8 +102,17 @@ class RedisStreamPublisher(object):
 
 
 class RedisCache(object):
-    def __init__(self, redis_connection=None):
-        self.redis_connection = redis_connection or StrictRedis(connection_pool=get_default_redis_connection_pool())
+    connection_pool = None
+
+    def __init__(self, key_prefix="cache-", redis_connection=None):
+        self.key_prefix = key_prefix
+        self.redis_connection = redis_connection or StrictRedis(connection_pool=self.get_default_connection_pool())
+
+    @classmethod
+    def get_default_connection_pool(cls):
+        if not cls.connection_pool:
+            cls.connection_pool = ConnectionPool(**settings.REDIS_CONNECTION_CACHING)
+        return cls.connection_pool
 
     @staticmethod
     def serialize(value, cls=StreamJSONEncoder):
@@ -113,24 +122,35 @@ class RedisCache(object):
     def deserialize(value):
         return redis_response_to_json(value)
 
-    def get_or_set(self, key, expiration, generator):
+    def get_or_set(self, key, generator, timeout, stale_extra=1):
+        key = key or generator.__name__
+        if self.key_prefix:
+            key = self.key_prefix + key
         value = self.redis_connection.get(key)
         if value:
             return self.deserialize(value)
 
         value = generator()
         serialized_value = self.serialize(value)
-        self.redis_connection.setex(key, expiration, serialized_value)
+        self.redis_connection.setex(key, timeout, serialized_value)
 
         # Returning the deserialized value to be consistent between calls `or cached/uncached values
         return self.deserialize(serialized_value)
+
+
+class RedisCacheSerialized(RedisCache):
+    @staticmethod
+    def deserialize(value):
+        if isinstance(value, bytes):
+            value = str(value, "utf-8")
+        return value
 
 
 def redis_cached(expiration):
     def _decorator(func):
         def _wrapped_call():
             redis_cache = RedisCache()
-            return redis_cache.get_or_set(func.__name__, expiration, func)
+            return redis_cache.get_or_set(func.__name__, func, expiration)
         return _wrapped_call
 
     return _decorator

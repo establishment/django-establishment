@@ -9,16 +9,6 @@ from establishment.funnel.throttle import UserActionThrottler
 from establishment.funnel.utils import GlobalObjectCache
 
 
-def global_chat(request):
-    chat = GroupChat.objects.get(title="global-chat")
-    state = GlobalObjectCache()
-    chat.add_to_state(state)
-    widget_options = {
-        "chatId": chat.id
-    }
-    return global_renderer.render_ui_widget(request, "GroupChatWidget", state=state, widget_options=widget_options)
-
-
 @login_required_ajax
 def edit_message(request):
     message_id = int(request.POST["messageId"])
