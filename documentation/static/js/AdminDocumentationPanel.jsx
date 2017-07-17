@@ -8,170 +8,8 @@ import {Dispatcher} from "Dispatcher";
 import {DocumentationEntryStore} from "./state/DocumentationStore";
 import {DocumentationPanel} from "./DocumentationPanel";
 import {DraggableDocumentationNavElement, dragAndDropHandler} from "./DocumentationNavElement";
+import {CreateEntryButton} from "./CreateEntryModal";
 
-class EditEntryModal extends ActionModal {
-    getTitle() {
-        return "Edit documentation entry";
-    }
-
-    getActionName() {
-        return "Apply";
-    }
-
-    getBody() {
-        return [
-            <Form style={{"margin-top": "10px", "color": "initial", "font-size": "initial"}}>
-                <FormField label="URL name" style={{"font-weight": "initial"}}>
-                    <TextInput ref="urlNameInput"  value={this.options.entry.urlName}/>
-                </FormField>
-                <FormField label="Name" style={{"font-weight": "initial"}}>
-                    <TextInput ref="nameInput"  value={this.options.entry.name}/>
-                </FormField>
-                <FormField label="Article Id" style={{"font-weight": "initial"}}>
-                    <TextInput ref="articleIdInput"  value={this.options.entry.articleId} />
-                </FormField>
-                <FormField label="Parent index" style={{"font-weight": "initial"}}>
-                    <TextInput ref="parentIndexInput"  value={this.options.entry.parentIndex} />
-                </FormField>
-            </Form>
-        ];
-    }
-
-    check(data) {
-        if (!data.urlName) {
-            return "URL name cannot be empty.";
-        }
-        if (!data.name) {
-            return "Name cannot be empty.";
-        }
-        for (let entry of DocumentationEntryStore.all()) {
-            if (entry === this.options.entry) {
-                continue;
-            }
-            if (entry.getName() === data.name) {
-                return "Name already exists.";
-            }
-            if (entry.urlName === data.urlName) {
-                return "URL name already exists";
-            }
-        }
-    }
-
-    action() {
-        let data = {
-            entryId: this.options.entry.id,
-            urlName: this.urlNameInput.getValue(),
-            name: this.nameInput.getValue(),
-            articleId: parseInt(this.articleIdInput.getValue()) || 0,
-            parentIndex: parseInt(this.parentIndexInput.getValue()) || 0
-        };
-        let errorMessage = this.check(data);
-        if (!errorMessage) {
-            Ajax.postJSON("/docs/edit_entry/", data).then(
-                (data) => {
-                    if (data.error) {
-                        console.log(data.error);
-                    } else {
-                        GlobalState.importState(data.state || {});
-                    }
-                },
-                (error) => {
-                    console.log("Error in deleting workspace:\n" + error.message);
-                    console.log(error.stack);
-                }
-            );
-        } else {
-            this.messageArea.showMessage(errorMessage, "red");
-        }
-        this.hide();
-    }
-}
-
-class CreateEntryModal extends ActionModal {
-    getTitle() {
-        return "Create documentation entry";
-    }
-
-    getActionName() {
-        return "Create";
-    }
-
-    getBody() {
-        let entries = DocumentationEntryStore.all();
-        entries.push({
-            toString: () => {
-                return "No Parent"
-            },
-            id: 0
-        });
-        return [
-            <Form style={{"margin-top": "10px", "color": "initial", "font-size": "initial"}}>
-                <FormField label="URL name" style={{"font-weight": "initial"}}>
-                    <TextInput ref="urlNameInput"  value=""/>
-                </FormField>
-                <FormField label="Name" style={{"font-weight": "initial"}}>
-                    <TextInput ref="nameInput"  value=""/>
-                </FormField>
-                <FormField label="Article Id" style={{"font-weight": "initial"}}>
-                    <TextInput ref="articleIdInput"  placeholder="Enter 0 (or leave blank) to create a new article instead"/>
-                </FormField>
-                <FormField label="Parent" style={{"font-weight": "initial"}}>
-                    <Select ref="parentInput" options={entries} activeIndex={entries.length - 1} style={{"height": "30px"}}/>
-                </FormField>
-                <FormField label="Parent index" style={{"font-weight": "initial"}}>
-                    <TextInput ref="parentIndexInput"  value="0"/>
-                </FormField>
-            </Form>
-        ];
-    }
-
-    check(data) {
-        if (!data.urlName) {
-            return "URL name cannot be empty.";
-        }
-        if (!data.name) {
-            return "Name cannot be empty.";
-        }
-        for (let entry of DocumentationEntryStore.all()) {
-            if (entry.getName() === data.name) {
-                return "Name already exists.";
-            }
-            if (entry.urlName === data.urlName) {
-                return "URL name already exists";
-            }
-        }
-    }
-
-    action() {
-        let data = {
-            urlName: this.urlNameInput.getValue(),
-            name: this.nameInput.getValue(),
-            articleId: parseInt(this.articleIdInput.getValue()) || 0,
-            parentId: this.parentInput.get().id,
-            parentIndex: parseInt(this.parentIndexInput.getValue()) || 0
-        };
-        let errorMessage = this.check(data);
-        if (!errorMessage) {
-            Ajax.postJSON("/docs/create/", data).then(
-                (data) => {
-                    if (data.error) {
-                        console.log(data.error);
-                    } else {
-                        GlobalState.importState(data.state || {});
-                    }
-                },
-                (error) => {
-                    console.log("Error in deleting workspace:\n" + error.message);
-                    console.log(error.stack);
-                }
-            );
-        } else {
-            this.messageArea.showMessage(errorMessage, "red");
-        }
-        this.hide();
-    }
-}
-var AddEntryButton = ActionModalButton(CreateEntryModal);
 
 class AdminDocumentationPanel extends DocumentationPanel {
     getBaseUrl() {
@@ -194,10 +32,10 @@ class AdminDocumentationPanel extends DocumentationPanel {
                         />
                     </div>
                     <div style={{position: "absolute", bottom: "5%"}}>
-                        <Button ref="trash" faIcon="trash"
+                        <Button ref="trash" faIcon="trash" disabled
                                 level={UI.Level.WARNING} size={UI.Size.EXTRA_LARGE}
                                 style={{marginLeft: "50px", padding: "16px 22px"}} />
-                        <AddEntryButton ref="addEntryButton" faIcon="plus"
+                        <CreateEntryButton faIcon="plus"
                                         level={UI.Level.PRIMARY} size={UI.Size.EXTRA_LARGE}
                                         style={{marginLeft: "50px", padding: "16px 22px"}} />
                     </div>

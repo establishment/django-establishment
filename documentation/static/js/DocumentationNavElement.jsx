@@ -2,7 +2,9 @@ import {UI} from "UI";
 import {Draggable} from "Draggable";
 import {Dispatcher} from "Dispatcher";
 import {FACollapseIcon} from "FontAwesome";
-import {DocumentationStyle} from "DocumentationStyle";
+
+import {DocumentationStyle} from "./DocumentationStyle";
+import {EditEntryModal} from "./CreateEntryModal";
 
 class CollapseIconClass extends FACollapseIcon {
     extraNodeAttributes(attr) {
