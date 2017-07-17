@@ -72,6 +72,10 @@ class DocumentationPanel extends UI.Element {
 
     focusToDocumentationEntry(documentationEntry) {
         documentationEntry.dispatch("show");
+        this.uncollapsePathTo(documentationEntry);
+    }
+
+    uncollapsePathTo(documentationEntry) {
         while (documentationEntry) {
             documentationEntry.dispatch("setCollapsed", false);
             documentationEntry = documentationEntry.getParent();

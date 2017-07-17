@@ -48,11 +48,7 @@ export class DocumentationNavElementContent extends UI.Element {
             return;
         }
         this.collapseIcon.setCollapsed(collapsed);
-        if (collapsed) {
-            this.dispatch("hideSubEntries");
-        } else {
-            this.dispatch("showSubEntries");
-        }
+        this.dispatch("toggleCollapsed");
     }
 
     toggleCollapsed() {
@@ -114,7 +110,7 @@ export class DocumentationNavElementContent extends UI.Element {
         this.addClickListener(() => {
             this.setActive(true);
             if (this.options.shouldToggle) {
-                this.setCollapsed(false);
+                this.toggleCollapsed();
             }
         });
     }
@@ -205,7 +201,7 @@ export const DocumentationNavElement = (ContentClass) => class DocumentationNavE
 
     extraNodeAttributes(attr) {
         attr.setStyle("cursor", "pointer");
-        attr.setStyle("paddingLeft", ((this.options.level || 0) > 0 ? 12 : 0) + "px");
+        attr.setStyle("padding-left", ((this.options.level || 0) > 0 ? 12 : 0) + "px");
     }
 
     getDocumentationEntry() {
@@ -216,18 +212,21 @@ export const DocumentationNavElement = (ContentClass) => class DocumentationNavE
         let level = this.options.level || 0;
         let collapsed = this.options.collapsed && !this.options.isRoot;
 
-        this.subEntries = this.getDocumentationEntry().getEntries(); // TODO: This might be crap; needed for listener
+        this.subEntries = this.subEntries || [];
 
-        this.subEntries = this.subEntries.map(subEntry => <DocumentationNavElementClass
-            documentationEntry={subEntry}
-            level={this.options.isRoot ? level : level + 1}
-            panel={this.options.panel}
-            documentationSwitchDispatcher={this.options.documentationSwitchDispatcher}
-        />);
+        const subEntries = this.getDocumentationEntry().getEntries().map(
+            (subEntry, index) => <DocumentationNavElementClass
+                                    documentationEntry={subEntry}
+                                    ref={this.refLinkArray("subEntries", index)}
+                                    level={this.options.isRoot ? level : level + 1}
+                                    panel={this.options.panel}
+                                    documentationSwitchDispatcher={this.options.documentationSwitchDispatcher}
+                                />
+        );
 
         let content = <ContentClass
             ref="titleElement" documentationEntry={this.getDocumentationEntry()}
-            shouldToggle={this.subEntries.length && !this.options.isRoot}
+            shouldToggle={subEntries.length && !this.options.isRoot}
             collapsed={collapsed} parent={this}
             documentationSwitchDispatcher={this.options.documentationSwitchDispatcher} />;
 
@@ -236,7 +235,7 @@ export const DocumentationNavElement = (ContentClass) => class DocumentationNavE
             // TODO: should be hidden, depending on collapsed
             // TODO: do something consistent about this hidden stuff
             <div ref="subEntryArea" className={collapsed ? "hidden" : ""}>
-                {this.subEntries}
+                {subEntries}
             </div>
         ]
     }
@@ -248,12 +247,8 @@ export const DocumentationNavElement = (ContentClass) => class DocumentationNavE
 
     onMount() {
         // TODO: a bit too many listeners here, should probably be done the other way around?
-        this.titleElement.addListener("hideSubEntries", () => {
-            this.subEntryArea.hide();
-        });
-
-        this.titleElement.addListener("showSubEntries", () => {
-            this.subEntryArea.show();
+        this.titleElement.addListener("toggleCollapsed", () => {
+            this.subEntryArea.toggleClass("hidden");
         });
 
         this.attachListener(this.getDocumentationEntry(), "show", () => {

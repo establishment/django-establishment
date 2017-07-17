@@ -3,56 +3,50 @@ import {UI, ActionModal, ActionModalButton, Form, FormField, TextInput, Select} 
 import {Ajax} from "Ajax";
 import {GlobalState} from "State";
 
-export class CreateEntryModal extends ActionModal {
+export class EditEntryModal extends ActionModal {
     getTitle() {
-        return "Create documentation entry";
+        return "Edit documentation entry";
     }
 
     getActionName() {
-        return "Create";
+        return "Apply";
     }
 
     getEntry() {
-        return {
-            urlName: "",
-            name: "",
-            articleId: "",
-            parentIndex: ""
-        };
+        return this.options.entry;
     }
 
-    getParentInput() {
-        let entries = DocumentationEntryStore.all();
-        entries.push({
-            toString: () => {
-                return "No Parent"
-            },
-            id: 0
-        });
-        let parent = entries[entries.length - 1];
-        if (this.getEntry().parentId) {
-            parent = this.getEntry().getParent();
-        }
-        return <FormField label="Parent" style={{"font-weight": "initial"}}>
-                    <Select ref="parentInput" options={entries} selected={parent} style={{"height": "30px"}}/>
-                </FormField>;
+    getParentInput() {}
+
+    getAjaxUrl() {
+        return "/docs/edit_entry/";
+    }
+
+    getAjaxRequest() {
+        return {
+            entryId: this.getEntry().id,
+            urlName: this.urlNameInput.getValue(),
+            name: this.nameInput.getValue(),
+            articleId: parseInt(this.articleIdInput.getValue()) || 0,
+            parentIndex: parseInt(this.parentIndexInput.getValue()) || 0
+        };
     }
 
     getBody() {
         return [
-            <Form style={{"margin-top": "10px", "color": "initial", "font-size": "initial"}}>
-                <FormField label="URL name" style={{"font-weight": "initial"}}>
+            <Form style={{marginTop: "10px", color: "initial", fontSize: "initial"}}>
+                <FormField label="URL name" style={{fontWeight: "initial"}}>
                     <TextInput ref="urlNameInput"  value={this.getEntry().urlName}/>
                 </FormField>
-                <FormField label="Name" style={{"font-weight": "initial"}}>
+                <FormField label="Name" style={{fontWeight: "initial"}}>
                     <TextInput ref="nameInput"  value={this.getEntry().name}/>
                 </FormField>
-                <FormField label="Article Id" style={{"font-weight": "initial"}}>
+                <FormField label="Article Id" style={{fontWeight: "initial"}}>
                     <TextInput ref="articleIdInput" value={this.getEntry().articleId}
                                placeholder="Enter 0 (or leave blank) to create a new article instead"/>
                 </FormField>
                 {this.getParentInput()}
-                <FormField label="Parent index" style={{"font-weight": "initial"}}>
+                <FormField label="Parent index" style={{fontWeight: "initial"}}>
                     <TextInput ref="parentIndexInput"  value={this.getEntry().parentIndex}/>
                 </FormField>
             </Form>
@@ -79,20 +73,6 @@ export class CreateEntryModal extends ActionModal {
         }
     }
 
-    getAjaxUrl() {
-        return "/docs/create/";
-    }
-
-    getAjaxRequest() {
-        return {
-            urlName: this.urlNameInput.getValue(),
-            name: this.nameInput.getValue(),
-            articleId: parseInt(this.articleIdInput.getValue()) || 0,
-            parentId: this.parentInput.get().id,
-            parentIndex: parseInt(this.parentIndexInput.getValue()) || 0
-        };
-    }
-
     action() {
         let request = this.getAjaxRequest();
         let errorMessage = this.check(request);
@@ -117,31 +97,47 @@ export class CreateEntryModal extends ActionModal {
     }
 }
 
-export const CreateEntryButton = ActionModalButton(CreateEntryModal);
-
-export class EditEntryModal extends CreateEntryModal {
+export class CreateEntryModal extends EditEntryModal {
     getTitle() {
-        return "Edit documentation entry";
+        return "Create documentation entry";
     }
 
     getActionName() {
-        return "Apply";
+        return "Create";
     }
 
     getEntry() {
-        return this.options.entry;
+        return {
+            urlName: "",
+            name: "",
+            articleId: "",
+            parentIndex: "",
+            id: 0
+        };
     }
 
-    getParentInput() {}
+    getParentInput() {
+        let entries = DocumentationEntryStore.all();
+        entries.push({
+            toString: () => {
+                return "No Parent"
+            },
+            id: 0
+        });
+        return <FormField label="Parent" style={{fontWeight: "initial"}}>
+                    <Select ref="parentInput" options={entries} selected={entries[entries.length - 1]} style={{height: "30px"}}/>
+                </FormField>;
+    }
 
     getAjaxUrl() {
-        return "/docs/edit_entry/";
+        return "/docs/create/";
     }
 
     getAjaxRequest() {
         let request = super.getAjaxRequest();
-        delete request.parentId;
-        request.entryId = this.getEntry().id;
+        request.parentId = this.parentInput.get().id;
         return request;
     }
 }
+
+export const CreateEntryButton = ActionModalButton(CreateEntryModal);

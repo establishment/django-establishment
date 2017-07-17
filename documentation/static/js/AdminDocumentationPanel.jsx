@@ -10,8 +10,7 @@ import {DocumentationPanel} from "./DocumentationPanel";
 import {DraggableDocumentationNavElement, dragAndDropHandler} from "./DocumentationNavElement";
 import {CreateEntryButton} from "./CreateEntryModal";
 
-
-class AdminDocumentationPanel extends DocumentationPanel {
+export class AdminDocumentationPanel extends DocumentationPanel {
     getBaseUrl() {
         return "/docs/edit/";
     }
@@ -19,9 +18,9 @@ class AdminDocumentationPanel extends DocumentationPanel {
     render() {
         let documentationEntry = DocumentationEntryStore.get(this.options.documentationEntryId);
         return [
-            <Panel orientation={UI.Orientation.HORIZONTAL} className={this.styleSheet.panel}>
+            <Panel orientation={UI.Orientation.HORIZONTAL} className={this.styleSheet.panel} key="container">
                 <Panel ref="navPanel" className={this.styleSheet.navPanel}>
-                    <div style={{maxHeight: "90%", overflowY: "auto"}}>
+                    <div style={{maxHeight: "90%", overflowY: "auto"}} key="navigationContainer">
                         <DraggableDocumentationNavElement
                             ref="root"
                             documentationEntry={documentationEntry}
@@ -56,22 +55,18 @@ class AdminDocumentationPanel extends DocumentationPanel {
         return "edit/" + documentationEntry.getFullURL() === urlParts.join("/");
     }
 
-    explore() {
-        this.entryNavElementMap = new Map();
+    getNavElement(entry) {
         let explore = (entryNavElement) => {
-            this.entryNavElementMap.set(entryNavElement.getDocumentationEntry(), entryNavElement);
-            for (let subEntry of entryNavElement.subEntries) {
-                explore(subEntry);
+            if (entryNavElement.getDocumentationEntry() === entry) {
+                return entryNavElement;
             }
+            let navElement = null;
+            for (let subEntry of entryNavElement.subEntries) {
+                navElement = navElement || explore(subEntry);
+            }
+            return navElement;
         };
         explore(this.root);
-    }
-
-    redraw() {
-        super.redraw();
-        if (this.root) {
-            this.explore();
-        }
     }
 
     modifyEntry(entry, newParent, nextSibling) {
@@ -134,7 +129,7 @@ class AdminDocumentationPanel extends DocumentationPanel {
                 parentIndex: entry.parentIndex
             });
         }
-        Ajax.postJSON("/docs/change_parents/",{"modifiedEntries": JSON.stringify(modified)}).then(
+        Ajax.postJSON("/docs/change_parents/",{modifiedEntries: JSON.stringify(modified)}).then(
             () => {
                 console.log("successfully changed parent indices!");
             },
@@ -189,19 +184,15 @@ class AdminDocumentationPanel extends DocumentationPanel {
 
     redrawAndUncollapse(visibleEntries, entry) {
         this.redraw();
-        let visibleEntryIds = new Set();
-        for (let visibleEntry of visibleEntries) {
-            visibleEntryIds.add(visibleEntry.getDocumentationEntry().id);
-        }
         let exploreAndUncollapse = (entryNavElement) => {
             if (entryNavElement.getDocumentationEntry() === entry) {
                 return;
             }
-            if (visibleEntryIds.has(entryNavElement.getDocumentationEntry().id)
+            if (visibleEntries.indexOf(entryNavElement.getDocumentationEntry()) !== -1
                     && entryNavElement.getDocumentationEntry().parentId) {
                 let parentEntry = DocumentationEntryStore.get(entryNavElement.getDocumentationEntry().parentId);
-                let parentEntryNavElement = this.entryNavElementMap.get(parentEntry);
-                if (parentEntryNavElement.titleElement.options.shouldToggle) {
+                let parentEntryNavElement = this.getNavElement(parentEntry);
+                if (parentEntryNavElement && parentEntryNavElement.titleElement.options.shouldToggle) {
                     parentEntryNavElement.titleElement.setCollapsed(false);
                 }
             }
@@ -232,16 +223,10 @@ class AdminDocumentationPanel extends DocumentationPanel {
     onMount() {
         super.onMount();
         this.attachCreateListener(DocumentationEntryStore, (entry) => {
-            this.redrawAndUncollapse(this.getVisibleEntries());
             this.attachUpdateListener(entry, () => {
-                this.redrawAndUncollapse(this.getVisibleEntries());
-            })
-        });
-        for (let entry of DocumentationEntryStore.all()) {
-            this.attachUpdateListener(entry, () => {
-                this.redrawAndUncollapse(this.getVisibleEntries());
+                this.focusToDocumentationEntry(entry);
             });
-        }
+        }, true);
         dragAndDropHandler.addListener((type, draggedItem, top) => {
             let titleHeight = 40;
 
@@ -299,7 +284,8 @@ class AdminDocumentationPanel extends DocumentationPanel {
                     if (modifyEntry) {
                         this.modifyEntry(entry, newParent, nextSibling);
                     }
-                    this.redrawAndUncollapse(visibleEntries, entry);
+                    this.redraw();
+                    this.focusToDocumentationEntry(entry);
                 };
 
                 if (newParent === -1) {
@@ -315,5 +301,3 @@ class AdminDocumentationPanel extends DocumentationPanel {
         });
     }
 }
-
-export {AdminDocumentationPanel};

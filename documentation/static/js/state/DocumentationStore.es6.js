@@ -19,7 +19,7 @@ class DocumentationEntry extends StoreObject {
     getFullURL() {
         let parent = this.getParent();
         if (parent) {
-            return parent.getFullURL() + "/" + Utils.slugify(this.name);
+            return parent.getFullURL() + "/" + this.urlName;
         } else {
             return this.urlName;
         }
