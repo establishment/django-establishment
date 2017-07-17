@@ -122,6 +122,16 @@ class RedisCache(object):
     def deserialize(value):
         return redis_response_to_json(value)
 
+    def update_key(self, key, generator, timeout, stale_extra=None):
+        value = generator()
+        serialized_value = self.serialize(value)
+        self.redis_connection.setex(key, timeout, serialized_value)
+        if stale_extra:
+            self.redis_connection.setex("stale-" + key, int(timeout + stale_extra), serialized_value)
+        self.redis_connection.delete("lock-" + key)
+        # Returning the deserialized value to be consistent between calls `or cached/uncached values
+        return self.deserialize(serialized_value)
+
     def get_or_set(self, key, generator, timeout, stale_extra=1):
         key = key or generator.__name__
         if self.key_prefix:
@@ -130,12 +140,28 @@ class RedisCache(object):
         if value:
             return self.deserialize(value)
 
-        value = generator()
-        serialized_value = self.serialize(value)
-        self.redis_connection.setex(key, timeout, serialized_value)
+        if stale_extra:
+            lock_key = "lock-" + key
+            stale_key = "stale-" + key
+            lock_status = self.redis_connection.getset(lock_key, str(time.time()))
+            if lock_status is None:
+                stale_value = self.redis_connection.get(stale_key)
+                if stale_value:
+                    if self.redis_connection.setnx(key, stale_value) == 1:
+                        self.redis_connection.expire(key, stale_extra)
+                return self.update_key(key, generator, timeout, stale_extra)
 
-        # Returning the deserialized value to be consistent between calls `or cached/uncached values
-        return self.deserialize(serialized_value)
+        value = self.redis_connection.get("stale-" + key)
+        if value:
+            return self.deserialize(value)
+        else:
+            # We didn't have the lock, try for a bit
+            for iter in range(int(stale_extra * 50)):
+                time.sleep(1.0 / 50)
+                value = self.redis_connection.get(key)
+                if value:
+                    return self.deserialize(value)
+            return self.update_key(key, generator, timeout, stale_extra)
 
 
 class RedisCacheSerialized(RedisCache):
