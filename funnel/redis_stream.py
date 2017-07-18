@@ -129,10 +129,10 @@ class RedisCache(object):
         if stale_extra:
             self.redis_connection.setex("stale-" + key, int(timeout + stale_extra), serialized_value)
         self.redis_connection.delete("lock-" + key)
-        # Returning the deserialized value to be consistent between calls `or cached/uncached values
+        # Returning the deserialized value to be consistent between calls of cached/uncached values
         return self.deserialize(serialized_value)
 
-    def get_or_set(self, key, generator, timeout, stale_extra=1):
+    def get_or_set(self, key, generator, timeout, stale_extra=1, retries_per_second=50):
         key = key or generator.__name__
         if self.key_prefix:
             key = self.key_prefix + key
@@ -140,11 +140,14 @@ class RedisCache(object):
         if value:
             return self.deserialize(value)
 
+        # We want to sync so that only a single process calls the generator
+        # and the others wait at most stale_extra to grab it
         if stale_extra:
             lock_key = "lock-" + key
             stale_key = "stale-" + key
             lock_status = self.redis_connection.getset(lock_key, str(time.time()))
             if lock_status is None:
+                # We grabbed the lock, put the stale copy so that all other readers use it
                 stale_value = self.redis_connection.get(stale_key)
                 if stale_value:
                     if self.redis_connection.setnx(key, stale_value) == 1:
@@ -155,9 +158,9 @@ class RedisCache(object):
         if value:
             return self.deserialize(value)
         else:
-            # We didn't have the lock, try for a bit
-            for iter in range(int(stale_extra * 50)):
-                time.sleep(1.0 / 50)
+            # We didn't have the lock, retry for a while, waiting for
+            for _ in range(int(stale_extra * retries_per_second)):
+                time.sleep(1.0 / retries_per_second)
                 value = self.redis_connection.get(key)
                 if value:
                     return self.deserialize(value)
@@ -172,11 +175,25 @@ class RedisCacheSerialized(RedisCache):
         return value
 
 
-def redis_cached(expiration):
+def serialize_arguments(*args, **kwargs):
+    def serialize(value):
+        if hasattr(value, "id"):
+            return value.__class__.__name__ + str(value.id)
+        else:
+            return value.__repr__()
+
+    args_serialized = [serialize(arg) for arg in args]
+    kwargs_serialized = [key + "=" + serialize(kwargs[key]) for key in sorted(kwargs.keys())]
+
+    return ",".join(args_serialized + kwargs_serialized)
+
+
+def redis_cached(expiration, *cache_args, **cache_kwargs):
     def _decorator(func):
-        def _wrapped_call():
+        def _wrapped_call(*func_args, **func_kwargs):
             redis_cache = RedisCache()
-            return redis_cache.get_or_set(func.__name__, func, expiration)
+            key_name = func.__name__ + ":" + serialize_arguments(*func_args, **func_kwargs)
+            return redis_cache.get_or_set(key_name, func, expiration, *cache_args, **cache_kwargs)
         return _wrapped_call
 
     return _decorator

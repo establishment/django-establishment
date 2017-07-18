@@ -80,6 +80,9 @@ class GlobalObjectCache:
         # The user that's intended to receive this state
         self.user = (request and request.user) or user
 
+    def __str__(self):
+        return self.dumps()
+
     def get_store_key(self, ObjectClass):
         if hasattr(ObjectClass, "object_type"):
             return ObjectClass.object_type()
