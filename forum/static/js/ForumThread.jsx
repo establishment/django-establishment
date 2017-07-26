@@ -1,6 +1,6 @@
 import {Ajax} from "Ajax";
 import {GlobalState} from "State";
-import {UI, Panel, Link, Router} from "UI";
+import {UI, Panel, Link, Router, Button, ActionModal, ActionModalButton} from "UI";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
@@ -81,7 +81,7 @@ class CreateForumThreadModal extends MarkupEditorModal {
     }
 }
 
-class CreateForumThreadButton extends UI.Button {
+class CreateForumThreadButton extends Button {
     extraNodeAttributes(attr) {
         attr.addClass(buttonStyle.button);
     }
@@ -114,7 +114,7 @@ class CreateForumThreadButton extends UI.Button {
     }
 }
 
-class DeleteForumThreadModal extends UI.ActionModal {
+class DeleteForumThreadModal extends ActionModal {
     getTitle() {
         return UI.T("Delete forum thread");
     }
@@ -136,7 +136,7 @@ class DeleteForumThreadModal extends UI.ActionModal {
     }
 }
 
-let DeleteForumThreadButton = UI.ActionModalButton(DeleteForumThreadModal);
+let DeleteForumThreadButton = ActionModalButton(DeleteForumThreadModal);
 
 class ForumThreadReply extends UI.Element {
     extraNodeAttributes(attr) {

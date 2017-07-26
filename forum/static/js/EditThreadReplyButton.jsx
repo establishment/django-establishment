@@ -1,9 +1,9 @@
-import {UI} from "UI";
+import {UI, Button} from "UI";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 
-class EditThreadReplyButton extends UI.Button {
+class EditThreadReplyButton extends Button {
     setOptions(options) {
         if (!options.faIcon) {
             options.label = options.label || UI.T("Preview");

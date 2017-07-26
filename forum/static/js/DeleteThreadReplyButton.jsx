@@ -1,6 +1,6 @@
-import {UI} from "UI";
+import {UI, ActionModal, ActionModalButton} from "UI";
 
-class DeleteThreadReplyModal extends UI.ActionModal {
+class DeleteThreadReplyModal extends ActionModal {
     getTitle() {
         return UI.T("Delete message");
     }
@@ -19,6 +19,6 @@ class DeleteThreadReplyModal extends UI.ActionModal {
     }
 }
 
-let DeleteThreadReplyButton = UI.ActionModalButton(DeleteThreadReplyModal);
+let DeleteThreadReplyButton = ActionModalButton(DeleteThreadReplyModal);
 
 export {DeleteThreadReplyButton};

@@ -2,7 +2,7 @@ import {UI} from "UI";
 import {css, hover, focus, active, ExclusiveClassSet, StyleSet} from "Style";
 
 
-class AjaxLoadingScreen extends UI.ConstructorInitMixin(UI.Element) {
+class AjaxLoadingScreen extends UI.Element {
     static init() {
         // Init
         let style = this.prototype.css = new StyleSet({

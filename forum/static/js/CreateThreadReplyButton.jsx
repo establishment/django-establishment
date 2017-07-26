@@ -1,5 +1,5 @@
 import {Ajax} from "Ajax";
-import {UI} from "UI";
+import {UI, Button} from "UI";
 import {GlobalState} from "State";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
@@ -8,7 +8,7 @@ import {ButtonStyle} from "ForumStyle";
 
 let buttonStyle = ButtonStyle.getInstance();
 
-class CreateThreadReplyButton extends UI.Button {
+class CreateThreadReplyButton extends Button {
     extraNodeAttributes(attr) {
         attr.addClass(buttonStyle.button);
     }

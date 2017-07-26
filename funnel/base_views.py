@@ -27,7 +27,7 @@ def default_single_page_app(request):
 
 global_renderer.render_ui_widget = default_render_ui_widget
 global_renderer.render_error_message = default_render_error_message
-global_renderer.render_single_page_app = default_single_page_app
+global_renderer.render_single_page_app = lambda request: global_renderer.render_ui_widget(request, "AppClass")
 
 def get_remote_ip(request):
     """
