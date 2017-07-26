@@ -4,6 +4,7 @@ import {StateDependentElement} from "StateDependentElement";
 import {DocumentationPanel} from "./DocumentationPanel"
 import {AdminDocumentationPanel} from "./AdminDocumentationPanel";
 
+// Particular case for /docs/ and /docs/edit/
 export class DocumentationRoute extends TerminalRoute {
     constructor() {
         super("docs", StateDependentElement(DocumentationPanel), "Documentation");

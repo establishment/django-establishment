@@ -1,4 +1,4 @@
-import {UI, Button, Panel, InfiniteScrollable} from "UI";
+import {UI, Switcher, AjaxButton, TextArea, Button, ButtonGroup, Panel, InfiniteScrollable, registerStyle} from "UI";
 import {StemDate} from "Time";
 import {GlobalState} from "State";
 import {MessageThreadStore, MessageThread, MessageInstance, MessageInstanceStore, GroupChatStore} from "MessageThreadStore";
@@ -12,8 +12,6 @@ import {RunOnce} from "Dispatcher";
 import {Ajax} from "Ajax";
 import {ChatStyle} from "ChatStyle";
 import {Pluginable} from "Plugin";
-
-let chatStyle = ChatStyle.getInstance();
 
 class PreviewMarkupButton extends Button {
     setOptions(options) {
@@ -50,8 +48,8 @@ class EditableMessage extends UI.Element {
     }
 
     render() {
-        return [<UI.Button ref="editButton" onClick={() => this.toggleEditMode()}>{UI.T("Edit")}</UI.Button>,
-            <UI.Switcher ref="contentSwitcher">
+        return [<Button ref="editButton" onClick={() => this.toggleEditMode()}>{UI.T("Edit")}</Button>,
+            <Switcher ref="contentSwitcher">
                 <span ref="contentContainer" style={{"white-space": "pre-line"}}>
                     {this.message.hasMarkupEnabled() ?
                         <ChatMarkupRenderer ref={this.refLink("content")} value={this.message.getContent()}
@@ -59,7 +57,7 @@ class EditableMessage extends UI.Element {
                         <UI.TextElement ref="content" value={this.message.getContent()}/>
                     }
                 </span>
-            </UI.Switcher>
+            </Switcher>
         ];
     }
 
@@ -75,20 +73,20 @@ class EditableMessage extends UI.Element {
             };
 
             this.editContent = <div style={writingSectionStyle}>
-                <UI.TextArea ref={this.refLink("messageInput")} style={chatInputStyle} className="form-control"
+                <TextArea ref={this.refLink("messageInput")} style={chatInputStyle} className="form-control"
                              value={this.message.getContent()}/>
-                <UI.ButtonGroup>
-                    <UI.Button label={UI.T("Cancel")} level={UI.Level.DEFAULT} size={UI.Size.SMALL}
+                <ButtonGroup>
+                    <Button label={UI.T("Cancel")} level={UI.Level.DEFAULT} size={UI.Size.SMALL}
                                onClick={() => {this.hideEditMode()}} />
                     <PreviewMarkupButton size={UI.Size.SMALL}
                                          getValue={() => {return this.messageInput.getValue();}}
                                          setValue={(value) => {this.messageInput.setValue(value);this.messageInput.node.focus();}}
                     />
-                    <UI.Button label={UI.T("Save changes")} level={UI.Level.PRIMARY}
+                    <Button label={UI.T("Save changes")} level={UI.Level.PRIMARY}
                                onClick={() => this.saveMessageChanges()} size={UI.Size.SMALL} />
-                    {this.options.deletable ? <UI.Button level={UI.Level.DANGER} label={UI.T("Delete")} size={UI.Size.SMALL}
+                    {this.options.deletable ? <Button level={UI.Level.DANGER} label={UI.T("Delete")} size={UI.Size.SMALL}
                                                          onClick={() => this.deleteMessage()}/> : ""}
-                </UI.ButtonGroup>
+                </ButtonGroup>
             </div>;
         } else {
             this.messageInput.setValue(this.message.getContent());
@@ -142,6 +140,7 @@ class EditableMessage extends UI.Element {
 }
 
 
+@registerStyle(ChatStyle)
 class GroupChatMessage extends EditableMessage {
     setOptions(options) {
         super.setOptions(options);
@@ -157,11 +156,8 @@ class GroupChatMessage extends EditableMessage {
         }
     }
 
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-        attr.addClass(chatStyle.groupChatMessage);
-        // attr.setStyle("margin", "1.5rem");
-        return attr;
+    extraNodeAttributes(attr) {
+        attr.addClass(this.styleSheet.groupChatMessage);
     }
 
     shouldShowDayTimestamp() {
@@ -173,12 +169,12 @@ class GroupChatMessage extends EditableMessage {
         let editButton;
         //if (this.message.userId === USER.id || USER.isSuperUser) {
         if (USER.isSuperUser) {
-            editButton = <a style={Object.assign({"cursor": "pointer"}, chatStyle.timestamp)}
+            editButton = <a style={Object.assign({"cursor": "pointer"}, this.styleSheet.timestamp)}
                             onClick={() => this.toggleEditMode()}>{UI.T("Edit")}</a>;
         }
 
         if (!this.contentSwitcher) {
-            this.contentSwitcher = <UI.Switcher>
+            this.contentSwitcher = <Switcher>
                 <span ref="contentContainer" style={{"white-space": "pre-line"}}>
                     {this.message.hasMarkupEnabled() ?
                         <ChatMarkupRenderer ref={this.refLink("content")} value={this.message.getContent()}
@@ -186,13 +182,13 @@ class GroupChatMessage extends EditableMessage {
                         <UI.TextElement ref="content" value={this.message.getContent()}/>
                     }
                 </span>
-            </UI.Switcher>;
+            </Switcher>;
         }
 
         let date = null;
         if (this.shouldShowDayTimestamp()) {
-            date = <div ref="dayTimestamp" className={chatStyle.messageTimeStampHr}>
-                <div className={chatStyle.messageTimeStamp}>
+            date = <div ref="dayTimestamp" className={this.styleSheet.messageTimeStampHr}>
+                <div className={this.styleSheet.messageTimeStamp}>
                     {StemDate.unix(this.message.timeAdded).format("dddd, MMMM Do")}
                 </div>
             </div>;
@@ -206,12 +202,12 @@ class GroupChatMessage extends EditableMessage {
 
         return [
             date,
-            <div className={chatStyle.comment}>
-                <UserHandle userId={this.message.userId} className={chatStyle.userHandle} />
-                <span className={chatStyle.timestamp}>{this.message.getTimeOfDay()}</span>
+            <div className={this.styleSheet.comment}>
+                <UserHandle userId={this.message.userId} className={this.styleSheet.userHandle} />
+                <span className={this.styleSheet.timestamp}>{this.message.getTimeOfDay()}</span>
                 {editButton}
                 {errorElement}
-                <div className={chatStyle.commentContent}>
+                <div className={this.styleSheet.commentContent}>
                     {this.contentSwitcher}
                 </div>
             </div>
@@ -220,6 +216,7 @@ class GroupChatMessage extends EditableMessage {
 }
 
 
+@registerStyle(ChatStyle)
 class PrivateChatMessage extends Panel {
     setOptions(options) {
         super.setOptions(options);
@@ -228,7 +225,7 @@ class PrivateChatMessage extends Panel {
 
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
-        attr.addClass(chatStyle.groupChatMessage);
+        attr.addClass(this.styleSheet.groupChatMessage);
         return attr;
     }
 
@@ -243,7 +240,7 @@ class PrivateChatMessage extends Panel {
 
     render() {
         if (!this.contentSwitcher) {
-            this.contentSwitcher = <UI.Switcher>
+            this.contentSwitcher = <Switcher>
                 <span ref="contentContainer" style={{"white-space": "pre-line"}}>
                     {this.message.hasMarkupEnabled() ?
                         <ChatMarkupRenderer ref={this.refLink("content")} value={this.message.getContent()}
@@ -251,13 +248,13 @@ class PrivateChatMessage extends Panel {
                         <UI.TextElement ref="content" value={this.message.getContent()}/>
                     }
                 </span>
-            </UI.Switcher>;
+            </Switcher>;
         }
 
         let date = null;
         if (this.shouldShowDayTimestamp()) {
-            date = <div className={chatStyle.messageTimeStampHr}>
-                <div ref="dayTimestamp" className={chatStyle.messageTimeStamp}>
+            date = <div className={this.styleSheet.messageTimeStampHr}>
+                <div ref="dayTimestamp" className={this.styleSheet.messageTimeStamp}>
                     {StemDate.unix(this.message.timeAdded).format("dddd, MMMM Do")}
                 </div>
             </div>;
@@ -270,19 +267,17 @@ class PrivateChatMessage extends Panel {
         }
 
         let content = [
-            <div className={chatStyle.comment} style={{margin: "8px 16px", backgroundColor: "#eee",}}>
-                <UserHandle userId={this.message.userId} className={chatStyle.userHandle} />
-                <span className={chatStyle.timestamp}>{this.message.getTimeOfDay()}</span>
+            <div className={this.styleSheet.comment} style={{margin: "8px 16px", backgroundColor: "#eee",}}>
+                <UserHandle userId={this.message.userId} className={this.styleSheet.userHandle} />
+                <span className={this.styleSheet.timestamp}>{this.message.getTimeOfDay()}</span>
                 {errorElement}
-                <div className={chatStyle.commentContent}>
+                <div className={this.styleSheet.commentContent}>
                     {this.contentSwitcher}
                 </div>
             </div>
         ];
 
-        let paddingDiv = <div style={{
-            flexGrow: "1000000",
-        }}></div>;
+        let paddingDiv = <div style={{flexGrow: "1000000"}} />;
 
         let result;
         if (this.isOwnMessage()) {
@@ -329,18 +324,19 @@ class ChatMessageScrollSection extends InfiniteScrollable {
 
 
 let ChatWidget = (ChatMessageClass) => {
-    return class ChatWidget extends Pluginable(Panel) {
+    @registerStyle(ChatStyle)
+    class ChatWidgetClass extends Pluginable(Panel) {
+        getDefaultOptions() {
+            return {
+                dateTimestamps: true,
+                renderMessage: (messageInstance) => {
+                    return <ChatMessageClass key={messageInstance.getNormalizedId()} message={messageInstance} />;
+                }
+            };
+        }
+
         setOptions(options) {
             super.setOptions(options);
-
-            this.options.renderMessage = (messageInstance) => {
-                return <ChatMessageClass key={messageInstance.getNormalizedId()} message={messageInstance} />;
-            };
-
-            // TODO: we may not want this as default
-            if (options.dateTimestamps == null) {
-                options.dateTimestamps = true;
-            }
 
             this.messageThread = options.messageThread;
 
@@ -472,15 +468,15 @@ let ChatWidget = (ChatMessageClass) => {
             if (this.showLoadMoreButton) {
                 loadMoreButton = (
                     <div className="text-center">
-                        <UI.AjaxButton ref={this.refLink("loadMoreButton")} level={UI.Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
-                                       style={chatStyle.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
+                        <AjaxButton ref={this.refLink("loadMoreButton")} level={UI.Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
+                                       style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                         />
                     </div>
                 );
             }
 
             return [
-                <ChatMessageScrollSection className={chatStyle.renderMessageView}
+                <ChatMessageScrollSection className={this.styleSheet.renderMessageView}
                                           ref="messageWindow"
                                           entryRenderer={this.options.renderMessage}
                                           entries={this.messageThread.getMessages()}
@@ -549,21 +545,21 @@ let ChatWidget = (ChatMessageClass) => {
         }
 
         renderMessageBox() {
-            return <div ref="writingSection" className={chatStyle.renderMessage}>
-                <UI.TextArea readOnly={this.messageThread.muted}
+            return <div ref="writingSection" className={this.styleSheet.renderMessage}>
+                <TextArea readOnly={this.messageThread.muted}
                              ref="chatInput"
                              placeholder="Type a message..."
-                             className={chatStyle.chatInput} />
+                             className={this.styleSheet.chatInput} />
                 <div style={{display: "flex", flexDirection: "column", height: "100%", position: "absolute", right: "0px", width: "50px"}}>
-                    <UI.Button ref="sendMessageButton"
+                    <Button ref="sendMessageButton"
                                faIcon="paper-plane"
                                disabled={this.messageThread.muted}
                                onClick={() => this.sendMessage()}
-                               className={chatStyle.messageBoxButton} />
+                               className={this.styleSheet.messageBoxButton} />
                     <PreviewMarkupButton ref="previewMessageButton"
                                    getValue={() => {return this.chatInput.getValue();}}
                                    setValue={(value) => {this.chatInput.setValue(value);this.chatInput.node.focus();}}
-                                   className={chatStyle.messageBoxButton}
+                                   className={this.styleSheet.messageBoxButton}
                                    faIcon="eye" />
                 </div>
             </div>;
@@ -627,6 +623,7 @@ let ChatWidget = (ChatMessageClass) => {
             this.addResizeListeners();
         }
     }
+    return ChatWidgetClass;
 };
 
 class GroupChatWidget extends ChatWidget(GroupChatMessage) {
@@ -640,7 +637,6 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
     getPostURL() {
         return "/chat/group_chat_post/";
     }
-
 
     extraNodeAttributes(attr) {
         super.extraNodeAttributes(attr);
@@ -661,15 +657,15 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
         if (this.showLoadMoreButton) {
             loadMoreButton = (
                 <div className="text-center">
-                    <UI.AjaxButton ref={this.refLink("loadMoreButton")} level={UI.Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
-                                   style={chatStyle.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
+                    <AjaxButton ref={this.refLink("loadMoreButton")} level={UI.Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
+                                   style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>
             );
         }
 
         return [
-            <ChatMessageScrollSection className={chatStyle.renderMessageView}
+            <ChatMessageScrollSection className={this.styleSheet.renderMessageView}
                                       ref="messageWindow"
                                       entryRenderer={this.options.renderMessage}
                                       entries={this.messageThread.getMessages()}
