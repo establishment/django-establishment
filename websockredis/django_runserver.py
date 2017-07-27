@@ -26,7 +26,7 @@ wsgiref.util._hoppish = {}.__contains__
 
 class WebsocketRunServer(WebsocketWSGIServer):
     WS_GUID = b'258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
-    WS_VERSIONS = ('13', '8', '7')
+    WS_VERSIONS = ("13", "8", "7")
 
     def upgrade_websocket(self, environ, start_response):
         """
@@ -58,7 +58,7 @@ class WebsocketRunServer(WebsocketWSGIServer):
             ('Sec-WebSocket-Version', str(websocket_version)),
         ]
         logger.debug('WebSocket request accepted, switching protocols')
-        start_response(force_str('101 Switching Protocols'), headers)
+        start_response(force_str("101 Switching Protocols"), headers)
         start_response.__self__.finish_content()
         return WebSocket(environ['wsgi.input'])
 

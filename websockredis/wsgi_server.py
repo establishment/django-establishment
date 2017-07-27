@@ -126,7 +126,7 @@ class UserConnection(object):
         else:
             # This is an error we should know about because our clients should know what they are allowed to be subscribed to
             logger.error("Registration not allowed for connection " + str(self) + " to stream " + str(stream_name) + "\nReason: " + reason)
-            self.send(b"error Invalid subscription: " + reason.encode() + b" on stream " + stream_name.encode())
+            self.send(b"error invalidSubscription " + stream_name.encode() + b" " + str(self.user.id).encode() + b" " + reason.encode())
 
         logger.debug("Subscribed to " + str(self.num_streams) + " streams")
 
