@@ -6,7 +6,7 @@ from establishment.socialaccount import providers
 from establishment.socialaccount.providers.base import ProviderAccount, AuthAction
 from establishment.socialaccount.providers.oauth2.provider import OAuth2Provider
 
-GRAPH_API_VERSION = getattr(settings, "SOCIALACCOUNT_PROVIDERS", {}).get("facebook",  {}).get("VERSION", "v2.7")
+GRAPH_API_VERSION = getattr(settings, "SOCIAL_ACCOUNT_PROVIDERS", {}).get("facebook",  {}).get("VERSION", "v2.7")
 GRAPH_API_URL = "https://graph.facebook.com/" + GRAPH_API_VERSION
 
 NONCE_SESSION_KEY = "accounts_facebook_nonce"

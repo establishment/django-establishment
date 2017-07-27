@@ -1,6 +1,5 @@
 import time
 import importlib
-import traceback
 from threading import Lock
 
 from django.conf import settings
@@ -216,6 +215,11 @@ class GlobalSettingsCache(object):
 
         return self.get_raw(key).value
 
+    def __getattr__(self, name):
+        if self.has_key(name):
+            return self.get(name)
+        return settings.__getattr__(name)
+
 
 class PublicSettingsCache(GlobalSettingsCache):
     def __init__(self, *args, **kwargs):
@@ -225,3 +229,7 @@ class PublicSettingsCache(GlobalSettingsCache):
 class PrivateSettingsCache(GlobalSettingsCache):
     def __init__(self, *args, **kwargs):
         super().__init__(PrivateGlobalSettings, *args, **kwargs)
+
+
+public_settings_cache = PublicSettingsCache(expiration=60)
+private_settings_cache = PrivateSettingsCache(expiration=60)

@@ -13,6 +13,11 @@ from establishment.accounts.utils import get_request_param
 from . import providers
 
 
+#class SocialProvider(models.Model):
+#    name = models.CharField(max_length=50, unique=True)
+
+
+
 class SocialAppManager(models.Manager):
     def get_current(self, provider, request=None):
         site = Site.objects.get_current(request)

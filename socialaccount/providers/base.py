@@ -32,7 +32,7 @@ class Provider(object):
         return self.account_class(social_account)
 
     def get_settings(self):
-        return settings.SOCIALACCOUNT_PROVIDERS.get(self.id, {})
+        return settings.SOCIAL_ACCOUNT_PROVIDERS.get(self.id, {})
 
     def social_login_from_response(self, request, response):
         """

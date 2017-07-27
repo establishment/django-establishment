@@ -1,6 +1,6 @@
 import requests
 
-from django.conf import settings
+from establishment.baseconfig.models import private_settings_cache
 
 RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
@@ -9,7 +9,7 @@ def test_recaptcha(request):
     recaptcha_key = request.POST["recaptchaKey"]
 
     google_request = {
-        "secret": settings.RECAPTCHA_PRIVATE_KEY,
+        "secret": private_settings_cache.RECAPTCHA_PRIVATE_KEY,
         "response": recaptcha_key,
     }
 
