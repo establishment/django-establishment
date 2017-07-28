@@ -21,7 +21,7 @@ class SocialProvider(models.Model):
     def __str__(self):
         return "Social Provider " + self.name
 
-    def get_handler(self):
+    def get_provider(self):
         return self.instance_cache[self.id]
 
     @classmethod
@@ -54,8 +54,11 @@ class SocialProvider(models.Model):
     def load(cls):
         cls.ensure_instances_loaded()
         for provider_name in getattr(settings, "SOCIAL_ACCOUNT_PROVIDERS", {}):
-            model_instance, created = cls.objects.get_or_create(name=provider_name)
-            cls.instance_cache[model_instance.id] = cls.name_cache[provider_name]
+            db_instance, created = cls.objects.get_or_create(name=provider_name)
+            instance = cls.name_cache[provider_name]
+
+            cls.instance_cache[db_instance.id] = instance
+            instance.set_db_instance(db_instance)
 
     @classmethod
     def get_by_name(cls, provider_name):
@@ -72,7 +75,7 @@ class SocialApp(models.Model):
     objects = SocialAppManager()
 
     provider = models.CharField(max_length=30, choices=SocialProvider.providers_as_choices())
-    # provider_instance = models.ForeignKey(SocialProvider, null=True)
+    provider_instance = models.ForeignKey(SocialProvider, on_delete=models.PROTECT)
     name = models.CharField(max_length=40)
     client_id = models.CharField(max_length=256, help_text="App ID, or consumer key")
     secret_key = models.CharField(max_length=256, help_text="API secret, client secret, or consumer secret")
@@ -90,6 +93,7 @@ class SocialApp(models.Model):
 class SocialAccount(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     provider = models.CharField(max_length=30, choices=SocialProvider.providers_as_choices())
+    provider_instance = models.ForeignKey(SocialProvider, on_delete=models.PROTECT)
     uid = models.CharField(max_length=512, unique=True)
     last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -97,7 +101,7 @@ class SocialAccount(models.Model):
 
     class Meta:
         db_table = "SocialAccount"
-        unique_together = ("provider", "uid")
+        unique_together = (("provider_instance", "uid"))
 
     def __str__(self):
         return force_text(self.user)
@@ -115,7 +119,7 @@ class SocialAccount(models.Model):
         return self.get_provider_account().get_avatar_url()
 
     def get_provider(self):
-        return SocialProvider.get_by_name(self.provider)
+        return self.provider_instance.get_provider()
 
     def get_provider_account(self):
         return self.get_provider().wrap_account(self)
@@ -226,7 +230,7 @@ class SocialLogin(object):
         """
         assert self.is_temporary()
         try:
-            a = SocialAccount.objects.get(provider=self.account.provider, uid=self.account.uid)
+            a = SocialAccount.objects.get(provider_instance=self.account.provider_instance, uid=self.account.uid)
             # Update account
             a.extra_data = self.account.extra_data
             self.account = a

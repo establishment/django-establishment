@@ -22,6 +22,7 @@ class AuthError(object):
 
 class Provider(object):
     instance = None
+    db_instance = None
 
     @classmethod
     def get_instance(cls, name=None, package=None, *args, **kwargs):
@@ -32,6 +33,14 @@ class Provider(object):
             if package:
                 cls.package = package
         return cls.instance
+
+    @classmethod
+    def set_db_instance(cls, db_instance):
+        cls.db_instance = db_instance
+
+    @classmethod
+    def get_db_instance(cls):
+        return cls.db_instance
 
     def get_urlpatterns(self):
         try:
@@ -74,7 +83,7 @@ class Provider(object):
         uid = self.extract_uid(response)
         extra_data = self.extract_extra_data(response)
         common_fields = self.extract_common_fields(response)
-        socialaccount = SocialAccount(extra_data=extra_data, uid=uid, provider=self.id)
+        socialaccount = SocialAccount(extra_data=extra_data, uid=uid, provider_instance=self.get_db_instance())
         email_addresses = self.extract_email_addresses(response)
         self.cleanup_email_addresses(common_fields.get('email'), email_addresses)
         social_login = SocialLogin(account=socialaccount, email_addresses=email_addresses)
