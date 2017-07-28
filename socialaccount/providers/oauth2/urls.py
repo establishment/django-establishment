@@ -3,9 +3,6 @@ from django.conf.urls import url, include
 
 def import_attribute(path):
     import importlib
-    from django.utils import six
-
-    assert isinstance(path, six.string_types)
     pkg, attr = path.rsplit('.', 1)
     ret = getattr(importlib.import_module(pkg), attr)
     return ret

@@ -10,11 +10,11 @@ from django.utils.http import is_safe_url
 
 from establishment.accounts.models import EmailAddress, UnverifiedEmail
 from establishment.accounts.utils import get_request_param
-from . import providers
 
 
 class SocialProvider(models.Model):
     instance_cache = dict()
+    name_cache = None
 
     name = models.CharField(max_length=50, unique=True)
 
@@ -29,14 +29,37 @@ class SocialProvider(models.Model):
         package = provider_name
         if "." not in package:
             package = "establishment.socialaccount.providers." + package
-        return __import__(package, fromlist=["provider"])
+        provider_class = __import__(package, fromlist=["provider"]).provider
+        return provider_class.get_instance(provider_name, package)
+
+    @classmethod
+    def provider_list(cls):
+        cls.ensure_instances_loaded()
+        return [value for key, value in sorted(cls.name_cache.items())]
+
+    @classmethod
+    def providers_as_choices(cls):
+        return [(provider.id, provider.name) for provider in cls.provider_list()]
+
+    @classmethod
+    def ensure_instances_loaded(cls):
+        if cls.name_cache is not None:
+            return
+        cls.name_cache = {}
+        for provider_name in getattr(settings, "SOCIAL_ACCOUNT_PROVIDERS", {}):
+            provider_instance = cls.load_provider(provider_name)
+            cls.name_cache[provider_name] = provider_instance
 
     @classmethod
     def load(cls):
+        cls.ensure_instances_loaded()
         for provider_name in getattr(settings, "SOCIAL_ACCOUNT_PROVIDERS", {}):
-            provider_class = cls.load_provider(provider_name).provider
-            instance, created = cls.objects.get_or_create(name=provider_name)
-            cls.instance_cache[instance.id] = provider_class()
+            model_instance, created = cls.objects.get_or_create(name=provider_name)
+            cls.instance_cache[model_instance.id] = cls.name_cache[provider_name]
+
+    @classmethod
+    def get_by_name(cls, provider_name):
+        return cls.name_cache[provider_name]
 
 
 class SocialAppManager(models.Manager):
@@ -48,11 +71,11 @@ class SocialAppManager(models.Manager):
 class SocialApp(models.Model):
     objects = SocialAppManager()
 
-    provider = models.CharField(max_length=30, choices=providers.registry.as_choices())
+    provider = models.CharField(max_length=30, choices=SocialProvider.providers_as_choices())
+    # provider_instance = models.ForeignKey(SocialProvider, null=True)
     name = models.CharField(max_length=40)
     client_id = models.CharField(max_length=256, help_text="App ID, or consumer key")
-    # TODO: should be renamed to secret_key
-    secret = models.CharField(max_length=256, help_text="API secret, client secret, or consumer secret")
+    secret_key = models.CharField(max_length=256, help_text="API secret, client secret, or consumer secret")
     key = models.CharField(max_length=256, blank=True)
     # Some apps can be used across multiple domains
     sites = models.ManyToManyField(Site, blank=True)
@@ -66,7 +89,7 @@ class SocialApp(models.Model):
 
 class SocialAccount(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    provider = models.CharField(max_length=30, choices=providers.registry.as_choices())
+    provider = models.CharField(max_length=30, choices=SocialProvider.providers_as_choices())
     uid = models.CharField(max_length=512, unique=True)
     last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -92,7 +115,7 @@ class SocialAccount(models.Model):
         return self.get_provider_account().get_avatar_url()
 
     def get_provider(self):
-        return providers.registry.by_id(self.provider)
+        return SocialProvider.get_by_name(self.provider)
 
     def get_provider_account(self):
         return self.get_provider().wrap_account(self)

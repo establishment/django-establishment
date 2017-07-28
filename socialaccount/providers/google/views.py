@@ -4,7 +4,6 @@ import requests
 from oauth2client import client
 
 from establishment.funnel.base_views import ajax_required, JSONResponse, JSONErrorResponse
-from establishment.socialaccount import providers
 from establishment.socialaccount.helpers import complete_social_login
 from establishment.socialaccount.models import SocialToken, SocialLogin
 from .provider import GoogleProvider
@@ -13,8 +12,8 @@ logger = logging.getLogger("django")
 
 
 def google_complete_login(request, app, token):
-    provider = providers.registry.by_id(GoogleProvider.id)
-    credentials = client.credentials_from_code(app.client_id, app.secret, provider.get_default_scope(), token.token)
+    provider = GoogleProvider.get_instance()
+    credentials = client.credentials_from_code(app.client_id, app.secret_key, provider.get_default_scope(), token.token)
     token.expires_at = credentials.token_expiry
     if credentials.refresh_token:
         token.token_secret = credentials.refresh_token
@@ -26,7 +25,7 @@ def login_by_token(request):
     auth_exception = None
     data = request.POST
     try:
-        app = providers.registry.by_id(GoogleProvider.id).get_app(request)
+        app = GoogleProvider.get_instance().get_app(request)
         access_token = data["code"]
 
         token = SocialToken(app=app, token=access_token)

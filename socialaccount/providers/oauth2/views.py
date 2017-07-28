@@ -7,9 +7,8 @@ from django.http import HttpResponseRedirect
 from django.utils import timezone
 
 from establishment.accounts.utils import get_request_param
-from establishment.socialaccount import providers
 from establishment.socialaccount.helpers import complete_social_login
-from establishment.socialaccount.models import SocialToken, SocialLogin
+from establishment.socialaccount.models import SocialToken, SocialLogin, SocialProvider
 from establishment.socialaccount.providers.oauth2.client import OAuth2Client, OAuth2Error
 from ..base import AuthAction, AuthError
 
@@ -25,7 +24,7 @@ class OAuth2Adapter(object):
     headers = None
 
     def get_provider(self):
-        return providers.registry.by_id(self.provider_id)
+        return SocialProvider.get_by_name(self.provider_id)
 
     def complete_login(self, request, app, access_token, **kwargs):
         """
@@ -58,7 +57,7 @@ class OAuth2View(object):
         callback_url = request.build_absolute_uri(callback_url)
         provider = self.adapter.get_provider()
         scope = provider.get_scope(request)
-        client = OAuth2Client(self.request, app.client_id, app.secret,
+        client = OAuth2Client(self.request, app.client_id, app.secret_key,
                               self.adapter.access_token_method,
                               self.adapter.access_token_url,
                               callback_url,

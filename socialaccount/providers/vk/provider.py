@@ -1,4 +1,3 @@
-from establishment.socialaccount import providers
 from establishment.socialaccount.providers.base import ProviderAccount
 
 from establishment.socialaccount.providers.oauth2.provider import OAuth2Provider
@@ -27,9 +26,7 @@ class VKAccount(ProviderAccount):
 
 
 class VKProvider(OAuth2Provider):
-    id = "vk"
     name = "VK"
-    package = "establishment.socialaccount.providers.vk"
     account_class = VKAccount
 
     def get_default_scope(self):
@@ -43,6 +40,3 @@ class VKProvider(OAuth2Provider):
                     last_name=data.get('last_name'),
                     username=data.get('screen_name'),
                     first_name=data.get('first_name'))
-
-
-providers.registry.register(VKProvider)

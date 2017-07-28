@@ -21,6 +21,25 @@ class AuthError(object):
 
 
 class Provider(object):
+    instance = None
+
+    @classmethod
+    def get_instance(cls, name=None, package=None, *args, **kwargs):
+        if cls.instance is None:
+            cls.instance = cls()
+            if name:
+                cls.id = name
+            if package:
+                cls.package = package
+        return cls.instance
+
+    def get_urlpatterns(self):
+        try:
+            provider_module = __import__(self.package + ".urls", fromlist=["urlpatterns"])
+            return getattr(provider_module, "urlpatterns", [])
+        except ImportError:
+            return []
+
     def get_app(self, request):
         # NOTE: Avoid loading models at top due to registry boot...
         from establishment.socialaccount.models import SocialApp

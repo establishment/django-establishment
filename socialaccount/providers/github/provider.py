@@ -1,4 +1,3 @@
-from establishment.socialaccount import providers
 from establishment.socialaccount.providers.base import ProviderAccount, AuthAction
 from establishment.socialaccount.providers.oauth2.provider import OAuth2Provider
 
@@ -18,9 +17,7 @@ class GithubAccount(ProviderAccount):
 
 
 class GithubProvider(OAuth2Provider):
-    id = "github"
     name = "Github"
-    package = "establishment.socialaccount.providers.github"
     account_class = GithubAccount
 
     def get_default_scope(self):
@@ -35,6 +32,3 @@ class GithubProvider(OAuth2Provider):
             username=data["login"],
             name=data["name"],
         )
-
-
-providers.registry.register(GithubProvider)

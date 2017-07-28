@@ -1,4 +1,3 @@
-from establishment.socialaccount import providers
 from establishment.socialaccount.providers.base import ProviderAccount, AuthAction
 
 from establishment.socialaccount.providers.oauth2.provider import OAuth2Provider
@@ -16,9 +15,7 @@ class GoogleAccount(ProviderAccount):
 
 
 class GoogleProvider(OAuth2Provider):
-    id = "google"
     name = "Google"
-    package = "establishment.socialaccount.providers.google"
     account_class = GoogleAccount
 
     def get_default_scope(self):
@@ -31,7 +28,6 @@ class GoogleProvider(OAuth2Provider):
         return ret
 
     def extract_uid(self, data):
-        # return str(data["id"])
         return str(data["sub"])
 
     def extract_common_fields(self, data):
@@ -46,6 +42,3 @@ class GoogleProvider(OAuth2Provider):
         if email:
             result.append(EmailAddress(email=email, primary=True))
         return result
-
-
-providers.registry.register(GoogleProvider)

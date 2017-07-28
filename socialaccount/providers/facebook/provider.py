@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.utils.crypto import get_random_string
 
-from establishment.socialaccount import providers
 from establishment.socialaccount.providers.base import ProviderAccount, AuthAction
 from establishment.socialaccount.providers.oauth2.provider import OAuth2Provider
 
@@ -27,9 +26,7 @@ class FacebookAccount(ProviderAccount):
 
 
 class FacebookProvider(OAuth2Provider):
-    id = "facebook"
     name = "Facebook"
-    package = "establishment.socialaccount.providers.facebook"
     account_class = FacebookAccount
 
     def get_default_scope(self):
@@ -93,6 +90,3 @@ class FacebookProvider(OAuth2Provider):
             # Note: data["verified"] does not necessarily imply the email address is verified.
             result.append(EmailAddress(email=email, primary=True))
         return result
-
-
-providers.registry.register(FacebookProvider)
