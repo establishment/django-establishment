@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
-from establishment.accounts.models import EmailAddress
 from establishment.socialaccount.adapter import populate_user
 
 
@@ -74,8 +73,7 @@ class Provider(object):
 
     def extract_extra_data(self, data):
         """
-        Extracts fields from `data` that will be stored in
-        `SocialAccount`'s `extra_data` JSONField.
+        Extracts fields from `data` that will be stored in `SocialAccount`'s `extra_data` JSONField.
 
         :return: any JSON-serializable Python structure.
         """
@@ -98,16 +96,12 @@ class Provider(object):
     @staticmethod
     def cleanup_email_addresses(email, addresses):
         # Move user.email over to EmailAddress
+        from establishment.accounts.models import EmailAddress
         if email and email.lower() not in [a.email.lower() for a in addresses]:
             addresses.append(EmailAddress(email=email, primary=True))
 
     def extract_email_addresses(self, data):
         # TODO: the default method should still do some work
-        """
-        For example:
-
-        [EmailAddress(email='john@doe.org', verified=True, primary=True)]
-        """
         return []
 
 
@@ -126,13 +120,11 @@ class ProviderAccount(object):
 
     def get_brand(self):
         """
-        Returns a dict containing an id and name identifying the
-        brand. Useful when displaying logos next to accounts in
-        templates.
+        Returns a dict containing an id and name identifying the brand. Useful when displaying
+        logos next to accounts in templates.
 
-        For most providers, these are identical to the provider. For
-        OpenID however, the brand can derived from the OpenID identity
-        url.
+        For most providers, these are identical to the provider. For OpenID however, the brand
+        can derived from the OpenID identity url.
         """
         provider = self.account.get_provider()
         return dict(id=provider.id, name=provider.name)

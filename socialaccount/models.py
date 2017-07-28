@@ -13,9 +13,30 @@ from establishment.accounts.utils import get_request_param
 from . import providers
 
 
-#class SocialProvider(models.Model):
-#    name = models.CharField(max_length=50, unique=True)
+class SocialProvider(models.Model):
+    instance_cache = dict()
 
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return "Social Provider " + self.name
+
+    def get_handler(self):
+        return self.instance_cache[self.id]
+
+    @classmethod
+    def load_provider(cls, provider_name):
+        package = provider_name
+        if "." not in package:
+            package = "establishment.socialaccount.providers." + package
+        return __import__(package, fromlist=["provider"])
+
+    @classmethod
+    def load(cls):
+        for provider_name in getattr(settings, "SOCIAL_ACCOUNT_PROVIDERS", {}):
+            provider_class = cls.load_provider(provider_name).provider
+            instance, created = cls.objects.get_or_create(name=provider_name)
+            cls.instance_cache[instance.id] = provider_class()
 
 
 class SocialAppManager(models.Manager):

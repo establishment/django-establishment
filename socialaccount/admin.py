@@ -3,7 +3,7 @@ from django import forms
 
 from establishment.accounts.utils import get_user_search_fields
 
-from .models import SocialApp, SocialAccount, SocialToken
+from .models import SocialApp, SocialAccount, SocialToken, SocialProvider
 
 
 class SocialAppForm(forms.ModelForm):
@@ -50,3 +50,4 @@ class SocialTokenAdmin(admin.ModelAdmin):
 admin.site.register(SocialApp, SocialAppAdmin)
 admin.site.register(SocialToken, SocialTokenAdmin)
 admin.site.register(SocialAccount, SocialAccountAdmin)
+admin.site.register(SocialProvider)

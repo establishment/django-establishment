@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.utils.crypto import get_random_string
 
-from establishment.accounts.models import EmailAddress
 from establishment.socialaccount import providers
 from establishment.socialaccount.providers.base import ProviderAccount, AuthAction
 from establishment.socialaccount.providers.oauth2.provider import OAuth2Provider
@@ -87,6 +86,7 @@ class FacebookProvider(OAuth2Provider):
                     name=data.get("name"))
 
     def extract_email_addresses(self, data):
+        from establishment.accounts.models import EmailAddress
         result = []
         email = data.get("email")
         if email:

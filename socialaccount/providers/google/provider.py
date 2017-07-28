@@ -1,7 +1,6 @@
 from establishment.socialaccount import providers
 from establishment.socialaccount.providers.base import ProviderAccount, AuthAction
 
-from establishment.accounts.models import EmailAddress
 from establishment.socialaccount.providers.oauth2.provider import OAuth2Provider
 
 
@@ -10,7 +9,6 @@ class GoogleAccount(ProviderAccount):
         return self.account.extra_data.get("name") or super().__str__()
 
     def get_profile_url(self):
-        # return self.account.extra_data.get("link")
         return "https://plus.google.com/" + self.account.uid
 
     def get_avatar_url(self):
@@ -42,6 +40,7 @@ class GoogleProvider(OAuth2Provider):
                     first_name=data.get("given_name"))
 
     def extract_email_addresses(self, data):
+        from establishment.accounts.models import EmailAddress
         result = []
         email = data.get("email")
         if email:
