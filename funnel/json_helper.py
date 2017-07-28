@@ -31,3 +31,13 @@ def to_underscore_case(txt):
             new_txt += c
 
     return new_txt
+
+
+def to_json_dict(*args, **kwargs):
+    if len(args) > 0:
+        for arg in args:
+            kwargs.update(arg)
+    result = dict()
+    for key, value in kwargs.items():
+        result[to_camel_case(key)] = value
+    return result

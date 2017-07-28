@@ -153,6 +153,22 @@ class GlobalObjectCache:
             result.update(extra)
         return JSONResponse(result)
 
+    @classmethod
+    def create_from_objects(cls, *args):
+        state = cls()
+        for arg in args:
+            if hasattr(arg, '__iter__'):
+                state.add_all(arg)
+            else:
+                state.add(arg)
+        return state
+
+    @classmethod
+    def create_response_from_objects(cls, *args):
+        return {
+            "state": cls.create_from_objects(*args)
+        }
+
 
 # TODO: this doesn't belong here
 def int_list(list, ignore_errors=True):

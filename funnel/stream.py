@@ -1,4 +1,5 @@
 import json
+import datetime
 
 import django
 from django.db import models
@@ -7,12 +8,10 @@ from django.db.models.fields.related import ManyToManyRel, RelatedField, OneToOn
 from django.db.models.fields.reverse_related import ForeignObjectRel
 
 from .redis_stream import RedisStreamPublisher
-from .json_helper import to_camel_case
+from .json_helper import to_camel_case, to_json_dict
 from .base_views import JSONResponse, JSONErrorResponse
 from .utils import GlobalObjectCache, int_list
 
-import json
-import datetime
 
 STREAM_HANDLERS = []
 
@@ -39,7 +38,7 @@ class StreamObjectMixin(models.Model):
         return cls._meta.db_table
 
     @classmethod
-    def should_include_field(cls, meta_field, include = None, exclude = None, include_many_to_many = False):
+    def should_include_field(cls, meta_field, include=None, exclude=None, include_many_to_many=False):
         # check if this should be there or it shouldn't be
         try:
             name = meta_field.attname
@@ -99,19 +98,17 @@ class StreamObjectMixin(models.Model):
     def get_meta_key(cls, meta_field, rename):
         return cls.get_key_name(cls.get_object_key_from_meta_field(meta_field), rename)
 
-    @classmethod
-    def get_value(cls, obj, meta_field):
+    def get_value(self, meta_field):
         if type(meta_field.remote_field) is ManyToManyRel:
-            ids = list(getattr(obj, meta_field.attname).all().values_list('id', flat=True))
+            ids = list(getattr(self, meta_field.attname).all().values_list('id', flat=True))
 
             return ids
         else:
-            return getattr(obj, meta_field.attname)
+            return getattr(self, meta_field.attname)
 
-    @classmethod
     # returns True if the field was modified
-    def set_value(cls, obj, meta_field, json_value):
-        field_name = cls.get_object_key_from_meta_field(meta_field)
+    def set_value(self, meta_field, json_value):
+        field_name = self.__class__.get_object_key_from_meta_field(meta_field)
         if field_name == "id":
             return False
 
@@ -125,12 +122,12 @@ class StreamObjectMixin(models.Model):
         if meta_field.remote_field:
             # check if we should change the id
             new_id = int(json_value)
-            my_id = getattr(obj, field_name)
+            my_id = getattr(self, field_name)
 
             if my_id == new_id:
                 return False
 
-            setattr(obj, field_name, new_id)
+            setattr(self, field_name, new_id)
             return True
 
         internal_type = str(meta_field.get_internal_type())
@@ -153,9 +150,9 @@ class StreamObjectMixin(models.Model):
             new_value = meta_field.to_python(json_value)
 
         # check if an update is really needed
-        current_value = getattr(obj, field_name)
+        current_value = getattr(self, field_name)
         if current_value != new_value:
-            setattr(obj, field_name, new_value)
+            setattr(self, field_name, new_value)
             return True
 
         return False
@@ -168,12 +165,12 @@ class StreamObjectMixin(models.Model):
             if not self.should_include_field(meta_field, include, exclude, include_many_to_many):
                 continue
 
-            value = self.get_value(self, meta_field)
+            value = self.get_value(meta_field)
 
             if exclude_none and (value is None or value == [] or value == {}):
                 continue
 
-            json_obj[self.get_meta_key(meta_field, rename)] = self.get_value(self, meta_field)
+            json_obj[self.get_meta_key(meta_field, rename)] = self.get_value(meta_field)
 
         # add requested stuff that is not a field
         for name in include or []:
@@ -199,23 +196,16 @@ class StreamObjectMixin(models.Model):
 
     def update_field_from_json_dict(self, meta_field, json_dict, rename=None):
         key = self.get_meta_key(meta_field, rename)
-        if key in json_dict:
-            old_value = getattr(self, meta_field.name)  # debug purpose
-            if self.set_value(self, meta_field, json_dict[key]):
-                new_value = getattr(self, meta_field.name)  # debug purpose
-                print("edited ", meta_field.name, 'old value:', old_value, "new value:", new_value)  # debug purpose
-                return True
+        return (key in json_dict) and self.set_value(meta_field, json_dict[key])
 
-        return False
-
-    def update_from_json_dict(self, json_dict, rename=None):
+    def update_from_dict(self, data_dict, rename=None):
+        json_dict = to_json_dict(data_dict)
         updated_fields = []
 
         for meta_field in self._meta.get_fields():
             if self.update_field_from_json_dict(meta_field, json_dict, rename):
                 key = self.get_object_key_from_meta_field(meta_field)
                 updated_fields.append(key)
-
         return updated_fields
 
     @classmethod
@@ -230,27 +220,38 @@ class StreamObjectMixin(models.Model):
     def can_be_edited_by_user(self, user):
         if user.is_superuser:
             return True
-        return getattr(self, "owner_id", -1) == user.id
+        return getattr(self, "owner_id", getattr(self, "author_id", -1)) == user.id
 
-    @classmethod
-    def edit_from_request(cls, request, rename=None):
-        obj = cls.get_object_from_edit_request(request, rename)
-        if not obj.can_be_edited_by_request(request):
+    def edit_from_dict(self, data_dict, rename=None, trusted=False, publish_event=True, event_type="update", event_extra=None):
+        updated_fields = self.update_from_dict(data_dict, rename)
+
+        if len(updated_fields) == 0:
+            return
+
+        if not trusted:
+            # TODO: have a better validation flow
+            self.full_clean()
+        self.save(update_fields=updated_fields)
+        update_dict = {}
+        for updated_field in updated_fields:
+            update_dict[updated_field] = getattr(self, updated_field)
+
+        event = self.make_event(event_type, to_json_dict(update_dict), extra=event_extra)
+        if publish_event:
+            self.publish_event_raw(event)
+        return event
+
+    def edit_from_request(self, request, rename=None):
+        if not self.can_be_edited_by_request(request):
             from establishment.errors.errors import BaseError
             raise BaseError.NOT_ALLOWED
-
-        updated_fields = obj.update_from_json_dict(request.POST, rename)
-
-        if len(updated_fields):
-            # TODO: have a better validation flow
-            obj.full_clean()
-            obj.save(update_fields=updated_fields)
-        return obj, len(updated_fields) > 0
+        return self.edit_from_dict(request.POST, rename, publish_event=False)
 
     @classmethod
-    def edit_view(cls, decorators=[]):
+    def edit_view(cls, decorators=list()):
         def view_func(request):
-            obj, modified = cls.edit_from_request(request)
+            obj = cls.get_object_from_edit_request(request)
+            obj.edit_from_request(request)
             return JSONResponse({"success": True})
 
         for decorator in reversed(decorators):
@@ -261,7 +262,7 @@ class StreamObjectMixin(models.Model):
     @classmethod
     def create_from_request(cls, request):
         obj = cls()
-        obj.update_from_json_dict(request.POST)
+        obj.update_from_dict(request.POST)
         if not obj.can_be_created_by_request(request):
             from establishment.errors.errors import BaseError
             raise BaseError.NOT_ALLOWED
@@ -269,7 +270,7 @@ class StreamObjectMixin(models.Model):
         return obj
 
     @classmethod
-    def create_view(cls, decorators=[]):
+    def create_view(cls, decorators=list()):
         def view_func(request):
             obj = cls.create_from_request(request)
             obj.save()
