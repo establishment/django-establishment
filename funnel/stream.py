@@ -98,7 +98,7 @@ class StreamObjectMixin(models.Model):
     def get_meta_key(cls, meta_field, rename):
         return cls.get_key_name(cls.get_object_key_from_meta_field(meta_field), rename)
 
-    def get_value(self, meta_field):
+    def get_field_value(self, meta_field):
         if type(meta_field.remote_field) is ManyToManyRel:
             ids = list(getattr(self, meta_field.attname).all().values_list('id', flat=True))
 
@@ -107,7 +107,7 @@ class StreamObjectMixin(models.Model):
             return getattr(self, meta_field.attname)
 
     # returns True if the field was modified
-    def set_value(self, meta_field, json_value):
+    def set_field_value(self, meta_field, json_value):
         field_name = self.__class__.get_object_key_from_meta_field(meta_field)
         if field_name == "id":
             return False
@@ -165,12 +165,12 @@ class StreamObjectMixin(models.Model):
             if not self.should_include_field(meta_field, include, exclude, include_many_to_many):
                 continue
 
-            value = self.get_value(meta_field)
+            value = self.get_field_value(meta_field)
 
             if exclude_none and (value is None or value == [] or value == {}):
                 continue
 
-            json_obj[self.get_meta_key(meta_field, rename)] = self.get_value(meta_field)
+            json_obj[self.get_meta_key(meta_field, rename)] = self.get_field_value(meta_field)
 
         # add requested stuff that is not a field
         for name in include or []:
@@ -196,7 +196,7 @@ class StreamObjectMixin(models.Model):
 
     def update_field_from_json_dict(self, meta_field, json_dict, rename=None):
         key = self.get_meta_key(meta_field, rename)
-        return (key in json_dict) and self.set_value(meta_field, json_dict[key])
+        return (key in json_dict) and self.set_field_value(meta_field, json_dict[key])
 
     def update_from_dict(self, data_dict, rename=None):
         json_dict = to_json_dict(data_dict)
