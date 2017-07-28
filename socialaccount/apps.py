@@ -6,4 +6,7 @@ class SocialAccountAppConfig(AppConfig):
 
     def ready(self):
         from .models import SocialProvider
-        SocialProvider.load()
+        try:
+            SocialProvider.load()
+        except:
+            print("Failed to load social providers, only ok if doing a migration")

@@ -193,7 +193,7 @@ class SocialLogin(object):
 
     def is_temporary(self):
         """
-        :return: True if accout is temporary and not yet in the database
+        :return: True if account is temporary and not yet in the database
         """
         return not self.account.pk
 
