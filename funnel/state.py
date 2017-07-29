@@ -69,7 +69,6 @@ class DBObjectStoreWithNull(DBObjectStore):
         self.cache[id] = (None, timestamp)
 
 
-# TODO: rename to State
 class State(object):
     def __init__(self, request=None, parent_cache=None, user=None):
         self.request = request
@@ -162,7 +161,7 @@ class State(object):
         return state
 
     @classmethod
-    def create_response_from_objects(cls, *args):
+    def from_objects_wrapped(cls, *args):
         return {
             "state": cls.from_objects(*args)
         }
