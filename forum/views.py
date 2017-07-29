@@ -2,7 +2,7 @@ from establishment.errors.errors import BaseError
 from establishment.forum.errors import ForumError
 from establishment.forum.models import ForumThread, Forum
 from establishment.funnel.base_views import ajax_required, JSONResponse, login_required_ajax, global_renderer, single_page_app
-from establishment.funnel.utils import State
+from establishment.funnel.state import State
 from establishment.funnel.throttle import UserActionThrottler, ActionThrottler
 
 

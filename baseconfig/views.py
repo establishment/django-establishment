@@ -1,7 +1,7 @@
 import threading
 
 from establishment.funnel.base_views import superuser_required, ajax_required, JSONErrorResponse, JSONResponse, single_page_app
-from establishment.funnel.utils import State
+from establishment.funnel.state import State
 from establishment.misc.threading_helper import ThreadHandler
 from .models import CommandInstance, CommandRun
 

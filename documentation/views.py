@@ -4,7 +4,7 @@ from establishment.content.models import Article
 from establishment.documentation.models import DocumentationEntry
 from establishment.funnel.base_views import ajax_required, JSONResponse, superuser_required, global_renderer, \
     single_page_app
-from establishment.funnel.utils import State
+from establishment.funnel.state import State
 
 
 @ajax_required

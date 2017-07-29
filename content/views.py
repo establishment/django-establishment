@@ -8,7 +8,7 @@ from django.http import HttpResponseForbidden
 
 from establishment.blog.models import BlogEntry
 from establishment.content.models import TermDefinition, ArticleEdit, UserFeedback, Article
-from establishment.funnel.utils import State
+from establishment.funnel.state import State
 from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, login_required, login_required_ajax, \
     ajax_required, superuser_required, global_renderer, single_page_app
 

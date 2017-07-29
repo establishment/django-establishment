@@ -7,7 +7,7 @@ from django.utils.text import slugify
 
 from establishment.content.models import Article
 from establishment.blog.models import BlogEntry
-from establishment.funnel.utils import State
+from establishment.funnel.state import State
 from establishment.funnel.base_views import JSONResponse, ajax_required, superuser_required, global_renderer, single_page_app
 
 

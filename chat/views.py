@@ -6,7 +6,7 @@ from establishment.chat.models import PrivateChat, GroupChat, MessageInstance
 from establishment.errors.errors import BaseError
 from establishment.funnel.base_views import login_required_ajax, JSONResponse, ajax_required, login_required, global_renderer
 from establishment.funnel.throttle import UserActionThrottler
-from establishment.funnel.utils import State
+from establishment.funnel.state import State
 
 
 @login_required_ajax

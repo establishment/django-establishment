@@ -10,7 +10,7 @@ from django.db.models.fields.reverse_related import ForeignObjectRel
 from .redis_stream import RedisStreamPublisher
 from .json_helper import to_camel_case, to_json_dict
 from .base_views import JSONResponse, JSONErrorResponse
-from .utils import State, int_list
+from .state import State, int_list
 
 
 STREAM_HANDLERS = []

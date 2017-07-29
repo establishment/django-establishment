@@ -9,7 +9,7 @@ from django.utils import timezone
 from establishment.accounts.models import ReactionableMixin
 from establishment.chat.errors import ChatError
 from establishment.errors.errors import BaseError
-from establishment.funnel.utils import State
+from establishment.funnel.state import State
 from establishment.funnel.base_views import JSONResponse
 from establishment.funnel.nodews_meta import NodeWSMeta
 from establishment.funnel.stream import register_stream_handler, StreamObjectMixin

@@ -4,7 +4,7 @@ import json
 
 from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway
 from establishment.funnel.base_views import superuser_required, single_page_app, JSONResponse, JSONErrorResponse
-from establishment.funnel.utils import State
+from establishment.funnel.state import State
 from establishment.localization.models import Language
 from mercury.api import MercuryRedisAPI
 

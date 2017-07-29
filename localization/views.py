@@ -1,7 +1,7 @@
 import json
 
 from establishment.funnel.base_views import superuser_required, JSONResponse, JSONErrorResponse
-from establishment.funnel.utils import State
+from establishment.funnel.state import State
 from establishment.localization.models import TranslationEntry, TranslationKey
 
 

@@ -13,7 +13,7 @@ from django.utils.http import base36_to_int, int_to_base36
 from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, login_required, login_required_ajax, ajax_required, global_renderer
 from establishment.funnel.throttle import ActionThrottler
 
-from establishment.funnel.utils import State, int_list
+from establishment.funnel.state import State, int_list
 from establishment.funnel.base_views import single_page_app
 from .adapter import login, perform_login
 from .models import EmailAddress, UnverifiedEmail, UserSummary, PublicUserSummary
