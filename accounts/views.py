@@ -473,7 +473,7 @@ def public_user_profiles(request):
 
 @login_required_ajax
 def get_user_notifications(request):
-    return State.from_objects(request.user.notifications.all())
+    return State.from_objects(request.user.notifications.all(), UserSummary(request.user))
 
 
 @login_required_ajax

@@ -68,7 +68,7 @@ class SocialProvider(models.Model):
 class SocialAppManager(models.Manager):
     def get_current(self, provider, request=None):
         site = Site.objects.get_current(request)
-        return self.get(sites__id=site.id, provider_instance=provider)
+        return self.get(sites__id=site.id, provider_instance=SocialProvider.get_by_name(provider).get_db_instance())
 
 
 class SocialApp(models.Model):

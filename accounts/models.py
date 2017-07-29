@@ -333,7 +333,7 @@ class UserSummary(BaseUserSummary):
         rez["emails"] = self.user.get_all_emails()
         rez["receivesEmailAnnouncements"] = self.user.receives_email_announcements
         #TODO: validators and social should not be in here, should be in static
-        rez["social"] = list(self.user.socialaccount_set.all().order_by("provider"))
+        rez["social"] = list(self.user.socialaccount_set.all().order_by("provider_instance"))
         rez.update(self.user.get_custom_settings(True).to_json())
         return rez
 
