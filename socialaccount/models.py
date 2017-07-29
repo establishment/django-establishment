@@ -74,7 +74,6 @@ class SocialAppManager(models.Manager):
 class SocialApp(models.Model):
     objects = SocialAppManager()
 
-    provider = models.CharField(max_length=30, choices=SocialProvider.providers_as_choices())
     provider_instance = models.ForeignKey(SocialProvider, on_delete=models.PROTECT)
     name = models.CharField(max_length=40)
     client_id = models.CharField(max_length=256, help_text="App ID, or consumer key")
@@ -92,7 +91,6 @@ class SocialApp(models.Model):
 
 class SocialAccount(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    provider = models.CharField(max_length=30, choices=SocialProvider.providers_as_choices())
     provider_instance = models.ForeignKey(SocialProvider, on_delete=models.PROTECT)
     uid = models.CharField(max_length=512, unique=True)
     last_login = models.DateTimeField(auto_now=True)
