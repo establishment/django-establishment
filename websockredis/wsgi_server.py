@@ -29,7 +29,6 @@ session_engine = import_module(settings.SESSION_ENGINE)
 
 #TODO: also keep a counter with the number of stream subcriptions
 
-
 users_pending_connection = queue.Queue(maxsize=2048)
 
 

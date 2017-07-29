@@ -23,16 +23,3 @@
 nbproject
 Thumbs.db
 tags
-
-# Other folders to ignore
-node_modules
-resources
-
-# Daedalus logs
-log/
-
-# Daedalus pids
-pid/
-
-# Static files
-/static/
