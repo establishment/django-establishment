@@ -9,7 +9,7 @@ from django.utils import timezone
 from establishment.accounts.models import ReactionableMixin
 from establishment.chat.errors import ChatError
 from establishment.errors.errors import BaseError
-from establishment.funnel.utils import GlobalObjectCache
+from establishment.funnel.utils import State
 from establishment.funnel.base_views import JSONResponse
 from establishment.funnel.nodews_meta import NodeWSMeta
 from establishment.funnel.stream import register_stream_handler, StreamObjectMixin
@@ -54,7 +54,7 @@ class MessageThread(StreamObjectMixin):
             return None, ChatError.INVALID_MESSAGE_CONTENT
 
         message = self.create_message(user, content, virtual_id=virtual_id, stream_names=stream_names)
-        state = GlobalObjectCache()
+        state = State()
         state.add(message)
         json_response = JSONResponse({"messageId": message.id, "state": state})
         return message, json_response

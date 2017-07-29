@@ -7,7 +7,7 @@ from django.utils.text import slugify
 
 from establishment.content.models import Article
 from establishment.blog.models import BlogEntry
-from establishment.funnel.utils import GlobalObjectCache
+from establishment.funnel.utils import State
 from establishment.funnel.base_views import JSONResponse, ajax_required, superuser_required, global_renderer, single_page_app
 
 
@@ -26,7 +26,7 @@ def get_blog_state(request):
 
     blog_posts = blog_posts[:(BLOG_FETCH_CHUNK + 1)]
 
-    state = GlobalObjectCache()
+    state = State()
 
     for blog_post in blog_posts[:BLOG_FETCH_CHUNK]:
         blog_post.add_to_state(state)
@@ -55,7 +55,7 @@ def get_blogpost(request):
         pass
     if blog_post and not blog_post.visible and not request.user.is_superuser:
         blog_post = None
-    state = GlobalObjectCache()
+    state = State()
     if blog_post:
         state.add(blog_post)
         state.add(blog_post.article)
@@ -63,7 +63,7 @@ def get_blogpost(request):
 
 
 def latest_blog_state(request):
-    state = GlobalObjectCache(request)
+    state = State(request)
 
     blog_entries = BlogEntry.objects.filter(visible=True, discussion__isnull=False).prefetch_related("article", "discussion", "discussion__message_thread")
     blog_entries = list(blog_entries)
@@ -98,7 +98,7 @@ def add_entry(request):
         article.save()
         entry = BlogEntry.objects.create(url_name=url_name, article=article, visible=is_visible)
 
-    state = GlobalObjectCache()
+    state = State()
     entry.add_to_state(state)
     return JSONResponse({"state": state, "blogEntryId": entry.id})
 
@@ -138,7 +138,7 @@ def create_entry_discussion(request):
     entry.create_discussion()
     entry.save()
 
-    state = GlobalObjectCache()
+    state = State()
     state.add(entry)
 
     return state.to_response()

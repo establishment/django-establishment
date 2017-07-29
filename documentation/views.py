@@ -4,7 +4,7 @@ from establishment.content.models import Article
 from establishment.documentation.models import DocumentationEntry
 from establishment.funnel.base_views import ajax_required, JSONResponse, superuser_required, global_renderer, \
     single_page_app
-from establishment.funnel.utils import GlobalObjectCache
+from establishment.funnel.utils import State
 
 
 @ajax_required
@@ -21,7 +21,7 @@ def create_entry(request):
                                               parent_index=int(request.POST["parentIndex"]),
                                               article=article)
     entry.save()
-    state = GlobalObjectCache()
+    state = State()
     state.add(entry)
     state.add(entry.article)
     return JSONResponse({"state": state})
@@ -44,7 +44,7 @@ def edit_entry(request):
     entry.article = article
     entry.save()
 
-    state = GlobalObjectCache()
+    state = State()
     state.add(entry)
     state.add(entry.article)
     return JSONResponse({"state": state})
@@ -72,7 +72,7 @@ def change_parents(request):
 @single_page_app
 @superuser_required
 def edit_documentation(request):
-    state = GlobalObjectCache()
+    state = State()
 
     documentation_entries = DocumentationEntry.objects.all().prefetch_related("article")
     for entry in documentation_entries:
@@ -84,7 +84,7 @@ def edit_documentation(request):
 
 @single_page_app
 def documentation(request):
-    state = GlobalObjectCache()
+    state = State()
 
     documentation_entries = DocumentationEntry.objects.all().prefetch_related("article")
     for entry in documentation_entries:

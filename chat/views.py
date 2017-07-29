@@ -6,7 +6,7 @@ from establishment.chat.models import PrivateChat, GroupChat, MessageInstance
 from establishment.errors.errors import BaseError
 from establishment.funnel.base_views import login_required_ajax, JSONResponse, ajax_required, login_required, global_renderer
 from establishment.funnel.throttle import UserActionThrottler
-from establishment.funnel.utils import GlobalObjectCache
+from establishment.funnel.utils import State
 
 
 @login_required_ajax
@@ -64,7 +64,7 @@ def private_chat_list(request):
     if "onlyUnread" in request.GET:
         private_chats = private_chats.filter(first_unread_message__has_key=str(request.user.id))
     private_chats = private_chats.prefetch_related("message_thread")
-    state = GlobalObjectCache()
+    state = State()
     # TODO: it's very expensive to have num_private_chat DB hits for messages, optimize this
     for private_chat in private_chats:
         private_chat.add_to_state(state, message_count=20)
@@ -76,7 +76,7 @@ def private_chat_state(request):
     user1 = get_user_model().objects.get(id=int(request.POST["userId"]))
     user2 = request.user
 
-    state = GlobalObjectCache()
+    state = State()
 
     existing_chat = PrivateChat.get(user1=user1, user2=user2)
 
@@ -122,7 +122,7 @@ def private_chat_post(request):
 
     message_instance, json_response = private_chat.create_message_from_request(request)
 
-    state = GlobalObjectCache()
+    state = State()
     state.add(private_chat)
     state.add(private_chat.message_thread)
     state.add(message_instance)
@@ -152,7 +152,7 @@ def private_chat_mark_read(request):
 def group_chat_state(request):
     group_chat = GroupChat.objects.get(id=int(request.GET["chatId"]))
 
-    state = GlobalObjectCache(request)
+    state = State(request)
 
     last_message_id = request.GET.get("lastMessageId", None)
     if last_message_id:

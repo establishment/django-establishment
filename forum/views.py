@@ -2,13 +2,13 @@ from establishment.errors.errors import BaseError
 from establishment.forum.errors import ForumError
 from establishment.forum.models import ForumThread, Forum
 from establishment.funnel.base_views import ajax_required, JSONResponse, login_required_ajax, global_renderer, single_page_app
-from establishment.funnel.utils import GlobalObjectCache
+from establishment.funnel.utils import State
 from establishment.funnel.throttle import UserActionThrottler, ActionThrottler
 
 
 def main_forum_view(request):
     main_forum = Forum.objects.get(id=1)
-    state = GlobalObjectCache(request)
+    state = State(request)
     main_forum.add_to_state(state)
     return global_renderer.render_ui_widget(request, "ForumWidget", state=state, widget_options={"forumId": main_forum.id})
 
@@ -16,13 +16,13 @@ def main_forum_view(request):
 @single_page_app
 def single_page_forum(request):
     main_forum = Forum.objects.get(id=1)
-    state = GlobalObjectCache(request)
+    state = State(request)
     main_forum.add_to_state(state)
     return JSONResponse({"state": state, "forumId": main_forum.id})
 
 
 def latest_forum_state(request):
-    state = GlobalObjectCache()
+    state = State()
 
     forum_threads = ForumThread.objects.filter(hidden=False).prefetch_related("message_thread", "parent")
     forum_threads = list(forum_threads)
@@ -58,7 +58,7 @@ def create_forum_thread(request):
     forum = Forum.objects.get(id=int(request.POST["forumId"]))
     forum_thread = ForumThread.create(request.user, request.POST["title"], request.POST["message"], forum)
 
-    state = GlobalObjectCache()
+    state = State()
     forum_thread.publish_create_event()
     forum_thread.add_to_state(state)
     return JSONResponse({
@@ -107,7 +107,7 @@ def forum_thread_post(request):
 @ajax_required
 def forum_state(request):
     forum = Forum.objects.get(id=int(request.POST["forumId"]))
-    state = GlobalObjectCache(request)
+    state = State(request)
     forum.add_to_state(state)
     return state.to_response()
 
@@ -122,6 +122,6 @@ def forum_thread_state(request):
     if forum_view_throttler.increm():
         forum_thread.increment_num_views()
 
-    state = GlobalObjectCache(request)
+    state = State(request)
     forum_thread.add_to_state(state, request)
     return state.to_response()

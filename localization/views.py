@@ -1,7 +1,7 @@
 import json
 
 from establishment.funnel.base_views import superuser_required, JSONResponse, JSONErrorResponse
-from establishment.funnel.utils import GlobalObjectCache
+from establishment.funnel.utils import State
 from establishment.localization.models import TranslationEntry, TranslationKey
 
 
@@ -70,7 +70,7 @@ def edit_translation(request):
             key.value = new_value
             key.save()
 
-    state = GlobalObjectCache()
+    state = State()
     state.add_all(TranslationEntry.objects.all())
     state.add_all(TranslationKey.objects.all())
     return JSONResponse({"succes": True, "state": state, "keyInfo": key_info})

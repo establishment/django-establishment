@@ -10,7 +10,7 @@ from django.db.models.fields.reverse_related import ForeignObjectRel
 from .redis_stream import RedisStreamPublisher
 from .json_helper import to_camel_case, to_json_dict
 from .base_views import JSONResponse, JSONErrorResponse
-from .utils import GlobalObjectCache, int_list
+from .utils import State, int_list
 
 
 STREAM_HANDLERS = []
@@ -288,11 +288,11 @@ class StreamObjectMixin(models.Model):
             if len(ids) > max_ids:
                 # TODO: log this, may need to ban some asshole
                 return JSONErrorResponse("Requesting too many objects")
-            state = GlobalObjectCache(request)
+            state = State(request)
             for obj in cls.objects.get(id__in=ids):
                 if not permission_filter or permission_filter(obj):
                     state.add(obj)
-            return JSONResponse(state)
+            return state
 
         return view_func
 

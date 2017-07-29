@@ -8,7 +8,7 @@ from django.http import HttpResponseForbidden
 
 from establishment.blog.models import BlogEntry
 from establishment.content.models import TermDefinition, ArticleEdit, UserFeedback, Article
-from establishment.funnel.utils import GlobalObjectCache
+from establishment.funnel.utils import State
 from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, login_required, login_required_ajax, \
     ajax_required, superuser_required, global_renderer, single_page_app
 
@@ -17,7 +17,7 @@ from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, log
 @login_required
 def article_manager_view(request):
     from establishment.content.models import Language
-    state = GlobalObjectCache()
+    state = State()
     articles = Article.get_editable_articles(request.user)
     state.add_all(articles)
     # TODO: Language should be loaded in PublicState
@@ -29,7 +29,7 @@ def article_manager_view(request):
 @single_page_app
 def article_manager_single_page_view(request):
     from establishment.content.models import Language
-    state = GlobalObjectCache()
+    state = State()
     articles = Article.get_editable_articles(request.user)
     state.add_all(articles)
     # TODO: Language should be loaded in PublicState
@@ -66,7 +66,7 @@ def create_article(request):
     if "markup" in request.POST:
         article.edit(request.user, request.POST["markup"], )
 
-    state = GlobalObjectCache()
+    state = State()
     state.add(article)
 
     return JSONResponse({"state": state, "article": article})
@@ -80,7 +80,7 @@ def fetch_article(request):
         return JSONErrorResponse("Too many articles")
     articles = Article.objects.filter(id__in=article_ids)
 
-    state = GlobalObjectCache()
+    state = State()
 
     for article in articles:
         if article.is_available_to(request.user):
@@ -92,7 +92,7 @@ def fetch_article(request):
 @login_required_ajax
 def get_available_articles(request):
     articles = Article.get_editable_articles(request.user)
-    state = GlobalObjectCache()
+    state = State()
     state.add_all(articles)
 
     return JSONResponse({"state": state})
@@ -107,7 +107,7 @@ def get_translations(request, article_id):
 
     translations = Article.objects.filter(base_article_id=article.id)
 
-    state = GlobalObjectCache()
+    state = State()
     state.add_all(translations)
     state.add_all(TermDefinition.objects.all())
 
@@ -122,7 +122,7 @@ def full_article(request):
     if not request.user.is_superuser and article.author_created != request.user:
         return HttpResponseForbidden()
 
-    state = GlobalObjectCache()
+    state = State()
 
     article.add_to_state(state, True)
 
@@ -156,7 +156,7 @@ def check_article_change(request, article):
 def get_article_state(article):
     article_edits = ArticleEdit.objects.filter(article=article)
 
-    state = GlobalObjectCache()
+    state = State()
     state.add(article)
     state.add_all(article_edits)
 
@@ -230,7 +230,7 @@ def set_article_owner(request, article_id):
     article.author_created_id = new_owner_id
     article.save()
 
-    state = GlobalObjectCache()
+    state = State()
     state.add(article)
 
     return JSONResponse({"state": state})

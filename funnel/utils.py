@@ -1,5 +1,4 @@
 # TODO: this file should be renamed to state.py
-# TODO: rename most of the class names to DBObjectStore and State
 import json
 import time
 
@@ -9,8 +8,8 @@ from establishment.funnel.encoder import StreamJSONEncoder
 STATE_FILTERS = []
 
 
-# TODO: should this be thread-safe?
-class DBObjectCache:
+# TODO: this isn't fully thread-safe yet
+class DBObjectStore(object):
     def __init__(self, object_class, objects=None, default_max_age=None):
         if not objects:
             objects = []
@@ -49,7 +48,6 @@ class DBObjectCache:
         return self.size() == 0
 
     def all(self):
-        # TODO: this sort should be on the client side
         rez = [o[0] for o in self.cache.values()]
         rez.sort(key=lambda o: o.id)
         return rez
@@ -58,7 +56,7 @@ class DBObjectCache:
         return self.all()
 
 
-class DBObjectCacheWithNull(DBObjectCache):
+class DBObjectStoreWithNull(DBObjectStore):
     def get_raw(self, id):
         if not self.has(id):
             try:
@@ -71,8 +69,8 @@ class DBObjectCacheWithNull(DBObjectCache):
         self.cache[id] = (None, timestamp)
 
 
-# TODO: support TTL ?
-class GlobalObjectCache:
+# TODO: rename to State
+class State(object):
     def __init__(self, request=None, parent_cache=None, user=None):
         self.request = request
         self.object_caches = {}
@@ -96,7 +94,7 @@ class GlobalObjectCache:
     def get_store(self, ObjectClass):
         class_key = self.get_store_key(ObjectClass)
         if class_key not in self.object_caches:
-            self.object_caches[class_key] = DBObjectCache(ObjectClass)
+            self.object_caches[class_key] = DBObjectStore(ObjectClass)
         return self.object_caches[class_key]
 
     def has(self, ObjectClass, id):
@@ -154,7 +152,7 @@ class GlobalObjectCache:
         return JSONResponse(result)
 
     @classmethod
-    def create_from_objects(cls, *args):
+    def from_objects(cls, *args):
         state = cls()
         for arg in args:
             if hasattr(arg, '__iter__'):
@@ -166,7 +164,7 @@ class GlobalObjectCache:
     @classmethod
     def create_response_from_objects(cls, *args):
         return {
-            "state": cls.create_from_objects(*args)
+            "state": cls.from_objects(*args)
         }
 
 

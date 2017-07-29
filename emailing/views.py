@@ -4,7 +4,7 @@ import json
 
 from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway
 from establishment.funnel.base_views import superuser_required, single_page_app, JSONResponse, JSONErrorResponse
-from establishment.funnel.utils import GlobalObjectCache
+from establishment.funnel.utils import State
 from establishment.localization.models import Language
 from mercury.api import MercuryRedisAPI
 
@@ -12,7 +12,7 @@ from mercury.api import MercuryRedisAPI
 @superuser_required
 @single_page_app
 def email_manager(request):
-    state = GlobalObjectCache(request)
+    state = State(request)
     state.add_all(EmailCampaign.objects.all())
     state.add_all(EmailTemplate.objects.all())
     state.add_all(EmailGateway.objects.all())

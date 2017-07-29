@@ -1,7 +1,7 @@
 import threading
 
 from establishment.funnel.base_views import superuser_required, ajax_required, JSONErrorResponse, JSONResponse, single_page_app
-from establishment.funnel.utils import GlobalObjectCache
+from establishment.funnel.utils import State
 from establishment.misc.threading_helper import ThreadHandler
 from .models import CommandInstance, CommandRun
 
@@ -25,7 +25,7 @@ def run_command(request):
 @superuser_required
 @single_page_app
 def command_manager(request):
-    state = GlobalObjectCache()
+    state = State()
     state.add_all(CommandInstance.objects.all())
     state.add_all(CommandRun.objects.all())
     return JSONResponse({"state": state})

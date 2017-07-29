@@ -13,7 +13,7 @@ from django.utils.http import base36_to_int, int_to_base36
 from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, login_required, login_required_ajax, ajax_required, global_renderer
 from establishment.funnel.throttle import ActionThrottler
 
-from establishment.funnel.utils import GlobalObjectCache, int_list
+from establishment.funnel.utils import State, int_list
 from establishment.funnel.base_views import single_page_app
 from .adapter import login, perform_login
 from .models import EmailAddress, UnverifiedEmail, UserSummary, PublicUserSummary
@@ -52,7 +52,7 @@ def user_signup_request(request):
 
 @login_required
 def account_settings(request):
-    state = GlobalObjectCache()
+    state = State()
     state.add(UserSummary(request.user))
     return global_renderer.render_ui_widget(request, "UserSettingsPanel", state, page_title="Account settings")
 
@@ -66,7 +66,7 @@ def my_profile(request):
 
 
 def public_user_profile(request, profile_user):
-    state = GlobalObjectCache()
+    state = State()
     user_summary = PublicUserSummary(profile_user)
     state.add(user_summary)
 
@@ -452,7 +452,7 @@ def user_password_reset_from_token(request, user_base36, reset_token):
 
 @ajax_required
 def public_user_profiles(request):
-    state = GlobalObjectCache()
+    state = State()
     if "usernamePrefix" in request.GET:
         username_prefix = request.GET["usernamePrefix"]
         precise_user = get_user_manager().filter(username__iexact=username_prefix)
@@ -473,11 +473,7 @@ def public_user_profiles(request):
 
 @login_required_ajax
 def get_user_notifications(request):
-    user_notifications = request.user.notifications.all()
-    state = GlobalObjectCache()
-    state.add_all(user_notifications)
-    state.add(UserSummary(request.user))
-    return state.to_response()
+    return State.from_objects(request.user.notifications.all())
 
 
 @login_required_ajax
