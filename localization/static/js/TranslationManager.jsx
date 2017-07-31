@@ -1,5 +1,5 @@
 // TODO: this whole file needs a refactoring
-import {UI, TabArea, TableRow, Table, TextInput, Button, Select, FileInput, CheckboxInput, TextArea} from "UI";
+import {UI, TabArea, TableRow, Table, TextInput, Button, Select, FileInput, CheckboxInput, TextArea, Panel} from "UI";
 import {GlobalState} from "State";
 import {TranslationKeyStore, TranslationEntryStore} from "TranslationStore";
 import {Language} from "LanguageStore";
