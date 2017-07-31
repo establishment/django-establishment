@@ -7,6 +7,7 @@ import {UserStore} from "UserStore";
 import {FacebookManager} from "FacebookManager";
 import {GoogleManager} from "GoogleManager";
 import {Ajax} from "Ajax";
+import {Level, Size} from "Constants";
 
 class GeneralInformationPanel extends Panel {
     render() {
@@ -28,7 +29,7 @@ class GeneralInformationPanel extends Panel {
                     </FormField>
                 </Form>
                 <FormField label=" ">
-                  <div><AjaxButton ref="saveProfileButton" level={UI.Level.PRIMARY}
+                  <div><AjaxButton ref="saveProfileButton" level={Level.PRIMARY}
                                    statusOptions={["Save changes", {faIcon: "spinner fa-spin", label:" Saving changes..."}, "Saved changes", "Save failed"]}/></div>
                 </FormField>
             </div>
@@ -115,7 +116,7 @@ class SecuritySettingsPanel extends Panel {
                     </FormField>
                 </Form>
                 <FormField label=" ">
-                      <div><AjaxButton ref="setPasswordButton" level={UI.Level.PRIMARY}
+                      <div><AjaxButton ref="setPasswordButton" level={Level.PRIMARY}
                         statusOptions={["Set Password", {faIcon: "spinner fa-spin", label:" Setting Password..."}, "Password set", "Failed"]}/></div>
                 </FormField>
             </div>
@@ -217,20 +218,20 @@ class EmailPanel extends Panel {
 
             if (email.verified) {
                 if (email.primary) {
-                    primaryLabel = <Label level={UI.Level.PRIMARY} style={labelStyle} label="Primary"/>;
+                    primaryLabel = <Label level={Level.PRIMARY} style={labelStyle} label="Primary"/>;
                 } else {
-                    verifiedLabel = <Label level={UI.Level.SUCCESS} style={labelStyle} label="Verified"/>;
-                    primaryAction = <Button onClick={makePrimaryCallback} size={UI.Size.EXTRA_SMALL} level={UI.Level.PRIMARY} label="Make Primary"
+                    verifiedLabel = <Label level={Level.SUCCESS} style={labelStyle} label="Verified"/>;
+                    primaryAction = <Button onClick={makePrimaryCallback} size={Size.EXTRA_SMALL} level={Level.PRIMARY} label="Make Primary"
                                                style={actionStyle} />;
                 }
             } else {
-                unverifiedLabel = <Label level={UI.Level.DANGER} style={labelStyle} label="Unverified"/>;
-                resendAction = <Button onClick={resendCallback} size={UI.Size.EXTRA_SMALL} label="Re-send confirmation"
+                unverifiedLabel = <Label level={Level.DANGER} style={labelStyle} label="Unverified"/>;
+                resendAction = <Button onClick={resendCallback} size={Size.EXTRA_SMALL} label="Re-send confirmation"
                                           style={actionStyle} />;
             }
 
             if (!email.primary) {
-                removeAction = <Button onClick={removeCallback} size={UI.Size.EXTRA_SMALL} level={UI.Level.DANGER} label="Remove"
+                removeAction = <Button onClick={removeCallback} size={Size.EXTRA_SMALL} level={Level.DANGER} label="Remove"
                                           style={actionStyle} />;
             }
 
@@ -264,7 +265,7 @@ class EmailPanel extends Panel {
                         <EmailInput ref="emailFormInput" placeholder="john.smith@mail.com"/>
                     </FormField>
                     <FormField label=" ">
-                      <div><AjaxButton ref="addEmailButton" onClick={() => {this.addEmail()}} level={UI.Level.PRIMARY}
+                      <div><AjaxButton ref="addEmailButton" onClick={() => {this.addEmail()}} level={Level.PRIMARY}
                         statusOptions={["Add Email", {faIcon: "spinner fa-spin", label:" Adding Email..."}, "Email added", "Failed"]}/></div>
                     </FormField>
                 </Form>
@@ -448,7 +449,7 @@ class SocialAccountsPanel extends Panel {
                             <span> {"- " + account.platform}</span>
                         </label>
                         <div className="pull-right">
-                            <Button label="Remove" size={UI.Size.SMALL} level={UI.Level.DANGER} style={{"margin-top": "7px"}}
+                            <Button label="Remove" size={Size.SMALL} level={Level.DANGER} style={{"margin-top": "7px"}}
                                        onClick={() => {this.removeSocialAccount(account.id)}} />
                         </div>
                     </div>

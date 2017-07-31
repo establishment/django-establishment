@@ -4,6 +4,8 @@ import {EmailCampaignStore} from "EmailCampaignStore";
 import {EmailTemplateStore} from "EmailTemplateStore";
 import {Language} from "LanguageStore";
 import {Ajax} from "Ajax";
+import {Orientation} from "Constants";
+import {Level} from "Constants";
 
 class EmailTemplateModal extends ActionModal {
     constructor(options) {
@@ -45,7 +47,7 @@ class EmailTemplateModal extends ActionModal {
             </FormField>,
             <FormField label="Html" ref="htmlField" inline={false} style={{margin: "initial"}}>
             </FormField>,
-            <SectionDivider orientation={UI.Orientation.HORIZONTAL} style={{width: "100%", flex: "1"}}>
+            <SectionDivider orientation={Orientation.HORIZONTAL} style={{width: "100%", flex: "1"}}>
                 <div style={{width: "50%", height: "100%", overflow: "hidden"}}>
                     <TextArea value={templateValues.html || ""} ref="htmlInput" style={{height: "100%", width: "100%", resize: "none"}}/>
                 </div>
@@ -112,7 +114,7 @@ class AddEmailTemplateModal extends EmailTemplateModal {
     }
 
     getActionLevel() {
-        return UI.Level.PRIMARY;
+        return Level.PRIMARY;
     }
 
     getAjaxAction() {
@@ -131,7 +133,7 @@ class EditEmailTemplateModal extends EmailTemplateModal {
     }
 
     getActionLevel() {
-        return UI.Level.PRIMARY;
+        return Level.PRIMARY;
     }
 
     getAjaxAction() {
@@ -180,7 +182,7 @@ class GenericConfirmModal extends ActionModal {
     }
 
     getActionLevel() {
-        return UI.Level.PRIMARY;
+        return Level.PRIMARY;
     }
 }
 
@@ -232,11 +234,11 @@ class EmailTemplateTable extends SortableTable {
             };
 
             const deleteButton = (template) => {
-                return <Button level={UI.Level.DANGER} ref="deleteTemplateButton">Delete</Button>;
+                return <Button level={Level.DANGER} ref="deleteTemplateButton">Delete</Button>;
             };
 
             const editButton = (template) => {
-                return <Button level={UI.Level.INFO} ref="editTemplateButton">Edit</Button>;
+                return <Button level={Level.INFO} ref="editTemplateButton">Edit</Button>;
             };
 
             columns.push({
@@ -294,7 +296,7 @@ class EmailTemplateTable extends SortableTable {
 class EmailTemplateWidget extends Panel {
     render() {
         return [<EmailTemplateTable />,
-            <Button level={UI.Level.SUCCESS} ref="addTemplateButton">Add Template</Button>
+            <Button level={Level.SUCCESS} ref="addTemplateButton">Add Template</Button>
        ];
     }
 

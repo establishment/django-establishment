@@ -1,5 +1,6 @@
 import {UI, Button, Link, Modal} from "UI";
 import {MarkupEditor} from "MarkupEditor";
+import {Level, Size} from "Constants";
 
 class MarkupEditorModal extends Modal {
     getMarkupEditorStyle() {
@@ -30,16 +31,16 @@ class MarkupEditorModal extends Modal {
                            onClick={() => {this.appendGraphExample()}} style={this.getButtonStyle()} className="pull-left"/>
                 <Button ref="submissionExample" label="Submission"
                            onClick={() => {this.appendSubmissionExample()}} style={this.getButtonStyle()} className="pull-left"/>
-                <Button ref="codeSnippetExample" level={UI.Level.DEFAULT} size={UI.Size.DEFAULT} label="Code"
+                <Button ref="codeSnippetExample" level={Level.DEFAULT} size={Size.DEFAULT} label="Code"
                            onClick={() => {this.appendCodeExample()}} style={this.getButtonStyle()} className="pull-left"/>
-                <Button ref="linkExample" level={UI.Level.DEFAULT} size={UI.Size.DEFAULT} label="Link"
+                <Button ref="linkExample" level={Level.DEFAULT} size={Size.DEFAULT} label="Link"
                            onClick={() => {this.appendLinkExample()}} style={this.getButtonStyle()} className="pull-left"/>
-                <Button ref="latexExample" level={UI.Level.DEFAULT} size={UI.Size.DEFAULT} label="LaTeX"
+                <Button ref="latexExample" level={Level.DEFAULT} size={Size.DEFAULT} label="LaTeX"
                            onClick={() => {this.appendLatexExample()}} style={this.getButtonStyle()} className="pull-left"/>
-                <Button ref={this.refLink("doneButton")} level={UI.Level.PRIMARY} label="Done"
+                <Button ref={this.refLink("doneButton")} level={Level.PRIMARY} label="Done"
                            className="pull-right" style={this.getButtonStyle()}/>
             </div>,
-            //<Button ref="userExample" level={UI.Level.DEFAULT} size={UI.Size.DEFAULT} label="User"
+            //<Button ref="userExample" level={Level.DEFAULT} size={Size.DEFAULT} label="User"
             //           onClick={() => {this.appendUserExample()}} style={this.getButtonStyle()} className="pull-left"/>
             <div className="" style={{"position":"absolute", "width":"90%", "margin-top":"45px"}}>
                 <Link href="/about/#markup" value="More details here" />

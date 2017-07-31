@@ -2,13 +2,14 @@ import {UI, Button} from "UI";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
+import {Level} from "Constants";
 
 class EditThreadReplyButton extends Button {
     setOptions(options) {
         if (!options.faIcon) {
             options.label = options.label || UI.T("Preview");
         }
-        options.level = options.level || UI.Level.PRIMARY;
+        options.level = options.level || Level.PRIMARY;
         super.setOptions(options);
     }
 

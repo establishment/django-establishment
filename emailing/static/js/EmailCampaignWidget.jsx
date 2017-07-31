@@ -7,6 +7,7 @@ import {EmailGatewayStore} from "EmailGatewayStore";
 import {EmailCampaignStore} from "EmailCampaignStore";
 import {EmailTemplateStore} from "EmailTemplateStore";
 import {Ajax} from "Ajax";
+import {Level} from "Constants";
 
 class GenericConfirmModal extends ActionModal {
     constructor(options) {
@@ -48,7 +49,7 @@ class GenericConfirmModal extends ActionModal {
     }
 
     getActionLevel() {
-        return UI.Level.PRIMARY;
+        return Level.PRIMARY;
     }
 }
 
@@ -141,7 +142,7 @@ class TestSendCampaignModal extends ActionModal {
     }
 
     getActionLevel() {
-        return UI.Level.PRIMARY;
+        return Level.PRIMARY;
     }
 }
 
@@ -215,7 +216,7 @@ class AddEmailCampaignModal extends EmailCampaignModal {
     }
 
     getActionLevel() {
-        return UI.Level.PRIMARY;
+        return Level.PRIMARY;
     }
 
     getAjaxAction() {
@@ -234,7 +235,7 @@ class EditEmailCampaignModal extends EmailCampaignModal {
     }
 
     getActionLevel() {
-        return UI.Level.PRIMARY;
+        return Level.PRIMARY;
     }
 
     getAjaxAction() {
@@ -294,23 +295,23 @@ class EmailCampaignTable extends SortableTable {
             };
 
             const deleteButton = (campaign) => {
-                return <Button level={UI.Level.DANGER} ref="deleteCampaignButton">Delete</Button>;
+                return <Button level={Level.DANGER} ref="deleteCampaignButton">Delete</Button>;
             };
 
             const editButton = (campaign) => {
-                return <Button level={UI.Level.INFO} ref="editCampaignButton">Edit</Button>;
+                return <Button level={Level.INFO} ref="editCampaignButton">Edit</Button>;
             };
 
             const testSendButton = (campaign) => {
-                return <Button level={UI.Level.INFO} ref="testSendCampaignButton">Test Send</Button>
+                return <Button level={Level.INFO} ref="testSendCampaignButton">Test Send</Button>
             };
 
             const sendButton = (campaign) => {
-                return <Button level={UI.Level.INFO} ref="sendCampaignButton">Send</Button>
+                return <Button level={Level.INFO} ref="sendCampaignButton">Send</Button>
             };
 
             const clearStatusButton = (campaign) => {
-                return <Button level={UI.Level.DANGER} ref="clearStatusCampaignButton">Clear Status</Button>
+                return <Button level={Level.DANGER} ref="clearStatusCampaignButton">Clear Status</Button>
             };
 
             columns.push({
@@ -395,7 +396,7 @@ class EmailCampaignTable extends SortableTable {
 class EmailCampaignWidget extends Panel {
     render() {
         return [<EmailCampaignTable />,
-            <Button level={UI.Level.SUCCESS} ref="addCampaignButton">Add Campaign</Button>
+            <Button level={Level.SUCCESS} ref="addCampaignButton">Add Campaign</Button>
        ];
     }
 

@@ -1,5 +1,6 @@
 import {UI, FormField, AjaxButton, TextInput} from "UI";
 import {Ajax} from "Ajax";
+import {Level} from "Constants";
 
 class PasswordReset extends UI.Element {
     render() {
@@ -18,7 +19,7 @@ class PasswordReset extends UI.Element {
             </FormField>,
             <FormField label=" ">
                 <div>
-                    <AjaxButton ref="resetPasswordButton" level={UI.Level.PRIMARY} onClick={() => this.sendPasswordReset()}
+                    <AjaxButton ref="resetPasswordButton" level={Level.PRIMARY} onClick={() => this.sendPasswordReset()}
                                    statusOptions={["Send password reset email", {faIcon: "spinner fa-spin", label:" Sending..."}, "Email sent", "Email failed"]}/>
                 </div>
             </FormField>

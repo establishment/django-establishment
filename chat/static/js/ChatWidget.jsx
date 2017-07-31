@@ -12,13 +12,14 @@ import {RunOnce} from "Dispatcher";
 import {Ajax} from "Ajax";
 import {ChatStyle} from "ChatStyle";
 import {Pluginable} from "Plugin";
+import {Level, Size} from "Constants";
 
 class PreviewMarkupButton extends Button {
     setOptions(options) {
         if (!options.faIcon) {
             options.label = options.label || UI.T("Preview");
         }
-        options.level = options.level || UI.Level.PRIMARY;
+        options.level = options.level || Level.PRIMARY;
         super.setOptions(options);
     }
 
@@ -76,15 +77,15 @@ class EditableMessage extends UI.Element {
                 <TextArea ref={this.refLink("messageInput")} style={chatInputStyle} className="form-control"
                              value={this.message.getContent()}/>
                 <ButtonGroup>
-                    <Button label={UI.T("Cancel")} level={UI.Level.DEFAULT} size={UI.Size.SMALL}
+                    <Button label={UI.T("Cancel")} level={Level.DEFAULT} size={Size.SMALL}
                                onClick={() => {this.hideEditMode()}} />
-                    <PreviewMarkupButton size={UI.Size.SMALL}
+                    <PreviewMarkupButton size={Size.SMALL}
                                          getValue={() => {return this.messageInput.getValue();}}
                                          setValue={(value) => {this.messageInput.setValue(value);this.messageInput.node.focus();}}
                     />
-                    <Button label={UI.T("Save changes")} level={UI.Level.PRIMARY}
-                               onClick={() => this.saveMessageChanges()} size={UI.Size.SMALL} />
-                    {this.options.deletable ? <Button level={UI.Level.DANGER} label={UI.T("Delete")} size={UI.Size.SMALL}
+                    <Button label={UI.T("Save changes")} level={Level.PRIMARY}
+                               onClick={() => this.saveMessageChanges()} size={Size.SMALL} />
+                    {this.options.deletable ? <Button level={Level.DANGER} label={UI.T("Delete")} size={Size.SMALL}
                                                          onClick={() => this.deleteMessage()}/> : ""}
                 </ButtonGroup>
             </div>;
@@ -468,7 +469,7 @@ let ChatWidget = (ChatMessageClass) => {
             if (this.showLoadMoreButton) {
                 loadMoreButton = (
                     <div className="text-center">
-                        <AjaxButton ref={this.refLink("loadMoreButton")} level={UI.Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
+                        <AjaxButton ref={this.refLink("loadMoreButton")} level={Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
                                        style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                         />
                     </div>
@@ -657,7 +658,7 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
         if (this.showLoadMoreButton) {
             loadMoreButton = (
                 <div className="text-center">
-                    <AjaxButton ref={this.refLink("loadMoreButton")} level={UI.Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
+                    <AjaxButton ref={this.refLink("loadMoreButton")} level={Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
                                    style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>

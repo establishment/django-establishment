@@ -19,6 +19,7 @@ import {Route, Router} from "Router";
 import {Dispatcher} from "Dispatcher";
 
 import {Theme} from "ui/style/Theme";
+import {Level} from "Constants";
 
 export class BlogEntryEditModal extends Modal {
     getModalWindowStyle() {
@@ -39,7 +40,7 @@ export class BlogEntryEditModal extends Modal {
 
         let discussionButton = null;
         if (!entry.discussionId) {
-            discussionButton = <Button level={UI.Level.WARNING} label="Create discussion"
+            discussionButton = <Button level={Level.WARNING} label="Create discussion"
                                        onClick={() => this.createDiscussion()} style={{marginLeft: "5px"}}/>;
         }
 
@@ -55,7 +56,7 @@ export class BlogEntryEditModal extends Modal {
                 <FormField label="Visible">
                     <CheckboxInput ref="visibleCheckbox" value={entry.visible} />
                 </FormField>
-                <Button level={UI.Level.PRIMARY} label="Change settings" onClick={() => this.changeSettings()} />
+                <Button level={Level.PRIMARY} label="Change settings" onClick={() => this.changeSettings()} />
                 {discussionButton}
                 <TemporaryMessageArea ref="messageArea"/>
             </Form>,
@@ -133,7 +134,7 @@ export class NewBlogEntryModal extends Modal {
                 <FormField label="Visible">
                     <CheckboxInput ref="visibleCheckbox"/>
                 </FormField>
-                <Button label="Add Entry" level={UI.Level.PRIMARY} onClick={() => {this.addEntry()}}/>
+                <Button label="Add Entry" level={Level.PRIMARY} onClick={() => {this.addEntry()}}/>
                 <MarkupEditor ref="postContentMarkup" style={{height: "450px"}} />
             </FormGroup>
         ];
@@ -312,7 +313,7 @@ class BlogEntryView extends UI.Element {
         let blogEntryEditButton;
         // TODO: should use proper rights
         if (USER.isSuperUser) {
-            blogEntryEditButton = <Button level={UI.Level.DEFAULT} label="Edit" onClick={() => {
+            blogEntryEditButton = <Button level={Level.DEFAULT} label="Edit" onClick={() => {
                 BlogEntryEditModal.show({entryId: this.getBlogEntry().id, fillScreen: true});
             }}/>
         }
@@ -370,7 +371,7 @@ class BlogEntryList extends UI.Element {
         return [
             USER.isSuperUser ?
                 <Button label="New Entry"
-                           level={UI.Level.DEFAULT}
+                           level={Level.DEFAULT}
                            onClick={() => this.showNewBlogPostModal()}
                 />
                 : null,

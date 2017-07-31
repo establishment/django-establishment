@@ -11,6 +11,7 @@ import {ForumThreadPanel, CreateForumThreadButton} from "ForumThread";
 import {slugify} from "base/Utils"; // TODO: import the individual methods
 import {ForumThreadHeaderStyle, ForumThreadPreviewStyle, ForumThreadBubbleStyle, ForumPanelStyle} from "ForumStyle";
 import {StateDependentElement} from "StateDependentElement";
+import {Size} from "Constants";
 
 let forumThreadHeaderStyle = ForumThreadHeaderStyle.getInstance();
 let forumThreadPreviewStyle = ForumThreadPreviewStyle.getInstance();
@@ -270,7 +271,7 @@ class ForumPanel extends Panel {
             <CreateForumThreadButton
                 label="NEW POST"
                 className={forumPanelStyle.button}
-                size={UI.Size.DEFAULT}
+                size={Size.DEFAULT}
                 forumId={this.options.forum.id}
             />
         </div>;

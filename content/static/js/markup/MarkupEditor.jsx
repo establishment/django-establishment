@@ -1,5 +1,6 @@
 import {UI, Panel, Button, CodeEditor, SectionDivider, ButtonGroup} from "UI";
 import {MarkupRenderer} from "markup/MarkupRenderer";
+import {Orientation, Level} from "Constants";
 
 class MarkupEditor extends Panel {
     getDefaultOptions() {
@@ -29,14 +30,14 @@ class MarkupEditor extends Panel {
         let buttons;
         if (this.options.showButtons) {
             buttons = <ButtonGroup>
-                <Button ref="toggleLeftButton" label={UI.T("Editor")} level={UI.Level.SUCCESS}/>
-                <Button ref="toggleRightButton" label={UI.T("Article")} level={UI.Level.SUCCESS}/>
+                <Button ref="toggleLeftButton" label={UI.T("Editor")} level={Level.SUCCESS}/>
+                <Button ref="toggleRightButton" label={UI.T("Article")} level={Level.SUCCESS}/>
             </ButtonGroup>;
         }
 
         return [
             buttons,
-            <SectionDivider ref="sectionDivider" orientation={UI.Orientation.HORIZONTAL}
+            <SectionDivider ref="sectionDivider" orientation={Orientation.HORIZONTAL}
                             style={{textAlign: "initial", height: "100%", width: "100%", display:"inline-block",
                                     overflow: "hidden"}}>
                 <Panel ref="editorPanel" style={{width: "50%", height: "100%", overflow: "hidden"}}>
@@ -81,19 +82,19 @@ class MarkupEditor extends Panel {
             this.toggleLeftButton.addClickListener(() => {
                 if (this.editorPanel.getWidth() === 0) {
                     this.sectionDivider.expandChild(0);
-                    this.toggleLeftButton.setLevel(UI.Level.SUCCESS);
+                    this.toggleLeftButton.setLevel(Level.SUCCESS);
                 } else {
                     this.sectionDivider.collapseChild(0);
-                    this.toggleLeftButton.setLevel(UI.Level.DANGER);
+                    this.toggleLeftButton.setLevel(Level.DANGER);
                 }
             });
             this.toggleRightButton.addClickListener(() => {
                 if (this.rendererPanel.getWidth() === 0) {
                     this.sectionDivider.expandChild(1);
-                    this.toggleRightButton.setLevel(UI.Level.SUCCESS);
+                    this.toggleRightButton.setLevel(Level.SUCCESS);
                 } else {
                     this.sectionDivider.collapseChild(1);
-                    this.toggleRightButton.setLevel(UI.Level.DANGER);
+                    this.toggleRightButton.setLevel(Level.DANGER);
                 }
             });
         }

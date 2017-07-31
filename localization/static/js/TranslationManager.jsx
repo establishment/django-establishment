@@ -6,6 +6,7 @@ import {Language} from "LanguageStore";
 import {Dispatcher} from "Dispatcher";
 import {FileSaver} from "FileSaver";
 import {Ajax} from "Ajax";
+import {Level} from "Constants";
 
 function ajaxCall(request, successOperation, failOperation) {
     Ajax.postJSON("/edit_translation/", request).then(
@@ -125,7 +126,7 @@ class TranslationEntryTable extends Table {
             }, {
                 value: entry => {
                     return <div className="form-group">
-                        <Button ref="saveButton" label="Save" level={UI.Level.INFO} />
+                        <Button ref="saveButton" label="Save" level={Level.INFO} />
                     </div>;
                 },
                 headerName: "Actions",
@@ -169,13 +170,13 @@ class TranslationEntryManager extends Panel {
                 <TranslationEntryTable ref="translationTable" language={this.language} />
             </div>,
             <div className="btn-group">
-                <Button ref="saveAllButton" label="Save all" level={UI.Level.INFO} />
-                <Button className="pull-left" level={UI.Level.INFO} label="Import" ref="importButton"
+                <Button ref="saveAllButton" label="Save all" level={Level.INFO} />
+                <Button className="pull-left" level={Level.INFO} label="Import" ref="importButton"
                            style={{position: "relative", overflow: "hidden"}}>
                     <FileInput ref="uploadFile" style={{position: "absolute", top: "0", right: "0", margin: "0",
                                                            padding: "0", cursor: "pointer", opacity: "0", filter: "alpha(opacity=0)"}}/>
                 </Button>
-                <Button ref="exportButton" label="Export" level={UI.Level.INFO} />
+                <Button ref="exportButton" label="Export" level={Level.INFO} />
             </div>
         ];
     }
@@ -244,7 +245,7 @@ class TranslationEntryManager extends Panel {
             this.redraw();
         }, () => {
             this.saveAllButton.disable();
-            this.saveAllButton.setLevel(UI.Level.ERROR);
+            this.saveAllButton.setLevel(Level.ERROR);
             this.saveAllButton.setLabel("Failed!");
             setTimeout(() => {
                 this.saveAllButton.enable();
@@ -264,7 +265,7 @@ class TranslationEntryManager extends Panel {
                 return;
             }
             reader.onprogress = () => {
-                this.importButton.setLevel(UI.Level.WARNING);
+                this.importButton.setLevel(Level.WARNING);
                 this.importButton.setLabel("Uploading...");
                 this.importButton.disable();
 
@@ -329,17 +330,17 @@ class TranslationEntryManager extends Panel {
 
                 let timeout;
                 if (error) {
-                    this.importButton.setLevel(UI.Level.ERROR);
+                    this.importButton.setLevel(Level.ERROR);
                     this.importButton.setLabel(errmsg);
                     timeout = 2000;
                 } else {
-                    this.importButton.setLevel(UI.Level.SUCCESS);
+                    this.importButton.setLevel(Level.SUCCESS);
                     this.importButton.setLabel("Successfully uploaded!");
                     timeout = 700;
                 }
                 setTimeout(() => {
                     this.importButton.enable();
-                    this.importButton.setLevel(UI.Level.INFO);
+                    this.importButton.setLevel(Level.INFO);
                     this.importButton.setLabel("Import");
 
                     this.saveAllButton.enable();
@@ -502,8 +503,8 @@ class TranslationKeyTable extends Table {
                 value: entry => {
                     return [
                         <div className="btn-group">
-                            <Button ref="renameButton" label="Rename" level={UI.Level.INFO}/>
-                            <Button ref="deleteButton" label="Delete" level={UI.Level.DANGER}/>
+                            <Button ref="renameButton" label="Rename" level={Level.INFO}/>
+                            <Button ref="deleteButton" label="Delete" level={Level.DANGER}/>
                         </div>
                     ];
                 },
@@ -557,7 +558,7 @@ class TranslationKeyManager extends Panel {
             <CheckboxInput ref="editableCheckbox" />,
             <TranslationKeyTable ref="table"/>,
             <TextArea ref="textArea" className="form-control" style={style}/>,
-            <Button label="Add keys" ref="saveButton" style={{marginLeft: "20px"}} level={UI.Level.INFO}/>,
+            <Button label="Add keys" ref="saveButton" style={{marginLeft: "20px"}} level={Level.INFO}/>,
             <UI.TextElement ref="addStatus" />
         ];
     }
@@ -608,24 +609,24 @@ class TranslationKeyManager extends Panel {
         this.changed = true;
         ajaxCall(request, (data) => {
             this.saveButton.setLabel("Success!");
-            this.saveButton.setLevel(UI.Level.SUCCESS);
+            this.saveButton.setLevel(Level.SUCCESS);
             this.textArea.setValue("");
             this.changed = true;
             this.addStatus.setValue(data.keyInfo.added + " keys added, " + data.keyInfo.alreadyExists + " keys already exists");
             setTimeout(() => {
                 this.saveButton.enable();
                 this.saveButton.setLabel("Add keys");
-                this.saveButton.setLevel(UI.Level.INFO);
+                this.saveButton.setLevel(Level.INFO);
                 this.addStatus.setValue("");
                 this.table.redraw();
             }, 2000);
         }, () => {
             this.saveButton.setLabel("Failed!");
-            this.saveButton.setLevel(UI.Level.ERROR);
+            this.saveButton.setLevel(Level.ERROR);
             setTimeout(() => {
                 this.saveButton.enable();
                 this.saveButton.setLabel("Add keys");
-                this.saveButton.setLevel(UI.Level.INFO);
+                this.saveButton.setLevel(Level.INFO);
             }, 700);
         });
     }

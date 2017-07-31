@@ -1,5 +1,6 @@
 import {UI, Link, FormField, PasswordInput, AjaxButton} from "UI";
 import {Ajax} from "Ajax";
+import {Level} from "Constants";
 
 class PasswordResetFromKey extends UI.Element {
     render() {
@@ -24,7 +25,7 @@ class PasswordResetFromKey extends UI.Element {
             </FormField>,
             <FormField label=" ">
                 <div>
-                    <AjaxButton ref="setPasswordButton" level={UI.Level.PRIMARY} onClick={() => this.setNewPassword()}
+                    <AjaxButton ref="setPasswordButton" level={Level.PRIMARY} onClick={() => this.setNewPassword()}
                                    statusOptions={["Set password", {faIcon: "spinner fa-spin", label:" Setting..."}, "Password set", "Password failed"]}/>
                 </div>
             </FormField>

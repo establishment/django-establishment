@@ -9,6 +9,7 @@ import {LoginModal} from "LoginModal";
 import {CommentVotingWidgetWithThumbs} from "VotingWidget";
 import {css, hover, focus, active, ExclusiveClassSet, StyleSet} from "Style";
 import {BlogStyle} from "BlogStyle";
+import {Level} from "Constants";
 let blogStyle = BlogStyle.getInstance();
 
 class ThreadMessage extends EditableMessage {
@@ -113,7 +114,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
         if (this.showLoadMoreButton) {
             loadMoreButton = (
                 <div className="text-center">
-                    <AjaxButton ref={this.refLink("loadMoreButton")} level={UI.Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
+                    <AjaxButton ref={this.refLink("loadMoreButton")} level={Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
                                    style={loadMoreButtonStyle} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>
@@ -188,7 +189,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
                            label="SUBMIT"
                            ref="sendMessageButton"
                            className={blogStyle.sendMessageButtonStyle}
-                           level={UI.Level.PRIMARY}
+                           level={Level.PRIMARY}
                            onClick={() => this.sendMessage()} />
                 {/*{this.messageThread.hasMarkupEnabled() ?
                         <PreviewMarkupButton disabled={this.messageThread.muted} ref="markupButton" style={previewButtonStyle}

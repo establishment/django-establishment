@@ -1,6 +1,7 @@
 import {UI, SortableTable, Button, ActionModal, FormField, TextInput, NumberInput, CheckboxInput, Panel, TableRow} from "UI";
 import {EmailGatewayStore} from "EmailGatewayStore";
 import {Ajax} from "Ajax";
+import {Level} from "Constants";
 
 class EmailGatewayModal extends ActionModal {
     constructor(options) {
@@ -80,7 +81,7 @@ class AddEmailGatewayModal extends EmailGatewayModal {
     }
 
     getActionLevel() {
-        return UI.Level.PRIMARY;
+        return Level.PRIMARY;
     }
 
     getAjaxAction() {
@@ -99,7 +100,7 @@ class EditEmailGatewayModal extends EmailGatewayModal {
     }
 
     getActionLevel() {
-        return UI.Level.PRIMARY;
+        return Level.PRIMARY;
     }
 
     getAjaxAction() {
@@ -148,7 +149,7 @@ class GenericConfirmModal extends ActionModal {
     }
 
     getActionLevel() {
-        return UI.Level.PRIMARY;
+        return Level.PRIMARY;
     }
 }
 
@@ -199,11 +200,11 @@ class EmailGatewayTable extends SortableTable {
             };
 
             const deleteButton = (gateway) => {
-                return <Button level={UI.Level.DANGER} ref="deleteGatewayButton">Delete</Button>;
+                return <Button level={Level.DANGER} ref="deleteGatewayButton">Delete</Button>;
             };
 
             const editButton = (gateway) => {
-                return <Button level={UI.Level.INFO} ref="editGatewayButton">Edit</Button>;
+                return <Button level={Level.INFO} ref="editGatewayButton">Edit</Button>;
             };
 
             columns.push({
@@ -267,7 +268,7 @@ class EmailGatewayTable extends SortableTable {
 class EmailGatewayWidget extends Panel {
     render() {
         return [<EmailGatewayTable />,
-                <Button level={UI.Level.SUCCESS} ref="addGatewayButton">Add Gateway</Button>,
+                <Button level={Level.SUCCESS} ref="addGatewayButton">Add Gateway</Button>,
         ];
     }
 

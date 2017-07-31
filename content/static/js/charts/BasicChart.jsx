@@ -2,6 +2,7 @@
 import {UI, SVG} from "UI";
 import {uniqueId} from "Utils";
 import {event, zoom, scaleLinear, scaleTime, select} from "d3";
+import {Direction} from "Constants";
 
 SVG.AxisTick = class AxisTick extends SVG.Group {
     getDefaultOptions() {
@@ -20,13 +21,13 @@ SVG.AxisTick = class AxisTick extends SVG.Group {
             text: "" + this.options.label,
             strokeWidth: this.options.labelStrokeWidth
         };
-        if (this.options.orientation === UI.Direction.DOWN) {
+        if (this.options.orientation === Direction.DOWN) {
             Object.assign(labelOptions, {
                 textAnchor: "middle",
                 dy: ".71em",
                 y: this.options.labelPadding + this.options.axisLineLength
             });
-        } else if (this.options.orientation === UI.Direction.LEFT) {
+        } else if (this.options.orientation === Direction.LEFT) {
             Object.assign(labelOptions, {
                 textAnchor: "end",
                 dy: ".35em",
@@ -44,11 +45,11 @@ SVG.AxisTick = class AxisTick extends SVG.Group {
         if (this.axisPosition === this.options.scale.range()[0]) {
             return;
         }
-        if (this.options.orientation === UI.Direction.DOWN) {
+        if (this.options.orientation === Direction.DOWN) {
             Object.assign(gridLineOptions, {
                 y2: -1 * this.options.chartOptions.height
             });
-        } else if (this.options.orientation === UI.Direction.LEFT) {
+        } else if (this.options.orientation === Direction.LEFT) {
             Object.assign(gridLineOptions, {
                 x2: this.options.chartOptions.width
             });
@@ -58,11 +59,11 @@ SVG.AxisTick = class AxisTick extends SVG.Group {
 
     getAxisLine() {
         let axisLineOptions = {};
-        if (this.options.orientation === UI.Direction.DOWN) {
+        if (this.options.orientation === Direction.DOWN) {
             Object.assign(axisLineOptions, {
                 y2: this.options.axisLineLength
             });
-        } else if (this.options.orientation === UI.Direction.LEFT) {
+        } else if (this.options.orientation === Direction.LEFT) {
             Object.assign(axisLineOptions, {
                 x2: -1 * this.options.axisLineLength
             });
@@ -73,9 +74,9 @@ SVG.AxisTick = class AxisTick extends SVG.Group {
     render() {
         this.axisPosition = this.options.scale(this.options.value);
 
-        if (this.options.orientation === UI.Direction.DOWN) {
+        if (this.options.orientation === Direction.DOWN) {
             this.translate(this.axisPosition, 0);
-        } else if (this.options.orientation === UI.Direction.LEFT) {
+        } else if (this.options.orientation === Direction.LEFT) {
             this.translate(0, this.axisPosition);
         }
 
@@ -104,12 +105,12 @@ SVG.BasicAxis = class BasicAxis extends SVG.Group {
 
     getAxisLine() {
         let axisLineOptions = {};
-        if (this.options.orientation === UI.Direction.DOWN) {
+        if (this.options.orientation === Direction.DOWN) {
             Object.assign(axisLineOptions, {
                 x2: this.options.chartOptions.width
             });
             this.axisLength = this.options.chartOptions.width;
-        } else if (this.options.orientation === UI.Direction.LEFT) {
+        } else if (this.options.orientation === Direction.LEFT) {
             Object.assign(axisLineOptions, {
                 y2: this.options.chartOptions.height
             });
@@ -131,7 +132,7 @@ SVG.BasicAxis = class BasicAxis extends SVG.Group {
     }
 
     render() {
-        if (this.options.orientation === UI.Direction.DOWN) {
+        if (this.options.orientation === Direction.DOWN) {
             this.translate(0, this.options.chartOptions.height);
         }
 
@@ -215,7 +216,7 @@ SVG.BasicChart = class BasicChart extends SVG.Group {
             [this.options.domainPadding[2], this.options.domainPadding[0]]);
 
         this.xAxisOptions = {
-            orientation: UI.Direction.DOWN,
+            orientation: Direction.DOWN,
             ticks: 8,
             scale: this.getScaleType(this.options.xAxisScaleType)
                 .domain(this.options.xAxisDomain)
@@ -226,7 +227,7 @@ SVG.BasicChart = class BasicChart extends SVG.Group {
             this.xAxisOptions.labelFormatFunction = this.options.xAxisLabelFormatFunction;
         }
         this.yAxisOptions = {
-            orientation: UI.Direction.LEFT,
+            orientation: Direction.LEFT,
             ticks: 5,
             scale: this.getScaleType(this.options.yAxisScaleType)
                 .domain(this.options.yAxisDomain)

@@ -6,6 +6,7 @@ import {CommandInstanceStore, CommandRunStore} from "CommandStore";
 import {GlobalState} from "State";
 import {UserHandle} from "UserHandle";
 import {util} from "csa";
+import {Level, Size} from "Constants";
 
 class CommandRunStatus extends UI.Element {
     render() {
@@ -202,7 +203,7 @@ class CommandRunCreationModal extends ActionModal {
     }
 
     getActionLevel() {
-        return UI.Level.PRIMARY;
+        return Level.PRIMARY;
     }
 
     action() {
@@ -241,7 +242,7 @@ class CommandManager extends UI.Element {
             <div>
                 <h4>Run a command</h4>
                 <Select options={CommandInstanceStore.all()} style={{marginLeft: "10px"}} ref="commandSelect"/>
-                <Button level={UI.Level.PRIMARY} size={UI.Size.SMALL} ref="runCommandButton"
+                <Button level={Level.PRIMARY} size={Size.SMALL} ref="runCommandButton"
                         faIcon="cogs" style={{marginLeft: "10px"}}/>
             </div>,
             <div ref="descriptionArea" style={{margin: "10px"}}>

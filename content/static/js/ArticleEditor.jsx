@@ -23,6 +23,7 @@ import {ArticleStore} from "ArticleStore";
 import {Language} from "LanguageStore";
 import {TranslationManager} from "ArticleManager";
 import {Router} from "Router";
+import {Level} from "Constants";
 const deleteRedirectLink = "/";
 
 //TODO (@kira) : 4. fix line wrapping 5.Fix diffing svg gutter bug 7.Collapse button in section Divider maybe?
@@ -82,7 +83,7 @@ class DeleteArticleModal extends ActionModal {
         return [<TemporaryMessageArea ref="messageArea"/>,
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
-                <AjaxButton ref="deleteArticleButton" level={UI.Level.DANGER} onClick={() => {this.deleteArticle()}}
+                <AjaxButton ref="deleteArticleButton" level={Level.DANGER} onClick={() => {this.deleteArticle()}}
                                statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."},
                                                "Delete article", "Failed"]}/>
             </ButtonGroup>
@@ -175,7 +176,7 @@ class ArticleEditor extends Panel {
                         <TextInput ref="ownerFormInput"  value={this.getArticle().userCreatedId}/>
                     </FormField>
                 </Form>
-                <AjaxButton ref="setOwnerButton" level={UI.Level.INFO} onClick={() => {
+                <AjaxButton ref="setOwnerButton" level={Level.INFO} onClick={() => {
                                 let newOwner = this.ownerFormInput.getValue();
                                 this.setOwner(newOwner);
                                }}
@@ -203,7 +204,7 @@ class ArticleEditor extends Panel {
             <h3>{this.getArticle().name + " Id=" + this.options.articleId}</h3>,
                 <TabArea ref="tabArea" variableHeightPanels style={{flex: "1", height: "100%", display: "flex", flexDirection: "column"}}>
                 <Panel title="Edit" active style={{height: "100%", overflow: "hidden"}}>
-                    <AjaxButton ref="saveMarkupButton" level={UI.Level.INFO} onClick={() => {
+                    <AjaxButton ref="saveMarkupButton" level={Level.INFO} onClick={() => {
                                     let content = this.markupEditor.getValue();
                                     this.saveMarkup(content);
                                    }}
@@ -231,7 +232,7 @@ class ArticleEditor extends Panel {
                             <CheckboxInput ref="publicCheckbox" checked={this.getArticle().isPublic}/>
                         </FormField>
                     </Form>
-                    <AjaxButton ref="saveOptionsButton" level={UI.Level.INFO} onClick={() => {
+                    <AjaxButton ref="saveOptionsButton" level={Level.INFO} onClick={() => {
                                     let name = this.articleNameFormInput.getValue();
                                    let dependency = this.dependencyFormInput.getValue();
                                    let languageId = this.languageSelect.get().id;
@@ -246,7 +247,7 @@ class ArticleEditor extends Panel {
                                    }}
                                statusOptions={["Save", {faIcon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
                         />
-                    <Button ref="deleteArticleButton" level={UI.Level.DANGER} label="Delete article"
+                    <Button ref="deleteArticleButton" level={Level.DANGER} label="Delete article"
                                style={{marginLeft: "3px"}}
                                onClick={() => this.deleteArticleModal.show()}/>
                     <TemporaryMessageArea ref="saveOptionsMessageArea"/>

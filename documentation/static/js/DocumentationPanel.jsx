@@ -6,6 +6,8 @@ import {Dispatcher} from "Dispatcher";
 import {SimpleDocumentationNavElement} from "./DocumentationNavElement";
 import {DocumentationStyle} from "./DocumentationStyle";
 
+import {Orientation} from "Constants";
+
 @registerStyle(DocumentationStyle)
 class DocumentationPanel extends UI.Element {
     constructor() {
@@ -20,7 +22,7 @@ class DocumentationPanel extends UI.Element {
     render() {
         let documentationEntry = DocumentationEntryStore.get(this.options.documentationEntryId);
         return [
-            <Panel orientation={UI.Orientation.HORIZONTAL} className={this.styleSheet.panel}>
+            <Panel orientation={Orientation.HORIZONTAL} className={this.styleSheet.panel}>
                 <Panel ref="navPanel" className={this.styleSheet.navPanel}>
                     <SimpleDocumentationNavElement
                         documentationEntry={documentationEntry}

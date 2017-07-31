@@ -23,6 +23,7 @@ import {PublicUserStore} from "UserStore";
 import {Language} from "LanguageStore";
 import {UserHandle} from "UserHandle";
 import {GlobalStyle} from "GlobalStyle";
+import {Level} from "Constants";
 
 class TransferOwnershipModal extends ActionModal {
     getActionName() {
@@ -30,7 +31,7 @@ class TransferOwnershipModal extends ActionModal {
     }
 
     getActionLevel() {
-        return UI.Level.PRIMARY;
+        return Level.PRIMARY;
     }
 
     getBody() {
@@ -116,7 +117,7 @@ class DeleteArticleModal extends ActionModal {
         return [<TemporaryMessageArea ref="messageArea"/>,
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
-                <AjaxButton ref="deleteArticleButton" level={UI.Level.DANGER} onClick={() => {this.deleteArticle()}}
+                <AjaxButton ref="deleteArticleButton" level={Level.DANGER} onClick={() => {this.deleteArticle()}}
                                statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."},
                                                "Delete article", "Failed"]}/>
             </ButtonGroup>
@@ -185,7 +186,7 @@ class CreateArticleModal extends ActionModal {
         return [<TemporaryMessageArea ref="messageArea"/>,
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
-                <AjaxButton ref="createArticleButton" level={UI.Level.PRIMARY} onClick={() => {this.createArticle()}}
+                <AjaxButton ref="createArticleButton" level={Level.PRIMARY} onClick={() => {this.createArticle()}}
                                statusOptions={["Create article", {faIcon: "spinner fa-spin", label:" creating article ..."},
                                                "Create article", "Failed"]}/>
             </ButtonGroup>
@@ -263,7 +264,7 @@ class AddTranslationModal extends CreateArticleModal {
         return [<TemporaryMessageArea ref="messageArea"/>,
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
-                <AjaxButton ref="createArticleButton" level={UI.Level.PRIMARY}
+                <AjaxButton ref="createArticleButton" level={Level.PRIMARY}
                                onClick={() => this.createArticle({
                                    baseArticleId: baseArticle.id,
                                    markup: baseArticle.markup
@@ -351,7 +352,7 @@ class ArticleTable extends SortableTable {
         if (!this.options.parent.options.readOnly) {
             if (USER.isSuperUser) {
                 columns.push({
-                    value: article => <Button level={UI.Level.PRIMARY} label="Set owner"
+                    value: article => <Button level={Level.PRIMARY} label="Set owner"
                                                  onClick={() => {
                                                      this.options.parent.transferOwnershipModal.show();
                                                      this.options.parent.transferOwnershipModal.setArticle(article);
@@ -362,7 +363,7 @@ class ArticleTable extends SortableTable {
                 });
             }
             columns.push({
-                value: article => <Button level={UI.Level.DANGER} label="Delete"
+                value: article => <Button level={Level.DANGER} label="Delete"
                                              onClick={() => {
                                                  this.options.parent.deleteArticleModal.show();
                                                  this.options.parent.deleteArticleModal.setArticle(article);
@@ -402,7 +403,7 @@ class ArticleManager extends Panel {
         let addButton = null;
         if (!this.options.readOnly) {
             addButton = <div className="pull-right">
-                <Button level={UI.Level.PRIMARY} label="Create article"
+                <Button level={Level.PRIMARY} label="Create article"
                            onClick={() => this.createArticleModal.show()}
                            style={{marginTop: "5px", marginBottom: "5px"}}/>
             </div>;
@@ -474,7 +475,7 @@ class TranslationManager extends Panel {
         this.table = <ArticleTable articles={[]} parent={this}/>;
         let addButton = null;
         if (!this.options.readOnly)
-            addButton = <div className="pull-right"><Button level={UI.Level.PRIMARY} label="Add translation"
+            addButton = <div className="pull-right"><Button level={Level.PRIMARY} label="Add translation"
                                                                onClick={() => this.addTranslationModal.show()}
                                                                style={{marginTop: "5px", marginBottom: "5px"}}/></div>;
         return [<div className="pull-left"><h4><strong>{this.options.title}</strong></h4></div>, addButton, this.table];

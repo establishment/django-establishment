@@ -10,6 +10,8 @@ import {DocumentationPanel} from "./DocumentationPanel";
 import {DraggableDocumentationNavElement, dragAndDropHandler} from "./DocumentationNavElement";
 import {CreateEntryButton} from "./CreateEntryModal";
 
+import {Orientation, Level, Size} from "Constants";
+
 export class AdminDocumentationPanel extends DocumentationPanel {
     getBaseUrl() {
         return "/docs/edit/";
@@ -18,7 +20,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
     render() {
         let documentationEntry = DocumentationEntryStore.get(this.options.documentationEntryId);
         return [
-            <Panel orientation={UI.Orientation.HORIZONTAL} className={this.styleSheet.panel} key="container">
+            <Panel orientation={Orientation.HORIZONTAL} className={this.styleSheet.panel} key="container">
                 <Panel ref="navPanel" className={this.styleSheet.navPanel}>
                     <div style={{maxHeight: "90%", overflowY: "auto"}} key="navigationContainer">
                         <DraggableDocumentationNavElement
@@ -32,10 +34,10 @@ export class AdminDocumentationPanel extends DocumentationPanel {
                     </div>
                     <div style={{position: "absolute", bottom: "5%"}}>
                         <Button ref="trash" faIcon="trash" disabled
-                                level={UI.Level.WARNING} size={UI.Size.EXTRA_LARGE}
+                                level={Level.WARNING} size={Size.EXTRA_LARGE}
                                 style={{marginLeft: "50px", padding: "16px 22px"}} />
                         <CreateEntryButton faIcon="plus"
-                                        level={UI.Level.PRIMARY} size={UI.Size.EXTRA_LARGE}
+                                        level={Level.PRIMARY} size={Size.EXTRA_LARGE}
                                         style={{marginLeft: "50px", padding: "16px 22px"}} />
                     </div>
                 </Panel>
@@ -146,9 +148,9 @@ export class AdminDocumentationPanel extends DocumentationPanel {
             visibleElement.titleElement.setStyle("border-top", "");
             visibleElement.titleElement.setStyle("border-bottom", "");
         }
-        this.trash.setLevel(UI.Level.WARNING);
+        this.trash.setLevel(Level.WARNING);
         if (!element) {
-            this.trash.setLevel(UI.Level.DANGER);
+            this.trash.setLevel(Level.DANGER);
             return;
         }
         if (eventType === "drag") {

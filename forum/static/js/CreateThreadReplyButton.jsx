@@ -5,6 +5,7 @@ import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {ButtonStyle} from "ForumStyle";
+import {Level, Size} from "Constants";
 
 let buttonStyle = ButtonStyle.getInstance();
 
@@ -17,8 +18,8 @@ class CreateThreadReplyButton extends Button {
         if (!options.faIcon) {
             options.label = options.label || UI.T("Preview");
         }
-        options.level = options.level || UI.Level.PRIMARY;
-        options.size = options.size || UI.Size.LARGE;
+        options.level = options.level || Level.PRIMARY;
+        options.size = options.size || Size.LARGE;
         super.setOptions(options);
     }
 

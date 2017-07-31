@@ -13,6 +13,7 @@ import {ErrorHandlers} from "ErrorHandlers";
 import {AjaxLoadingScreen} from "AjaxLoadingScreen";
 import {ForumThreadPanelStyle, ForumThreadReplyStyle} from "ForumStyle";
 import {ButtonStyle} from "ForumStyle";
+import {Level, Size} from "Constants";
 
 
 let forumThreadPanelStyle = ForumThreadPanelStyle.getInstance();
@@ -90,8 +91,8 @@ class CreateForumThreadButton extends Button {
         if (!options.faIcon) {
             options.label = options.label || UI.T("Preview");
         }
-        options.level = options.level || UI.Level.PRIMARY;
-        options.size = options.size || UI.Size.LARGE;
+        options.level = options.level || Level.PRIMARY;
+        options.size = options.size || Size.LARGE;
         super.setOptions(options);
     }
 
@@ -156,12 +157,12 @@ class ForumThreadReply extends UI.Element {
         if (USER.isSuperUser || USER.id === messageInstance.userId) {
             deleteMessage = <DeleteThreadReplyButton
                 faIcon="trash"
-                level={UI.Level.DANGER}
+                level={Level.DANGER}
                 className={forumThreadPanelStyle.deleteButton}
                 modalOptions={{messageInstance: messageInstance}} />;
             editMessage = <EditThreadReplyButton
                 faIcon={"pencil"}
-                level={UI.Level.INFO}
+                level={Level.INFO}
                 messageInstance={messageInstance}
                 forumThreadPanel={this}
                 className={forumThreadPanelStyle.editButton} />;
@@ -337,13 +338,13 @@ class ForumThreadPanel extends Panel {
 
         if (USER.isSuperUser || USER.id === this.getForumThread().authorId) {
             deleteButton = <DeleteForumThreadButton faIcon="trash"
-                                                    level={UI.Level.DANGER}
+                                                    level={Level.DANGER}
                                                     className={forumThreadPanelStyle.deleteButton}
                                                     modalOptions = {{
                                                         forumThread: this.getForumThread()
                                                     }}/>;
             editButton = <EditThreadReplyButton faIcon="pencil"
-                                                level={UI.Level.INFO}
+                                                level={Level.INFO}
                                                 className={forumThreadPanelStyle.editButton}
                                                 messageInstance={this.getForumThread().getContentMessage()}/>;
             editAndDeleteButtons = <div className={forumThreadPanelStyle.editDeleteButtons}>
@@ -361,7 +362,7 @@ class ForumThreadPanel extends Panel {
                         <CreateThreadReplyButton
                             label={UI.T("REPLY")}
                             className={forumThreadPanelStyle.replyButton}
-                            size={UI.Size.DEFAULT}
+                            size={Size.DEFAULT}
                             forumThreadId={forumThread.id}
                             forumThread={this.getForumThread()}
                             classMap={ChatMarkupRenderer.classMap}
