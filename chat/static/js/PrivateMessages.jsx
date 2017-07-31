@@ -1,7 +1,6 @@
 import {
-    UI, Button, Link, StyleElement, StyleInstance,
+    UI, Button, Link, StyleInstance,
     TextInput, VolatileFloatingWindow, StyleElement,
-    StyleInstance
 } from "UI";
 import {MessagesPanelListStyle} from "SocialNotificationsStyle";
 import {PrivateChatWidget} from "ChatWidget";
