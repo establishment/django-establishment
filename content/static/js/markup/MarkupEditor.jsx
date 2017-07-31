@@ -1,4 +1,4 @@
-import {UI, Panel, Button, CodeEditor, SectionDivider} from "UI";
+import {UI, Panel, Button, CodeEditor, SectionDivider, ButtonGroup} from "UI";
 import {MarkupRenderer} from "markup/MarkupRenderer";
 
 class MarkupEditor extends Panel {
@@ -28,10 +28,10 @@ class MarkupEditor extends Panel {
     render() {
         let buttons;
         if (this.options.showButtons) {
-            buttons = <UI.ButtonGroup>
+            buttons = <ButtonGroup>
                 <Button ref="toggleLeftButton" label={UI.T("Editor")} level={UI.Level.SUCCESS}/>
                 <Button ref="toggleRightButton" label={UI.T("Article")} level={UI.Level.SUCCESS}/>
-            </UI.ButtonGroup>;
+            </ButtonGroup>;
         }
 
         return [

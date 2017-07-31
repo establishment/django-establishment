@@ -1,4 +1,4 @@
-import {UI} from "UI";
+import {UI, FormField, AjaxButton, TextInput} from "UI";
 import {Ajax} from "Ajax";
 
 class PasswordReset extends UI.Element {
@@ -13,15 +13,15 @@ class PasswordReset extends UI.Element {
                 <p>Forgotten your password? Enter your e-mail address below, and we'll send you an e-mail allowing you to reset it.</p>
             </div>,
 
-            <UI.FormField ref="emailFormField" label="Email">
-                <UI.TextInput ref="emailInput" />
-            </UI.FormField>,
-            <UI.FormField label=" ">
+            <FormField ref="emailFormField" label="Email">
+                <TextInput ref="emailInput" />
+            </FormField>,
+            <FormField label=" ">
                 <div>
-                    <UI.AjaxButton ref="resetPasswordButton" level={UI.Level.PRIMARY} onClick={() => this.sendPasswordReset()}
+                    <AjaxButton ref="resetPasswordButton" level={UI.Level.PRIMARY} onClick={() => this.sendPasswordReset()}
                                    statusOptions={["Send password reset email", {faIcon: "spinner fa-spin", label:" Sending..."}, "Email sent", "Email failed"]}/>
                 </div>
-            </UI.FormField>
+            </FormField>
         ]
     }
 

@@ -1,4 +1,4 @@
-import {UI, SVG, Switcher} from "UI";
+import {UI, SVG, Switcher, Button} from "UI";
 import {MarkupRenderer, MarkupClassMap} from "MarkupRenderer";
 import {Article, ArticleStore} from "ArticleStore";
 
@@ -13,7 +13,7 @@ class ArticleRenderer extends MarkupRenderer {
             let url = this.options.editButtonUrl || ("/article/" + this.options.article.id + "/edit/");
             return <div className="text-left">
                 <a href={url} target="_blank">
-                    <UI.Button label={UI.T("Edit")}
+                    <Button label={UI.T("Edit")}
                                style={{"margin": "10px"}}/></a>
             </div>;
         }

@@ -1,10 +1,14 @@
-import {UI, SortableTable, Button} from "UI";
+import {
+    UI, SortableTable, Button, FormField,
+    TextInput, ActionModal, Select, CheckboxInput,
+    TableRow, Panel
+} from "UI";
 import {EmailGatewayStore} from "EmailGatewayStore";
 import {EmailCampaignStore} from "EmailCampaignStore";
 import {EmailTemplateStore} from "EmailTemplateStore";
 import {Ajax} from "Ajax";
 
-class GenericConfirmModal extends UI.ActionModal {
+class GenericConfirmModal extends ActionModal {
     constructor(options) {
         super(options);
     }
@@ -81,19 +85,19 @@ class SendCampaignConfirmModal extends GenericConfirmModal {
 }
 
 
-class TestSendCampaignModal extends UI.ActionModal {
+class TestSendCampaignModal extends ActionModal {
     constructor(options) {
         super(options);
     }
 
     getBody() {
         return [
-            <UI.FormField label="Name" ref="fromIdField">
-                <UI.TextInput value={USER.id} ref="fromIdInput"/>
-            </UI.FormField>,
-            <UI.FormField label="From address" ref="toIdField">
-                <UI.TextInput value={USER.id} ref="toIdInput"/>
-            </UI.FormField>
+            <FormField label="Name" ref="fromIdField">
+                <TextInput value={USER.id} ref="fromIdInput"/>
+            </FormField>,
+            <FormField label="From address" ref="toIdField">
+                <TextInput value={USER.id} ref="toIdInput"/>
+            </FormField>
         ];
     }
 
@@ -142,7 +146,7 @@ class TestSendCampaignModal extends UI.ActionModal {
 }
 
 
-class EmailCampaignModal extends UI.ActionModal {
+class EmailCampaignModal extends ActionModal {
     constructor(options) {
         super(options);
         this.fields = ["name", "fromAddress", "gatewayId", "isNewsletter"];
@@ -151,18 +155,18 @@ class EmailCampaignModal extends UI.ActionModal {
     getBody() {
         const campaignValues = this.options.campaign || {};
         return [
-            <UI.FormField label="Name" ref="nameField">
-                <UI.TextInput value={campaignValues.name || ""} ref="nameInput"/>
-            </UI.FormField>,
-            <UI.FormField label="From address" ref="fromAddressField">
-                <UI.TextInput value={campaignValues.fromAddress || ""} ref="fromAddressInput"/>
-            </UI.FormField>,
-            <UI.FormField label="Gateway" ref="gatewayIdField">
-                <UI.Select ref="gatewaySelect" options={EmailGatewayStore.all()} selected={EmailGatewayStore.get(campaignValues.gatewayId)}/>
-            </UI.FormField>,
-            <UI.FormField label="Is newsletter" ref="isNewsletterField">
-                <UI.CheckboxInput value={campaignValues.isNewsletter || ""} ref="isNewsletterInput"/>
-            </UI.FormField>,
+            <FormField label="Name" ref="nameField">
+                <TextInput value={campaignValues.name || ""} ref="nameInput"/>
+            </FormField>,
+            <FormField label="From address" ref="fromAddressField">
+                <TextInput value={campaignValues.fromAddress || ""} ref="fromAddressInput"/>
+            </FormField>,
+            <FormField label="Gateway" ref="gatewayIdField">
+                <Select ref="gatewaySelect" options={EmailGatewayStore.all()} selected={EmailGatewayStore.get(campaignValues.gatewayId)}/>
+            </FormField>,
+            <FormField label="Is newsletter" ref="isNewsletterField">
+                <CheckboxInput value={campaignValues.isNewsletter || ""} ref="isNewsletterInput"/>
+            </FormField>,
         ];
     }
 
@@ -239,7 +243,7 @@ class EditEmailCampaignModal extends EmailCampaignModal {
 }
 
 
-class EmailCampaignTableRow extends UI.TableRow {
+class EmailCampaignTableRow extends TableRow {
     onMount() {
         super.onMount();
         this.deleteCampaignButton.addClickListener(() => {
@@ -388,7 +392,7 @@ class EmailCampaignTable extends SortableTable {
 }
 
 
-class EmailCampaignWidget extends UI.Panel {
+class EmailCampaignWidget extends Panel {
     render() {
         return [<EmailCampaignTable />,
             <Button level={UI.Level.SUCCESS} ref="addCampaignButton">Add Campaign</Button>

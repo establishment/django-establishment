@@ -1,32 +1,36 @@
-import {UI, TabArea} from "UI";
+import {
+    UI, TabArea, Form, FormField, TextInput,
+    AjaxButton, PasswordInput, EmailInput, Panel,
+    Label, Button, Select, CheckboxInput
+} from "UI";
 import {UserStore} from "UserStore";
 import {FacebookManager} from "FacebookManager";
 import {GoogleManager} from "GoogleManager";
 import {Ajax} from "Ajax";
 
-class GeneralInformationPanel extends UI.Panel {
+class GeneralInformationPanel extends Panel {
     render() {
         return [
             <h3>General Info</h3>,
             <div>
-                <UI.Form>
-                    <UI.FormField ref="firstNameFormField" label="First Name">
-                        <UI.TextInput ref="firstNameFormInput" placeholder="John" value={this.options.user.firstName}/>
-                    </UI.FormField>
-                    <UI.FormField ref="lastNameFormField" label="Last Name">
-                        <UI.TextInput ref="lastNameFormInput" placeholder="Smith" value={this.options.user.lastName}/>
-                    </UI.FormField>
-                    <UI.FormField ref="userNameFormField" label="Username">
-                        <UI.TextInput ref="userNameFormInput" placeholder="johnsmith" value={this.options.user.username || ""}/>
-                    </UI.FormField>
-                    <UI.FormField ref="displayNameFormField" label="Display name">
-                        <UI.Select ref="displayNameSelect" options={["Name", "Username"]}/>
-                    </UI.FormField>
-                </UI.Form>
-                <UI.FormField label=" ">
-                  <div><UI.AjaxButton ref="saveProfileButton" level={UI.Level.PRIMARY}
+                <Form>
+                    <FormField ref="firstNameFormField" label="First Name">
+                        <TextInput ref="firstNameFormInput" placeholder="John" value={this.options.user.firstName}/>
+                    </FormField>
+                    <FormField ref="lastNameFormField" label="Last Name">
+                        <TextInput ref="lastNameFormInput" placeholder="Smith" value={this.options.user.lastName}/>
+                    </FormField>
+                    <FormField ref="userNameFormField" label="Username">
+                        <TextInput ref="userNameFormInput" placeholder="johnsmith" value={this.options.user.username || ""}/>
+                    </FormField>
+                    <FormField ref="displayNameFormField" label="Display name">
+                        <Select ref="displayNameSelect" options={["Name", "Username"]}/>
+                    </FormField>
+                </Form>
+                <FormField label=" ">
+                  <div><AjaxButton ref="saveProfileButton" level={UI.Level.PRIMARY}
                                    statusOptions={["Save changes", {faIcon: "spinner fa-spin", label:" Saving changes..."}, "Saved changes", "Save failed"]}/></div>
-                </UI.FormField>
+                </FormField>
             </div>
         ];
     }
@@ -94,26 +98,26 @@ class GeneralInformationPanel extends UI.Panel {
 }
 
 
-class SecuritySettingsPanel extends UI.Panel {
+class SecuritySettingsPanel extends Panel {
     render() {
         return [
             <h3>Password</h3>,
             <div>
-                <UI.Form>
-                    <UI.FormField ref="oldPasswordGroup" label="Current Password">
-                        <UI.PasswordInput ref="oldPasswordInput"/>
-                    </UI.FormField>
-                    <UI.FormField ref="newPasswordGroup" label="New Password">
-                        <UI.PasswordInput ref="newPasswordInput" required/>
-                    </UI.FormField>
-                    <UI.FormField ref="newPasswordGroup2" label="New Password (again)">
-                        <UI.PasswordInput ref="newPasswordInput2" required/>
-                    </UI.FormField>
-                </UI.Form>
-                <UI.FormField label=" ">
-                      <div><UI.AjaxButton ref="setPasswordButton" level={UI.Level.PRIMARY}
+                <Form>
+                    <FormField ref="oldPasswordGroup" label="Current Password">
+                        <PasswordInput ref="oldPasswordInput"/>
+                    </FormField>
+                    <FormField ref="newPasswordGroup" label="New Password">
+                        <PasswordInput ref="newPasswordInput" required/>
+                    </FormField>
+                    <FormField ref="newPasswordGroup2" label="New Password (again)">
+                        <PasswordInput ref="newPasswordInput2" required/>
+                    </FormField>
+                </Form>
+                <FormField label=" ">
+                      <div><AjaxButton ref="setPasswordButton" level={UI.Level.PRIMARY}
                         statusOptions={["Set Password", {faIcon: "spinner fa-spin", label:" Setting Password..."}, "Password set", "Failed"]}/></div>
-                </UI.FormField>
+                </FormField>
             </div>
         ];
     }
@@ -182,7 +186,7 @@ class SecuritySettingsPanel extends UI.Panel {
 }
 
 
-class EmailPanel extends UI.Panel {
+class EmailPanel extends Panel {
     render() {
         let emails = this.options.user.emails.slice();
 
@@ -213,20 +217,20 @@ class EmailPanel extends UI.Panel {
 
             if (email.verified) {
                 if (email.primary) {
-                    primaryLabel = <UI.Label level={UI.Level.PRIMARY} style={labelStyle} label="Primary"/>;
+                    primaryLabel = <Label level={UI.Level.PRIMARY} style={labelStyle} label="Primary"/>;
                 } else {
-                    verifiedLabel = <UI.Label level={UI.Level.SUCCESS} style={labelStyle} label="Verified"/>;
-                    primaryAction = <UI.Button onClick={makePrimaryCallback} size={UI.Size.EXTRA_SMALL} level={UI.Level.PRIMARY} label="Make Primary"
+                    verifiedLabel = <Label level={UI.Level.SUCCESS} style={labelStyle} label="Verified"/>;
+                    primaryAction = <Button onClick={makePrimaryCallback} size={UI.Size.EXTRA_SMALL} level={UI.Level.PRIMARY} label="Make Primary"
                                                style={actionStyle} />;
                 }
             } else {
-                unverifiedLabel = <UI.Label level={UI.Level.DANGER} style={labelStyle} label="Unverified"/>;
-                resendAction = <UI.Button onClick={resendCallback} size={UI.Size.EXTRA_SMALL} label="Re-send confirmation"
+                unverifiedLabel = <Label level={UI.Level.DANGER} style={labelStyle} label="Unverified"/>;
+                resendAction = <Button onClick={resendCallback} size={UI.Size.EXTRA_SMALL} label="Re-send confirmation"
                                           style={actionStyle} />;
             }
 
             if (!email.primary) {
-                removeAction = <UI.Button onClick={removeCallback} size={UI.Size.EXTRA_SMALL} level={UI.Level.DANGER} label="Remove"
+                removeAction = <Button onClick={removeCallback} size={UI.Size.EXTRA_SMALL} level={UI.Level.DANGER} label="Remove"
                                           style={actionStyle} />;
             }
 
@@ -255,23 +259,23 @@ class EmailPanel extends UI.Panel {
             <h3>Add E-mail Address</h3>,
 
             <div>
-                <UI.Form>
-                    <UI.FormField ref="emailFormField" label="Email">
-                        <UI.EmailInput ref="emailFormInput" placeholder="john.smith@mail.com"/>
-                    </UI.FormField>
-                    <UI.FormField label=" ">
-                      <div><UI.AjaxButton ref="addEmailButton" onClick={() => {this.addEmail()}} level={UI.Level.PRIMARY}
+                <Form>
+                    <FormField ref="emailFormField" label="Email">
+                        <EmailInput ref="emailFormInput" placeholder="john.smith@mail.com"/>
+                    </FormField>
+                    <FormField label=" ">
+                      <div><AjaxButton ref="addEmailButton" onClick={() => {this.addEmail()}} level={UI.Level.PRIMARY}
                         statusOptions={["Add Email", {faIcon: "spinner fa-spin", label:" Adding Email..."}, "Email added", "Failed"]}/></div>
-                    </UI.FormField>
-                </UI.Form>
+                    </FormField>
+                </Form>
             </div>,
 
             //<UI.CheckboxInput checked={this.options.user.} onClick={}/>
             <h5>
-              <UI.FormField label="Receive email notifications" inline={false}>
-                <UI.CheckboxInput ref="emailSubscriptionCheckbox" checked={true}
+              <FormField label="Receive email notifications" inline={false}>
+                <CheckboxInput ref="emailSubscriptionCheckbox" checked={true}
                                   onClick={() => {this.changeEmailSubscription(this.emailSubscriptionCheckbox.getValue())}}/>
-              </UI.FormField>
+              </FormField>
             </h5>,
         ];
     }
@@ -406,7 +410,7 @@ class EmailPanel extends UI.Panel {
 }
 
 
-class SocialAccountsPanel extends UI.Panel {
+class SocialAccountsPanel extends Panel {
     constructor(options) {
         super(options);
         // Ensure FacebookManager is initialized
@@ -444,7 +448,7 @@ class SocialAccountsPanel extends UI.Panel {
                             <span> {"- " + account.platform}</span>
                         </label>
                         <div className="pull-right">
-                            <UI.Button label="Remove" size={UI.Size.SMALL} level={UI.Level.DANGER} style={{"margin-top": "7px"}}
+                            <Button label="Remove" size={UI.Size.SMALL} level={UI.Level.DANGER} style={{"margin-top": "7px"}}
                                        onClick={() => {this.removeSocialAccount(account.id)}} />
                         </div>
                     </div>

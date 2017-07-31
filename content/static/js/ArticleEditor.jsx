@@ -1,4 +1,20 @@
-import {UI, Button, ButtonGroup, Panel, ActionModal, SectionDivider, TextArea, TabArea, Link} from "UI";
+import {
+    ActionModal,
+    AjaxButton,
+    Button,
+    ButtonGroup,
+    Form,
+    FormField,
+    Link,
+    Panel,
+    SectionDivider,
+    Select,
+    TabArea,
+    TemporaryMessageArea,
+    TextArea,
+    TextInput,
+    UI,
+} from "UI";
 import {GlobalState} from "State";
 import {Ajax} from "Ajax";
 import {MarkupEditor} from "MarkupEditor";
@@ -63,13 +79,13 @@ class DeleteArticleModal extends ActionModal {
     }
 
     getFooter() {
-        return [<UI.TemporaryMessageArea ref="messageArea"/>,
-            <UI.ButtonGroup>
-                <UI.Button label="Close" onClick={() => this.hide()}/>
-                <UI.AjaxButton ref="deleteArticleButton" level={UI.Level.DANGER} onClick={() => {this.deleteArticle()}}
+        return [<TemporaryMessageArea ref="messageArea"/>,
+            <ButtonGroup>
+                <Button label="Close" onClick={() => this.hide()}/>
+                <AjaxButton ref="deleteArticleButton" level={UI.Level.DANGER} onClick={() => {this.deleteArticle()}}
                                statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."},
                                                "Delete article", "Failed"]}/>
-            </UI.ButtonGroup>
+            </ButtonGroup>
         ];
     }
 
@@ -142,80 +158,80 @@ class ArticleEditor extends Panel {
         let translationsPanel = null;
         let baseArticleForm = null;
         if (this.getArticle().baseArticleId) {
-            baseArticleForm = <UI.FormField ref="baseArticleFormField" label="Base article">
+            baseArticleForm = <FormField ref="baseArticleFormField" label="Base article">
                 <Link href={"/article/" + this.getArticle().baseArticleId + "/edit/"} value="Go to base article" />
-            </UI.FormField>;
+            </FormField>;
         } else {
-            translationsPanel = <UI.Panel title="Translations">
+            translationsPanel = <Panel title="Translations">
                 <TranslationManager title={"Translations for " + this.getArticle().name}
                                     baseArticle={this.getArticle()}/>
-            </UI.Panel>
+            </Panel>
         }
         let ownershipPanel = null;
         if (USER.isSuperUser) {
-            ownershipPanel = <UI.Panel title="Ownership">
-                <UI.Form style={{marginTop: "10px"}}>
-                    <UI.FormField ref="ownerFormField" label="Author ID">
-                        <UI.TextInput ref="ownerFormInput"  value={this.getArticle().userCreatedId}/>
-                    </UI.FormField>
-                </UI.Form>
-                <UI.AjaxButton ref="setOwnerButton" level={UI.Level.INFO} onClick={() => {
+            ownershipPanel = <Panel title="Ownership">
+                <Form style={{marginTop: "10px"}}>
+                    <FormField ref="ownerFormField" label="Author ID">
+                        <TextInput ref="ownerFormInput"  value={this.getArticle().userCreatedId}/>
+                    </FormField>
+                </Form>
+                <AjaxButton ref="setOwnerButton" level={UI.Level.INFO} onClick={() => {
                                 let newOwner = this.ownerFormInput.getValue();
                                 this.setOwner(newOwner);
                                }}
                                statusOptions={["Transfer ownership", {faIcon: "spinner fa-spin", label:" transfering ownership ..."}, "Transfer ownership", "Failed"]}
                         />
-                <UI.TemporaryMessageArea ref="setOwnerMessageArea"/>
-            </UI.Panel>
+                <TemporaryMessageArea ref="setOwnerMessageArea"/>
+            </Panel>
         }
 
         let revisionsPanel;
         if (ArticleEditor.DiffWidgetClass) {
             let DiffWidgetClass = ArticleEditor.DiffWidgetClass;
-                revisionsPanel = <UI.Panel title="Revisions" style={{height: "100%", display: "flex", flexDirection: "column"}}>
-                <UI.Panel>
-                    <UI.Select ref="leftTextSelector" options={this.versionsLabels}/>
-                    <UI.Select style={{float:"right", marginRight:"25px"}} ref="rightTextSelector" options={this.versionsLabels}/>
-                </UI.Panel>
+                revisionsPanel = <Panel title="Revisions" style={{height: "100%", display: "flex", flexDirection: "column"}}>
+                <Panel>
+                    <Select ref="leftTextSelector" options={this.versionsLabels}/>
+                    <Select style={{float:"right", marginRight:"25px"}} ref="rightTextSelector" options={this.versionsLabels}/>
+                </Panel>
                 <DiffWidgetClass ref="diffWidget" leftEditable={this.leftEditable} rightEditable={this.rightEditable}
                                  leftTextValue={this.versions[2]} arrows={this.arrows} rightTextValue={this.versions[1]}
                                      style={{flex:"1", height: "calc(100% - 100px)", width: "calc(100% - 100px)"}} />
-            </UI.Panel>;
+            </Panel>;
         }
 
         return [
             <h3>{this.getArticle().name + " Id=" + this.options.articleId}</h3>,
                 <TabArea ref="tabArea" variableHeightPanels style={{flex: "1", height: "100%", display: "flex", flexDirection: "column"}}>
-                <UI.Panel title="Edit" active style={{height: "100%", overflow: "hidden"}}>
-                    <UI.AjaxButton ref="saveMarkupButton" level={UI.Level.INFO} onClick={() => {
+                <Panel title="Edit" active style={{height: "100%", overflow: "hidden"}}>
+                    <AjaxButton ref="saveMarkupButton" level={UI.Level.INFO} onClick={() => {
                                     let content = this.markupEditor.getValue();
                                     this.saveMarkup(content);
                                    }}
                                statusOptions={["Save", {faIcon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
                         />
-                    <UI.TemporaryMessageArea ref="saveMarkupMessageArea"/>
+                    <TemporaryMessageArea ref="saveMarkupMessageArea"/>
                     <ArticleMarkupEditor style={{height: "100%", marginTop: "-31px", display: "flex", flexDirection: "column"}}
                                          ref="markupEditor" article={this.getArticle()} />
-                </UI.Panel>
+                </Panel>
                 {revisionsPanel}
-                <UI.Panel title="Summary">
-                    <UI.Form style={{marginTop: "10px"}}>
-                        <UI.FormField ref="articleNameFormField" label="Article name">
-                            <UI.TextInput ref="articleNameFormInput"  value={this.getArticle().name}/>
-                        </UI.FormField>
-                        <UI.FormField ref="dependencyFormField" label="Dependencies">
-                            <UI.TextInput ref="dependencyFormInput" value={this.getArticle().dependency}/>
-                        </UI.FormField>
+                <Panel title="Summary">
+                    <Form style={{marginTop: "10px"}}>
+                        <FormField ref="articleNameFormField" label="Article name">
+                            <TextInput ref="articleNameFormInput"  value={this.getArticle().name}/>
+                        </FormField>
+                        <FormField ref="dependencyFormField" label="Dependencies">
+                            <TextInput ref="dependencyFormInput" value={this.getArticle().dependency}/>
+                        </FormField>
                         {baseArticleForm}
-                        <UI.FormField ref="languageFormField" label="Language">
-                            <UI.Select ref="languageSelect" options={Language.all()}
+                        <FormField ref="languageFormField" label="Language">
+                            <Select ref="languageSelect" options={Language.all()}
                                        selected={Language.get(this.getArticle().languageId)}/>
-                        </UI.FormField>
-                        <UI.FormField ref="publicFormField" label="Public">
-                            <UI.CheckboxInput ref="publicCheckbox" checked={this.getArticle().isPublic}/>
-                        </UI.FormField>
-                    </UI.Form>
-                    <UI.AjaxButton ref="saveOptionsButton" level={UI.Level.INFO} onClick={() => {
+                        </FormField>
+                        <FormField ref="publicFormField" label="Public">
+                            <CheckboxInput ref="publicCheckbox" checked={this.getArticle().isPublic}/>
+                        </FormField>
+                    </Form>
+                    <AjaxButton ref="saveOptionsButton" level={UI.Level.INFO} onClick={() => {
                                     let name = this.articleNameFormInput.getValue();
                                    let dependency = this.dependencyFormInput.getValue();
                                    let languageId = this.languageSelect.get().id;
@@ -230,11 +246,11 @@ class ArticleEditor extends Panel {
                                    }}
                                statusOptions={["Save", {faIcon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
                         />
-                    <UI.Button ref="deleteArticleButton" level={UI.Level.DANGER} label="Delete article"
+                    <Button ref="deleteArticleButton" level={UI.Level.DANGER} label="Delete article"
                                style={{marginLeft: "3px"}}
                                onClick={() => this.deleteArticleModal.show()}/>
-                    <UI.TemporaryMessageArea ref="saveOptionsMessageArea"/>
-                </UI.Panel>
+                    <TemporaryMessageArea ref="saveOptionsMessageArea"/>
+                </Panel>
                 {translationsPanel}
                 {ownershipPanel}
             </TabArea>

@@ -1,5 +1,5 @@
 // TODO: this whole file needs a refactoring
-import {UI, TabArea} from "UI";
+import {UI, TabArea, TableRow, Table, TextInput, Button, Select, FileInput, CheckboxInput, TextArea} from "UI";
 import {GlobalState} from "State";
 import {TranslationKeyStore, TranslationEntryStore} from "TranslationStore";
 import {Language} from "LanguageStore";
@@ -33,7 +33,7 @@ function ajaxCall(request, successOperation, failOperation) {
     );
 }
 
-class TranslationEntryTableRow extends UI.TableRow {
+class TranslationEntryTableRow extends TableRow {
     setOptions(options) {
         super.setOptions(options);
         this.options.saveButton = this.saveButton;
@@ -84,7 +84,7 @@ class TranslationEntryTableRow extends UI.TableRow {
     }
 }
 
-class TranslationEntryTable extends UI.Table {
+class TranslationEntryTable extends Table {
     setOptions(options) {
         super.setOptions(options);
         this.language = options.language;
@@ -115,7 +115,7 @@ class TranslationEntryTable extends UI.Table {
             }, {
                 value: entry => {
                     return <div className="form-group">
-                        <UI.TextInput ref="entryInput" value={entry.entry ? entry.entry.value: ""} />
+                        <TextInput ref="entryInput" value={entry.entry ? entry.entry.value: ""} />
                         </div>;
                 },
                 headerName: "Key value",
@@ -125,7 +125,7 @@ class TranslationEntryTable extends UI.Table {
             }, {
                 value: entry => {
                     return <div className="form-group">
-                        <UI.Button ref="saveButton" label="Save" level={UI.Level.INFO} />
+                        <Button ref="saveButton" label="Save" level={UI.Level.INFO} />
                     </div>;
                 },
                 headerName: "Actions",
@@ -155,7 +155,7 @@ class TranslationEntryTable extends UI.Table {
     }
 }
 
-class TranslationEntryManager extends UI.Panel {
+class TranslationEntryManager extends Panel {
     setOptions(options) {
         super.setOptions(options);
         this.language = Language.get(1);
@@ -165,17 +165,17 @@ class TranslationEntryManager extends UI.Panel {
         let languageOptions = this.getLanguageOptions();
         return [
             <div className="form-group">
-                <UI.Select className="form-control" options={languageOptions} ref="languageSelect" />
+                <Select className="form-control" options={languageOptions} ref="languageSelect" />
                 <TranslationEntryTable ref="translationTable" language={this.language} />
             </div>,
             <div className="btn-group">
-                <UI.Button ref="saveAllButton" label="Save all" level={UI.Level.INFO} />
-                <UI.Button className="pull-left" level={UI.Level.INFO} label="Import" ref="importButton"
+                <Button ref="saveAllButton" label="Save all" level={UI.Level.INFO} />
+                <Button className="pull-left" level={UI.Level.INFO} label="Import" ref="importButton"
                            style={{position: "relative", overflow: "hidden"}}>
-                    <UI.FileInput ref="uploadFile" style={{position: "absolute", top: "0", right: "0", margin: "0",
+                    <FileInput ref="uploadFile" style={{position: "absolute", top: "0", right: "0", margin: "0",
                                                            padding: "0", cursor: "pointer", opacity: "0", filter: "alpha(opacity=0)"}}/>
-                </UI.Button>
-                <UI.Button ref="exportButton" label="Export" level={UI.Level.INFO} />
+                </Button>
+                <Button ref="exportButton" label="Export" level={UI.Level.INFO} />
             </div>
         ];
     }
@@ -378,7 +378,7 @@ class TranslationEntryManager extends UI.Panel {
     }
 }
 
-class TranslationKeyTableRow extends UI.TableRow {
+class TranslationKeyTableRow extends TableRow {
     setOptions(options) {
         super.setOptions(options);
     }
@@ -466,7 +466,7 @@ class TranslationKeyTableRow extends UI.TableRow {
 
 }
 
-class TranslationKeyTable extends UI.Table {
+class TranslationKeyTable extends Table {
     setOptions(options) {
         super.setOptions(options);
         this.editable = false;
@@ -491,7 +491,7 @@ class TranslationKeyTable extends UI.Table {
             }, {
                 value: entry => {
                     return [<UI.TextElement ref="textElement" value={entry.key.value}/>,
-                        <UI.TextInput ref="textInput" />
+                        <TextInput ref="textInput" />
                         ]
                 },
                 headerName: "Entry value",
@@ -502,8 +502,8 @@ class TranslationKeyTable extends UI.Table {
                 value: entry => {
                     return [
                         <div className="btn-group">
-                            <UI.Button ref="renameButton" label="Rename" level={UI.Level.INFO}/>
-                            <UI.Button ref="deleteButton" label="Delete" level={UI.Level.DANGER}/>
+                            <Button ref="renameButton" label="Rename" level={UI.Level.INFO}/>
+                            <Button ref="deleteButton" label="Delete" level={UI.Level.DANGER}/>
                         </div>
                     ];
                 },
@@ -541,7 +541,7 @@ class TranslationKeyTable extends UI.Table {
     }
 }
 
-class TranslationKeyManager extends UI.Panel {
+class TranslationKeyManager extends Panel {
     render() {
         let style = {
             display: "inline-block",
@@ -554,10 +554,10 @@ class TranslationKeyManager extends UI.Panel {
 
         return [
             <label>Enable editing: &nbsp; </label>,
-            <UI.CheckboxInput ref="editableCheckbox" />,
+            <CheckboxInput ref="editableCheckbox" />,
             <TranslationKeyTable ref="table"/>,
-            <UI.TextArea ref="textArea" className="form-control" style={style}/>,
-            <UI.Button label="Add keys" ref="saveButton" style={{marginLeft: "20px"}} level={UI.Level.INFO}/>,
+            <TextArea ref="textArea" className="form-control" style={style}/>,
+            <Button label="Add keys" ref="saveButton" style={{marginLeft: "20px"}} level={UI.Level.INFO}/>,
             <UI.TextElement ref="addStatus" />
         ];
     }
@@ -631,7 +631,7 @@ class TranslationKeyManager extends UI.Panel {
     }
 }
 
-class TranslationManager extends UI.Panel {
+class TranslationManager extends Panel {
     getUrlPrefix(urlPart) {
         let url = "/manage/translation/";
         if (urlPart) {

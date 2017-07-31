@@ -1,4 +1,4 @@
-import {UI, Select, Button, Table, ProgressBar, Modal, ActionModal, Form, FormField, TextInput} from "UI";
+import {UI, Select, Button, Table, ProgressBar, Modal, ActionModal, Form, FormField, TextInput, StaticCodeHighlighter} from "UI";
 import {FAIcon} from "FontAwesome";
 import {Ajax} from "Ajax";
 import {StemDate} from "Time";
@@ -47,12 +47,12 @@ class CommandRunDetailsModal extends Modal {
             <h4>Command instance: {CommandInstanceStore.get(this.options.commandRun.commandInstanceId).name}</h4>,
             <h4 ref="statusField">Status: {this.options.commandRun.getVerboseStatus()}</h4>,
             <h4>Logs</h4>,
-            <UI.StaticCodeHighlighter ref="logger" numLines={40} readOnly={true} />
+            <StaticCodeHighlighter ref="logger" numLines={40} readOnly={true} />
         ];
         if (this.options.commandRun.status >= 2) {
             // The command is finished, show the result
             children.push(<h4>Result:</h4>);
-            children.push(<UI.StaticCodeHighlighter ref="resultField" numLines={15} readOnly={true} />);
+            children.push(<StaticCodeHighlighter ref="resultField" numLines={15} readOnly={true} />);
         }
         return children;
     }

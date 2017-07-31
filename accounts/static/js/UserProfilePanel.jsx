@@ -1,11 +1,11 @@
-import {UI, TabArea} from "UI";
+import {UI, TabArea, Panel} from "UI";
 import {GlobalState} from "State";
 import {PublicUserStore} from "UserStore";
 import {MessageThreadStore} from "MessageThreadStore";
 import {ChatWidget} from "ChatWidget";
 import {UserHandle} from "UserHandle";
 
-class ProfilePanel extends UI.Panel {
+class ProfilePanel extends Panel {
     render() {
         let infos = [
             <p>Username: <UserHandle style={{display:"inline"}} userId={this.options.user.id}/></p>

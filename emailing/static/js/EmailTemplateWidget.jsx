@@ -1,11 +1,11 @@
-import {UI, SortableTable, Button, SectionDivider} from "UI";
+import {UI, SortableTable, Button, SectionDivider, Panel, TableRow, ActionModal, FormField, TextInput, Select, TextArea} from "UI";
 import {EmailGatewayStore} from "EmailGatewayStore";
 import {EmailCampaignStore} from "EmailCampaignStore";
 import {EmailTemplateStore} from "EmailTemplateStore";
 import {Language} from "LanguageStore";
 import {Ajax} from "Ajax";
 
-class EmailTemplateModal extends UI.ActionModal {
+class EmailTemplateModal extends ActionModal {
     constructor(options) {
         super(options);
         this.fields = ["subject", "html", "campaignId", "languageId", "gatewayId"];
@@ -31,26 +31,26 @@ class EmailTemplateModal extends UI.ActionModal {
     getBody() {
         const templateValues = this.options.template || {};
         return [
-            <UI.FormField label="Subject" ref="subjectField" style={{margin: "initial"}}>
-                <UI.TextInput value={templateValues.subject || ""} ref="subjectInput"/>
-            </UI.FormField>,
-            <UI.FormField label="Campaign" ref="campaignIdField" style={{margin: "initial"}}>
-                <UI.Select ref="campaignSelect" options={EmailCampaignStore.all()} selected={EmailCampaignStore.get(templateValues.campaignId)}/>
-            </UI.FormField>,
-            <UI.FormField label="Language" ref="languageIdField" style={{margin: "initial"}}>
-                <UI.Select ref="languageSelect" options={Language.all()} selected={Language.get(templateValues.languageId)}/>
-            </UI.FormField>,
-            <UI.FormField label="Gateway" ref="gatewayIdField" style={{margin: "initial"}}>
-                <UI.Select ref="gatewaySelect" options={EmailGatewayStore.all()} selected={EmailGatewayStore.get(templateValues.gatewayId)}/>
-            </UI.FormField>,
-            <UI.FormField label="Html" ref="htmlField" inline={false} style={{margin: "initial"}}>
-            </UI.FormField>,
+            <FormField label="Subject" ref="subjectField" style={{margin: "initial"}}>
+                <TextInput value={templateValues.subject || ""} ref="subjectInput"/>
+            </FormField>,
+            <FormField label="Campaign" ref="campaignIdField" style={{margin: "initial"}}>
+                <Select ref="campaignSelect" options={EmailCampaignStore.all()} selected={EmailCampaignStore.get(templateValues.campaignId)}/>
+            </FormField>,
+            <FormField label="Language" ref="languageIdField" style={{margin: "initial"}}>
+                <Select ref="languageSelect" options={Language.all()} selected={Language.get(templateValues.languageId)}/>
+            </FormField>,
+            <FormField label="Gateway" ref="gatewayIdField" style={{margin: "initial"}}>
+                <Select ref="gatewaySelect" options={EmailGatewayStore.all()} selected={EmailGatewayStore.get(templateValues.gatewayId)}/>
+            </FormField>,
+            <FormField label="Html" ref="htmlField" inline={false} style={{margin: "initial"}}>
+            </FormField>,
             <SectionDivider orientation={UI.Orientation.HORIZONTAL} style={{width: "100%", flex: "1"}}>
                 <div style={{width: "50%", height: "100%", overflow: "hidden"}}>
-                    <UI.TextArea value={templateValues.html || ""} ref="htmlInput" style={{height: "100%", width: "100%", resize: "none"}}/>
+                    <TextArea value={templateValues.html || ""} ref="htmlInput" style={{height: "100%", width: "100%", resize: "none"}}/>
                 </div>
                 <div style={{width: "50%", height: "100%", overflow: "auto", position: "relative"}}>
-                  <UI.Panel ref="htmlRenderer" style={{height: "100%", position: "absolute"}}/>
+                  <Panel ref="htmlRenderer" style={{height: "100%", position: "absolute"}}/>
                 </div>
             </SectionDivider>,
         ];
@@ -140,7 +140,7 @@ class EditEmailTemplateModal extends EmailTemplateModal {
 }
 
 
-class GenericConfirmModal extends UI.ActionModal {
+class GenericConfirmModal extends ActionModal {
     constructor(options) {
         super(options);
     }
@@ -196,7 +196,7 @@ class DeleteTemplateConfirmModal extends GenericConfirmModal {
 }
 
 
-class EmailTemplateTableRow extends UI.TableRow {
+class EmailTemplateTableRow extends TableRow {
     onMount() {
         super.onMount();
         this.deleteTemplateButton.addClickListener(() => {
@@ -291,7 +291,7 @@ class EmailTemplateTable extends SortableTable {
 }
 
 
-class EmailTemplateWidget extends UI.Panel {
+class EmailTemplateWidget extends Panel {
     render() {
         return [<EmailTemplateTable />,
             <Button level={UI.Level.SUCCESS} ref="addTemplateButton">Add Template</Button>

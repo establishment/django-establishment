@@ -1,4 +1,4 @@
-import {UI, BasicTabTitle, Link} from "UI";
+import {UI, BasicTabTitle, Link, EmailInput, PasswordInput, CheckboxInput, SubmitInput, Switcher} from "UI";
 import {Panel} from "UIPrimitives";
 
 import {ensure} from "Require";
@@ -111,7 +111,7 @@ class LoginWidget extends UI.Element {
                     icon="user"
                     style={loginStyle.fontAwesomeIcon}
                 />
-                <UI.EmailInput
+                <EmailInput
                     autofocus="autofocus"
                     placeholder="Email address"
                     name="email"
@@ -128,7 +128,7 @@ class LoginWidget extends UI.Element {
                 <FAIcon icon="lock"
                         style={loginStyle.fontAwesomeIcon}
                 />
-                <UI.PasswordInput
+                <PasswordInput
                     placeholder="Password"
                     name="password"
                     ref="passwordInput"
@@ -143,7 +143,7 @@ class LoginWidget extends UI.Element {
 
     getRememberMeCheckbox() {
         return [
-            <UI.CheckboxInput checked={true}
+            <CheckboxInput checked={true}
                               ref="rememberInput"
                               style={{
                                   "float": "left",
@@ -164,7 +164,7 @@ class LoginWidget extends UI.Element {
 
     getSignInButton() {
         return <div style={{width: "100%", height: "50px", display: "flex", alignItems: "center", justifyContent: "center",}}>
-            <UI.SubmitInput className={loginStyle.signInButton} value="Sign In"/>
+            <SubmitInput className={loginStyle.signInButton} value="Sign In"/>
         </div>;
     }
 
@@ -251,7 +251,7 @@ class RegisterWidget extends UI.Element {
 
     getSignUpButton() {
         return <div style={{width: "100%", height: "50px", display: "flex", alignItems: "center", justifyContent: "center",}}>
-            <UI.SubmitInput className={loginStyle.signInButton} value="Sign Up"/>
+            <SubmitInput className={loginStyle.signInButton} value="Sign Up"/>
         </div>;
     }
 
@@ -357,10 +357,10 @@ class NormalLogin extends UI.Element {
                 {this.getLoginButton()}
                 {this.getRegisterButton()}
             </div>,
-            <UI.Switcher ref="switcher">
+            <Switcher ref="switcher">
                 <LoginWidget ref="loginWidget" active={this.state === 0} />
                 <RegisterWidget ref="registerWidget" active={this.state === 1} />
-            </UI.Switcher>
+            </Switcher>
         ];
 
         return result;

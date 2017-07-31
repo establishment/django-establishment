@@ -1,4 +1,4 @@
-import {UI, Panel, Link, Route, Router} from "UI";
+import {UI, Panel, Link, Route, Router, TimePassedSpan} from "UI";
 import {Dispatcher} from "base/Dispatcher";
 import {Ajax} from "base/Ajax";
 import {GlobalState} from "State";
@@ -173,7 +173,7 @@ class ForumThreadBubble extends UI.Element {
         /* TODO @mihaic, this should support custom color option (but I didn't want to change stem files on my own). check UIPrimitives.jsx line 400 */
         return [
             <div className={forumThreadBubbleStyle.threadActivity}>
-                <UI.TimePassedSpan timeStamp={threadActivity} />
+                <TimePassedSpan timeStamp={threadActivity} />
             </div>
         ]
     }

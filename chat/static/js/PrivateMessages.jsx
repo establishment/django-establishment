@@ -1,5 +1,9 @@
+import {
+    UI, Button, Link, StyleElement, StyleInstance,
+    TextInput, VolatileFloatingWindow, StyleElement,
+    StyleInstance
+} from "UI";
 import {MessagesPanelListStyle} from "SocialNotificationsStyle";
-import {UI, Button, Link, StyleElement, StyleInstance} from "UI";
 import {PrivateChatWidget} from "ChatWidget";
 import {Router, Route} from "Router";
 import {Ajax} from "Ajax";
@@ -169,11 +173,11 @@ class UserSearchInput extends UI.Element {
                 this.input.node.focus();
                 this.input.node.select();
             }} />,
-            <UI.TextInput ref="input" className={this.options.textInputStyle || ""} placeholder={this.options.placeholder || ""} />,
-            <UI.VolatileFloatingWindow className="searchList" style={windowStyle} ref="window" />,
-            <UI.StyleElement>
-                <UI.StyleInstance selector=".searchList>div:hover" attributes={{"cursor": "pointer", "background-color": "#eee"}} />
-            </UI.StyleElement>
+            <TextInput ref="input" className={this.options.textInputStyle || ""} placeholder={this.options.placeholder || ""} />,
+            <VolatileFloatingWindow className="searchList" style={windowStyle} ref="window" />,
+            <StyleElement>
+                <StyleInstance selector=".searchList>div:hover" attributes={{"cursor": "pointer", "background-color, StyleElement, StyleElement": "#eee"}} />
+            </StyleElement>
         ];
     }
 

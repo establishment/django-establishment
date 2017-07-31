@@ -1,6 +1,6 @@
 import {Ajax} from "Ajax";
 import {GlobalState} from "State";
-import {UI, Panel, Link, Router, Button, ActionModal, ActionModalButton} from "UI";
+import {UI, Panel, Link, Router, Button, ActionModal, ActionModalButton, Input, TimePassedSpan} from "UI";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
@@ -36,7 +36,7 @@ class CreateForumThreadModal extends MarkupEditorModal {
         };
 
         return [
-            <UI.Input label={UI.T("Title")} ref="titleInput" style={inputStyle} placeholder="Click here to edit the title (max. 160 characters)." />,
+            <Input label={UI.T("Title")} ref="titleInput" style={inputStyle} placeholder="Click here to edit the title (max. 160 characters)." />,
             ...super.getGivenChildren(),
         ];
     }
@@ -185,7 +185,7 @@ class ForumThreadReply extends UI.Element {
                         textTransform: "initial",
                         fontSize: "1.1em",
                     }}/>
-                    <UI.TimePassedSpan timeStamp={messageInstance.getDate()} style={{
+                    <TimePassedSpan timeStamp={messageInstance.getDate()} style={{
                         color: "#262626 !important",
                         paddingRight: "12px",
                     }}/>
@@ -271,7 +271,7 @@ class ForumThreadPanel extends Panel {
                 textTransform: "initial",
             }}/>
             &nbsp;
-            <UI.TimePassedSpan timeStamp={this.getForumThread().getTimeAdded()} style={{color: "#262626 !important",}}/>
+            <TimePassedSpan timeStamp={this.getForumThread().getTimeAdded()} style={{color: "#262626 !important",}}/>
         </div>;
     }
 

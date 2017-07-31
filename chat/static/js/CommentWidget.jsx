@@ -1,4 +1,4 @@
-import {UI} from "UI";
+import {UI, TimePassedSpan, Switcher, AjaxButton, TextArea, Button} from "UI";
 import {GlobalState} from "State";
 import {GroupChatStore, MessageThreadStore, MessageThread, MessageInstance} from "MessageThreadStore";
 import {ChatMessageScrollSection, ChatWidget, EditableMessage} from "ChatWidget";
@@ -19,7 +19,7 @@ class ThreadMessage extends EditableMessage {
     }
 
     render() {
-        let messageDate = <UI.TimePassedSpan timeStamp={this.message.getDate()} style={{color: "#666 !important", textTransform: "uppercase", fontSize: ".85em",}} />
+        let messageDate = <TimePassedSpan timeStamp={this.message.getDate()} style={{color: "#666 !important", textTransform: "uppercase", fontSize: ".85em",}} />
 
         let editButton;
         if (this.message.userId === USER.id || USER.isSuperUser) {
@@ -29,11 +29,11 @@ class ThreadMessage extends EditableMessage {
         }
 
         if (!this.contentSwitcher) {
-            this.contentSwitcher = <UI.Switcher>
+            this.contentSwitcher = <Switcher>
                 <div ref="contentContainer">
-                    <UI.MarkupRenderer ref="content" value={this.message.getContent()} />
+                    <MarkupRenderer ref="content" value={this.message.getContent()} />
                 </div>
-            </UI.Switcher>;
+            </Switcher>;
         }
 
         let votes = <CommentVotingWidgetWithThumbs height={40} style={{float: "left"}} message={this.message} ref="commentVotingWidget" />;
@@ -113,7 +113,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
         if (this.showLoadMoreButton) {
             loadMoreButton = (
                 <div className="text-center">
-                    <UI.AjaxButton ref={this.refLink("loadMoreButton")} level={UI.Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
+                    <AjaxButton ref={this.refLink("loadMoreButton")} level={UI.Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
                                    style={loadMoreButtonStyle} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>
@@ -173,7 +173,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
 
         return [
             <div ref="writingSection" style={writingSectionStyle}>
-                <UI.TextArea readOnly={this.messageThread.muted}
+                <TextArea readOnly={this.messageThread.muted}
                              ref="chatInput"
                              onChange={() => {
                                  if (this.chatInput.getValue()) {
@@ -184,7 +184,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
                              }}
                              className={chatInputStyle}
                              placeholder="Leave a comment..."/>
-                <UI.Button disabled={this.messageThread.muted}
+                <Button disabled={this.messageThread.muted}
                            label="SUBMIT"
                            ref="sendMessageButton"
                            className={blogStyle.sendMessageButtonStyle}

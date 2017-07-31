@@ -1,4 +1,4 @@
-import {UI, TimePassedSpan} from "UI";
+import {UI, TimePassedSpan, Emoji} from "UI";
 import {MarkupRenderer} from "MarkupRenderer";
 import {GlobalState} from "State";
 import {UserNotificationStore} from "UserStore";
@@ -40,10 +40,10 @@ class RatingNotification extends Notification {
         let newRating = this.options.notification.data.newRating;
         if (oldRating < newRating) {
             return  ["Congratulations! Your rating has increased by ", <span style={{color: "green"}}>
-                            {newRating - oldRating}</span> , " points ", <UI.Emoji value="smile" />, ". Keep it up!"];
+                            {newRating - oldRating}</span> , " points ", <Emoji value="smile" />, ". Keep it up!"];
         } else {
             return ["Your rating has decreased by ", <span style={{color: "red"}}>{oldRating - newRating}</span> , " points ",
-                        <UI.Emoji value="disappointed" />, ". Better luck next time!", <UI.Emoji value="smiley" />];
+                        <Emoji value="disappointed" />, ". Better luck next time!", <Emoji value="smiley" />];
         }
     }
 }

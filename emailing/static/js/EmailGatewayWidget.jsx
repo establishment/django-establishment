@@ -1,8 +1,8 @@
-import {UI, SortableTable, Button} from "UI";
+import {UI, SortableTable, Button, ActionModal, FormField, TextInput, NumberInput, CheckboxInput, Panel, TableRow} from "UI";
 import {EmailGatewayStore} from "EmailGatewayStore";
 import {Ajax} from "Ajax";
 
-class EmailGatewayModal extends UI.ActionModal {
+class EmailGatewayModal extends ActionModal {
     constructor(options) {
         super(options);
         this.fields = ["name", "host", "port", "useTLS", "username"];
@@ -11,24 +11,24 @@ class EmailGatewayModal extends UI.ActionModal {
     getBody() {
         const gatewayValues = this.options.gateway || {};
         return [
-            <UI.FormField label="Name" ref="nameField">
-                <UI.TextInput value={gatewayValues.name || ""} ref="nameInput"/>
-            </UI.FormField>,
-            <UI.FormField label="Host" ref="hostField">
-                <UI.TextInput value={gatewayValues.host || ""} ref="hostInput"/>
-            </UI.FormField>,
-            <UI.FormField label="Port" ref="portField">
-                <UI.NumberInput value={gatewayValues.port || ""} ref="portInput"/>
-            </UI.FormField>,
-            <UI.FormField label="Use TLS" ref="useTLSField" >
-                <UI.CheckboxInput value={gatewayValues.useTLS || ""} ref="useTLSInput"/>
-            </UI.FormField>,
-            <UI.FormField label="Username" ref="usernameField">
-                <UI.TextInput value={gatewayValues.username || ""} ref="usernameInput"/>
-            </UI.FormField>,
-            <UI.FormField label="Password" ref="passwordField">
-                <UI.TextInput value={gatewayValues.password || ""} ref="passwordInput"/>
-            </UI.FormField>
+            <FormField label="Name" ref="nameField">
+                <TextInput value={gatewayValues.name || ""} ref="nameInput"/>
+            </FormField>,
+            <FormField label="Host" ref="hostField">
+                <TextInput value={gatewayValues.host || ""} ref="hostInput"/>
+            </FormField>,
+            <FormField label="Port" ref="portField">
+                <NumberInput value={gatewayValues.port || ""} ref="portInput"/>
+            </FormField>,
+            <FormField label="Use TLS" ref="useTLSField" >
+                <CheckboxInput value={gatewayValues.useTLS || ""} ref="useTLSInput"/>
+            </FormField>,
+            <FormField label="Username" ref="usernameField">
+                <TextInput value={gatewayValues.username || ""} ref="usernameInput"/>
+            </FormField>,
+            <FormField label="Password" ref="passwordField">
+                <TextInput value={gatewayValues.password || ""} ref="passwordInput"/>
+            </FormField>
         ];
     }
 
@@ -108,7 +108,7 @@ class EditEmailGatewayModal extends EmailGatewayModal {
 }
 
 
-class GenericConfirmModal extends UI.ActionModal {
+class GenericConfirmModal extends ActionModal {
     constructor(options) {
         super(options);
     }
@@ -164,7 +164,7 @@ class DeleteGatewayConfirmModal extends GenericConfirmModal {
 }
 
 
-class EmailGatewayTableRow extends UI.TableRow {
+class EmailGatewayTableRow extends TableRow {
     onMount() {
         super.onMount();
         this.deleteGatewayButton.addClickListener(() => {
@@ -264,7 +264,7 @@ class EmailGatewayTable extends SortableTable {
 }
 
 
-class EmailGatewayWidget extends UI.Panel {
+class EmailGatewayWidget extends Panel {
     render() {
         return [<EmailGatewayTable />,
                 <Button level={UI.Level.SUCCESS} ref="addGatewayButton">Add Gateway</Button>,

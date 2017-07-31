@@ -1,5 +1,5 @@
 import {Ajax} from "Ajax";
-import {UI, Button, Link, Modal} from "UI";
+import {UI, Button, Link, Modal, Form, FormField, TextInput, FormGroup, CheckboxInput, TemporaryMessageArea} from "UI";
 import {StemDate} from "Time";
 import {GlobalState} from "State";
 import {BlogEntryStore} from "BlogStore";
@@ -45,20 +45,20 @@ export class BlogEntryEditModal extends Modal {
 
         return [
             <h3>Edit Entry</h3>,
-            <UI.Form>
-                <UI.FormField label="Title">
-                    <UI.TextInput ref="titleInput" value={article.name} />
-                </UI.FormField>
-                <UI.FormField label="URL Name">
-                    <UI.TextInput ref="urlInput" value={entry.urlName} />
-                </UI.FormField>
-                <UI.FormField label="Visible">
-                    <UI.CheckboxInput ref="visibleCheckbox" value={entry.visible} />
-                </UI.FormField>
+            <Form>
+                <FormField label="Title">
+                    <TextInput ref="titleInput" value={article.name} />
+                </FormField>
+                <FormField label="URL Name">
+                    <TextInput ref="urlInput" value={entry.urlName} />
+                </FormField>
+                <FormField label="Visible">
+                    <CheckboxInput ref="visibleCheckbox" value={entry.visible} />
+                </FormField>
                 <Button level={UI.Level.PRIMARY} label="Change settings" onClick={() => this.changeSettings()} />
                 {discussionButton}
-                <UI.TemporaryMessageArea ref="messageArea"/>
-            </UI.Form>,
+                <TemporaryMessageArea ref="messageArea"/>
+            </Form>,
             <ArticleEditor ref="contentEditor" articleId={article.id} style={{flex: "1"}} />
         ];
     }
@@ -123,19 +123,19 @@ export class NewBlogEntryModal extends Modal {
     getGivenChildren() {
         return [
             <h1>New Entry</h1>,
-            <UI.FormGroup>
-                <UI.FormField label="Title">
-                    <UI.TextInput ref="titleInput" />
-                </UI.FormField>
-                <UI.FormField label="URL Name">
-                    <UI.TextInput ref="urlInput" />
-                </UI.FormField>
-                <UI.FormField label="Visible">
-                    <UI.CheckboxInput ref="visibleCheckbox"/>
-                </UI.FormField>
+            <FormGroup>
+                <FormField label="Title">
+                    <TextInput ref="titleInput" />
+                </FormField>
+                <FormField label="URL Name">
+                    <TextInput ref="urlInput" />
+                </FormField>
+                <FormField label="Visible">
+                    <CheckboxInput ref="visibleCheckbox"/>
+                </FormField>
                 <Button label="Add Entry" level={UI.Level.PRIMARY} onClick={() => {this.addEntry()}}/>
                 <MarkupEditor ref="postContentMarkup" style={{height: "450px"}} />
-            </UI.FormGroup>
+            </FormGroup>
         ];
     }
 
