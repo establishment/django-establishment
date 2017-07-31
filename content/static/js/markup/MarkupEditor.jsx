@@ -55,10 +55,10 @@ class MarkupEditor extends Panel {
         this.markupRenderer.redraw();
     }
 
-    appendValue(markup) {
+    appendValue(markup, separator="\n") {
         let value = this.getValue();
-        if (value) {
-            value += "\n";
+        if (value && separator != null) {
+            value += separator;
         }
         value += markup;
         this.setValue(value);

@@ -1,5 +1,5 @@
 import {Ajax} from "Ajax";
-import {UI, Button} from "UI";
+import {UI, Button, registerStyle} from "UI";
 import {GlobalState} from "State";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
@@ -7,20 +7,18 @@ import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {ButtonStyle} from "ForumStyle";
 import {Level, Size} from "Constants";
 
-let buttonStyle = ButtonStyle.getInstance();
-
+@registerStyle(ButtonStyle)
 class CreateThreadReplyButton extends Button {
-    extraNodeAttributes(attr) {
-        attr.addClass(buttonStyle.button);
+    getDefaultOptions() {
+        return {
+            level: Level.PRIMARY,
+            size: Size.LARGE,
+            label: UI.T("Preview")
+        };
     }
 
-    setOptions(options) {
-        if (!options.faIcon) {
-            options.label = options.label || UI.T("Preview");
-        }
-        options.level = options.level || Level.PRIMARY;
-        options.size = options.size || Size.LARGE;
-        super.setOptions(options);
+    extraNodeAttributes(attr) {
+        attr.addClass(this.styleSheet.button);
     }
 
     onMount() {
@@ -34,7 +32,6 @@ class CreateThreadReplyButton extends Button {
                 this.markupEditorModal = <CreateThreadReplyModal forumThreadId={this.options.forumThreadId}
                     classMap={ChatMarkupRenderer.classMap}
                 />;
-                this.markupEditorModal.mount(document.body);
             }
             this.markupEditorModal.show();
         });

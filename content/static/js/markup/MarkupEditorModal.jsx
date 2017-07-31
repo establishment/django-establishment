@@ -1,13 +1,103 @@
 import {UI, Button, Link, Modal} from "UI";
 import {MarkupEditor} from "MarkupEditor";
 import {Level, Size} from "Constants";
+import {Emoji as EmojiMini} from "EmojiMini";
+import "EmojiUI";
+
+class ClickableEmote extends UI.Emoji {
+    redraw() {
+        this.redrawTimeout = setTimeout(()=> super.redraw());
+    }
+
+    onMount() {
+        this.addClickListener(() => {
+            const textBox = this.options.textBox;
+            if (textBox) {
+                textBox.appendValue(this.getValueText(), " ");
+            }
+            if (this.options.afterClick) {
+                this.options.afterClick();
+            }
+        });
+    }
+
+    onUnmount() {
+        clearTimeout(this.redrawTimeout);
+    }
+}
+
+class ClickableEmoji extends ClickableEmote {
+    getValueText() {
+        return ":" + this.options.value + ":";
+    }
+}
+
+class ClickableTwitchEmote extends ClickableEmote {
+    getValueText() {
+        return this.options.value;
+    }
+}
+
+class EmojiButton extends Button {
+    getPopup() {
+        const textBox = this.options.getTextBox();
+        const afterClick = () => this.closePopup();
+        let emotesList = [];
+        for (let emoji in EmojiMini.EMOJI) {
+            emotesList.push(<ClickableEmoji textBox={textBox} afterClick={afterClick} value={emoji}/>);
+        }
+        for (let twitchEmoji in EmojiMini.TWITCH_EMOTICONS) {
+            emotesList.push(<ClickableTwitchEmote textBox={textBox} afterClick={afterClick} value={twitchEmoji}/>);
+        }
+        return UI.BasePopup.create(this.parent, {
+                target: this,
+                children: emotesList,
+                arrowDirection: UI.Direction.DOWN,
+                style: {
+                    display: "flex",
+                    overflow: "auto",
+                    height: "300px",
+                    width: "300px",
+                }
+            });
+    }
+
+    closePopup() {
+        if (this.emojiPopup) {
+            this.emojiPopup.destroyNode();
+            delete this.emojiPopup;
+        }
+    }
+
+    onMount() {
+        this.addClickListener(() => {
+            if (this.emojiPopup) {
+                this.closePopup();
+            } else {
+                this.emojiPopup = this.getPopup();
+            }
+        })
+    }
+
+    onUnmount() {
+        this.closePopup();
+    }
+}
 
 class MarkupEditorModal extends Modal {
+    getDefaultOptions() {
+        return Object.assign(super.getDefaultOptions(), {
+            height: "85%",
+            width: "80%",
+            destroyOnHide: false
+        });
+    }
+
     getMarkupEditorStyle() {
         return {
             height: "85%",
             border: "solid 5px #DDD",
-            "border-radius": "10px"
+            borderRadius: "10px"
         };
     }
 
@@ -15,12 +105,6 @@ class MarkupEditorModal extends Modal {
         return {
             margin: "5px"
         }
-    }
-
-    setOptions(options) {
-        super.setOptions(options);
-        this.options.height = this.options.height || "85%";
-        this.options.width = "80%";
     }
 
     getGivenChildren() {
@@ -40,6 +124,9 @@ class MarkupEditorModal extends Modal {
                 <Button ref={this.refLink("doneButton")} level={Level.PRIMARY} label="Done"
                            className="pull-right" style={this.getButtonStyle()}/>
             </div>,
+            //<span ref={this.refLink("emotesContainer")} style={{float: "left", position: "relative", margin: "5px"}}>
+            //    <EmojiButton ref="emotes" level={Level.DEFAULT} size={Size.DEFAULT} label="Emoticons" getTextBox={() => this.markupEditor}/>
+            //</span>
             //<Button ref="userExample" level={Level.DEFAULT} size={Size.DEFAULT} label="User"
             //           onClick={() => {this.appendUserExample()}} style={this.getButtonStyle()} className="pull-left"/>
             <div className="" style={{"position":"absolute", "width":"90%", "margin-top":"45px"}}>
@@ -49,7 +136,7 @@ class MarkupEditorModal extends Modal {
     }
 
     appendLatexExample() {
-        this.markupEditor.appendValue("<Latex value=\"\\lim_{x\\to\\infty} f(x)\"/>");
+        this.markupEditor.appendValue("$$lim_{x\\to\\infty} f(x)$$");
     }
 
     appendGraphExample() {
@@ -81,7 +168,7 @@ class MarkupEditorModal extends Modal {
 
     hide() {
         super.hide();
-        if(this.options.hideCallback) {
+        if (this.options.hideCallback) {
             this.options.hideCallback(this);
         }
     }
