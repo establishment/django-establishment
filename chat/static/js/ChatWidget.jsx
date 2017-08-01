@@ -12,7 +12,7 @@ import {RunOnce} from "Dispatcher";
 import {Ajax} from "Ajax";
 import {ChatStyle} from "ChatStyle";
 import {Pluginable} from "Plugin";
-import {Level, Size} from "Constants";
+import {Level, Size} from "ui/Constants";
 
 // TODO: fix this hack
 import {GlobalStyle} from "ui/GlobalStyle";

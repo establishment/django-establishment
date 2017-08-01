@@ -13,7 +13,7 @@ import {ErrorHandlers} from "ErrorHandlers";
 import {AjaxLoadingScreen} from "AjaxLoadingScreen";
 import {ForumThreadPanelStyle, ForumThreadReplyStyle} from "ForumStyle";
 import {ButtonStyle} from "ForumStyle";
-import {Level, Size} from "Constants";
+import {Level, Size} from "ui/Constants";
 
 
 let forumThreadPanelStyle = ForumThreadPanelStyle.getInstance();

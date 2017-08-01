@@ -11,7 +11,7 @@ import {ForumThreadPanel, CreateForumThreadButton} from "ForumThread";
 import {slugify} from "base/Utils"; // TODO: import the individual methods
 import {ForumThreadHeaderStyle, ForumThreadPreviewStyle, ForumThreadBubbleStyle, ForumPanelStyle} from "ForumStyle";
 import {StateDependentElement} from "StateDependentElement";
-import {Size} from "Constants";
+import {Size} from "ui/Constants";
 
 let forumThreadHeaderStyle = ForumThreadHeaderStyle.getInstance();
 let forumThreadPreviewStyle = ForumThreadPreviewStyle.getInstance();

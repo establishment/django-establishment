@@ -1,6 +1,6 @@
 import {UI, FormField, AjaxButton, TextInput} from "UI";
 import {Ajax} from "Ajax";
-import {Level} from "Constants";
+import {Level} from "ui/Constants";
 
 class PasswordReset extends UI.Element {
     render() {

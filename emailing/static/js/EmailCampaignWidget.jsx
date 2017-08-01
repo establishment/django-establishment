@@ -7,7 +7,7 @@ import {EmailGatewayStore} from "EmailGatewayStore";
 import {EmailCampaignStore} from "EmailCampaignStore";
 import {EmailTemplateStore} from "EmailTemplateStore";
 import {Ajax} from "Ajax";
-import {Level} from "Constants";
+import {Level} from "ui/Constants";
 
 class GenericConfirmModal extends ActionModal {
     constructor(options) {

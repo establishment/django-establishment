@@ -19,7 +19,7 @@ import {Route, Router} from "Router";
 import {Dispatcher} from "Dispatcher";
 
 import {Theme} from "ui/style/Theme";
-import {Level} from "Constants";
+import {Level} from "ui/Constants";
 
 export class BlogEntryEditModal extends Modal {
     getModalWindowStyle() {

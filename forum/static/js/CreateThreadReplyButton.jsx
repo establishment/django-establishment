@@ -5,7 +5,7 @@ import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {ButtonStyle} from "ForumStyle";
-import {Level, Size} from "Constants";
+import {Level, Size} from "ui/Constants";
 
 @registerStyle(ButtonStyle)
 class CreateThreadReplyButton extends Button {

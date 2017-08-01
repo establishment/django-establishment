@@ -10,7 +10,7 @@ import {DocumentationPanel} from "./DocumentationPanel";
 import {DraggableDocumentationNavElement, dragAndDropHandler} from "./DocumentationNavElement";
 import {CreateEntryButton} from "./CreateEntryModal";
 
-import {Orientation, Level, Size} from "Constants";
+import {Orientation, Level, Size} from "ui/Constants";
 
 export class AdminDocumentationPanel extends DocumentationPanel {
     getBaseUrl() {

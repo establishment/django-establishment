@@ -7,7 +7,7 @@ import {UserStore} from "UserStore";
 import {FacebookManager} from "FacebookManager";
 import {GoogleManager} from "GoogleManager";
 import {Ajax} from "Ajax";
-import {Level, Size} from "Constants";
+import {Level, Size} from "ui/Constants";
 
 class GeneralInformationPanel extends Panel {
     render() {

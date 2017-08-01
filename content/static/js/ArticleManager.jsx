@@ -23,7 +23,7 @@ import {PublicUserStore} from "UserStore";
 import {Language} from "LanguageStore";
 import {UserHandle} from "UserHandle";
 import {GlobalStyle} from "GlobalStyle";
-import {Level} from "Constants";
+import {Level} from "ui/Constants";
 
 class TransferOwnershipModal extends ActionModal {
     getActionName() {

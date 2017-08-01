@@ -6,7 +6,7 @@ import {Dispatcher} from "Dispatcher";
 import {SimpleDocumentationNavElement} from "./DocumentationNavElement";
 import {DocumentationStyle} from "./DocumentationStyle";
 
-import {Orientation} from "Constants";
+import {Orientation} from "ui/Constants";
 
 @registerStyle(DocumentationStyle)
 class DocumentationPanel extends UI.Element {

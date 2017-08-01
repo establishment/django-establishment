@@ -1,7 +1,7 @@
 import {UI, SortableTable, Button, ActionModal, FormField, TextInput, NumberInput, CheckboxInput, Panel, TableRow} from "UI";
 import {EmailGatewayStore} from "EmailGatewayStore";
 import {Ajax} from "Ajax";
-import {Level} from "Constants";
+import {Level} from "ui/Constants";
 
 class EmailGatewayModal extends ActionModal {
     constructor(options) {

@@ -12,7 +12,7 @@ import {UserHandle} from "UserHandle";
 import {StemDate} from "Time";
 import {Dispatcher} from "Dispatcher";
 import {GlobalState} from "State";
-import {Level, Size} from "Constants";
+import {Level, Size} from "ui/Constants";
 
 let messagesPanelListStyle = MessagesPanelListStyle.getInstance();
 

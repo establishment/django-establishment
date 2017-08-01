@@ -1,6 +1,6 @@
 import {UI, Button, Link, Modal} from "UI";
 import {MarkupEditor} from "MarkupEditor";
-import {Level, Size} from "Constants";
+import {Level, Size} from "ui/Constants";
 import {Emoji as EmojiMini} from "EmojiMini";
 import "EmojiUI";
 

@@ -9,7 +9,7 @@ import {LoginModal} from "LoginModal";
 import {CommentVotingWidgetWithThumbs} from "VotingWidget";
 import {css, hover, focus, active, ExclusiveClassSet, StyleSet} from "Style";
 import {BlogStyle} from "BlogStyle";
-import {Level} from "Constants";
+import {Level} from "ui/Constants";
 let blogStyle = BlogStyle.getInstance();
 
 class ThreadMessage extends EditableMessage {

@@ -2,7 +2,7 @@ import {UI, Button} from "UI";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
-import {Level} from "Constants";
+import {Level} from "ui/Constants";
 
 class EditThreadReplyButton extends Button {
     setOptions(options) {

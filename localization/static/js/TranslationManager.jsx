@@ -6,7 +6,7 @@ import {Language} from "LanguageStore";
 import {Dispatcher} from "Dispatcher";
 import {FileSaver} from "FileSaver";
 import {Ajax} from "Ajax";
-import {Level} from "Constants";
+import {Level} from "ui/Constants";
 
 function ajaxCall(request, successOperation, failOperation) {
     Ajax.postJSON("/edit_translation/", request).then(

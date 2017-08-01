@@ -2,7 +2,7 @@ import {UI, ConstructorInitMixin} from "UI";
 import {css, hover, focus, active, ExclusiveClassSet, StyleSet} from "Style";
 import {LoginModal} from "LoginModal";
 import {UserReactionCollection} from "UserReactionStore";
-import {Orientation} from "Constants";
+import {Orientation} from "ui/Constants";
 
 const VoteStatus = {
     DISLIKE: 0,

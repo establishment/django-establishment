@@ -23,7 +23,7 @@ import {ArticleStore} from "ArticleStore";
 import {Language} from "LanguageStore";
 import {TranslationManager} from "ArticleManager";
 import {Router} from "Router";
-import {Level} from "Constants";
+import {Level} from "ui/Constants";
 const deleteRedirectLink = "/";
 
 //TODO (@kira) : 4. fix line wrapping 5.Fix diffing svg gutter bug 7.Collapse button in section Divider maybe?

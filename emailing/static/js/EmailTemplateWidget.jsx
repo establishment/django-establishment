@@ -4,8 +4,8 @@ import {EmailCampaignStore} from "EmailCampaignStore";
 import {EmailTemplateStore} from "EmailTemplateStore";
 import {Language} from "LanguageStore";
 import {Ajax} from "Ajax";
-import {Orientation} from "Constants";
-import {Level} from "Constants";
+import {Orientation} from "ui/Constants";
+import {Level} from "ui/Constants";
 
 class EmailTemplateModal extends ActionModal {
     constructor(options) {

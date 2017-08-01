@@ -2,7 +2,7 @@
 import {UI, SVG} from "UI";
 import {uniqueId} from "Utils";
 import {event, zoom, scaleLinear, scaleTime, select} from "d3";
-import {Direction} from "Constants";
+import {Direction} from "ui/Constants";
 
 SVG.AxisTick = class AxisTick extends SVG.Group {
     getDefaultOptions() {

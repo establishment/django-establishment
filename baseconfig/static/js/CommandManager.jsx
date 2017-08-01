@@ -6,7 +6,7 @@ import {CommandInstanceStore, CommandRunStore} from "CommandStore";
 import {GlobalState} from "State";
 import {UserHandle} from "UserHandle";
 import {util} from "csa";
-import {Level, Size} from "Constants";
+import {Level, Size} from "ui/Constants";
 
 class CommandRunStatus extends UI.Element {
     render() {
