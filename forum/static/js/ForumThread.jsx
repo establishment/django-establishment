@@ -1,6 +1,18 @@
 import {Ajax} from "Ajax";
 import {GlobalState} from "State";
-import {UI, registerStyle, Panel, Link, Router, Button, ActionModal, ActionModalButton, Input, TimePassedSpan} from "UI";
+import {
+    ActionModal,
+    ActionModalButton,
+    Button,
+    Input,
+    Link,
+    Panel,
+    Router,
+    TimePassedSpan,
+    UI,
+    registerStyle,
+} from "UI";
+import {ConcentricCirclesLoadingScreen} from "ui/ConcentricCirclesLoadingScreen";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
@@ -10,7 +22,6 @@ import {DeleteThreadReplyButton} from "DeleteThreadReplyButton";
 import {CreateThreadReplyButton} from "CreateThreadReplyButton";
 import {CommentVotingWidgetWithThumbs} from "VotingWidget";
 import {ErrorHandlers} from "ErrorHandlers";
-import {AjaxLoadingScreen} from "AjaxLoadingScreen";
 import {ForumThreadPanelStyle, ForumThreadReplyStyle} from "ForumStyle";
 import {ButtonStyle} from "ForumStyle";
 import {Level, Size} from "ui/Constants";
@@ -305,7 +316,7 @@ class ForumThreadPanel extends Panel {
                 this.redraw();
                 this.initializeListeners();
             });
-            return <AjaxLoadingScreen />;
+            return <ConcentricCirclesLoadingScreen />;
         }
 
         let replies = [];

@@ -9,7 +9,7 @@ import {CommentVotingWidgetWithThumbs} from "VotingWidget";
 import {BlogStyle} from "BlogStyle";
 import {Level} from "ui/Constants";
 import {MarkupRenderer} from "MarkupRenderer";
-import {CommentWidgetStyle} from './CommentWidgetStyle';
+import {CommentWidgetStyle} from "./CommentWidgetStyle";
 
 
 class ThreadMessage extends EditableMessage {
