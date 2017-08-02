@@ -3,6 +3,7 @@ import {
     AjaxButton,
     Button,
     ButtonGroup,
+    CheckboxInput,
     Form,
     FormField,
     Link,
