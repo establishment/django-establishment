@@ -1,8 +1,10 @@
 import {UI, Button, Link, Modal} from "UI";
 import {MarkupEditor} from "MarkupEditor";
 import {Level, Size} from "ui/Constants";
-import {Emoji as EmojiMini} from "EmojiMini";
-import "EmojiUI";
+// import {Emoji as EmojiMini} from "EmojiMini";
+// import "EmojiUI";
+
+UI.Emoji = UI.Emoji || UI.Element;
 
 class ClickableEmote extends UI.Emoji {
     redraw() {
