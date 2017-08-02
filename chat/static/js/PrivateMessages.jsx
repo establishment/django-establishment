@@ -1,7 +1,5 @@
 import {
-    UI, Button, Link, StyleInstance,
-    TextInput, VolatileFloatingWindow, StyleElement,
-    registerStyle,
+    UI, Button, Link, TextInput, VolatileFloatingWindow, registerStyle,
 } from "UI";
 import {MessagesPanelListStyle} from "SocialNotificationsStyle";
 import {PrivateChatWidget} from "ChatWidget";
@@ -39,7 +37,7 @@ function getUserMessagesUrl(userId) {
 class MiniMessage extends UI.Element {
     getDefaultOptions() {
         return {
-            hoverColor: "rgba(0,0,0,0.05)",
+            hoverColor: "rgba(0, 0, 0, .05)",
             backgroundColorActive: "#3373b7"
         };
     }
@@ -83,10 +81,6 @@ class MiniMessage extends UI.Element {
             <div style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingTop: "8px",}}>
                 {this.getLastMessage().content}
             </div>,
-            <StyleElement>
-                <StyleInstance ref="hoverClass" selector={".miniMessage" + this.getUserId() + ":hover"}
-                                  attributes={{"cursor": "pointer", "background-color": this.options.hoverColor}}/>
-            </StyleElement>
         ];
     }
 
@@ -175,9 +169,6 @@ class UserSearchInput extends UI.Element {
             }} />,
             <TextInput ref="input" className={this.options.textInputStyle || ""} placeholder={this.options.placeholder || ""} />,
             <VolatileFloatingWindow className="searchList" style={windowStyle} ref="window" />,
-            <StyleElement>
-                <StyleInstance selector=".searchList>div:hover" attributes={{"cursor": "pointer", "background-color, StyleElement, StyleElement": "#eee"}} />
-            </StyleElement>
         ];
     }
 
