@@ -225,7 +225,7 @@ class StreamObjectMixin(models.Model):
     def edit_from_dict(self, data_dict, rename=None, trusted=False, publish_event=True, event_type="update", event_extra=None):
         updated_fields = self.update_from_dict(data_dict, rename)
 
-        if len(updated_fields) == 0:
+        if len(updated_fields) == 0 and event_extra is None:
             return
 
         if not trusted:
