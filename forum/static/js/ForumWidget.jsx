@@ -1,4 +1,4 @@
-import {UI, Panel, Link, Route, Router, TimePassedSpan} from "UI";
+import {UI, Panel, Link, Route, Router, TimePassedSpan, registerStyle} from "UI";
 import {Dispatcher} from "base/Dispatcher";
 import {Ajax} from "base/Ajax";
 import {GlobalState} from "State";
@@ -13,49 +13,45 @@ import {ForumThreadHeaderStyle, ForumThreadPreviewStyle, ForumThreadBubbleStyle,
 import {StateDependentElement} from "StateDependentElement";
 import {Size} from "ui/Constants";
 
-let forumThreadHeaderStyle = ForumThreadHeaderStyle.getInstance();
-let forumThreadPreviewStyle = ForumThreadPreviewStyle.getInstance();
-let forumThreadBubbleStyle = ForumThreadBubbleStyle.getInstance();
-let forumPanelStyle = ForumPanelStyle.getInstance();
 
-
+@registerStyle(ForumThreadHeaderStyle)
 class ForumThreadHeader extends UI.Element {
     extraNodeAttributes(attr) {
-        attr.addClass(forumThreadHeaderStyle.mainClass);
+        attr.addClass(this.styleSheet.mainClass);
     }
 
     getTitle() {
-        return <div className={forumThreadHeaderStyle.tagsTitle}>
+        return <div className={this.styleSheet.tagsTitle}>
             {UI.T("Title")}
         </div>;
     }
 
     getAuthor() {
-        return <div className={forumThreadHeaderStyle.tagsAuthor}>
+        return <div className={this.styleSheet.tagsAuthor}>
             {UI.T("Author")}
         </div>;
     }
 
     getReplies() {
-        return <div className={forumThreadHeaderStyle.tagsReplies}>
+        return <div className={this.styleSheet.tagsReplies}>
             {UI.T("Replies")}
         </div>;
     }
 
     getViews() {
-        return <div className={forumThreadHeaderStyle.tagsViews}>
+        return <div className={this.styleSheet.tagsViews}>
             {UI.T("Views")}
         </div>;
     }
 
     getVotes() {
-        return <div className={forumThreadHeaderStyle.tagsVotes}>
+        return <div className={this.styleSheet.tagsVotes}>
             {UI.T("Score")}
         </div>;
     }
 
     getActivity() {
-        return <div className={forumThreadHeaderStyle.tagsActivity}>
+        return <div className={this.styleSheet.tagsActivity}>
             {UI.T("Active")}
         </div>;
     }
@@ -72,16 +68,18 @@ class ForumThreadHeader extends UI.Element {
     }
 }
 
+@registerStyle(ForumThreadPreviewStyle)
 class ForumThreadPreview extends ChatMarkupRenderer {
     extraNodeAttributes(attr) {
-        attr.addClass(forumThreadPreviewStyle.forumThreadPreview);
+        attr.addClass(this.styleSheet.forumThreadPreview);
     }
 }
 
+@registerStyle(ForumThreadBubbleStyle)
 class ForumThreadBubble extends UI.Element {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
-        attr.addClass(forumThreadBubbleStyle.mainClass);
+        attr.addClass(this.styleSheet.mainClass);
         // couldn't figure out how to solve this easier and better
         // if (this.options.isPinned) {
         //     attr.addClass(String(forumThreadBubbleStyle.backgroundColorPinnedInstances));
@@ -104,21 +102,21 @@ class ForumThreadBubble extends UI.Element {
     getThreadTitle() {
         let pinned = "";
         if (this.getForumThread().isPinned()) {
-            pinned = <span className={"fa fa-thumb-tack " + forumThreadBubbleStyle.pinnedIcon} aria-hidden="true" style={{paddingTop: "0", lineHeight: "20px", height: "20px",}}/>;
+            pinned = <span className={"fa fa-thumb-tack " + this.styleSheet.pinnedIcon} aria-hidden="true" style={{paddingTop: "0", lineHeight: "20px", height: "20px",}}/>;
         }
         let forumThread = this.getForumThread();
         return [
-            <div className={forumThreadBubbleStyle.threadTitleAndPreview}>
-                <div className={forumThreadBubbleStyle.threadTitle}
+            <div className={this.styleSheet.threadTitleAndPreview}>
+                <div className={this.styleSheet.threadTitle}
                     style={{paddingBottom: () => {
                         if (forumThread.getContentMessage().content) {
-                            return forumThreadBubbleStyle.titlePaddingBottom;
+                            return this.styleSheet.titlePaddingBottom;
                         }
                         return "0";
                     }}}>
                     {pinned}
                     <Link style={{"text-decoration": "none", "color": "inherit", "font-size": "14px", "text-align": "justify"}} href={this.getHref()}
-                        value={<span className={forumThreadBubbleStyle.threadTitleSpan}>
+                        value={<span className={this.styleSheet.threadTitleSpan}>
                                 {this.getForumThread().getTitle()}
                                 </span>} />
                 </div>
@@ -129,7 +127,7 @@ class ForumThreadBubble extends UI.Element {
 
     getThreadAuthor() {
         return [
-            <span className={forumThreadBubbleStyle.threadAuthor}>
+            <span className={this.styleSheet.threadAuthor}>
                 <UserHandle id={this.getForumThread().authorId} style={{
                     "line-height": "normal",
                     wordBreak: "break-word",
@@ -140,12 +138,12 @@ class ForumThreadBubble extends UI.Element {
 
     getThreadReplies() {
         return [
-            <div className={forumThreadBubbleStyle.threadReplies}>
+            <div className={this.styleSheet.threadReplies}>
                 <Link style={{
                     "text-decoration": "none",
                     "color": "inherit",
                 }} href={this.getHref()} value={
-                    <span className={forumThreadBubbleStyle.threadRepliesSpan}>
+                    <span className={this.styleSheet.threadRepliesSpan}>
                         {this.getForumThread().getNumReplies()}
                     </span>
                 } />
@@ -155,7 +153,7 @@ class ForumThreadBubble extends UI.Element {
 
     getThreadViews() {
         return [
-            <div className={forumThreadBubbleStyle.threadViews}>
+            <div className={this.styleSheet.threadViews}>
                 {this.getForumThread().numViews}
             </div>
         ];
@@ -163,7 +161,7 @@ class ForumThreadBubble extends UI.Element {
 
     getThreadVotes() {
         return [
-            <div className={forumThreadBubbleStyle.threadVotes}>
+            <div className={this.styleSheet.threadVotes}>
                 {this.getForumThread().getVotesBalance()}
             </div>
         ];
@@ -173,7 +171,7 @@ class ForumThreadBubble extends UI.Element {
         let threadActivity = this.getForumThread().getLastActive();
         /* TODO @mihaic, this should support custom color option (but I didn't want to change stem files on my own). check UIPrimitives.jsx line 400 */
         return [
-            <div className={forumThreadBubbleStyle.threadActivity}>
+            <div className={this.styleSheet.threadActivity}>
                 <TimePassedSpan timeStamp={threadActivity} />
             </div>
         ]
@@ -255,22 +253,23 @@ class ForumThreadList extends UI.Element {
     }
 }
 
+@registerStyle(ForumPanelStyle)
 class ForumPanel extends Panel {
     extraNodeAttributes(attr) {
-        attr.addClass(forumPanelStyle.mainClass);
+        attr.addClass(this.styleSheet.mainClass);
     }
 
     getTitle() {
-        return <div className={forumPanelStyle.title}>
+        return <div className={this.styleSheet.title}>
                 {this.options.forum.name}
             </div>;
     }
 
     getButton() {
-        return <div className={forumPanelStyle.buttonParent}>
+        return <div className={this.styleSheet.buttonParent}>
             <CreateForumThreadButton
                 label="NEW POST"
-                className={forumPanelStyle.button}
+                className={this.styleSheet.button}
                 size={Size.DEFAULT}
                 forumId={this.options.forum.id}
             />
@@ -283,7 +282,7 @@ class ForumPanel extends Panel {
 
     render() {
         return [
-            <div className={forumPanelStyle.header}>
+            <div className={this.styleSheet.header}>
                 {this.getTitle()}
                 {this.getButton()}
             </div>,

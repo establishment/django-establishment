@@ -1,8 +1,8 @@
-import {UI, ConstructorInitMixin} from "UI";
-import {css, hover, focus, active, ExclusiveClassSet, StyleSet} from "Style";
+import {UI, registerStyle} from "UI";
 import {LoginModal} from "LoginModal";
 import {UserReactionCollection} from "UserReactionStore";
 import {Orientation} from "ui/Constants";
+import {VotingWidgetStyle} from "./VotingWidgetStyle";
 
 const VoteStatus = {
     DISLIKE: 0,
@@ -19,7 +19,7 @@ class VotingWidget extends UI.Element {
             dislikeColor: this.options.dislikeColor || "#C5302C", //      |- Triadic colors + Shades
             notVoteColor: this.options.notVoteColor || "#313534",
             balanceColor: this.options.balanceColor || "#313534",
-            orientation: UI.Orientation.VERTICAL,
+            orientation: Orientation.VERTICAL,
         }, options);
         super.setOptions(options);
     }
@@ -43,7 +43,7 @@ class VotingWidget extends UI.Element {
             fontSize: 40 * this.options.size + "px",
             marginTop: 8 * this.options.size + "px",
             marginBottom: 8 * this.options.size + "px",
-            display: this.options.orientation === UI.Orientation.VERTICAL ? "block" : "inline-block",
+            display: this.options.orientation === Orientation.VERTICAL ? "block" : "inline-block",
             marginLeft: "auto",
             marginRight: "auto",
             opacity: 0.7,
@@ -75,9 +75,6 @@ class VotingWidget extends UI.Element {
             </span>,
             <span className="fa fa-caret-down voteButton" ref="dislikeButton"
                        faIcon="caret-down" style={dislikeButtonStyle} HTMLtitle="Click to dislike"/>,
-            // <UI.StyleElement>
-            //      <UI.StyleInstance selector=".voteButton:hover" attributes={{"opacity": "1 !important"}} />
-            // </UI.StyleElement>
         ];
     }
 
@@ -163,17 +160,10 @@ class CommentVotingWidget extends VotingWidget {
 }
 
 // TODO: rewrite
-class CommentVotingWidgetWithThumbs extends ConstructorInitMixin(CommentVotingWidget) {
+@registerStyle(VotingWidgetStyle)
+class CommentVotingWidgetWithThumbs extends CommentVotingWidget {
     extraNodeAttributes(attr) {
-        attr.setStyle({
-            height: "40px",
-            lineHeight: "40px",
-            fontSize: "14px",
-            color: "#767676",
-            display: "inline-block",
-            float: "right",
-            textAlign: "right",
-        });
+        attr.addClass(this.styleSheet.container);
     }
 
     getNumLikes() {
@@ -184,93 +174,30 @@ class CommentVotingWidgetWithThumbs extends ConstructorInitMixin(CommentVotingWi
         return this.options.message.getNumDislikes();
     }
 
-    initCSS() {
-        let style = this.css = new StyleSet();
-
-        style.mainClass = {
-            "height": "40px",
-            "line-height": "40px",
-            "font-size": "14px",
-            "color": "#767676",
-            "display": "inline-block",
-            "float": "right",
-            "text-align": "right",
-        };
-
-        style.thumbsStyle = {
-            "font-size": this.options.height / 2 + "px", // height / 2
-            "line-height": this.options.height + "px",
-        };
-
-        style.displayStyle = css({
-            "display": "inline-block",
-            "float": "left",
-            "padding-left": "3px",
-        });
-
-        style.counterStyle = {
-            "font-size": 18 * this.options.size + "px",
-            "font-weight": "900",
-            "color": this.options.balanceColor,
-        };
-
-        style.thumbsUpHoverStyle = style.css({
-                "transition": ".25s",
-            },
-            hover({
-                "color": this.options.likeColor,
-                "opacity": ".8",
-                "transition": ".25s",
-            })
-        );
-
-        style.thumbsDownHoverStyle = style.css({
-                "transition": ".25s",
-            },
-            hover({
-                "color": this.options.dislikeColor,
-                "opacity": ".8",
-                "transition": ".25s",
-            })
-        );
-
-        style.padding = style.css({
-            "width": "3px",
-            "float": "left",
-            "display": "inline-block",
-            "height": this.options.height + "px",
-        });
-    }
-
     render() {
         let thumbsUpScoreStyle = {};
         let thumbsDownScoreStyle = {};
 
         // TODO: remove duplicate code
-        let likeButtonStyle = Object.assign({}, this.css.thumbsStyle);
+        let likeButtonStyle = Object.assign({}, this.styleSheet.thumbsStyle);
         if (this.getUserVote() === VoteStatus.LIKE) {
             likeButtonStyle.color = thumbsUpScoreStyle.color = this.options.likeColor;
             thumbsUpScoreStyle.fontWeight = "bold";
         }
 
-        let dislikeButtonStyle = Object.assign({}, this.css.thumbsStyle);
+        let dislikeButtonStyle = Object.assign({}, this.styleSheet.thumbsStyle);
         if (this.getUserVote() === VoteStatus.DISLIKE) {
             dislikeButtonStyle.color = thumbsDownScoreStyle.color = this.options.dislikeColor;
             thumbsDownScoreStyle.fontWeight = "bold";
         }
 
         return [
-            <span className={this.css.displayStyle} style={thumbsUpScoreStyle}>{this.getNumLikes()}</span>,
-            <span className={"fa fa-thumbs-up voteButton " + this.css.displayStyle + " " + this.css.thumbsUpHoverStyle} ref="likeButton" faIcon="thumbs-up" style={likeButtonStyle} HTMLtitle="Click to like"/>,
-            <div className={this.css.padding} />,
-            <span className={this.css.displayStyle} style={thumbsDownScoreStyle}>{this.getNumDislikes()}</span>,
-            <span className={"fa fa-thumbs-down voteButton " + this.css.displayStyle + " " + this.css.thumbsDownHoverStyle} ref="dislikeButton" faIcon="thumbs-down" style={dislikeButtonStyle} HTMLtitle="Click to dislike"/>,
+            <span className={this.styleSheet.displayStyle} style={thumbsUpScoreStyle}>{this.getNumLikes()}</span>,
+            <span className={"fa fa-thumbs-up voteButton " + this.styleSheet.displayStyle + " " + this.styleSheet.thumbsUpHoverStyle} ref="likeButton" faIcon="thumbs-up" style={likeButtonStyle} HTMLtitle="Click to like"/>,
+            <div className={this.styleSheet.padding} />,
+            <span className={this.styleSheet.displayStyle} style={thumbsDownScoreStyle}>{this.getNumDislikes()}</span>,
+            <span className={"fa fa-thumbs-down voteButton " + this.styleSheet.displayStyle + " " + this.styleSheet.thumbsDownHoverStyle} ref="dislikeButton" faIcon="thumbs-down" style={dislikeButtonStyle} HTMLtitle="Click to dislike"/>,
         ];
-    }
-
-    createNode() {
-        this.initCSS();
-        return super.createNode();
     }
 }
 

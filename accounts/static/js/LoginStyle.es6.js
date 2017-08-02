@@ -1,5 +1,4 @@
-import {StyleSet} from "Style";
-import {styleRule} from "decorators/Style";
+import {StyleSheet, styleRule} from "UI";
 import {Device} from "Device";
 
 
@@ -14,7 +13,7 @@ let signInButtonHeight = 50;
 let signInButtonWidth = 120;
 
 
-class LoginStyle extends StyleSet {
+class LoginStyle extends StyleSheet {
     fontFamily = "lato, open sans";
 
     @styleRule
@@ -38,7 +37,7 @@ class LoginStyle extends StyleSet {
                 backgroundColor: "#fff",
             };
         }
-    }
+    };
 
     @styleRule
     loginRegisterButtons = {
@@ -46,7 +45,7 @@ class LoginStyle extends StyleSet {
         float: "left",
         width: "100%",
         height: buttonHeight / loginHeight * 100 + "%",
-    }
+    };
 
     @styleRule
     loginSystemButton = {
@@ -271,7 +270,12 @@ class LoginStyle extends StyleSet {
         ":hover": {
             transition: ".2s",
             opacity: ".9",
-        }
+        },
+        cursor: "pointer",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        fontWeight: "bold",
     };
 
     @styleRule

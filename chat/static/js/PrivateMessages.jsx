@@ -1,6 +1,7 @@
 import {
     UI, Button, Link, StyleInstance,
     TextInput, VolatileFloatingWindow, StyleElement,
+    registerStyle,
 } from "UI";
 import {MessagesPanelListStyle} from "SocialNotificationsStyle";
 import {PrivateChatWidget} from "ChatWidget";
@@ -14,7 +15,6 @@ import {Dispatcher} from "Dispatcher";
 import {GlobalState} from "State";
 import {Level, Size} from "ui/Constants";
 
-let messagesPanelListStyle = MessagesPanelListStyle.getInstance();
 
 const formatMiniMessageLastTime = (timeStamp) => {
     const presentTimeStamp = StemDate.now();
@@ -347,15 +347,16 @@ class IconMessagesList extends UI.Element {
     }
 }
 
+@registerStyle(MessagesPanelListStyle)
 class MessagesPanelList extends UI.Element {
     extraNodeAttributes(attr) {
-        attr.addClass(messagesPanelListStyle.messagesPanelList);
+        attr.addClass(this.styleSheet.messagesPanelList);
     }
 
     render() {
         return [
             <div style={{padding: "16px", paddingRight: "50px", height: "62px", borderBottom: "1px solid #ddd",}}>
-                <UserSearchInput ref="userSearchInput" textInputStyle={messagesPanelListStyle.textInputStyle} placeholder="Search for user"/>
+                <UserSearchInput ref="userSearchInput" textInputStyle={this.styleSheet.textInputStyle} placeholder="Search for user"/>
             </div>,
             <MessagesList ref="messagesList" style={{flex: "1", overflow: "auto"}}/>
         ];

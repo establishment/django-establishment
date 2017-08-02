@@ -24,9 +24,20 @@ class EmailTemplateModal extends ActionModal {
 
     getGivenChildren() {
         return [
-            <div className={this.getStyleSet().header}>{this.getHeader()}</div>,
-            (this.getBody() ? <div className={this.getStyleSet().body} style={{flex: "1", display: "flex", flexDirection: "column"}}>{this.getBody()}</div> : null),
-            (this.getFooter() ? <div className={this.getStyleSet().footer}>{this.getFooter()}</div> : null)
+            <div className={this.styleSheet.header}>{this.getHeader()}</div>,
+            (
+                this.getBody() ?
+                <div className={this.styleSheet.body}
+                     style={{flex: "1", display: "flex", flexDirection: "column"}}>
+                    {this.getBody()}
+                </div> : null
+            ),
+            (
+                this.getFooter() ?
+                <div className={this.styleSheet.footer}>
+                    {this.getFooter()}
+                </div> : null
+            )
         ];
     }
 

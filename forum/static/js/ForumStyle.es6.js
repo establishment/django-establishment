@@ -1,5 +1,4 @@
-import {StyleSet} from "Style";
-import {styleRule, styleRuleInherit} from "decorators/Style";
+import {StyleSheet, styleRule, styleRuleInherit} from "UI";
 //import {CSAStyle} from "CSAStyle";
 
 const colors = {
@@ -14,7 +13,7 @@ const colors = {
 };
 
 
-class ForumThreadReplyStyle extends StyleSet {
+class ForumThreadReplyStyle extends StyleSheet {
     fontFamily = "lato, open sans";
 
     @styleRule
@@ -61,7 +60,7 @@ class ForumThreadReplyStyle extends StyleSet {
 
 let height = 70;
 
-class ForumThreadPanelStyle extends StyleSet {
+class ForumThreadPanelStyle extends StyleSheet {
     fontFamily = "lato, open sans";
     fontSize = "0.9em";
     numRepliesFontSize = "1.03em";
@@ -264,7 +263,7 @@ class ForumThreadPanelStyle extends StyleSet {
 }
 
 
-class ButtonStyle extends StyleSet {
+class ButtonStyle extends StyleSheet {
     @styleRule
     button = {
         marginLeft: "16px",
@@ -303,7 +302,7 @@ class ButtonStyle extends StyleSet {
 }
 
 
-class ForumThreadHeaderStyle extends StyleSet {
+class ForumThreadHeaderStyle extends StyleSheet {
     constructor() {
         super({
             updateOnResize: true,
@@ -432,7 +431,7 @@ class ForumThreadHeaderStyle extends StyleSet {
 }
 
 
-class ForumThreadPreviewStyle extends StyleSet {
+class ForumThreadPreviewStyle extends StyleSheet {
     // functionality
     maxHeight = 50;
     lines = 2;
@@ -458,7 +457,7 @@ class ForumThreadPreviewStyle extends StyleSet {
 }
 
 
-class ForumThreadBubbleStyle extends StyleSet {
+class ForumThreadBubbleStyle extends StyleSheet {
     constructor() {
         super({
             updateOnResize: true,
@@ -657,7 +656,7 @@ class ForumThreadBubbleStyle extends StyleSet {
 }
 
 
-class ForumPanelStyle extends StyleSet {
+class ForumPanelStyle extends StyleSheet {
     textColor = "#333";
     headerItemHeight = 50;
     fontFamily = "lato, open sans";

@@ -1,8 +1,7 @@
-import {StyleSet} from "Style";
-import {styleRule, styleRuleInherit} from "decorators/Style";
+import {StyleSheet, styleRule, styleRuleInherit} from "UI";
 
 
-class ChatStyle extends StyleSet {
+class ChatStyle extends StyleSheet {
     navbarHeight = "50px";
     renderMessageHeight = "100px";
 

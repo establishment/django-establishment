@@ -40,7 +40,7 @@ class ArticleTabArea extends TabArea {
     createTabPanel(articleEntry) {
         let tab = <BasicTabTitle panel={articleEntry} title={articleEntry.title}
                                  activeTabDispatcher={this.activeTabDispatcher}
-                                 href={this.getArticleUrl(articleEntry)} styleSet={this.getStyleSet()}/>;
+                                 href={this.getArticleUrl(articleEntry)} styleSheet={this.styleSheet}/>;
 
         return [tab, articleEntry];
     }

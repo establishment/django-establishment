@@ -1,16 +1,16 @@
-import {UI, TimePassedSpan, Switcher, AjaxButton, TextArea, Button} from "UI";
+import {UI, TimePassedSpan, Switcher, AjaxButton, TextArea, Button, registerStyle} from "UI";
 import {GlobalState} from "State";
 import {GroupChatStore, MessageThreadStore, MessageThread, MessageInstance} from "MessageThreadStore";
 import {ChatMessageScrollSection, ChatWidget, EditableMessage} from "ChatWidget";
 import {isDifferentDay, StemDate} from "Time";
-import "MarkupRenderer";
 import {UserHandle} from "UserHandle";
 import {LoginModal} from "LoginModal";
 import {CommentVotingWidgetWithThumbs} from "VotingWidget";
-import {css, hover, focus, active, ExclusiveClassSet, StyleSet} from "Style";
 import {BlogStyle} from "BlogStyle";
 import {Level} from "ui/Constants";
-let blogStyle = BlogStyle.getInstance();
+import {MarkupRenderer} from "MarkupRenderer";
+import {CommentWidgetStyle} from './CommentWidgetStyle';
+
 
 class ThreadMessage extends EditableMessage {
     getDefaultOptions() {
@@ -89,6 +89,8 @@ class ToggleLogin extends UI.Primitive("span") {
     }
 }
 
+
+@registerStyle(BlogStyle)
 class BlogCommentWidget extends ChatWidget(ThreadMessage) {
     getDefaultOptions() {
         return Object.assign({}, super.getDefaultOptions(), {
@@ -98,24 +100,18 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
         })
     }
 
+    get commentWidgetStyle() {
+        return CommentWidgetStyle.getInstance();
+    }
+
     renderMessageView() {
         let loadMoreButton;
-
-        let loadMoreButtonStyle = {
-            border: "0px",
-            fontFamily: "lato",
-            color: "#333",
-            borderRadius: "0",
-            borderBottom: "0",
-            backgroundColor: "#eee",
-            padding: "5px 10px",
-        };
 
         if (this.showLoadMoreButton) {
             loadMoreButton = (
                 <div className="text-center">
                     <AjaxButton ref={this.refLink("loadMoreButton")} level={Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
-                                   style={loadMoreButtonStyle} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
+                                style={this.commentWidgetStyle.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>
             );
@@ -131,64 +127,23 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
     }
 
     renderMessageBox() {
-        let writingSectionStyle = {
-            height: "auto",
-            marginTop: "10px",
-        };
-
-        let chatInputStyle = css({
-            height: "30px",
-            width: "100%",
-            // "line-height": "30px",
-            "padding-top": "0",
-            "padding-bottom": "0",
-            "font-size": "14px",
-            "border-radius": "0",
-            fontFamily: "lato",
-            outline: "none",
-            paddingLeft: "8px",
-            paddingTop: "5px",
-            resize: "none",
-            transition: ".2s",
-            display: "block",
-            border: "1px solid #aaa",
-        }, focus({
-            height: "120px",
-            transition: ".2s",
-        }), active({
-            height: "120px",
-            transition: ".2s",
-        }));
-
-        let chatInputMax = css({
-            height: "120px",
-        });
-
-        let previewButtonStyle = { // TODO: This is currently not restyled. We might not want to use it because previewButton is bad practice
-            "height": "30px",
-            "width": "auto",
-            "font-size": "100%",
-            "margin-left": "5px",
-        };
-
-
         return [
-            <div ref="writingSection" style={writingSectionStyle}>
+            <div ref="writingSection" style={this.commentWidgetStyle.writingSectionStyle}>
                 <TextArea readOnly={this.messageThread.muted}
-                             ref="chatInput"
-                             onChange={() => {
-                                 if (this.chatInput.getValue()) {
-                                     this.chatInput.addClass(chatInputMax);
-                                 } else {
-                                     this.chatInput.removeClass(chatInputMax);
-                                 }
-                             }}
-                             className={chatInputStyle}
-                             placeholder="Leave a comment..."/>
+                          ref="chatInput"
+                          onChange={() => {
+                              if (this.chatInput.getValue()) {
+                                  this.chatInput.addClass(this.commentWidgetStyle.chatInputMax);
+                              } else {
+                                  this.chatInput.removeClass(this.commentWidgetStyle.chatInputMax);
+                              }
+                          }}
+                          className={this.commentWidgetStyle.chatInputStyle}
+                          placeholder="Leave a comment..."/>
                 <Button disabled={this.messageThread.muted}
                            label="SUBMIT"
                            ref="sendMessageButton"
-                           className={blogStyle.sendMessageButtonStyle}
+                           className={this.styleSheet.sendMessageButtonStyle}
                            level={Level.PRIMARY}
                            onClick={() => this.sendMessage()} />
                 {/*{this.messageThread.hasMarkupEnabled() ?
@@ -212,6 +167,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
     }
 }
 
+@registerStyle(BlogStyle)
 class CommentWidget extends BlogCommentWidget {
     setOptions(options) {
         super.setOptions(options);
@@ -256,7 +212,7 @@ class CommentWidget extends BlogCommentWidget {
         let commentsCount = this.messageThread.getMessages().length;
         let commentsTitle;
 
-        commentsTitle = <div className={blogStyle.commentsTitle}>
+        commentsTitle = <div className={this.styleSheet.commentsTitle}>
             {commentsCount} {commentsCount != 1 ? "comments" : "comment"}
         </div>;
 

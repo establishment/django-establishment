@@ -1,5 +1,4 @@
-import {StyleSet} from "Style";
-import {styleRule, styleRuleInherit} from "decorators/Style";
+import {StyleSheet, styleRule, styleRuleInherit} from "UI";
 
 const color = {
     BLUE: "#20232d",
@@ -13,7 +12,7 @@ let CSAStyle = {
     color: color,
 };
 
-class BlogStyle extends StyleSet {
+class BlogStyle extends StyleSheet {
     fontFamily = "lato, open sans";
     titleFontSize = "2em";
 
@@ -174,7 +173,7 @@ class BlogStyle extends StyleSet {
 }
 
 
-class BlogArticleRendererStyle extends StyleSet {
+class BlogArticleRendererStyle extends StyleSheet {
     hStyle = {
         "text-align": "center",
         "margin-top": "30px",

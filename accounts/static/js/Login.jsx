@@ -1,4 +1,14 @@
-import {UI, BasicTabTitle, Link, EmailInput, PasswordInput, CheckboxInput, SubmitInput, Switcher} from "UI";
+import {
+    BasicTabTitle,
+    CheckboxInput,
+    EmailInput,
+    Link,
+    PasswordInput,
+    SubmitInput,
+    Switcher,
+    UI,
+    registerStyle,
+} from "UI";
 import {Panel} from "UIPrimitives";
 
 import {ensure} from "Require";
@@ -6,17 +16,13 @@ import {Ajax} from "Ajax";
 import {GoogleManager} from "GoogleManager";
 import {FacebookManager} from "FacebookManager";
 
-import {css, hover, focus, active, ExclusiveClassSet, StyleSet} from "Style";
 import {FAIcon} from "FontAwesome";
 import {Device} from "Device";
 import {LoginStyle} from "./LoginStyle";
 
 
-let loginStyle = LoginStyle.getInstance();
-
-
+@registerStyle(LoginStyle)
 class ThirdPartyLogin extends UI.Element {
-
     setOptions(options) {
         super.setOptions(options);
         FacebookManager.Global();
@@ -24,48 +30,53 @@ class ThirdPartyLogin extends UI.Element {
     }
 
     getConnectWith() {
-        return <UI.Element style={loginStyle.connectWith}>
-            {UI.T("or connect with")}
-        </UI.Element>;
+        return (
+            <div style={this.styleSheet.connectWith}>
+                {UI.T("or connect with")}
+            </div>
+        );
     }
 
     getConnectWithButtons() {
-        return <UI.Element style={loginStyle.connectIcons}>
-            <FAIcon icon="facebook"
-                    className={loginStyle.faLogo}
-                    style={{
-                        backgroundColor: "#3b5998",
-                        cursor: "pointer",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        fontWeight: "bold",
-                    }}
-                    ref="facebookButton">
-                <span className={loginStyle.connectWithButtonsSpan}>
-                    facebook
-                </span>
-            </FAIcon>
-            <FAIcon icon="google-plus"
-                    className={loginStyle.faLogo}
-                    style={{
-                        backgroundColor: "#DE4B39",
-                        cursor: "pointer",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        fontWeight: "bold",
-                    }}
-                    ref="googleButton">
-                <span className={loginStyle.connectWithButtonsSpan}>
-                    google
-                </span>
-            </FAIcon>
-        </UI.Element>;
+        return (
+            <UI.Element style={this.styleSheet.connectIcons}>
+                <FAIcon icon="facebook"
+                        className={this.styleSheet.faLogo}
+                        style={{
+                            backgroundColor: "#3b5998",
+                            cursor: "pointer",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            fontWeight: "bold",
+                        }}
+                        ref="facebookButton">
+                    <span className={this.styleSheet.connectWithButtonsSpan}>
+                        facebook
+                    </span>
+                </FAIcon>
+                <FAIcon icon="google-plus"
+                        className={this.styleSheet.faLogo}
+                        style={{
+                            backgroundColor: "#DE4B39",
+                            cursor: "pointer",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            fontWeight: "bold",
+                        }}
+                        ref="googleButton">
+                    <span className={this.styleSheet.connectWithButtonsSpan}>
+                        google
+                    </span>
+                </FAIcon>
+            </UI.Element>
+        );
     }
 
     render() {
-        return [this.getConnectWith(),
+        return [
+            this.getConnectWith(),
             this.getConnectWithButtons(),
         ];
     }
@@ -95,11 +106,12 @@ class ErrorMessage extends UI.Element {
 }
 
 
+@registerStyle(LoginStyle)
 class LoginWidget extends UI.Element {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
 
-        attr.addClass(loginStyle.loginWidget);
+        attr.addClass(this.styleSheet.loginWidget);
 
         return attr;
     }
@@ -109,14 +121,14 @@ class LoginWidget extends UI.Element {
             <div style={{width: "100%",}}>
                 <FAIcon
                     icon="user"
-                    style={loginStyle.fontAwesomeIcon}
+                    style={this.styleSheet.fontAwesomeIcon}
                 />
                 <EmailInput
                     autofocus="autofocus"
                     placeholder="Email address"
                     name="email"
                     ref="emailInput"
-                    className={loginStyle.input}
+                    className={this.styleSheet.input}
                 />
             </div>
         ];
@@ -126,13 +138,13 @@ class LoginWidget extends UI.Element {
         return [
             <div style={{width: "80% !important",}}>
                 <FAIcon icon="lock"
-                        style={loginStyle.fontAwesomeIcon}
+                        style={this.styleSheet.fontAwesomeIcon}
                 />
                 <PasswordInput
                     placeholder="Password"
                     name="password"
                     ref="passwordInput"
-                    className={loginStyle.input}
+                    className={this.styleSheet.input}
                     style={{
                         "margin-bottom": "20px",
                     }}
@@ -149,27 +161,27 @@ class LoginWidget extends UI.Element {
                                   "float": "left",
                               }}
             />,
-            <div className={loginStyle.rememberMe}>{UI.T("Remember me")}</div>,
+            <div className={this.styleSheet.rememberMe}>{UI.T("Remember me")}</div>,
         ];
     }
 
     getForgotPassword() {
-        return <Link className={loginStyle.forgotPassword} href="/accounts/password_reset"
+        return <Link className={this.styleSheet.forgotPassword} href="/accounts/password_reset"
                      value={UI.T("Forgot Password?")} />;
     }
 
     getBadLogin() {
-        return <ErrorMessage className={loginStyle.badLogin} ref="loginErrorMessage"/>;
+        return <ErrorMessage className={this.styleSheet.badLogin} ref="loginErrorMessage"/>;
     }
 
     getSignInButton() {
         return <div style={{width: "100%", height: "50px", display: "flex", alignItems: "center", justifyContent: "center",}}>
-            <SubmitInput className={loginStyle.signInButton} value="Sign In"/>
+            <SubmitInput className={this.styleSheet.signInButton} value="Sign In"/>
         </div>;
     }
 
     getHorizontalLine() {
-        return <div className={loginStyle.horizontalLine}>
+        return <div className={this.styleSheet.horizontalLine}>
         </div>;
     }
 
@@ -240,18 +252,20 @@ class RecaptchaWidget extends UI.Element {
     }
 }
 
+
+@registerStyle(LoginStyle)
 class RegisterWidget extends UI.Element {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
 
-        attr.addClass(loginStyle.registerWidget);
+        attr.addClass(this.styleSheet.registerWidget);
 
         return attr;
     }
 
     getSignUpButton() {
         return <div style={{width: "100%", height: "50px", display: "flex", alignItems: "center", justifyContent: "center",}}>
-            <SubmitInput className={loginStyle.signInButton} value="Sign Up"/>
+            <SubmitInput className={this.styleSheet.signInButton} value="Sign Up"/>
         </div>;
     }
 
@@ -308,6 +322,7 @@ RegisterWidget.prototype.getHorizontalLine = LoginWidget.prototype.getHorizontal
 
 
 // original name: LoginRegisterSystem
+@registerStyle(LoginStyle)
 class NormalLogin extends UI.Element {
     constructor() {
         super();
@@ -318,7 +333,7 @@ class NormalLogin extends UI.Element {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
 
-        attr.addClass(loginStyle.loginRegisterSystem);
+        attr.addClass(this.styleSheet.loginRegisterSystem);
 
         return attr;
     }
@@ -327,10 +342,10 @@ class NormalLogin extends UI.Element {
         let style = {};
 
         if (this.state === 0) {
-            style = loginStyle.selectedLeft;
+            style = this.styleSheet.selectedLeft;
         }
 
-        return <div className={loginStyle.loginSystemButton}
+        return <div className={this.styleSheet.loginSystemButton}
                     style={style}
                     ref="loginButton">
             {UI.T("Log In")}
@@ -341,10 +356,10 @@ class NormalLogin extends UI.Element {
         let style = {};
 
         if (this.state === 1) {
-            style = loginStyle.selectedRight;
+            style = this.styleSheet.selectedRight;
         }
 
-        return <div className={loginStyle.registerSystemButton}
+        return <div className={this.styleSheet.registerSystemButton}
                     style={style}
                     ref="registerButton">
             {UI.T("Sign Up")}
@@ -353,7 +368,7 @@ class NormalLogin extends UI.Element {
 
     render() {
         let result = [
-            <div className={loginStyle.loginRegisterButtons}>
+            <div className={this.styleSheet.loginRegisterButtons}>
                 {this.getLoginButton()}
                 {this.getRegisterButton()}
             </div>,
@@ -382,13 +397,14 @@ class NormalLogin extends UI.Element {
 }
 
 
+@registerStyle(LoginStyle)
 class LoginTabButton extends UI.Primitive(BasicTabTitle, "div") {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
 
-        attr.addClass(loginStyle.loginSystemButton);
+        attr.addClass(this.styleSheet.loginSystemButton);
         if (this.options.active) {
-            attr.addClass(loginStyle.selectedLeftClass);
+            attr.addClass(this.styleSheet.selectedLeftClass);
         }
 
         return attr;
@@ -399,13 +415,14 @@ class LoginTabButton extends UI.Primitive(BasicTabTitle, "div") {
     }
 }
 
+@registerStyle(LoginStyle)
 class RegisterTabButton extends UI.Primitive(BasicTabTitle, "div") {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
 
-        attr.addClass(loginStyle.registerSystemButton);
+        attr.addClass(this.styleSheet.registerSystemButton);
         if (this.options.active) {
-            attr.addClass(loginStyle.selectedRightClass);
+            attr.addClass(this.styleSheet.selectedRightClass);
         }
 
         return attr;

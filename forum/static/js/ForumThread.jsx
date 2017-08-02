@@ -1,6 +1,6 @@
 import {Ajax} from "Ajax";
 import {GlobalState} from "State";
-import {UI, Panel, Link, Router, Button, ActionModal, ActionModalButton, Input, TimePassedSpan} from "UI";
+import {UI, registerStyle, Panel, Link, Router, Button, ActionModal, ActionModalButton, Input, TimePassedSpan} from "UI";
 import {MarkupEditorModal} from "MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
@@ -82,9 +82,10 @@ class CreateForumThreadModal extends MarkupEditorModal {
     }
 }
 
+@registerStyle(ButtonStyle)
 class CreateForumThreadButton extends Button {
     extraNodeAttributes(attr) {
-        attr.addClass(buttonStyle.button);
+        attr.addClass(this.styleSheet.button);
     }
 
     setOptions(options) {
@@ -210,9 +211,10 @@ class ForumThreadReply extends UI.Element {
     }
 }
 
+@registerStyle(ForumThreadPanelStyle)
 class ForumThreadPanel extends Panel {
     extraNodeAttributes(attr) {
-        attr.addClass(forumThreadPanelStyle.mainClass);
+        attr.addClass(this.styleSheet.mainClass);
     }
 
     returnToMainForum() {
@@ -253,8 +255,8 @@ class ForumThreadPanel extends Panel {
 
     getTitle() {
         return [
-            <div className={forumThreadPanelStyle.title}>
-                <Link href={this.getMainForumURL()} className={forumThreadPanelStyle.backButton}
+            <div className={this.styleSheet.title}>
+                <Link href={this.getMainForumURL()} className={this.styleSheet.backButton}
                     value={<span className="fa fa-arrow-left" style={{
                         paddingRight: "10px",
                         fontSize: ".8em",
@@ -266,7 +268,7 @@ class ForumThreadPanel extends Panel {
     }
 
     getAuthor() {
-        return <div className={forumThreadPanelStyle.author}>
+        return <div className={this.styleSheet.author}>
             {UI.T("written by")}&nbsp;
             <UserHandle id={this.getForumThread().authorId} style={{
                 textTransform: "initial",
@@ -277,14 +279,14 @@ class ForumThreadPanel extends Panel {
     }
 
     getMessage() {
-        return <div className={forumThreadPanelStyle.message}>
+        return <div className={this.styleSheet.message}>
                  <ChatMarkupRenderer ref={this.refLink("content")} value={this.getForumThread().getContentMessage().getContent()} style={{height:"auto"}}/>
             </div>;
     }
 
     getNumReplies(postsLength) {
         return [
-            <div className={forumThreadPanelStyle.numReplies}>
+            <div className={this.styleSheet.numReplies}>
                 <span style={{"font-weight": "bold", }}>{postsLength}</span>
                 &nbsp;{"replies in this thread" + (postsLength == 0 ? ", be the first one to comment" : "")}
             </div>
@@ -292,7 +294,7 @@ class ForumThreadPanel extends Panel {
     }
 
     getVoting() {
-        return <div className={forumThreadPanelStyle.voting}>
+        return <div className={this.styleSheet.voting}>
             <CommentVotingWidgetWithThumbs height={40} balanceColor={"#313534"} notVoteColor={"#313534"} message={this.getForumThread().getContentMessage()} style={{"margin-left": "0", }} />
         </div>;
     }
@@ -318,7 +320,7 @@ class ForumThreadPanel extends Panel {
 
         for (let messageInstance of forumThreadMessages) {
             if (messageInstance !== forumThread.getContentMessage()) {
-                replies.push(<ForumThreadReply className={forumThreadPanelStyle.replies} messageInstance={messageInstance} />);
+                replies.push(<ForumThreadReply className={this.styleSheet.replies} messageInstance={messageInstance} />);
             }
         }
 
@@ -339,15 +341,15 @@ class ForumThreadPanel extends Panel {
         if (USER.isSuperUser || USER.id === this.getForumThread().authorId) {
             deleteButton = <DeleteForumThreadButton faIcon="trash"
                                                     level={Level.DANGER}
-                                                    className={forumThreadPanelStyle.deleteButton}
+                                                    className={this.styleSheet.deleteButton}
                                                     modalOptions = {{
                                                         forumThread: this.getForumThread()
                                                     }}/>;
             editButton = <EditThreadReplyButton faIcon="pencil"
                                                 level={Level.INFO}
-                                                className={forumThreadPanelStyle.editButton}
+                                                className={this.styleSheet.editButton}
                                                 messageInstance={this.getForumThread().getContentMessage()}/>;
-            editAndDeleteButtons = <div className={forumThreadPanelStyle.editDeleteButtons}>
+            editAndDeleteButtons = <div className={this.styleSheet.editDeleteButtons}>
                 {editButton}
                 {deleteButton}
             </div>;
@@ -355,13 +357,13 @@ class ForumThreadPanel extends Panel {
 
         return [
             <div style={{marginBottom: "60px",}}>
-                <div className={forumThreadPanelStyle.header}>
+                <div className={this.styleSheet.header}>
                     {this.getTitle()}
-                    <div className={forumThreadPanelStyle.replyButtonDiv}>
+                    <div className={this.styleSheet.replyButtonDiv}>
                         {this.getAuthor()}
                         <CreateThreadReplyButton
                             label={UI.T("REPLY")}
-                            className={forumThreadPanelStyle.replyButton}
+                            className={this.styleSheet.replyButton}
                             size={Size.DEFAULT}
                             forumThreadId={forumThread.id}
                             forumThread={this.getForumThread()}
@@ -370,9 +372,9 @@ class ForumThreadPanel extends Panel {
                     </div>
                 </div>
                 <div style={{width: "90%", maxWidth: "1200px", margin: "0 auto", height: "3px", backgroundColor: "#333", marginTop: "10px",}}></div>
-                <div className={forumThreadPanelStyle.fullPost}>
+                <div className={this.styleSheet.fullPost}>
                     {this.getMessage()}
-                    <div className={forumThreadPanelStyle.bottomPanel}>
+                    <div className={this.styleSheet.bottomPanel}>
                         {this.getNumReplies(replies.length)}
                         {this.getVoting()}
                     </div>

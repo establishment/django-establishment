@@ -1,23 +1,22 @@
-import {UI} from "UI";
+import {UI, registerStyle} from "UI";
 import {ArticleRenderer} from "ArticleRenderer";
 import {MarkupClassMap} from "MarkupRenderer";
 import {BlogArticleRendererStyle} from "./BlogStyle";
 
 
-let blogArticleRendererStyle = BlogArticleRendererStyle.getInstance();
-
-
+@registerStyle(BlogArticleRendererStyle)
 class BlogArticleRenderer extends ArticleRenderer {
     extraNodeAttributes(attr) {
         super.extraNodeAttributes(attr);
-        attr.addClass(blogArticleRendererStyle.blogArticleRenderer);
+        attr.addClass(this.styleSheet.blogArticleRenderer);
     }
 }
 
 
+@registerStyle(BlogArticleRendererStyle)
 class BlogQuote extends UI.Primitive("div") {
     extraNodeAttributes(attr) {
-        attr.addClass(blogArticleRendererStyle.quote);
+        attr.addClass(this.styleSheet.quote);
     }
 
     render() {
