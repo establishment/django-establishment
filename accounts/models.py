@@ -181,6 +181,9 @@ class AbstractStreamObjectUser(AbstractBaseUser, SuperuserPermissionsMixin, Stre
             return self.get_full_name()
         return self.username
 
+    def get_all_emails(self):
+        return list(self.emails.all().order_by("-primary")) + list(self.unverified_emails.all())
+
     def to_json(self):
         result = {
             "id": self.id,
