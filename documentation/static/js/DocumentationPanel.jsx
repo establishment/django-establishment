@@ -19,8 +19,12 @@ class DocumentationPanel extends UI.Element {
         attr.addClass(this.styleSheet.documentationPanel);
     }
 
+    getDocumentationEntry() {
+        return DocumentationEntryStore.get(this.options.documentationEntryId);
+    }
+
     render() {
-        let documentationEntry = DocumentationEntryStore.get(this.options.documentationEntryId);
+        const documentationEntry = this.getDocumentationEntry();
         return [
             <Panel orientation={Orientation.HORIZONTAL} className={this.styleSheet.panel}>
                 <Panel ref="navPanel" className={this.styleSheet.navPanel}>
