@@ -17,8 +17,27 @@ export class AdminDocumentationPanel extends DocumentationPanel {
         return "/docs/edit/";
     }
 
+    getDocumentationEntry() {
+        let documentationEntry = DocumentationEntryStore.get(1);
+        documentationEntry.getEntries = function() {
+            let entries = [];
+            for (let documentationEntry of DocumentationEntryStore.all()) {
+                if ((documentationEntry.parentId === this.id || !documentationEntry.parentId) && documentationEntry.id !== this.id) {
+                    entries.push(documentationEntry);
+                }
+            }
+            entries.sort((a, b) => {
+                return a.getParentIndex() - b.getParentIndex();
+            });
+
+            return entries;
+        };
+
+        return documentationEntry;
+    }
+
     render() {
-        let documentationEntry = DocumentationEntryStore.get(this.options.documentationEntryId);
+        const documentationEntry = this.getDocumentationEntry();
         return [
             <Panel orientation={Orientation.HORIZONTAL} className={this.styleSheet.panel} key="container">
                 <Panel ref="navPanel" className={this.styleSheet.navPanel}>
