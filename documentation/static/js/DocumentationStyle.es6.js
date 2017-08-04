@@ -49,6 +49,7 @@ class DocumentationStyle extends StyleSheet {
         paddingLeft: "5%",
         paddingRight: "5%",
         backgroundColor: "#fff",
+        height: "auto !important",
     };
 
     @styleRule
