@@ -1,1 +1,1 @@
-# TODO: change the name of this package to something other than utils
+default_app_config = "establishment.misc.apps.MiscAppConfig"

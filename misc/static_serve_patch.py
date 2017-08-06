@@ -30,7 +30,7 @@ def static_serve(request, static_path, document_root=None, **kwargs):
     for file_watcher in get_static_file_watchers():
         if not file_watcher.is_ready(file_path):
             if not have_announced_waiting:
-                print("Waiting on process generating %s" % file_path)
+                print("Waiting on build for file %s" % file_path)
                 have_announced_waiting = True
             time.sleep(0.1)
 
@@ -45,3 +45,19 @@ def patch_static_serve():
     """
     if settings.DEBUG:
         static_view.serve = static_serve
+
+
+class RollupFileServer(object):
+    def __init__(self, **kwargs):
+        pass
+
+    def is_ready(self, file_name):
+        raise NotImplementedError("RollupFileServer is not implemented")
+
+
+class WebpackFileServer(object):
+    def __init__(self, **kwargs):
+        pass
+
+    def is_ready(self, file_name):
+        raise NotImplementedError("WebpackFileServer is not implemented")
