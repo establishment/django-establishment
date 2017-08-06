@@ -10,6 +10,7 @@ from django.utils.http import is_safe_url
 
 from establishment.accounts.models import EmailAddress, UnverifiedEmail
 from establishment.accounts.utils import get_request_param
+from establishment.misc.util import import_module_attribute
 
 
 class SocialProvider(models.Model):
@@ -29,7 +30,7 @@ class SocialProvider(models.Model):
         package = provider_name
         if "." not in package:
             package = "establishment.socialaccount.providers." + package
-        provider_class = __import__(package, fromlist=["provider"]).provider
+        provider_class = import_module_attribute(package + ".provider")
         return provider_class.get_instance(provider_name, package)
 
     @classmethod

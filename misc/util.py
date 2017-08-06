@@ -1,3 +1,6 @@
+from importlib import import_module
+
+
 def byteify(input):
     if isinstance(input, dict):
         return {byteify(key): byteify(value) for key, value in input.items()}
@@ -60,3 +63,23 @@ def jsonify(obj):
             temp[key] = jsonify(obj[key])
         return temp
     return obj.to_json()
+
+
+def import_module_attribute(object_path, default=None):
+    """
+    Import from a module path and return the desired attribute/class
+    """
+    try:
+        module_path, class_name = object_path.rsplit(".", 1)
+    except Exception:
+        raise ImportError("Couldn't parse module path %s" % object_path)
+
+    try:
+        module = import_module(module_path)
+        return getattr(module, class_name)
+    except Exception as e:
+        if default:
+            return default() if callable(default) else default
+        if isinstance(e, ImportError):
+            raise e
+        raise ImportError("Module %s is missing attribute %s" % (module_path, class_name))

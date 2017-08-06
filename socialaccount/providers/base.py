@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
+from establishment.misc.util import import_module_attribute
 from establishment.socialaccount.adapter import populate_user
 
 
@@ -43,11 +44,7 @@ class Provider(object):
         return cls.db_instance
 
     def get_urlpatterns(self):
-        try:
-            provider_module = __import__(self.package + ".urls", fromlist=["urlpatterns"])
-            return getattr(provider_module, "urlpatterns", [])
-        except ImportError:
-            return []
+        return import_module_attribute(self.package + ".urls.urlpatterns", [])
 
     def get_app(self, request):
         # NOTE: Avoid loading models at top due to registry boot...
