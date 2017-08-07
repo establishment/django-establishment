@@ -1,5 +1,5 @@
 import os
-
+import subprocess
 import time
 from functools import lru_cache
 
@@ -28,7 +28,7 @@ def static_serve(request, static_path, document_root=None, **kwargs):
     file_path = os.path.join(document_root, static_path)
 
     for file_watcher in get_static_file_watchers():
-        if not file_watcher.is_ready(file_path):
+        while not file_watcher.is_ready(file_path):
             if not have_announced_waiting:
                 print("Waiting on build for file %s" % file_path)
                 have_announced_waiting = True
@@ -52,7 +52,9 @@ class RollupFileServer(object):
         pass
 
     def is_ready(self, file_name):
-        raise NotImplementedError("RollupFileServer is not implemented")
+        log_file = os.path.join(settings.PROJECT_ROOT, "stem-rollup.log")
+        reader = subprocess.Popen(["tail", "-n", "1", log_file], stdout=subprocess.PIPE)
+        return reader.communicate()[0].decode().startswith("bundled")
 
 
 class WebpackFileServer(object):
