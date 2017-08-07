@@ -52,7 +52,7 @@ class RollupFileServer(object):
         pass
 
     def is_ready(self, file_name):
-        log_file = os.path.join(settings.PROJECT_ROOT, "stem-rollup.log")
+        log_file = os.path.join(settings.BASE_DIR, "stem-rollup.log")
         reader = subprocess.Popen(["tail", "-n", "1", log_file], stdout=subprocess.PIPE)
         return reader.communicate()[0].decode().startswith("bundled")
 
