@@ -49,12 +49,11 @@ def patch_static_serve():
 
 class RollupFileServer(object):
     def __init__(self, **kwargs):
-        pass
+        from establishment.funnel.redis_stream import StrictRedis, get_default_redis_connection_pool
+        self.redis_connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
 
     def is_ready(self, file_name):
-        log_file = os.path.join(settings.BASE_DIR, "stem-rollup.log")
-        reader = subprocess.Popen(["tail", "-n", "1", log_file], stdout=subprocess.PIPE)
-        return reader.communicate()[0].decode().startswith("bundled")
+        return self.redis_connection.get("bundle-ready").decode() != "N"
 
 
 class WebpackFileServer(object):
