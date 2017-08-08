@@ -34,19 +34,6 @@ def get_blog_state(request):
     return state, (len(blog_posts) <= BLOG_FETCH_CHUNK)
 
 
-def blog(request):
-    state, finished_loading = get_blog_state(request)
-
-    if request.is_ajax() and "lastDate" in request.GET:
-        return JSONResponse({"state": state, "finishedLoading": finished_loading})
-
-    widget_options = {
-        "finishedLoading": finished_loading
-    }
-
-    return global_renderer.render_ui_widget(request, "BlogPanel", state, widget_options=widget_options)
-
-
 def get_blogpost(request):
     blog_post = None
     try:
@@ -77,9 +64,9 @@ def latest_blog_state(request):
 
 
 @single_page_app
-def blog_single_page(request):
+def blog(request):
     state, finished_loading = get_blog_state(request)
-    return JSONResponse({"state": state, "finishedLoading": finished_loading})
+    return state.to_response(extra={"finishedLoading": finished_loading})
 
 
 @ajax_required

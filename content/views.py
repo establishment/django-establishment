@@ -14,27 +14,10 @@ from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, log
 
 
 @superuser_required
-@login_required
-def article_manager_view(request):
-    from establishment.content.models import Language
-    state = State()
-    articles = Article.get_editable_articles(request.user)
-    state.add_all(articles)
-    # TODO: Language should be loaded in PublicState
-    state.add_all(Language.objects.all())
-    return global_renderer.render_ui_widget(request, "ArticleManager", state, page_title="Article Manager")
-
-
-@superuser_required
 @single_page_app
-def article_manager_single_page_view(request):
-    from establishment.content.models import Language
-    state = State()
+def article_manager_view(request):
     articles = Article.get_editable_articles(request.user)
-    state.add_all(articles)
-    # TODO: Language should be loaded in PublicState
-    state.add_all(Language.objects.all())
-    return JSONResponse({"state": state})
+    return State.from_objects(articles)
 
 
 @login_required_ajax
@@ -66,8 +49,7 @@ def create_article(request):
     if "markup" in request.POST:
         article.edit(request.user, request.POST["markup"], )
 
-    state = State()
-    state.add(article)
+    state = State.from_objects(article)
 
     return JSONResponse({"state": state, "article": article})
 
@@ -167,6 +149,7 @@ def get_article_state(article):
 
 
 @login_required
+@single_page_app
 def edit_article(request, article_id):
     article = Article.objects.get(id=article_id)
 
@@ -176,35 +159,6 @@ def edit_article(request, article_id):
     # TODO: throttle the number of edits an article can have here
     # TODO: keep only a limited number of versions for the edits for non-admin users
     # TODO: article sizes should be limited
-
-    if request.is_ajax():
-        # TODO: atomic transaction
-        need_save = check_article_change(request, article)
-
-        if need_save:
-            try:
-                article.save()
-            except IntegrityError as e:
-                if e.__cause__.pgcode == '23505':
-                    return JSONErrorResponse("A translation in this language already exists.")
-                raise
-
-        return JSONResponse({"success": True})
-
-    state = get_article_state(article)
-    # return render(request, "content/article_edit.html", context)
-    return global_renderer.render_ui_widget(request, "ArticleEditor", state,
-                                            page_title="Editing" + article.name,
-                                            widget_options={"articleId": article.id})
-
-
-@login_required
-@single_page_app
-def edit_article_single_page(request, article_id):
-    article = Article.objects.get(id=article_id)
-
-    if not request.user.is_superuser and request.user.id != article.author_created_id:
-        return HttpResponseForbidden()
 
     need_save = check_article_change(request, article)
     if need_save:
@@ -230,10 +184,7 @@ def set_article_owner(request, article_id):
     article.author_created_id = new_owner_id
     article.save()
 
-    state = State()
-    state.add(article)
-
-    return JSONResponse({"state": state})
+    return State.from_objects(article)
 
 
 @login_required_ajax
@@ -259,10 +210,6 @@ def delete_article(request, article_id):
 def send_feedback(request):
     if request.visitor.get_throttler("postFeedback", (24 * 60 * 60, 5)).increm():
         return JSONErrorResponse("Too many posts, ignoring")
-
-    # user_feedback = UserFeedback.create_from_request(request)
-    # user_feedback.save()
-    # return JSONResponse({"success": True, "obj": user_feedback)
 
     message = request.POST["message"]
     client_message = request.POST.get("clientMessage", "{}")
