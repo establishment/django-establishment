@@ -26,7 +26,7 @@ const ERROR_TIMEOUT = 6 * 1000;
 const accountsConfig = {
     username: true,
     country: true,
-    googleCaptchaKey: "6LdNBSwUAAAAAMwVMSIqZwOOvIXEC3UryQbd8hd9"
+    googleCaptchaKey: "6LfnRQ8TAAAAAN9rP3skbWdI9NjmJSjaE0budP1H"
 };
 
 
