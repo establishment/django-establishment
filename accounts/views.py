@@ -64,7 +64,7 @@ def user_signup_request(request):
                 extra["username"] = request.POST["username"]
             except ValidationError:
                 return JSONErrorResponse("Username is invalid or already exists")
-    TempUser.create(unverified_email, password, request.visitor.ip(), extra=extra)
+    TempUser.create(unverified_email, password, "10.10.10.10", extra=extra)
 
     unverified_email.send(request, signup=True)
     return JSONResponse({"result": "success"})
