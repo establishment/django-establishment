@@ -26,7 +26,6 @@ const ERROR_TIMEOUT = 6 * 1000;
 const accountsConfig = {
     username: true,
     country: true,
-    googleCaptchaKey: "6LfnRQ8TAAAAAN9rP3skbWdI9NjmJSjaE0budP1H"
 };
 
 
@@ -241,7 +240,7 @@ class RecaptchaWidget extends UI.Element {
 
         if (window.grecaptcha) {
             this.captchaId = grecaptcha.render(this.children[0].node, {
-                "sitekey": accountsConfig.googleCaptchaKey
+                "sitekey": window.GOOGLE_RECAPTCHA_PUBLIC_KEY,
             });
         }
     }

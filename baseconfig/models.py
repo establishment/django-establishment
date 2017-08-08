@@ -197,6 +197,7 @@ class GlobalSettingsCache(object):
             rez = dict()
             for key, global_setting in self.cache.items():
                 rez[key] = global_setting.value
+        return rez
 
     def has_key(self, key):
         self.rebuild_if_needed()
