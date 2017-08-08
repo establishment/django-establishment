@@ -63,7 +63,10 @@ def login_by_token(request):
             login = fb_complete_login(request, app, token)
             login.token = token
             login.state = SocialLogin.state_from_request(request)
-            complete_social_login(request, login)
+            try:
+                complete_social_login(request, login)
+            except RuntimeError as e:
+                return JSONErrorResponse(str(e))
             return JSONResponse({"success": True})
     except requests.RequestException as e:
         logger.exception("Error accessing FB user profile")

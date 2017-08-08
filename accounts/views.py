@@ -2,13 +2,14 @@ import json
 import logging
 
 from django.conf import settings
-from django.contrib.auth import authenticate as django_authenticate
+from django.contrib.auth import authenticate as django_authenticate, get_user_model
 from django.contrib.auth import logout as django_logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.tokens import default_token_generator as password_reset_token_generator
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils.crypto import get_random_string
 from django.utils.http import base36_to_int, int_to_base36
 from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, login_required, login_required_ajax, ajax_required, global_renderer
 from establishment.funnel.throttle import ActionThrottler
@@ -16,7 +17,7 @@ from establishment.funnel.throttle import ActionThrottler
 from establishment.funnel.state import State, int_list
 from establishment.funnel.base_views import single_page_app
 from .adapter import login, perform_login
-from .models import EmailAddress, UnverifiedEmail, UserSummary, PublicUserSummary
+from .models import EmailAddress, UnverifiedEmail, TempUser, UserSummary, PublicUserSummary
 from .recaptcha_client import test_recaptcha
 from .utils import send_template_mail, get_user_manager
 
@@ -42,11 +43,30 @@ def user_signup_request(request):
     if EmailAddress.objects.filter(email__iexact=email).exists():
         return JSONErrorResponse("Email address is already in use.")
 
-    try:
-        unverified_email = UnverifiedEmail.create(email=email)
-        unverified_email.send(request, signup=True)
-    except:
-        return JSONErrorResponse("Invalid email address.")
+    password = request.POST.get("password", "")
+
+    unverified_email = UnverifiedEmail.create(email=email)
+
+    extra = {}
+    if "countryId" in request.POST and request.POST["countryId"] != -1:
+        from establishment.localization.models import Country
+        try:
+            Country.objects.get(id=int(request.POST["countryId"]))
+            extra["countryId"] = request.POST["countryId"]
+        except ObjectDoesNotExist:
+            pass
+    if "username" in request.POST and request.POST["username"] != "":
+        user = get_user_model()(email=email, password=password)
+        if user.has_field("username"):
+            user.username = request.POST["username"]
+            try:
+                user.full_clean()
+                extra["username"] = request.POST["username"]
+            except ValidationError:
+                return JSONErrorResponse("Username is invalid or already exists")
+    TempUser.create(unverified_email, password, request.visitor.ip(), extra=extra)
+
+    unverified_email.send(request, signup=True)
     return JSONResponse({"result": "success"})
 
 
@@ -270,73 +290,8 @@ def email_address_verification_send(request):
     return JSONResponse({"success": True})
 
 
-def email_address_verify(request, key):
-    # TODO: we'll want a nice way of protecting against spammers hitting us with heavy requests (keys over 1MB for instance)
-    try:
-        unverified_email = UnverifiedEmail.objects.get(key=key)
-    except:
-        return global_renderer.render_ui_widget(request, "EmailConfirmed", page_title="Confirm E-mail Address")
-
-    if unverified_email.user is None:
-        # create a new user
-        user = get_user_manager().create_user(unverified_email.email)
-        user.set_unusable_password()
-        unverified_email.user = user
-        user_created = True
-    else:
-        user_created = False
-
-    email_address = unverified_email.verify()
-    if email_address is None:
-        return global_renderer.render_ui_widget(request, "EmailConfirmed", page_title="Confirm E-mail Address")
-
-    login(request, email_address.user)
-
-    return global_renderer.render_ui_widget(request, "EmailConfirmed", page_title="Confirm E-mail Address",
-                            widget_options={"confirmSuccess": True})
-
-
+@single_page_app
 def email_unsubscribe(request, key):
-    try:
-        user = get_user_manager().get(email_unsubscribe_key=key)
-    except:
-        return global_renderer.render_ui_widget(request, "EmailUnsubscribe", page_title="Unsubscribe E-mail Address")
-
-    user.receives_email_announcements = False
-    user.save()
-
-    return global_renderer.render_ui_widget(request, "EmailUnsubscribe", page_title="Unsubscribe E-mail Address",
-                            widget_options={"unsubscribeSuccess": True})
-
-
-@single_page_app
-def email_address_verify_single_page(request, key):
-    # TODO: we'll want a nice way of protecting against spammers hitting us with heavy requests (keys over 1MB for instance)
-    try:
-        unverified_email = UnverifiedEmail.objects.get(key=key)
-    except:
-        return JSONResponse({})
-
-    if unverified_email.user is None:
-        # create a new user
-        user = get_user_manager().create_user(unverified_email.email)
-        user.set_unusable_password()
-        unverified_email.user = user
-        user_created = True
-    else:
-        user_created = False
-
-    email_address = unverified_email.verify()
-    if email_address is None:
-        return JSONResponse({})
-
-    login(request, email_address.user)
-
-    return JSONResponse({"confirmSuccess": True})
-
-
-@single_page_app
-def email_unsubscribe_single_page(request, key):
     try:
         user = get_user_manager().get(email_unsubscribe_key=key)
     except:
@@ -346,6 +301,39 @@ def email_unsubscribe_single_page(request, key):
     user.save()
 
     return JSONResponse({"unsubscribeSuccess": True})
+
+
+@single_page_app
+def email_address_verify(request, key):
+    # TODO: we'll want a nice way of protecting against spammers hitting us with heavy requests (keys over 1MB for instance)
+    try:
+        unverified_email = UnverifiedEmail.objects.get(key=key)
+        if unverified_email.key_expired():
+            raise ObjectDoesNotExist
+    except ObjectDoesNotExist:
+        return JSONResponse({})
+
+    if unverified_email.user is None:
+        # create a new user
+        user = get_user_manager().create_user(unverified_email.email)
+        try:
+            temp_user = TempUser.objects.get(email=unverified_email)
+            update_dict = temp_user.extra or {}
+            update_dict["password"] = temp_user.password
+            if "username" in temp_user.extra and user.has_field("username"):
+                update_dict["username"] = get_user_model().get_available_username(temp_user.extra["username"])
+            user.edit_from_dict(update_dict)
+        except ObjectDoesNotExist:
+            user.set_unusable_password()
+        unverified_email.user = user
+
+    email_address = unverified_email.convert()
+    if email_address is None:
+        return JSONResponse({})
+
+    login(request, email_address.user)
+
+    return JSONResponse({"confirmSuccess": True})
 
 
 @login_required_ajax
@@ -377,10 +365,8 @@ def user_password_change(request):
     })
 
 
+@single_page_app
 def user_password_reset_request(request):
-    if not request.is_ajax():
-        return global_renderer.render_ui_widget(request, "PasswordReset", page_title="Password reset")
-
     reset_email_address = request.POST["email"]
 
     from establishment.funnel.throttle import UserActionThrottler
@@ -415,11 +401,6 @@ def user_password_reset_request(request):
     send_template_mail("account/email/password_reset_key", reset_email_address, context)
 
     return JSONResponse({"success": True})
-
-
-@single_page_app
-def user_password_reset_single_page_request(request):
-    return user_password_reset_request(request)
 
 
 def user_password_reset_from_token(request, user_base36, reset_token):

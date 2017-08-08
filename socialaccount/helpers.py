@@ -37,7 +37,8 @@ def _complete_social_login(request, social_login):
 
     if not social_login.email_addresses:
         # TODO: this should be handled by a custom exception type
-        raise RuntimeError("We need an email address to login to social")
+        raise RuntimeError("Your social account is not linked to an email address."
+                           "We require an email address to log you in.")
 
     # Check for an existing user with same email as social email and connect if found
     for email in social_login.email_addresses:

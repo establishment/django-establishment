@@ -4,6 +4,7 @@ import uuid
 
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.hashers import make_password
 from django.contrib.postgres.fields import JSONField
 from django.core import validators
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -29,6 +30,9 @@ class UnverifiedEmail(StreamObjectMixin):
         db_table = "UnverifiedEmail"
         unique_together = (("user", "email"),)
 
+    def __str__(self):
+        return self.email
+
     @classmethod
     def create(cls, email, user=None):
         try:
@@ -44,10 +48,7 @@ class UnverifiedEmail(StreamObjectMixin):
             unverified_email = UnverifiedEmail.objects.create(user=user, email=email, key=key)
         return unverified_email
 
-    def verify(self):
-        # TODO: raise exceptions here (ex. KeyExpired, AlreadyVerified)
-        if self.key_expired():
-            return None
+    def convert(self):
         with transaction.atomic():
             make_primary = not EmailAddress.objects.filter(user=self.user, primary=True).exists()
             verified_email = EmailAddress.objects.create(user=self.user, email=self.email, primary=make_primary)
@@ -78,6 +79,30 @@ class UnverifiedEmail(StreamObjectMixin):
             "verified": False,
             "primary": False
         }
+
+
+class TempUser(StreamObjectMixin):
+    email = models.OneToOneField(UnverifiedEmail, on_delete=models.CASCADE, related_name="temp_user")
+    date_created = models.DateTimeField(auto_now_add=True)
+    password = models.CharField("Password", max_length=128)
+    ip_address = models.GenericIPAddressField(null=True)
+    extra = JSONField(default=dict)
+
+    class Meta:
+        db_table = "TempUser"
+
+    # Returns a tuple (temp_user, ok): if ok is True, the creation was successful. Otherwise, temp_user will be
+    # the TempUser that already exists with the given email address.
+    @classmethod
+    def create(cls, email, raw_password, ip_address, extra=None):
+        try:
+            existing_temp_user = cls.objects.get(email=email)
+            return existing_temp_user, False
+        except ObjectDoesNotExist:
+            pass
+        temp_user = cls(email=email, password=make_password(raw_password), ip_address=ip_address, extra=extra or dict())
+        temp_user.save()
+        return temp_user, True
 
 
 class EmailAddressManager(models.Manager):
@@ -161,6 +186,24 @@ class AbstractStreamObjectUser(AbstractBaseUser, SuperuserPermissionsMixin, Stre
     @classmethod
     def object_type(cls):
         return "user"
+
+    @classmethod
+    def get_available_username(cls, preferred_username):
+        if not cls().has_field("username"):
+            raise RuntimeError("The get_available_username method should not be called"
+                               "unless the user model supports a username")
+        username = preferred_username
+        try:
+            get_user_manager().get(username__iexact=username)
+            while True:
+                remove_len = add_len = min(len(username) - 1, 4)
+                if remove_len < 4:
+                    add_len = 6
+                username = preferred_username[:-remove_len] + get_random_string(add_len)
+                get_user_manager().get(username__iexact=username)
+        except ObjectDoesNotExist:
+            pass
+        return username
 
     @classmethod
     def get_object_stream_name(cls, object_id):

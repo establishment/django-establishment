@@ -15,8 +15,8 @@ class Country extends StoreObject {
     }
 }
 
-const ALL_COUNTRIES_PLACEHOLDER = {id: 0, name: "", toString: () => "All Countries"};
-const NO_COUNTRY_PLACEHOLDER = {id: -1, name: "", toString: () => "None"};
+const ALL_COUNTRIES_PLACEHOLDER = (name) => ({id: 0, name: "", toString: () => name || "All Countries"});
+const NO_COUNTRY_PLACEHOLDER = (name) => ({id: -1, name: "", toString: () => name || "None"});
 
 const COUNTRY_COMPARATOR = (a, b) => {
     if (a.name > b.name) {
@@ -26,9 +26,9 @@ const COUNTRY_COMPARATOR = (a, b) => {
 };
 
 class CountryStoreClass extends GenericObjectStore {
-    allWithNone() {
+    allWithNone(noneName="None") {
          return [
-            NO_COUNTRY_PLACEHOLDER,
+            NO_COUNTRY_PLACEHOLDER(noneName),
             ...this.all().sort(COUNTRY_COMPARATOR)
         ];
     }

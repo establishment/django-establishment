@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 
 import establishment.socialaccount.urls
-from establishment.accounts import views
+from . import views
 
 urlpatterns = [
     # Signup

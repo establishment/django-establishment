@@ -33,6 +33,9 @@ class StreamObjectMixin(models.Model):
     class Meta:
         abstract = True
 
+    def has_field(self, field_name):
+        return field_name in map(lambda field: field.name, self._meta.get_fields())
+
     @classmethod
     def object_type(cls):
         return cls._meta.db_table

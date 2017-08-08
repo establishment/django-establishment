@@ -14,7 +14,7 @@ class LoginModal extends Modal {
                 left: "0",
                 right: "0",
                 width: "100vw",
-                height: "500px",
+                height: "600px",
                 background: "white",
                 overflow: this.options.overflow || "auto",
                 maxHeight: "100%",
@@ -33,7 +33,7 @@ class LoginModal extends Modal {
             left: "0",
             right: "0",
             width: "500px",
-            height: this.options.height || "auto",
+            height: this.options.height || "600px",
             background: "white",
             overflow: this.options.overflow || "auto",
         };

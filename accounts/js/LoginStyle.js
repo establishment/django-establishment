@@ -160,7 +160,6 @@ class LoginStyle extends StyleSheet {
     input = {
         width: "85%",
         maxWidth: "85%",
-        paddingLeft: "10px",
         height: fontAwesomeIconHeight + "px",
         lineHeight: fontAwesomeIconHeight + "px",
         display: "inline-block",
@@ -169,7 +168,6 @@ class LoginStyle extends StyleSheet {
         borderTopRightRadius: "5px",
         borderBottomRightRadius: "5px",
         marginTop: "20px",
-        marginLeft: "-10px",
         fontWeight: "bold",
         color: textColor,
         border: "0px solid #d3d5d9",
@@ -185,6 +183,15 @@ class LoginStyle extends StyleSheet {
     };
 
     @styleRule
+    countrySelect = {
+        width: "85%",
+        maxWidth: "85%",
+        lineHeight: "30px",
+        marginTop: "30px",
+        marginBottom: "10px",
+    };
+
+    @styleRule
     badLogin = {
         height: "30px",
         width: "100%",
@@ -192,12 +199,12 @@ class LoginStyle extends StyleSheet {
         color: "#d80000",
         textAlign: "center",
         fontFamily: this.fontFamily,
-        lineHeight: "50px",
     };
 
     @styleRule
     rememberMe = {
         display: "inline-block",
+        float: "left",
         paddingLeft: "5px",
         fontFamily: this.fontFamily,
     };
@@ -208,6 +215,16 @@ class LoginStyle extends StyleSheet {
         float: "right",
         fontFamily: this.fontFamily,
         paddingRight: "5px",
+    };
+
+    @styleRule
+    signInButtonContainer = {
+        width: "100%",
+        height: "50px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        margin: "20px auto"
     };
 
     @styleRule
@@ -276,6 +293,15 @@ class LoginStyle extends StyleSheet {
         justifyContent: "center",
         alignItems: "center",
         fontWeight: "bold",
+    };
+
+    @styleRule
+    recaptchaContainer = {
+        display: "flex",
+        justifyContent: "space-around",
+        alignItems: "center",
+        flexDirection: "column",
+        width: "100%",
     };
 
     @styleRule

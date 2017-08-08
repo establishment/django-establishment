@@ -1,24 +1,33 @@
 import {
+    UI,
     BasicTabTitle,
     CheckboxInput,
     EmailInput,
+    TextInput,
     Link,
     PasswordInput,
     SubmitInput,
     Switcher,
-    UI,
+    Select,
     registerStyle,
+    TemporaryMessageArea
 } from "UI";
-import {Panel} from "UIPrimitives";
 
 import {ensure} from "Require";
 import {Ajax} from "Ajax";
 import {GoogleManager} from "GoogleManager";
 import {FacebookManager} from "FacebookManager";
+import {CountryStore} from "CountryStore";
 
 import {FAIcon} from "FontAwesome";
-import {Device} from "Device";
 import {LoginStyle} from "./LoginStyle";
+
+const ERROR_TIMEOUT = 6 * 1000;
+const accountsConfig = {
+    username: true,
+    country: true,
+    googleCaptchaKey: "6LdNBSwUAAAAAMwVMSIqZwOOvIXEC3UryQbd8hd9"
+};
 
 
 @registerStyle(LoginStyle)
@@ -39,7 +48,7 @@ class ThirdPartyLogin extends UI.Element {
 
     getConnectWithButtons() {
         return (
-            <UI.Element style={this.styleSheet.connectIcons}>
+            <div style={this.styleSheet.connectIcons}>
                 <FAIcon icon="facebook"
                         className={this.styleSheet.faLogo}
                         style={{
@@ -70,7 +79,7 @@ class ThirdPartyLogin extends UI.Element {
                         google
                     </span>
                 </FAIcon>
-            </UI.Element>
+            </div>
         );
     }
 
@@ -94,33 +103,17 @@ class ThirdPartyLogin extends UI.Element {
 }
 
 
-class ErrorMessage extends UI.Element {
-    setError(error) {
-        this.error = error;
-        this.redraw();
-    }
-
-    render() {
-        return this.error;
-    }
-}
-
-
 @registerStyle(LoginStyle)
 class LoginWidget extends UI.Element {
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-
+    extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.loginWidget);
-
-        return attr;
     }
 
-    getEmailInput() {
+    getEmailInput(emailIcon="user") {
         return [
             <div style={{width: "100%",}}>
                 <FAIcon
-                    icon="user"
+                    icon={emailIcon}
                     style={this.styleSheet.fontAwesomeIcon}
                 />
                 <EmailInput
@@ -134,21 +127,20 @@ class LoginWidget extends UI.Element {
         ];
     }
 
-    getPasswordInput() {
+    getPasswordInput(passwordInputOptions={}) {
+        passwordInputOptions = Object.assign({
+            name: "password",
+            className: this.styleSheet.input,
+            ref: "passwordInput",
+            placeholder: "Password",
+            style: {marginBottom: "20px"}
+        }, passwordInputOptions);
         return [
             <div style={{width: "80% !important",}}>
                 <FAIcon icon="lock"
                         style={this.styleSheet.fontAwesomeIcon}
                 />
-                <PasswordInput
-                    placeholder="Password"
-                    name="password"
-                    ref="passwordInput"
-                    className={this.styleSheet.input}
-                    style={{
-                        "margin-bottom": "20px",
-                    }}
-                />
+                <PasswordInput {...passwordInputOptions} />
             </div>
         ];
     }
@@ -171,7 +163,7 @@ class LoginWidget extends UI.Element {
     }
 
     getBadLogin() {
-        return <ErrorMessage className={this.styleSheet.badLogin} ref="loginErrorMessage"/>;
+        return <TemporaryMessageArea className={this.styleSheet.badLogin} ref="loginErrorMessage"/>;
     }
 
     getSignInButton() {
@@ -192,8 +184,9 @@ class LoginWidget extends UI.Element {
                 {this.getPasswordInput()}
                 {this.getRememberMeCheckbox()}
                 {this.getForgotPassword()}
-                {this.getBadLogin()}
                 {this.getSignInButton()}
+                <div style={{clear: "both", height: "20px"}}/>
+                {this.getBadLogin()}
             </form>,
             this.getHorizontalLine(),
             <ThirdPartyLogin/>,
@@ -206,16 +199,14 @@ class LoginWidget extends UI.Element {
             password: this.passwordInput.getValue(),
             remember: this.rememberInput.getValue()
         };
-        // console.log(data);
         Ajax.request({
             url: "/accounts/login/",
             type: "POST",
             dataType: "json",
             data: data,
             success: (data) => {
-                if (data["error"] != null) {
-                    this.loginErrorMessage.setError("Wrong username or password");
-                    //this.mainFormGroup.setError(data.error);
+                if (data.error) {
+                    this.loginErrorMessage.showMessage("Wrong username or password", "red", ERROR_TIMEOUT);
                 } else {
                     location.reload();
                 }
@@ -233,80 +224,132 @@ class LoginWidget extends UI.Element {
                 event.preventDefault();
             });
         }
+        FacebookManager.Global().addListener("loginError", (error) => {
+            this.loginErrorMessage.showMessage(error.message || error, "red", ERROR_TIMEOUT);
+        });
     }
 }
 
+
 class RecaptchaWidget extends UI.Element {
-    redrawRecaptcha() {
-        const googleKey = "6LfnRQ8TAAAAAN9rP3skbWdI9NjmJSjaE0budP1H";
-        grecaptcha.render(this.node, {
-            "sitekey": googleKey
-        });
+    render() {
+        return <div key={Math.random()} />;
+    }
+
+    redraw() {
+        super.redraw();
+
+        if (window.grecaptcha) {
+            this.captchaId = grecaptcha.render(this.children[0].node, {
+                "sitekey": accountsConfig.googleCaptchaKey
+            });
+        }
+    }
+
+    getResponse() {
+        return grecaptcha.getResponse(this.captchaId);
     }
 
     onMount() {
-        window.onRecaptchaCallback = () => this.redrawRecaptcha();
+        window.onRecaptchaCallback = () => this.redraw();
 
-        ensure("https://www.google.com/recaptcha/api.js?render=explicit&onload=onRecaptchaCallback", () => {
-        });
+        ensure("https://www.google.com/recaptcha/api.js?render=explicit&onload=onRecaptchaCallback", () => {});
     }
 }
 
 
 @registerStyle(LoginStyle)
 class RegisterWidget extends UI.Element {
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-
+    extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.registerWidget);
-
-        return attr;
     }
 
     getSignUpButton() {
-        return <div style={{width: "100%", height: "50px", display: "flex", alignItems: "center", justifyContent: "center",}}>
-            <SubmitInput className={this.styleSheet.signInButton} value="Sign Up"/>
-        </div>;
+        return  <div className={this.styleSheet.signInButtonContainer}>
+                    <SubmitInput className={this.styleSheet.signInButton} value="Sign Up" ref="submitButton"/>
+                </div>;
     }
 
-    render() {
+    getUsernameInput() {
         return [
-            <div ref="container">
-                <form ref="form">
-                    {this.getEmailInput()}
-                    <div style={{
-                        height: "190px",
-                        width: "100%",
-                    }}></div>
-                <RecaptchaWidget style={{display: "flex", alignItems: "center", justifyContent: "center",}} ref="recaptchaWidget" />
-                    {this.getSignUpButton()}
-                </form>
+            <div style={{width: "100%",}}>
+                <FAIcon icon="user"
+                        style={this.styleSheet.fontAwesomeIcon}/>
+                <TextInput
+                    placeholder="Username"
+                    ref="usernameInput"
+                    className={this.styleSheet.input}
+                />
             </div>
         ];
     }
 
-    sendRegistration() {
-        Ajax.post("/accounts/signup_request/", {
-            dataType: "json",
-            data: {
-                email: this.emailInput.getValue(),
-                recaptchaKey: grecaptcha.getResponse()
-            },
+    getCountryInput() {
+        return [
+            <div style={{width: "100%", marginBottom: "20px"}}>
+                <FAIcon icon="flag" style={this.styleSheet.fontAwesomeIcon} />
+                <Select ref="countrySelect" options={CountryStore.allWithNone("Don't set country")}
+                        className={this.styleSheet.countrySelect} />
+                <div style={{clear: "both"}}/>
+            </div>
+        ];
+    }
 
-            success: (data) => {
-                if (data["result"] !== "success") {
-                    this.container.appendChild(<div> {"Error in registration:\n" + data.error} </div>);
-                    this.recaptchaWidget.redrawRecaptcha();
+    render() {
+        let formFields = [
+            this.getEmailInput(),
+            this.getPasswordInput()
+        ];
+        if (accountsConfig.username) {
+            formFields.splice(1, 0, this.getUsernameInput());
+            formFields[0] = this.getEmailInput("envelope");
+        }
+        if (accountsConfig.country) {
+            formFields[formFields.length - 1] = this.getPasswordInput({style: {}});
+            formFields.push(this.getCountryInput());
+        }
+        return [
+            <form ref="form">
+                {formFields}
+                <div className={this.styleSheet.recaptchaContainer}>
+                    <RecaptchaWidget ref="recaptchaWidget" />
+                    {this.getSignUpButton()}
+                    <TemporaryMessageArea ref="errorArea" />
+                </div>
+            </form>
+        ];
+    }
+
+    sendRegistration() {
+        this.submitButton.updateOptions({value: "Signing up..."});
+
+        const data = {
+            email: this.emailInput.getValue(),
+            recaptchaKey: this.recaptchaWidget.getResponse(),
+            password: this.passwordInput.getValue(),
+        };
+        if (this.usernameInput) {
+            data.username = this.usernameInput.getValue();
+        }
+        if (this.countrySelect) {
+           data.countryId = this.countrySelect.get().id;
+        }
+        Ajax.postJSON("/accounts/signup_request/", data).then(
+            (data) => {
+                if (data.error) {
+                    this.errorArea.showMessage("Error in registration: " + (data.error.message || data.error), "red", 4000);
+                    this.submitButton.updateOptions({value: "Sign Up"});
+                    this.recaptchaWidget.redraw();
                 } else {
                     this.recaptchaWidget.hide();
-                    this.container.appendChild(<div> {"Done! Please check your email to continue"} </div>);
+                    this.submitButton.hide();
+                    this.errorArea.showMessage("Done! Please check your email to continue", "black", 26 * 60 * 60 * 1000);
                 }
             },
-
-            error: (xhr, errmsg, err) => {
-                throw new Error("Sign up error:", errmsg);
+            (error) => {
+                this.errorArea.showMessage("Error in registraion: " + error, "red", 4000);
             }
-        });
+        );
     }
 
     onMount() {
@@ -318,6 +361,7 @@ class RegisterWidget extends UI.Element {
 }
 
 RegisterWidget.prototype.getEmailInput = LoginWidget.prototype.getEmailInput;
+RegisterWidget.prototype.getPasswordInput = LoginWidget.prototype.getPasswordInput;
 RegisterWidget.prototype.getHorizontalLine = LoginWidget.prototype.getHorizontalLine;
 
 
@@ -330,12 +374,8 @@ class NormalLogin extends UI.Element {
         this.state = 0;
     }
 
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-
+    extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.loginRegisterSystem);
-
-        return attr;
     }
 
     getLoginButton() {
@@ -399,42 +439,38 @@ class NormalLogin extends UI.Element {
 
 @registerStyle(LoginStyle)
 class LoginTabButton extends UI.Primitive(BasicTabTitle, "div") {
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
+    getDefaultOptions() {
+        return {
+            children: [UI.T("Log In")]
+        };
+    }
 
+    extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.loginSystemButton);
         if (this.options.active) {
             attr.addClass(this.styleSheet.selectedLeftClass);
         }
-
-        return attr;
-    }
-
-    render() {
-        return UI.T("Log In");
     }
 }
 
 @registerStyle(LoginStyle)
 class RegisterTabButton extends UI.Primitive(BasicTabTitle, "div") {
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
+    getDefaultOptions() {
+        return {
+            children: [UI.T("Register")]
+        };
+    }
 
+    extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.registerSystemButton);
         if (this.options.active) {
             attr.addClass(this.styleSheet.selectedRightClass);
         }
-
-        return attr;
-    }
-
-    render() {
-        return UI.T("Register");
     }
 }
 
 
-class Login extends Panel {
+class Login extends UI.Element {
     render() {
         return [
             <NormalLogin/>,

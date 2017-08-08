@@ -1,10 +1,11 @@
 import {Ajax} from "Ajax";
+import {Dispatchable} from "Dispatcher";
 
 // TODO: this class should only include Facebook SDK only when absolutely needed,
 // so the user is not being tracked by those corporate assholes
-// TODO: this class should be dispatchable, to dispatch on login for instance
-class FacebookManager {
+class FacebookManager extends Dispatchable {
     constructor() {
+        super();
         let options = Object.assign({
             version: "v2.7",
             loginByTokenUrl: "/accounts/facebook/login/token/",
@@ -29,7 +30,9 @@ class FacebookManager {
     sendData(url, data) {
         Ajax.postJSON(url, data).then(
             (dataJSON) => {
-                if (dataJSON.next) {
+                if (dataJSON.error) {
+                    this.dispatch("loginError", dataJSON.error);
+                } else if (dataJSON.next) {
                     window.location.href = dataJSON.next;
                 } else {
                     location.reload();
