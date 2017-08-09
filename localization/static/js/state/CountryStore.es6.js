@@ -40,7 +40,7 @@ class CountryStoreClass extends GenericObjectStore {
         }
         let result = countries.sort(COUNTRY_COMPARATOR);
         if (allCountries) {
-            result.unshift(ALL_COUNTRIES_PLACEHOLDER);
+            result.unshift(ALL_COUNTRIES_PLACEHOLDER());
         }
         return result;
     }
