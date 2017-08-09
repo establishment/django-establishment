@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 
 from establishment.funnel.stream import StreamObjectMixin
-from .utils import send_verification_mail, get_user_manager
+from .utils import send_verification_mail, get_user_manager, send_template_mail
 
 
 def random_key():
@@ -205,12 +205,25 @@ class AbstractStreamObjectUser(AbstractBaseUser, SuperuserPermissionsMixin, Stre
             pass
         return username
 
+    def get_custom_settings(self):
+        custom_settings, created = UserCustomSettings.objects.get_or_create(user=self, defaults={"settings": {}})
+        return custom_settings
+
+    def set_custom_setting(self, key, value):
+        custom_settings = self.get_custom_settings()
+        custom_settings.set(key, value)
+        custom_settings.save()
+        self.publish_event("setCustomSetting", {
+            "key": key,
+            "value": value,
+        })
+
     @classmethod
     def get_object_stream_name(cls, object_id):
         return "user-" + str(object_id) + "-events"
 
     def get_stream_name(self):
-        return "user-" + str(self.id) + "-events"
+        return self.get_object_stream_name(self.id)
 
     # The next 2 methods are only needed by Django, no other real use for them
     def get_full_name(self):
@@ -226,6 +239,13 @@ class AbstractStreamObjectUser(AbstractBaseUser, SuperuserPermissionsMixin, Stre
 
     def get_all_emails(self):
         return list(self.emails.all().order_by("-primary")) + list(self.unverified_emails.all())
+
+    # TODO: consider localization
+    def email_user(self, subject, message, from_email=None, **kwargs):
+        """
+        Sends an email to this User.
+        """
+        send_template_mail(subject, message, from_email, [self.email], **kwargs)
 
     def to_json(self):
         result = {
@@ -378,9 +398,8 @@ class UserSummary(BaseUserSummary):
         rez = self.user.to_json()
         rez["emails"] = self.user.get_all_emails()
         rez["receivesEmailAnnouncements"] = self.user.receives_email_announcements
-        #TODO: validators and social should not be in here, should be in static
         rez["social"] = list(self.user.socialaccount_set.all().order_by("provider_instance"))
-        rez.update(self.user.get_custom_settings(True).to_json())
+        rez.update(self.user.get_custom_settings().to_json())
         return rez
 
 

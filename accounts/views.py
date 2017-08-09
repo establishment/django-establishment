@@ -463,5 +463,5 @@ def set_user_notifications_read(request):
     # request.user.notifications.all().update(read=True)
     last_user_notification = request.user.notifications.all().order_by("-id").first()
     if last_user_notification:
-        request.user.get_custom_settings(True).set_last_read_notification(last_user_notification)
+        request.user.get_custom_settings().set_last_read_notification(last_user_notification)
     return JSONResponse({"success": True})
