@@ -9,9 +9,8 @@ from django.contrib.auth.tokens import default_token_generator as password_reset
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.utils.crypto import get_random_string
 from django.utils.http import base36_to_int, int_to_base36
-from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, login_required, login_required_ajax, ajax_required, global_renderer
+from establishment.funnel.base_views import JSONErrorResponse, login_required, login_required_ajax, ajax_required, global_renderer
 from establishment.funnel.throttle import ActionThrottler
 
 from establishment.funnel.state import State, int_list
@@ -67,7 +66,7 @@ def user_signup_request(request):
     TempUser.create(unverified_email, password, "10.10.10.10", extra=extra)
 
     unverified_email.send(request, signup=True)
-    return JSONResponse({"result": "success"})
+    return {"result": "success"}
 
 
 @login_required
@@ -162,10 +161,10 @@ def edit_profile(request):
         # RedisStreamPublisher.publish_to_stream("user-" + str(request.user.id) + "-events", user_event)
         request.user.publish_event("profileChanged", request.user)
 
-    return JSONResponse({
+    return {
         "success": True,
         "user": UserSummary(request.user)
-    })
+    }
 
 
 @login_required_ajax
@@ -182,10 +181,10 @@ def remove_social_account(request):
     except SocialAccount.DoesNotExist:
         return JSONErrorResponse("Social account doesn't exist")
 
-    return JSONResponse({
+    return {
         "success": True,
         "user": UserSummary(request.user)
-    })
+    }
 
 
 @ajax_required
@@ -212,13 +211,13 @@ def user_login_view(request):
             request.session.set_expiry(0)
     else:
         return JSONErrorResponse("The e-mail address and/or password you specified are not correct.")
-    return JSONResponse({"success": True})
+    return {"success": True}
 
 
 @login_required
 def user_logout_view(request):
     django_logout(request)
-    return JSONResponse({"success": True})
+    return {"success": True}
 
 
 @login_required_ajax
@@ -229,10 +228,10 @@ def email_address_add(request):
     except:
         return JSONErrorResponse("Can't add this email address, either invalid or is already used.")
 
-    return JSONResponse({
+    return {
         "success": True,
         "user": UserSummary(request.user)
-    })
+    }
 
 
 @login_required_ajax
@@ -253,10 +252,10 @@ def email_address_remove(request):
             # TODO: log this
             return JSONErrorResponse("Email address does not exist")
 
-    return JSONResponse({
+    return {
         "success": True,
         "user": UserSummary(request.user)
-    })
+    }
 
 
 @login_required_ajax
@@ -268,10 +267,10 @@ def email_address_make_primary(request):
     except EmailAddress.DoesNotExist:
         return JSONErrorResponse("Email does not exist.")
 
-    return JSONResponse({
+    return {
         "success": True,
         "user": UserSummary(request.user)
-    })
+    }
 
 
 @ajax_required
@@ -287,7 +286,7 @@ def email_address_verification_send(request):
     except UnverifiedEmail.DoesNotExist:
         return JSONErrorResponse("Email address does not exist")
 
-    return JSONResponse({"success": True})
+    return {"success": True}
 
 
 @single_page_app
@@ -295,12 +294,12 @@ def email_unsubscribe(request, key):
     try:
         user = get_user_manager().get(email_unsubscribe_key=key)
     except:
-        return JSONResponse({})
+        return {}
 
     user.receives_email_announcements = False
     user.save()
 
-    return JSONResponse({"unsubscribeSuccess": True})
+    return {"unsubscribeSuccess": True}
 
 
 @single_page_app
@@ -309,9 +308,9 @@ def email_address_verify(request, key):
     try:
         unverified_email = UnverifiedEmail.objects.get(key=key)
         if unverified_email.key_expired():
-            raise ObjectDoesNotExist
+            return {}
     except ObjectDoesNotExist:
-        return JSONResponse({})
+        return {}
 
     if unverified_email.user is None:
         # create a new user
@@ -329,11 +328,11 @@ def email_address_verify(request, key):
 
     email_address = unverified_email.convert()
     if email_address is None:
-        return JSONResponse({})
+        return {}
 
     login(request, email_address.user)
 
-    return JSONResponse({"confirmSuccess": True})
+    return {"confirmSuccess": True}
 
 
 @login_required_ajax
@@ -359,10 +358,10 @@ def user_password_change(request):
     # Log him in here in a new session
     update_session_auth_hash(request, request.user)
 
-    return JSONResponse({
+    return {
         "success": True,
         "user": UserSummary(request.user)
-    })
+    }
 
 
 @single_page_app
@@ -400,7 +399,7 @@ def user_password_reset_request(request):
 
     send_template_mail("account/email/password_reset_key", reset_email_address, context)
 
-    return JSONResponse({"success": True})
+    return {"success": True}
 
 
 def user_password_reset_from_token(request, user_base36, reset_token):
@@ -464,4 +463,4 @@ def set_user_notifications_read(request):
     last_user_notification = request.user.notifications.all().order_by("-id").first()
     if last_user_notification:
         request.user.get_custom_settings().set_last_read_notification(last_user_notification)
-    return JSONResponse({"success": True})
+    return {"success": True}

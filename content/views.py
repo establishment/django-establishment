@@ -8,8 +8,9 @@ from django.http import HttpResponseForbidden
 
 from establishment.blog.models import BlogEntry
 from establishment.content.models import TermDefinition, ArticleEdit, UserFeedback, Article
+from establishment.errors.errors import BaseError
 from establishment.funnel.state import State
-from establishment.funnel.base_views import JSONResponse, JSONErrorResponse, login_required, login_required_ajax, \
+from establishment.funnel.base_views import JSONErrorResponse, login_required, login_required_ajax, \
     ajax_required, superuser_required, global_renderer, single_page_app
 
 
@@ -51,7 +52,7 @@ def create_article(request):
 
     state = State.from_objects(article)
 
-    return JSONResponse({"state": state, "article": article})
+    return state.to_response({"article": article})
 
 
 @ajax_required
@@ -74,10 +75,7 @@ def fetch_article(request):
 @login_required_ajax
 def get_available_articles(request):
     articles = Article.get_editable_articles(request.user)
-    state = State()
-    state.add_all(articles)
-
-    return JSONResponse({"state": state})
+    return State.from_objects(articles)
 
 
 # TODO: should be renamed to get_article_translations
@@ -85,15 +83,10 @@ def get_available_articles(request):
 def get_translations(request, article_id):
     article = Article.objects.get(id=article_id)
     if not request.user.is_superuser and article.author_created_id != request.user.id:
-        return HttpResponseForbidden()
+        return BaseError.NOT_ALLOWED
 
     translations = Article.objects.filter(base_article_id=article.id)
-
-    state = State()
-    state.add_all(translations)
-    state.add_all(TermDefinition.objects.all())
-
-    return JSONResponse({"state": state})
+    return State.from_objects(translations, TermDefinition.objects.all())
 
 
 @login_required
@@ -108,7 +101,7 @@ def full_article(request):
 
     article.add_to_state(state, True)
 
-    return JSONResponse({"state": state})
+    return state
 
 
 def check_article_change(request, article):
@@ -168,10 +161,10 @@ def edit_article(request, article_id):
             if e.__cause__.pgcode == '23505':
                 return JSONErrorResponse("A translation in this language already exists.")
             raise
-        return JSONResponse({"success": True})
+        return {"success": True}
     else:
         state = get_article_state(article)
-        return JSONResponse({"state": state, "articleId": article.id, "success": True})
+        return state.to_response({"articleId": article.id, "success": True})
 
 
 # TODO: this logic should be merged into edit_article
@@ -204,7 +197,7 @@ def delete_article(request, article_id):
     except models.ProtectedError:
         return JSONErrorResponse("The article is protected.")
 
-    return JSONResponse({"success": True})
+    return {"success": True}
 
 
 def send_feedback(request):
@@ -223,4 +216,4 @@ def send_feedback(request):
 
     user_feedback.save()
 
-    return JSONResponse({"success": True, "feedbackId": user_feedback.id})
+    return {"success": True, "feedbackId": user_feedback.id}

@@ -1,6 +1,5 @@
 import datetime
 import json
-import logging
 
 from django.db import transaction
 from django.utils.text import slugify
@@ -8,7 +7,7 @@ from django.utils.text import slugify
 from establishment.content.models import Article
 from establishment.blog.models import BlogEntry
 from establishment.funnel.state import State
-from establishment.funnel.base_views import JSONResponse, ajax_required, superuser_required, global_renderer, single_page_app
+from establishment.funnel.base_views import ajax_required, superuser_required, global_renderer, single_page_app
 
 
 BLOG_FETCH_CHUNK = 5
@@ -60,13 +59,13 @@ def latest_blog_state(request):
     for blog_entry in blog_entries:
         blog_entry.add_to_state(state)
 
-    return state.to_response()
+    return state
 
 
 @single_page_app
 def blog(request):
     state, finished_loading = get_blog_state(request)
-    return state.to_response(extra={"finishedLoading": finished_loading})
+    return state.to_response({"finishedLoading": finished_loading})
 
 
 @ajax_required
@@ -87,7 +86,7 @@ def add_entry(request):
 
     state = State()
     entry.add_to_state(state)
-    return JSONResponse({"state": state, "blogEntryId": entry.id})
+    return state.to_response({"blogEntryId": entry.id})
 
 
 @ajax_required
@@ -114,7 +113,7 @@ def change_entry_settings(request):
     entry.visible = is_visible
     entry.save()
 
-    return JSONResponse(response)
+    return response
 
 
 @ajax_required
@@ -124,8 +123,4 @@ def create_entry_discussion(request):
     entry = BlogEntry.objects.get(id=entry_id)
     entry.create_discussion()
     entry.save()
-
-    state = State()
-    state.add(entry)
-
-    return state.to_response()
+    return State.from_objects(entry)

@@ -3,7 +3,7 @@ from django.http import HttpResponse
 import json
 
 from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway
-from establishment.funnel.base_views import superuser_required, single_page_app, JSONResponse, JSONErrorResponse
+from establishment.funnel.base_views import superuser_required, single_page_app, JSONErrorResponse
 from establishment.funnel.state import State
 from establishment.localization.models import Language
 from mercury.api import MercuryRedisAPI
@@ -12,12 +12,7 @@ from mercury.api import MercuryRedisAPI
 @superuser_required
 @single_page_app
 def email_manager(request):
-    state = State(request)
-    state.add_all(EmailCampaign.objects.all())
-    state.add_all(EmailTemplate.objects.all())
-    state.add_all(EmailGateway.objects.all())
-
-    return JSONResponse({"state": state})
+    return State.from_objects(EmailCampaign.objects.all(), EmailTemplate.objects.all(), EmailGateway.objects.all())
 
 
 @superuser_required
@@ -285,7 +280,7 @@ def control(request):
             return JSONErrorResponse("Invalid request! Invalid value for field \"action\"!")
     else:
         return JSONErrorResponse("Invalid request! Invalid value for field \"objectType\"!")
-    return JSONResponse(response)
+    return response
 
 
 def track_email(request):

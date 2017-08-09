@@ -4,7 +4,7 @@ from django.db.models import Q
 from establishment.chat.errors import ChatError
 from establishment.chat.models import PrivateChat, GroupChat, MessageInstance
 from establishment.errors.errors import BaseError
-from establishment.funnel.base_views import login_required_ajax, JSONResponse, ajax_required, login_required, global_renderer
+from establishment.funnel.base_views import login_required_ajax, ajax_required, login_required, global_renderer
 from establishment.funnel.throttle import UserActionThrottler
 from establishment.funnel.state import State
 
@@ -49,7 +49,7 @@ def edit_message(request):
         else:
             message_instance.clear_reaction(request.user)
 
-    return JSONResponse({})
+    return {}
 
 
 @login_required
@@ -68,7 +68,7 @@ def private_chat_list(request):
     # TODO: it's very expensive to have num_private_chat DB hits for messages, optimize this
     for private_chat in private_chats:
         private_chat.add_to_state(state, message_count=20)
-    return JSONResponse({"state": state})
+    return state
 
 
 @login_required_ajax
@@ -85,7 +85,7 @@ def private_chat_state(request):
         if "lastMessageId" in request.POST:
             last_message_id = int(request.POST["lastMessageId"])
         existing_chat.add_to_state(state, message_count=20, last_message_id=last_message_id)
-        return JSONResponse({"privateChatId": existing_chat.id, "state": state})
+        return state.to_response({"privateChatId": existing_chat.id})
 
     create_throttle = UserActionThrottler(request.user, "create-private-chat", 24 * 60 * 60, 10)
 
@@ -95,7 +95,7 @@ def private_chat_state(request):
     private_chat = PrivateChat.get_or_create(user1, user2)
     private_chat.add_to_state(state)
 
-    return JSONResponse({"privateChatId": private_chat.id, "state": state})
+    return state.to_response({"privateChatId": private_chat.id})
 
 
 @login_required_ajax
@@ -145,7 +145,7 @@ def private_chat_mark_read(request):
         # TODO: log this!
         return BaseError.NOT_ALLOWED
     private_chat.clear_user_to_read(request.user.id)
-    return JSONResponse({"success": True})
+    return {"success": True}
 
 
 @ajax_required

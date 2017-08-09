@@ -3,7 +3,7 @@ import logging
 import requests
 from oauth2client import client
 
-from establishment.funnel.base_views import ajax_required, JSONResponse, JSONErrorResponse
+from establishment.funnel.base_views import ajax_required, JSONErrorResponse
 from establishment.socialaccount.helpers import complete_social_login
 from establishment.socialaccount.models import SocialToken, SocialLogin
 from .provider import GoogleProvider
@@ -33,7 +33,7 @@ def login_by_token(request):
         login.token = token
         login.state = SocialLogin.state_from_request(request)
         complete_social_login(request, login)
-        return JSONResponse({"success": True})
+        return {"success": True}
     except requests.RequestException as e:
         logger.exception("Error accessing Google user profile")
         auth_exception = e

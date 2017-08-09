@@ -1,7 +1,7 @@
 from establishment.errors.errors import BaseError
 from establishment.forum.errors import ForumError
 from establishment.forum.models import ForumThread, Forum
-from establishment.funnel.base_views import ajax_required, JSONResponse, login_required_ajax, global_renderer, single_page_app
+from establishment.funnel.base_views import ajax_required, login_required_ajax, global_renderer, single_page_app
 from establishment.funnel.state import State
 from establishment.funnel.throttle import UserActionThrottler, ActionThrottler
 
@@ -26,7 +26,7 @@ def latest_forum_state(request):
         state.add(forum_thread)
         state.add(forum_thread.parent)
 
-    return JSONResponse({"state": state})
+    return state
 
 
 @login_required_ajax
@@ -54,9 +54,8 @@ def create_forum_thread(request):
     state = State()
     forum_thread.publish_create_event()
     forum_thread.add_to_state(state)
-    return JSONResponse({
-        "forumThreadId": forum_thread.id,
-        "state": state
+    return state.to_response({
+        "forumThreadId": forum_thread.id
     })
 
 
@@ -70,7 +69,7 @@ def edit_forum_thread(request):
             return BaseError.NOT_ALLOWED
         forum_thread.hide_thread()
 
-    return JSONResponse({"success": True})
+    return {"success": True}
 
 
 @login_required_ajax

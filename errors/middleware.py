@@ -3,6 +3,7 @@ from django.db import IntegrityError
 
 from establishment.errors.errors import BaseError
 from establishment.errors.models import ErrorMessage
+from establishment.funnel.base_views import JSONResponse
 
 
 class ErrorMessageProcessingMiddleware(object):
@@ -11,6 +12,8 @@ class ErrorMessageProcessingMiddleware(object):
 
     def __call__(self, request):
         response = self.get_response(request)
+        if type(response) == dict:
+            response = JSONResponse(response)
         if hasattr(response, "to_response"):
             response = response.to_response()
         return response

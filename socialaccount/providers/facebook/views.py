@@ -4,7 +4,7 @@ import logging
 
 import requests
 
-from establishment.funnel.base_views import ajax_required, JSONResponse, JSONErrorResponse
+from establishment.funnel.base_views import ajax_required, JSONErrorResponse
 from establishment.socialaccount.helpers import complete_social_login
 from establishment.socialaccount.models import SocialLogin, SocialToken
 from .provider import FacebookProvider, GRAPH_API_URL
@@ -67,7 +67,7 @@ def login_by_token(request):
                 complete_social_login(request, login)
             except RuntimeError as e:
                 return JSONErrorResponse(str(e))
-            return JSONResponse({"success": True})
+            return {"success": True}
     except requests.RequestException as e:
         logger.exception("Error accessing FB user profile")
         auth_exception = e

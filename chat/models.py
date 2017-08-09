@@ -10,7 +10,6 @@ from establishment.accounts.models import ReactionableMixin
 from establishment.chat.errors import ChatError
 from establishment.errors.errors import BaseError
 from establishment.funnel.state import State
-from establishment.funnel.base_views import JSONResponse
 from establishment.funnel.nodews_meta import NodeWSMeta
 from establishment.funnel.stream import register_stream_handler, StreamObjectMixin
 
@@ -54,10 +53,7 @@ class MessageThread(StreamObjectMixin):
             return None, ChatError.INVALID_MESSAGE_CONTENT
 
         message = self.create_message(user, content, virtual_id=virtual_id, stream_names=stream_names)
-        state = State()
-        state.add(message)
-        json_response = JSONResponse({"messageId": message.id, "state": state})
-        return message, json_response
+        return message, State.from_objects(message).to_response(extra={"messageId": message.id})
 
     def create_message(self, user, content, metadata={}, virtual_id=None, stream_names=None):
         message = MessageInstance(message_thread=self, user=user, content=content, metadata=metadata)

@@ -9,7 +9,7 @@ from django.db.models.fields.reverse_related import ForeignObjectRel
 
 from .redis_stream import RedisStreamPublisher
 from .json_helper import to_camel_case, to_json_dict
-from .base_views import JSONResponse, JSONErrorResponse
+from .base_views import JSONErrorResponse
 from .state import State, int_list
 
 
@@ -255,7 +255,7 @@ class StreamObjectMixin(models.Model):
         def view_func(request):
             obj = cls.get_object_from_edit_request(request)
             obj.edit_from_request(request)
-            return JSONResponse({"success": True})
+            return {"success": True}
 
         for decorator in reversed(decorators):
             view_func = decorator(view_func)
@@ -277,7 +277,7 @@ class StreamObjectMixin(models.Model):
         def view_func(request):
             obj = cls.create_from_request(request)
             obj.save()
-            return JSONResponse({"obj": obj})
+            return {"obj": obj}
 
         for decorator in reversed(decorators):
             view_func = decorator(view_func)

@@ -2,8 +2,7 @@ import json
 
 from establishment.content.models import Article
 from establishment.documentation.models import DocumentationEntry
-from establishment.funnel.base_views import ajax_required, JSONResponse, superuser_required, global_renderer, \
-    single_page_app
+from establishment.funnel.base_views import ajax_required, superuser_required, single_page_app
 from establishment.funnel.state import State
 
 
@@ -21,10 +20,7 @@ def create_entry(request):
                                               parent_index=int(request.POST["parentIndex"]),
                                               article=article)
     entry.save()
-    state = State()
-    state.add(entry)
-    state.add(entry.article)
-    return JSONResponse({"state": state})
+    return State.from_objects(entry, entry.article)
 
 
 @ajax_required
@@ -43,11 +39,8 @@ def edit_entry(request):
     entry.parent_index = int(request.POST["parentIndex"])
     entry.article = article
     entry.save()
+    return State.from_objects(entry, entry.article)
 
-    state = State()
-    state.add(entry)
-    state.add(entry.article)
-    return JSONResponse({"state": state})
 
 @ajax_required
 @superuser_required
@@ -61,12 +54,12 @@ def change_parents(request):
         if "parentId" in entry_delta:
             if entry_delta["parentId"] == -1:
                 entry.delete()
-                return JSONResponse({"success": True})
+                return {"success": True}
             entry.parent_id = entry_delta["parentId"]
         if "parentIndex" in entry_delta:
             entry.parent_index = entry_delta["parentIndex"]
         entry.save()
-    return JSONResponse({"success": True})
+    return {"success": True}
 
 
 @single_page_app
@@ -79,7 +72,7 @@ def edit_documentation(request):
         state.add(entry)
         state.add(entry.article)
 
-    return JSONResponse({"state": state, "documentationEntryId": 1})
+    return state.to_response({"documentationEntryId": 1})
 
 
 @single_page_app
@@ -91,4 +84,4 @@ def documentation(request):
         state.add(entry)
         state.add(entry.article)
 
-    return JSONResponse({"state": state, "documentationEntryId": 1})
+    return state.to_response({"documentationEntryId": 1})
