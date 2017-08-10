@@ -79,8 +79,7 @@ class TransferOwnershipModal extends ActionModal {
             data: request,
             success: (data) => {
                 if (data.error) {
-                    console.log(data.error);
-                    this.messageArea.showMessage(data.error, "red");
+                    this.messageArea.showMessage(data.error.message, "red");
                 } else {
                     console.log("Successfully changed owner", data);
                     this.messageArea.showMessage("Author successfully changed");
@@ -139,10 +138,8 @@ class DeleteArticleModal extends ActionModal {
             data: request,
             success: (data) => {
                 if (data.error) {
-                    this.messageArea.showMessage(data.error, "red");
-                    console.log(data.error);
+                    this.messageArea.showMessage(data.error.message, "red");
                 } else {
-                    console.log("Successfully deleted article", data);
                     table.options.articles.splice(table.getArticleIndex(this.article.id), 1);
                     table.redraw();
                     this.hide();
@@ -214,8 +211,7 @@ class CreateArticleModal extends ActionModal {
             data: request,
             success: (data) => {
                 if (data.error) {
-                    console.log(data.error);
-                    this.messageArea.showMessage(data.error, "red");
+                    this.messageArea.showMessage(data.error.message, "red");
                 } else {
                     console.log("Successfully created article", data);
                     GlobalState.importState(data.state);

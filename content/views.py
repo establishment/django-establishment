@@ -1,17 +1,15 @@
 import json
 import time
 
-from django.db import IntegrityError
-from django.db import models
-from django.db import transaction
-from django.http import HttpResponseForbidden
+from django.db import IntegrityError, models, transaction
 
-from establishment.blog.models import BlogEntry
-from establishment.content.models import TermDefinition, ArticleEdit, UserFeedback, Article
 from establishment.errors.errors import BaseError
 from establishment.funnel.state import State
-from establishment.funnel.base_views import JSONErrorResponse, login_required, login_required_ajax, \
-    ajax_required, superuser_required, global_renderer, single_page_app
+from establishment.funnel.base_views import login_required, login_required_ajax, ajax_required, \
+    superuser_required, single_page_app
+
+from .models import TermDefinition, ArticleEdit, UserFeedback, Article
+from .errors import ContentError
 
 
 @superuser_required
@@ -25,7 +23,7 @@ def article_manager_view(request):
 def create_article(request):
     # TODO: check a limit here
     if not request.user.is_superuser:
-        return HttpResponseForbidden()
+        return BaseError.NOT_ALLOWED
 
     name = request.POST.get("name", "Untitled Article " + str(time.time()))
     dependency = request.POST.get("dependency", "")
@@ -44,7 +42,7 @@ def create_article(request):
     except IntegrityError as e:
         # TODO: really @Rocky, 23505????
         if e.__cause__.pgcode == '23505':
-            return JSONErrorResponse("A translation in this language already exists.")
+            return ContentError.TRANSLATION_EXISTS
         raise
 
     if "markup" in request.POST:
@@ -60,7 +58,7 @@ def fetch_article(request):
     article_ids = request.GET.getlist("ids[]")
     article_ids = [int(x) for x in article_ids]
     if len(article_ids) > 128:
-        return JSONErrorResponse("Too many articles")
+        return ContentError.REQUESTED_TOO_MANY_ARTICLES
     articles = Article.objects.filter(id__in=article_ids)
 
     state = State()
@@ -95,7 +93,7 @@ def full_article(request):
 
     # Permission checking to access all edits for this article
     if not request.user.is_superuser and article.author_created != request.user:
-        return HttpResponseForbidden()
+        return BaseError.NOT_ALLOWED
 
     state = State()
 
@@ -109,7 +107,7 @@ def check_article_change(request, article):
     if "dependency" in request.POST:
         # Right now regular users can't add js dependencies to an article
         if not request.user.is_superuser:
-            return HttpResponseForbidden()
+            return BaseError.NOT_ALLOWED
         article.dependency = request.POST["dependency"]
         need_save = True
     if "languageId" in request.POST:
@@ -147,7 +145,7 @@ def edit_article(request, article_id):
     article = Article.objects.get(id=article_id)
 
     if not request.user.is_superuser and request.user.id != article.author_created_id:
-        return HttpResponseForbidden()
+        return BaseError.NOT_ALLOWED
 
     # TODO: throttle the number of edits an article can have here
     # TODO: keep only a limited number of versions for the edits for non-admin users
@@ -159,7 +157,7 @@ def edit_article(request, article_id):
             article.save()
         except IntegrityError as e:
             if e.__cause__.pgcode == '23505':
-                return JSONErrorResponse("A translation in this language already exists.")
+                return ContentError.TRANSLATION_EXISTS
             raise
         return {"success": True}
     else:
@@ -183,26 +181,20 @@ def set_article_owner(request, article_id):
 @login_required_ajax
 def delete_article(request, article_id):
     article = Article.objects.get(id=article_id)
-
     if not request.user.is_superuser and request.user.id != article.author_created_id:
-        return HttpResponseForbidden()
-
-    # TODO: the article should not reference all of these here
-    # Maybe we want a system_owned flag inside the article?
-    if BlogEntry.objects.filter(article_id=article_id).exists():
-        return JSONErrorResponse("The article is associated to a blog entry.")
+        return BaseError.NOT_ALLOWED
 
     try:
         article.delete()
     except models.ProtectedError:
-        return JSONErrorResponse("The article is protected.")
+        return ContentError.PROTECTED_ARTICLE
 
     return {"success": True}
 
 
 def send_feedback(request):
     if request.visitor.get_throttler("postFeedback", (24 * 60 * 60, 5)).increm():
-        return JSONErrorResponse("Too many posts, ignoring")
+        return ContentError.TOO_MUCH_FEEDBACK
 
     message = request.POST["message"]
     client_message = request.POST.get("clientMessage", "{}")
