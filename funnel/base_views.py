@@ -88,8 +88,8 @@ def login_required_ajax(function=None):
             if not request.is_ajax():
                 return HttpResponseBadRequest()
             if not request.user.is_authenticated:
-                # TODO: return BaseError.USER_NOT_AUTHENTICATED
-                return JSONErrorResponse("User is not authenticated.")
+                from establishment.errors.errors import BaseError
+                return BaseError.USER_NOT_AUTHENTICATED
             return view_func(request, *args, **kwargs)
         return _wrapped_view
 

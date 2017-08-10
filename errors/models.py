@@ -1,6 +1,5 @@
 from django.db import models
 
-from establishment.funnel.base_views import JSONResponse
 from establishment.funnel.stream import StreamObjectMixin
 
 
@@ -72,6 +71,8 @@ class ErrorMessage(StreamObjectMixin, Exception):
         return error_message
 
     def to_response(self, extra=None, **kwargs):
+        from establishment.funnel.base_views import JSONResponse
+
         if hasattr(self, "_response"):
             return self._response
         response = {
