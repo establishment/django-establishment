@@ -15,6 +15,7 @@ from establishment.funnel.throttle import ActionThrottler
 
 from establishment.funnel.state import State, int_list
 from establishment.funnel.base_views import single_page_app
+from .errors import AccountsError
 from .adapter import login, perform_login
 from .models import EmailAddress, UnverifiedEmail, TempUser, UserSummary, PublicUserSummary
 from .recaptcha_client import test_recaptcha
@@ -26,21 +27,21 @@ logger = logging.getLogger("django.request")
 @ajax_required
 def user_signup_request(request):
     if request.user.is_authenticated:
-        return JSONErrorResponse("You're already logged in.")
+        return AccountsError.ALREADY_LOGGED_IN
 
     if not test_recaptcha(request):
         # TODO: log this error
-        return JSONErrorResponse("Invalid recaptch!")
+        return AccountsError.INVALID_CAPTCHA
 
     # TODO: this should be moved to settings
     MAX_SIGNUPS_PER_IP_PER_DAY = 300
 
     if not ActionThrottler("user_signup_" + request.visitor.ip(), 24 * 3600, MAX_SIGNUPS_PER_IP_PER_DAY).increm():
-        return JSONErrorResponse("Too many users created from your IP, daily limit of " + str(MAX_SIGNUPS_PER_IP_PER_DAY))
+        return AccountsError.TOO_MANY_SIGN_UPS
 
     email = request.POST["email"]
     if EmailAddress.objects.filter(email__iexact=email).exists():
-        return JSONErrorResponse("Email address is already in use.")
+        return AccountsError.EMAIL_UNAVAILABLE
 
     password = request.POST.get("password", "")
 
@@ -59,10 +60,15 @@ def user_signup_request(request):
         if user.has_field("username"):
             user.username = request.POST["username"]
             try:
+                get_user_manager().get(username=user.username)
+                return AccountsError.USERNAME_UNAVAILABLE
+            except ObjectDoesNotExist:
+                pass
+            try:
                 user.full_clean()
                 extra["username"] = request.POST["username"]
             except ValidationError:
-                return JSONErrorResponse("Username is invalid or already exists")
+                return AccountsError.INVALID_USERNAME
     TempUser.create(unverified_email, password, "10.10.10.10", extra=extra)
 
     unverified_email.send(request, signup=True)
@@ -70,10 +76,9 @@ def user_signup_request(request):
 
 
 @login_required
+@single_page_app
 def account_settings(request):
-    state = State()
-    state.add(UserSummary(request.user))
-    return global_renderer.render_ui_widget(request, "UserSettingsPanel", state, page_title="Account settings")
+    return State.from_objects(UserSummary(request.user))
 
 
 @login_required
@@ -177,9 +182,9 @@ def remove_social_account(request):
         if social_account.user_id == request.user.id:
             social_account.delete()
         else:
-            return JSONErrorResponse("Can't remove social account for other user")
+            return AccountsError.INVALID_SOCIAL_ACCOUNT_REMOVAL
     except SocialAccount.DoesNotExist:
-        return JSONErrorResponse("Social account doesn't exist")
+        return AccountsError.INVALID_SOCIAL_ACCOUNT
 
     return {
         "success": True,
@@ -190,7 +195,7 @@ def remove_social_account(request):
 @ajax_required
 def user_login_view(request):
     if request.user.is_authenticated:
-        return JSONErrorResponse("You're already authenticated!")
+        return AccountsError.ALREADY_LOGGED_IN
 
     credentials = {
         "password": request.POST["password"]
@@ -210,7 +215,7 @@ def user_login_view(request):
         else:
             request.session.set_expiry(0)
     else:
-        return JSONErrorResponse("The e-mail address and/or password you specified are not correct.")
+        return AccountsError.INVALID_LOGIN_CREDENTIALS
     return {"success": True}
 
 
@@ -226,7 +231,7 @@ def email_address_add(request):
         unverified_email = UnverifiedEmail.create(email=request.POST["email"], user=request.user)
         unverified_email.send(request)
     except:
-        return JSONErrorResponse("Can't add this email address, either invalid or is already used.")
+        return AccountsError.INVALID_EMAIL_ADDRESS
 
     return {
         "success": True,
@@ -241,7 +246,7 @@ def email_address_remove(request):
     try:
         email_address = EmailAddress.objects.get(user=request.user, email=email)
         if email_address.primary:
-            return JSONErrorResponse("Email address is primary, can't remove")
+            return AccountsError.PRIMARY_EMAIL_REMOVAL
         else:
             email_address.delete()
     except EmailAddress.DoesNotExist:
@@ -250,7 +255,7 @@ def email_address_remove(request):
             unverified_email.delete()
         except UnverifiedEmail.DoesNotExist:
             # TODO: log this
-            return JSONErrorResponse("Email address does not exist")
+            return AccountsError.INVALID_EMAIL_ADDRESS
 
     return {
         "success": True,
@@ -265,7 +270,7 @@ def email_address_make_primary(request):
         email_address = EmailAddress.objects.get(user=request.user, email=email)
         email_address.set_as_primary()
     except EmailAddress.DoesNotExist:
-        return JSONErrorResponse("Email does not exist.")
+        return AccountsError.INVALID_EMAIL_ADDRESS
 
     return {
         "success": True,
@@ -284,7 +289,7 @@ def email_address_verification_send(request):
         unverified_email = UnverifiedEmail.objects.get(user=request.user, email=email)
         unverified_email.send(request)
     except UnverifiedEmail.DoesNotExist:
-        return JSONErrorResponse("Email address does not exist")
+        return AccountsError.INVALID_EMAIL_ADDRESS
 
     return {"success": True}
 
@@ -344,11 +349,11 @@ def user_password_change(request):
     if old_password is None:
         # Check here that the account has never before set a password
         if request.user.has_usable_password():
-            return JSONErrorResponse("Missing password field.")
+            return AccountsError.MISSING_PASSWORD
     else:
         # Check the current password for the user
         if not request.user.check_password(old_password):
-            return JSONErrorResponse("Wrong password.")
+            return AccountsError.WRONG_PASSWORD
 
     # Actually change the password
     request.user.set_password(new_password)
@@ -372,14 +377,14 @@ def user_password_reset_request(request):
 
     reset_password_throttler = UserActionThrottler(request.user or 0, "reset-password-" + reset_email_address, 60 * 60, 2)
     if not reset_password_throttler.increm():
-        return JSONErrorResponse("You may request another password reset later.")
+        return AccountsError.TOO_MANY_PASSWORD_RESETS
 
     logger.info("Requesting a password reset for email " + str(reset_email_address))
 
     try:
         user = get_user_manager().get(email__iexact=reset_email_address)
     except:
-        return JSONErrorResponse("Can't find a user with this email address")
+        return AccountsError.INVALID_EMAIL_ADDRESS
 
     #TODO: A logged in user can only request a password reset for themselves
 
@@ -418,7 +423,7 @@ def user_password_reset_from_token(request, user_base36, reset_token):
                                     widget_options={"tokenFail": True})
 
         # If it's an ajax response (or whatever), just make sure to not continue
-        return JSONErrorResponse("Invalid password token")
+        return AccountsError.INVALID_PASSWORD_RESET_TOKEN
 
     reset_user.set_unusable_password()
     reset_user.save()
@@ -442,7 +447,7 @@ def public_user_profiles(request):
         user_ids = int_list(request.GET.getlist("ids[]"))
         if len(user_ids) > 1024:
             # TODO: log this, may need to ban that asshole
-            return JSONErrorResponse("Requesting too many users")
+            return AccountsError.TOO_MANY_PROFILES_REQUESTED
         users = get_user_manager().filter(id__in=user_ids)
 
     for user in users:

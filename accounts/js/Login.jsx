@@ -205,7 +205,7 @@ class LoginWidget extends UI.Element {
             data: data,
             success: (data) => {
                 if (data.error) {
-                    this.loginErrorMessage.showMessage("Wrong username or password", "red", ERROR_TIMEOUT);
+                    this.loginErrorMessage.showMessage(data.error.message || data.error, "red", ERROR_TIMEOUT);
                 } else {
                     location.reload();
                 }

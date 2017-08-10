@@ -3,6 +3,7 @@ import {
     AjaxButton, PasswordInput, EmailInput, Panel,
     Label, Button, Select, CheckboxInput
 } from "UI";
+import {GlobalStyle} from "GlobalStyle";
 import {UserStore} from "UserStore";
 import {FacebookManager} from "FacebookManager";
 import {GoogleManager} from "GoogleManager";
@@ -170,7 +171,7 @@ class SecuritySettingsPanel extends Panel {
             data: request,
             success: (data) => {
                 if (data.error) {
-                    this.oldPasswordGroup.setError(data.error);
+                    this.oldPasswordGroup.setError(data.error.message);
                 } else {
                     UserStore.applyEvent({
                         objectId: data.user.id,
@@ -298,7 +299,7 @@ class EmailPanel extends Panel {
             data: request,
             success: (data) => {
                 if (data.error) {
-                    this.emailFormField.setError(data.error);
+                    this.emailFormField.setError(data.error.message);
                 } else {
                     this.emailFormInput.setValue("");
                     UserStore.applyEvent({
@@ -503,35 +504,27 @@ class SocialAccountsPanel extends Panel {
 
 
 class UserSettingsPanel extends TabArea {
-    setOptions(options) {
-        super.setOptions(options);
-
-        this.setUser(UserStore.getCurrentUser());
-
-        this.options.children = [
-            <GeneralInformationPanel title="General Info" active={true} user={this.user}/>,
-            <EmailPanel title="Email" user={this.user}/>,
-            <SocialAccountsPanel title="Social accounts" user={this.user}/>,
-            <SecuritySettingsPanel ref={this.refLink("securitySettingsPanel")} title="Security" user={this.user} />
-        ];
-    }
-
-    getNodeAttributes() {
-        let attr = super.getNodeAttributes();
-        attr.setStyle("height", "500px");
-        attr.setStyle("width", "100%");
-        return attr;
+    extraNodeAttributes(attr) {
+        super.extraNodeAttributes(attr);
+        attr.setStyle({
+            height: "500px"
+        });
+        attr.addClass(GlobalStyle.Container.SMALL);
     }
 
     setUser(user) {
         this.user = user;
-        console.log("Current user: ", this.user);
-        this.user.addUpdateListener(() => {
-            console.log("User updated!", this.user);
-            for (let panel of this.options.children) {
-                panel.redraw();
-            }
-        });
+    }
+
+    getGivenChildren() {
+        this.setUser(UserStore.getCurrentUser());
+        return [
+            <GeneralInformationPanel title={UI.T("General Info")} active={true} user={this.user}/>,
+            <EmailPanel title={UI.T("Email")} user={this.user}/>,
+            <SocialAccountsPanel title={UI.T("Social accounts")} user={this.user}/>,
+            <SecuritySettingsPanel ref={this.refLink("securitySettingsPanel")} title={UI.T("Security")}
+                                   user={this.user} />
+        ];
     }
 }
 
