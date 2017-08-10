@@ -1,7 +1,8 @@
-from establishment.funnel.base_views import superuser_required, ajax_required, JSONErrorResponse, single_page_app
+from establishment.funnel.base_views import superuser_required, ajax_required, single_page_app
 from establishment.funnel.state import State
 from establishment.misc.threading_helper import ThreadHandler
 from .models import CommandInstance, CommandRun
+from .errors import BaseconfigError
 
 
 @superuser_required
@@ -11,7 +12,7 @@ def run_command(request):
     try:
         command_instance = CommandInstance.objects.get(id=command_instance_id)
     except Exception:
-        return JSONErrorResponse("Invalid command id")
+        return BaseconfigError.INVALID_COMMAND_INSTANCE
 
     def run():
         CommandRun.run(request.user, command_instance)
