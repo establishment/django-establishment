@@ -40,4 +40,4 @@ def login_by_token(request):
         return render(request, "account/autoclose.html", None)
     except requests.RequestException:
         logger.exception("Error in getting token from github!")
-        return SocialAccountError.INVALID_GITHUB_TOKEN
+        return SocialAccountError.INVALID_SOCIAL_TOKEN

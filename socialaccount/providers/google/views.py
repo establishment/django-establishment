@@ -39,4 +39,4 @@ def login_by_token(request):
         return SocialAccountError.INVALID_GOOGLE_ACCOUNT
     except Exception as e:
         logger.exception("Invalid google token")
-    return SocialAccountError.INVALID_GOOGLE_TOKEN
+    return SocialAccountError.INVALID_SOCIAL_TOKEN
