@@ -1,11 +1,12 @@
 from PIL import Image
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 import json
 
-from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway
-from establishment.funnel.base_views import superuser_required, single_page_app, JSONErrorResponse
+from establishment.funnel.base_views import superuser_required, single_page_app
 from establishment.funnel.state import State
-from establishment.localization.models import Language
+from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway
+from .errors import EmailingError
 from mercury.api import MercuryRedisAPI
 
 
@@ -17,269 +18,102 @@ def email_manager(request):
 
 @superuser_required
 def control(request):
-    object_type = request.POST.get("objectType")
-    action = request.POST.get("action")
+    def load_field(field_name, boolean=False):
+        value = request.POST.get(field_name)
+        if boolean:
+            value = json.loads(value)
+        if value is None:
+            raise EmailingError.FIELD_NOT_FOUND(field_name)
+        return value
 
-    if object_type is None:
-        return JSONErrorResponse("Invalid request! Field \"objectType\" not found!")
-    if action is None:
-        return JSONErrorResponse("Invalid request! Field \"action\" not found!")
+    def get_obj(cls, query_value):
+        try:
+            obj = cls.objects.get(id=query_value)
+        except ObjectDoesNotExist:
+            raise EmailingError.INVALID_ID
+        return obj
+
+    object_type = load_field("objectType")
+    action = load_field("action")
 
     response = {}
     if object_type == "campaign":
         if action in ["start", "stop", "pause", "continue"]:
-            campaign_id = request.POST.get("id")
-            if campaign_id is None:
-                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
+            campaign_id = load_field("id")
             response = MercuryRedisAPI.get_api().send_campaign_start(campaign_id)
         elif action == "test":
-            campaign_id = request.POST.get("id")
-            if campaign_id is None:
-                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
-            id_from = request.POST.get("fromId")
-            if id_from is None:
-                return JSONErrorResponse("Invalid request! Field \"fromId\" not found!")
-            id_to = request.POST.get("toId")
-            if id_to is None:
-                return JSONErrorResponse("Invalid request! Field \"toId!\" not found!")
+            campaign_id = load_field("id")
+            id_from = load_field("fromId")
+            id_to = load_field("toId")
             response = MercuryRedisAPI.get_api().send_campaign_test(campaign_id, id_from, id_to)
         elif action == "clearStatus":
-            campaign_id = request.POST.get("id")
-            if campaign_id is None:
-                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
+            campaign_id = load_field("id")
             EmailStatus.objects.all().filter(campaign_id=campaign_id).delete()
             response = {"message": "Success!"}
         elif action == "update":
-            campaign_id = request.POST.get("id")
-            if campaign_id is None:
-                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
-            name = request.POST.get("name")
-            if name is None:
-                return JSONErrorResponse("Invalid request! Field \"name\" not found!")
-            from_address = request.POST.get("fromAddress")
-            if from_address is None:
-                return JSONErrorResponse("Invalid request! Field \"fromAddress\" not found!")
-            gateway_id = request.POST.get("gatewayId")
-            if gateway_id is None:
-                return JSONErrorResponse("Invalid request! Field \"gatewayId\" not found!")
-            try:
-                gateway = EmailGateway.objects.get(id=gateway_id)
-            except EmailGateway.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Invalid value for field \"gatewayId\"!")
-            try:
-                campaign = EmailCampaign.objects.get(id=campaign_id)
-            except EmailCampaign.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Invalid value for field \"id\"!")
-            is_newsletter = json.loads(request.POST.get("isNewsletter"))
-            if is_newsletter is None:
-                return JSONErrorResponse("Invalid request! Field \"isNewsletter\" not found")
-            campaign.name = name
-            campaign.from_address = from_address
-            campaign.gateway = gateway
-            campaign.is_newsletter = is_newsletter
-            campaign.save()
+            campaign_id = load_field("id")
+            campaign = get_obj(EmailCampaign, campaign_id)
+            updated_fields = campaign.update_from_dict(request.POST)
+            campaign.save(update_fields=updated_fields)
             campaign.publish_update_event()
             response = {"message": "Success!"}
         elif action == "new":
-            name = request.POST.get("name")
-            if name is None:
-                return JSONErrorResponse("Invalid request! Field \"name\" not found!")
-            from_address = request.POST.get("fromAddress")
-            if from_address is None:
-                return JSONErrorResponse("Invalid request! Field \"fromAddress\" not found!")
-            gateway_id = request.POST.get("gatewayId")
-            if gateway_id is None:
-                return JSONErrorResponse("Invalid request! Field \"gatewayId\" not found!")
-            try:
-                gateway = EmailGateway.objects.get(id=gateway_id)
-            except EmailGateway.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Invalid value for field \"gatewayId\"!")
-            is_newsletter = json.loads(request.POST.get("isNewsletter"))
-            if is_newsletter is None:
-                return JSONErrorResponse("Invalid request! Field \"isNewsletter\" not found")
-            campaign = EmailCampaign(name=name, from_address=from_address, gateway=gateway,
-                                     is_newsletter=is_newsletter)
+            campaign = EmailCampaign.create_from_request(request)
             campaign.save()
             campaign.publish_update_event()
             response = {"message": "Success!"}
         elif action == "delete":
-            campaign_id = request.POST.get("id")
-            if campaign_id is None:
-                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
-            try:
-                campaign = EmailCampaign.objects.get(id=campaign_id)
-                campaign.publish_update_event(event_type="delete")
-                campaign.delete()
-            except EmailCampaign.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Invalid value for field \"id\"!")
+            campaign_id = load_field("id")
+            campaign = get_obj(EmailCampaign, campaign_id)
+            campaign.publish_update_event(event_type="delete")
+            campaign.delete()
             response = {"message": "Success!"}
         else:
-            return JSONErrorResponse("Invalid request! Invalid value for field \"action\"!")
+            return EmailingError.INVALID_ACTION
     elif object_type == "gateway":
         if action == "update":
-            gateway_id = request.POST.get("id")
-            if gateway_id is None:
-                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
-            name = request.POST.get("name")
-            if name is None:
-                return JSONErrorResponse("Invalid request! Field \"name\" not found!")
-            host = request.POST.get("host")
-            if host is None:
-                return JSONErrorResponse("Invalid request! Field \"host\" not found!")
-            port = request.POST.get("port")
-            if port is None:
-                return JSONErrorResponse("Invalid request! Field \"port\" not found!")
-            use_tls = json.loads(request.POST.get("useTLS"))
-            if use_tls is None:
-                return JSONErrorResponse("Invalid request! Field \"useTLS\" not found!")
-            username = request.POST.get("username")
-            if username is None:
-                return JSONErrorResponse("Invalid request! Field \"username\" not found!")
-            password = request.POST.get("password")
-            if password is None:
-                return JSONErrorResponse("Invalid request! Field \"password\" not found!")
-            try:
-                gateway = EmailGateway.objects.get(id=gateway_id)
-            except EmailGateway.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Invalid value for field \"id\"!")
-            gateway.name = name
-            gateway.host = host
-            gateway.port = port
-            gateway.use_tls = use_tls
-            gateway.username = username
-            gateway.password = password
-            gateway.save()
+            gateway_id = load_field("id")
+            gateway = get_obj(EmailGateway, gateway_id)
+            updated_fields = gateway.update_from_dict(request.POST)
+            gateway.save(update_fields=updated_fields)
             gateway.publish_update_event()
             response = {"message": "Success!"}
         elif action == "new":
-            name = request.POST.get("name")
-            if name is None:
-                return JSONErrorResponse("Invalid request! Field \"name\" not found!")
-            host = request.POST.get("host")
-            if host is None:
-                return JSONErrorResponse("Invalid request! Field \"host\" not found!")
-            port = request.POST.get("port")
-            if port is None:
-                return JSONErrorResponse("Invalid request! Field \"port\" not found!")
-            use_tls = json.loads(request.POST.get("useTLS"))
-            if use_tls is None:
-                return JSONErrorResponse("Invalid request! Field \"useTLS\" not found!")
-            username = request.POST.get("username")
-            if username is None:
-                return JSONErrorResponse("Invalid request! Field \"username\" not found!")
-            password = request.POST.get("password")
-            if password is None:
-                return JSONErrorResponse("Invalid request! Field \"password\" not found!")
-            gateway = EmailGateway(name=name, host=host, port=port, use_tls=use_tls, username=username,
-                                   password=password)
+            gateway = EmailGateway.create_from_request(request)
             gateway.save()
             gateway.publish_update_event()
             response = {"message": "Success!"}
         elif action == "delete":
-            gateway_id = request.POST.get("id")
-            if gateway_id is None:
-                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
-            try:
-                gateway = EmailGateway.objects.get(id=gateway_id)
-                gateway.publish_update_event(event_type="delete")
-                gateway.delete()
-            except EmailGateway.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Field value for field \"id\"!")
+            gateway_id = load_field("id")
+            gateway = get_obj(EmailGateway, gateway_id)
+            gateway.publish_update_event(event_type="delete")
+            gateway.delete()
             response = {"message": "Success!"}
         else:
-            return JSONErrorResponse("Invalid request! Invalid value for field \"action\"!")
+            return EmailingError.INVALID_ACTION
     elif object_type == "template":
         if action == "update":
-            template_id = request.POST.get("id")
-            if template_id is None:
-                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
-            subject = request.POST.get("subject")
-            if subject is None:
-                return JSONErrorResponse("Invalid request! Field \"subject\" not found!")
-            html = request.POST.get("html")
-            if html is None:
-                return JSONErrorResponse("Invalid request! Field \"html\" not found!")
-            campaign_id = request.POST.get("campaignId")
-            if campaign_id is None:
-                return JSONErrorResponse("Invalid request! Field \"campaignId\" not found!")
-            try:
-                campaign = EmailCampaign.objects.get(id=campaign_id)
-            except EmailCampaign.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Invalid value for field \"campaignId\"!")
-            language_id = request.POST.get("languageId")
-            if language_id is None:
-                return JSONErrorResponse("Invalid request! Field \"languageId\" not found!")
-            try:
-                language = Language.objects.get(id=language_id)
-            except Language.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Invalid value for field \"languageId\"!")
-            gateway_id = request.POST.get("gatewayId")
-            if gateway_id is None:
-                return JSONErrorResponse("Invalid request! Field \"gatewayId\" not found!")
-            try:
-                gateway = EmailGateway.objects.get(id=gateway_id)
-            except EmailGateway.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Invalid value for field \"gatewayId\"!")
-            try:
-                template = EmailTemplate.objects.get(id=template_id)
-            except EmailTemplate.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Invalid value for field \"id\"!")
-            template.subject = subject
-            template.html = html
-            template.campaign = campaign
-            template.language = language
-            template.gateway = gateway
-            template.save()
+            template_id = load_field("id")
+            template = get_obj(EmailTemplate, template_id)
+            updated_fields = template.update_from_dict(request.POST)
+            template.save(update_fields=updated_fields)
             template.publish_update_event()
             response = {"message": "Success!"}
         elif action == "new":
-            subject = request.POST.get("subject")
-            if subject is None:
-                return JSONErrorResponse("Invalid request! Field \"subject\" not found!")
-            html = request.POST.get("html")
-            if html is None:
-                return JSONErrorResponse("Invalid request! Field \"html\" not found!")
-            campaign_id = request.POST.get("campaignId")
-            if campaign_id is None:
-                return JSONErrorResponse("Invalid request! Field \"campaignId\" not found!")
-            try:
-                campaign = EmailCampaign.objects.get(id=campaign_id)
-            except EmailCampaign.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Invalid value for field \"campaignId\"!")
-            language_id = request.POST.get("languageId")
-            if language_id is None:
-                return JSONErrorResponse("Invalid request! Field \"languageId\" not found!")
-            try:
-                language = Language.objects.get(id=language_id)
-            except Language.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Invalid value for field \"languageId\"!")
-            gateway_id = request.POST.get("gatewayId")
-            if gateway_id is None:
-                return JSONErrorResponse("Invalid request! Field \"gatewayId\" not found!")
-            try:
-                gateway = EmailGateway.objects.get(id=gateway_id)
-            except EmailGateway.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Invalid value for field \"gatewayId\"!")
-            template = EmailTemplate(subject=subject, html=html, campaign=campaign, language=language,
-                                     gateway=gateway)
+            template = EmailTemplate.create_from_request(request)
             template.save()
             template.publish_update_event()
             response = {"message": "Success!"}
         elif action == "delete":
-            template_id = request.POST.get("id")
-            if template_id is None:
-                return JSONErrorResponse("Invalid request! Field \"id\" not found!")
-            try:
-                template = EmailTemplate.objects.get(id=template_id)
-                template.publish_update_event(event_type="delete")
-                template.delete()
-            except EmailTemplate.DoesNotExist:
-                return JSONErrorResponse("Invalid request! Field value for field \"id\"!")
+            template_id = load_field("id")
+            template = get_obj(EmailTemplate, template_id)
+            template.publish_update_event(event_type="delete")
+            template.delete()
             response = {"message": "Success!"}
         else:
-            return JSONErrorResponse("Invalid request! Invalid value for field \"action\"!")
+            return EmailingError.INVALID_ACTION
     else:
-        return JSONErrorResponse("Invalid request! Invalid value for field \"objectType\"!")
+        return EmailingError.INVALID_OBJECT_TYPE
     return response
 
 

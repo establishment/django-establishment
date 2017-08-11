@@ -54,3 +54,4 @@ class BaseError(ErrorList):
     OBJECT_ALREADY_EXISTS = get_error(message="The object you want to create already exists")
     INVALID_DATA = get_error(message="Validation error")
     TOO_MANY_OBJECTS = get_error(message="Requesting too many objects")
+    MAINTENANCE = get_error(message="Website in maintenance mode!")

@@ -1,4 +1,4 @@
-import {UI, SortableTable, Button, ActionModal, FormField, TextInput, NumberInput, CheckboxInput, Panel, TableRow} from "UI";
+import {UI, SortableTable, Button, ActionModal, FormField, TextInput, NumberInput, CheckboxInput, Panel, TableRow, PasswordInput} from "UI";
 import {EmailGatewayStore} from "EmailGatewayStore";
 import {Ajax} from "Ajax";
 import {Level} from "ui/Constants";
@@ -28,7 +28,7 @@ class EmailGatewayModal extends ActionModal {
                 <TextInput value={gatewayValues.username || ""} ref="usernameInput"/>
             </FormField>,
             <FormField label="Password" ref="passwordField">
-                <TextInput value={gatewayValues.password || ""} ref="passwordInput"/>
+                <PasswordInput value={gatewayValues.password || ""} ref="passwordInput"/>
             </FormField>
         ];
     }

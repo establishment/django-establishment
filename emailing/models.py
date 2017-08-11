@@ -148,7 +148,6 @@ class EmailTemplate(StreamObjectMixin):
             return self.gateway.get_connection()
         if self.campaign.gateway:
             return self.campaign.gateway.get_connection()
-
         from django.core import mail
         return mail.get_connection()
 

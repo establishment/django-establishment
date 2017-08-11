@@ -224,6 +224,12 @@ class StreamObjectMixin(models.Model):
             return True
         return getattr(self, "owner_id", getattr(self, "author_id", -1)) == user.id
 
+    def can_be_created_by_request(self, request):
+        return self.can_be_created_by_user(request.user)
+
+    def can_be_created_by_user(self, user):
+        return self.can_be_edited_by_user(user)
+
     def edit_from_dict(self, data_dict, rename=None, trusted=False, publish_event=True, event_type="update", event_extra=None):
         updated_fields = self.update_from_dict(data_dict, rename)
 

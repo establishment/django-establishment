@@ -33,11 +33,24 @@ def to_underscore_case(txt):
     return new_txt
 
 
+def update_dict(target, *args):
+    from django.http import QueryDict
+    from django.utils.datastructures import MultiValueDict
+    for arg in args:
+        # If it comes from a request.POST or request.GET
+        if type(arg) == QueryDict or type(arg) == MultiValueDict:
+            target.update(arg.dict())
+        else:
+            target.update(arg)
+
+
 def to_json_dict(*args, **kwargs):
     if len(args) > 0:
         for arg in args:
-            kwargs.update(arg)
+            update_dict(kwargs, arg)
     result = dict()
     for key, value in kwargs.items():
-        result[to_camel_case(key)] = value
+        json_like_key = to_camel_case(key)
+        json_like_value = value
+        result[json_like_key] = json_like_value
     return result

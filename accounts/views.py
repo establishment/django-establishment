@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.http import base36_to_int, int_to_base36
-from establishment.funnel.base_views import JSONErrorResponse, login_required, login_required_ajax, ajax_required, global_renderer
+from establishment.funnel.base_views import login_required, login_required_ajax, ajax_required, global_renderer
 from establishment.funnel.throttle import ActionThrottler
 
 from establishment.funnel.state import State, int_list
@@ -154,9 +154,9 @@ def edit_profile(request):
             request.user.full_clean()
             request.user.save()
         except ValidationError as e:
-            return JSONErrorResponse(e.message_dict)
-
-
+            return {
+                "error": e.message_dict
+            }
         # user_event = {
         #     "type": "profileChanged",
         #     "objectType": "user",
