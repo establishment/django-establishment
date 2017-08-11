@@ -3,11 +3,12 @@ import logging
 import requests
 from oauth2client import client
 
-from establishment.funnel.base_views import ajax_required, JSONErrorResponse
+from establishment.funnel.base_views import ajax_required
 from establishment.socialaccount.helpers import complete_social_login
 from establishment.socialaccount.models import SocialToken, SocialLogin
-from .provider import GoogleProvider
+from establishment.socialaccount.errors import SocialAccountError
 
+from .provider import GoogleProvider
 logger = logging.getLogger("django")
 
 
@@ -22,7 +23,6 @@ def google_complete_login(request, app, token):
 
 @ajax_required
 def login_by_token(request):
-    auth_exception = None
     data = request.POST
     try:
         app = GoogleProvider.get_instance().get_app(request)
@@ -36,8 +36,7 @@ def login_by_token(request):
         return {"success": True}
     except requests.RequestException as e:
         logger.exception("Error accessing Google user profile")
-        auth_exception = e
+        return SocialAccountError.INVALID_GOOGLE_ACCOUNT
     except Exception as e:
         logger.exception("Invalid google token")
-        pass
-    return JSONErrorResponse(auth_exception or "Invalid token")
+    return SocialAccountError.INVALID_GOOGLE_TOKEN

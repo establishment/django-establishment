@@ -3,9 +3,9 @@ import logging
 import requests
 from django.shortcuts import render
 
-from establishment.funnel.base_views import JSONErrorResponse
 from establishment.socialaccount.helpers import complete_social_login
 from establishment.socialaccount.models import SocialLogin, SocialToken
+from establishment.socialaccount.errors import SocialAccountError
 from .provider import GithubProvider, GITHUB_TOKEN_LINK, GITHUB_QUERY_LINK
 
 logger = logging.getLogger("django")
@@ -20,7 +20,6 @@ def github_complete_login(request, token):
 
 
 def login_by_token(request):
-    auth_exception = None
     try:
         app = GithubProvider.get_instance().get_app(request)
         code = request.GET["code"]
@@ -39,10 +38,6 @@ def login_by_token(request):
         login.state = SocialLogin.state_from_request(request)
         complete_social_login(request, login)
         return render(request, "account/autoclose.html", None)
-
-    except requests.RequestException as e:
+    except requests.RequestException:
         logger.exception("Error in getting token from github!")
-        auth_exception = e
-
-    return JSONErrorResponse(auth_exception or "Invalid code!")
-
+        return SocialAccountError.INVALID_GITHUB_TOKEN

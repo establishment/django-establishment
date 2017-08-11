@@ -43,12 +43,6 @@ class JSONResponse(JsonResponse):
         super().__init__(data, cls, **kwargs)
 
 
-# TODO: deprecate over time to return ErrorMessage.ERROR_CONSTANT.to_response()
-class JSONErrorResponse(JSONResponse):
-    def __init__(self, message, **kwargs):
-        super().__init__({"error": message}, **kwargs)
-
-
 def login_required(function=None):
     def _decorator(view_func):
         def _wrapped_view(request, *args, **kwargs):

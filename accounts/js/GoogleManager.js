@@ -1,4 +1,5 @@
 import {Ajax} from "Ajax";
+import {ErrorHandlers} from "ErrorHandlers";
 
 class GoogleManager {
     constructor() {
@@ -76,7 +77,7 @@ class GoogleManager {
         Ajax.postJSON(url, data).then(
             (data) => {
                 if (data.error) {
-                    alert(data.error.toString());
+                    ErrorHandlers.SHOW_ERROR_ALERT(data.error);
                 } else {
                     if (onSuccess) {
                         onSuccess(data);

@@ -4,9 +4,10 @@ import logging
 
 import requests
 
-from establishment.funnel.base_views import ajax_required, JSONErrorResponse
+from establishment.funnel.base_views import ajax_required
 from establishment.socialaccount.helpers import complete_social_login
 from establishment.socialaccount.models import SocialLogin, SocialToken
+from establishment.socialaccount.errors import SocialAccountError
 from .provider import FacebookProvider, GRAPH_API_URL
 
 logger = logging.getLogger("django")
@@ -36,7 +37,6 @@ def fb_complete_login(request, app, token):
 
 @ajax_required
 def login_by_token(request):
-    auth_exception = None
     data = request.POST
     try:
         provider = FacebookProvider.get_instance()
@@ -63,12 +63,9 @@ def login_by_token(request):
             login = fb_complete_login(request, app, token)
             login.token = token
             login.state = SocialLogin.state_from_request(request)
-            try:
-                complete_social_login(request, login)
-            except RuntimeError as e:
-                return JSONErrorResponse(str(e))
+            complete_social_login(request, login)
             return {"success": True}
     except requests.RequestException as e:
         logger.exception("Error accessing FB user profile")
-        auth_exception = e
-    return JSONErrorResponse(auth_exception or "Invalid token")
+        return SocialAccountError.INVALID_FACEBOOK_ACCOUNT
+    return SocialAccountError.INVALID_FACEBOOK_TOKEN

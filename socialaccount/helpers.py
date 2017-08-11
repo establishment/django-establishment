@@ -4,6 +4,8 @@ from django.http import HttpResponseRedirect
 
 from establishment.accounts.adapter import perform_login
 from establishment.accounts.models import EmailAddress
+
+from .errors import SocialAccountError
 from .providers.base import AuthProcess
 
 
@@ -15,7 +17,7 @@ def complete_social_login(request, social_login):
     elif process == AuthProcess.CONNECT:
         return _add_social_account(request, social_login)
     else:
-        raise RuntimeError("Invalid login process")
+        raise SocialAccountError.GENERIC_INVALID_PROCESS
 
 
 # TODO: this should probably be a method in social_login, connect_to_account!
@@ -36,9 +38,7 @@ def _complete_social_login(request, social_login):
         logout(request)
 
     if not social_login.email_addresses:
-        # TODO: this should be handled by a custom exception type
-        raise RuntimeError("Your social account is not linked to an email address."
-                           "We require an email address to log you in.")
+        raise SocialAccountError.FACEBOOK_ACCOUNT_NO_EMAIL
 
     # Check for an existing user with same email as social email and connect if found
     for email in social_login.email_addresses:
