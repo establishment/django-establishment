@@ -53,7 +53,8 @@ class RollupFileServer(object):
         self.redis_connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
 
     def is_ready(self, file_name):
-        return self.redis_connection.get("bundle-ready").decode() != "N"
+        bundle_state = self.redis_connection.get("bundle-ready")
+        return bundle_state is None or bundle_state.decode() != "N"
 
 
 class WebpackFileServer(object):
