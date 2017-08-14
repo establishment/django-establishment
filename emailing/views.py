@@ -1,7 +1,6 @@
 from PIL import Image
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-import json
 
 from establishment.funnel.base_views import superuser_required, single_page_app
 from establishment.funnel.state import State
@@ -18,12 +17,10 @@ def email_manager(request):
 
 @superuser_required
 def control(request):
-    def load_field(field_name, boolean=False):
+    def load_field(field_name):
         value = request.POST.get(field_name)
-        if boolean:
-            value = json.loads(value)
         if value is None:
-            raise EmailingError.FIELD_NOT_FOUND(field_name)
+            raise EmailingError.FIELD_NOT_FOUND.with_extra({"fieldName": field_name})
         return value
 
     def get_obj(cls, query_value):
@@ -36,38 +33,33 @@ def control(request):
     object_type = load_field("objectType")
     action = load_field("action")
 
-    response = {}
     if object_type == "campaign":
         if action in ["start", "stop", "pause", "continue"]:
             campaign_id = load_field("id")
-            response = MercuryRedisAPI.get_api().send_campaign_start(campaign_id)
+            return MercuryRedisAPI.get_api().send_campaign_start(campaign_id)
         elif action == "test":
             campaign_id = load_field("id")
             id_from = load_field("fromId")
             id_to = load_field("toId")
-            response = MercuryRedisAPI.get_api().send_campaign_test(campaign_id, id_from, id_to)
+            return MercuryRedisAPI.get_api().send_campaign_test(campaign_id, id_from, id_to)
         elif action == "clearStatus":
             campaign_id = load_field("id")
             EmailStatus.objects.all().filter(campaign_id=campaign_id).delete()
-            response = {"message": "Success!"}
         elif action == "update":
             campaign_id = load_field("id")
             campaign = get_obj(EmailCampaign, campaign_id)
             updated_fields = campaign.update_from_dict(request.POST)
             campaign.save(update_fields=updated_fields)
             campaign.publish_update_event()
-            response = {"message": "Success!"}
         elif action == "new":
             campaign = EmailCampaign.create_from_request(request)
             campaign.save()
             campaign.publish_update_event()
-            response = {"message": "Success!"}
         elif action == "delete":
             campaign_id = load_field("id")
             campaign = get_obj(EmailCampaign, campaign_id)
             campaign.publish_update_event(event_type="delete")
             campaign.delete()
-            response = {"message": "Success!"}
         else:
             return EmailingError.INVALID_ACTION
     elif object_type == "gateway":
@@ -77,18 +69,15 @@ def control(request):
             updated_fields = gateway.update_from_dict(request.POST)
             gateway.save(update_fields=updated_fields)
             gateway.publish_update_event()
-            response = {"message": "Success!"}
         elif action == "new":
             gateway = EmailGateway.create_from_request(request)
             gateway.save()
             gateway.publish_update_event()
-            response = {"message": "Success!"}
         elif action == "delete":
             gateway_id = load_field("id")
             gateway = get_obj(EmailGateway, gateway_id)
             gateway.publish_update_event(event_type="delete")
             gateway.delete()
-            response = {"message": "Success!"}
         else:
             return EmailingError.INVALID_ACTION
     elif object_type == "template":
@@ -98,23 +87,20 @@ def control(request):
             updated_fields = template.update_from_dict(request.POST)
             template.save(update_fields=updated_fields)
             template.publish_update_event()
-            response = {"message": "Success!"}
         elif action == "new":
             template = EmailTemplate.create_from_request(request)
             template.save()
             template.publish_update_event()
-            response = {"message": "Success!"}
         elif action == "delete":
             template_id = load_field("id")
             template = get_obj(EmailTemplate, template_id)
             template.publish_update_event(event_type="delete")
             template.delete()
-            response = {"message": "Success!"}
         else:
             return EmailingError.INVALID_ACTION
     else:
         return EmailingError.INVALID_OBJECT_TYPE
-    return response
+    return {"message": "Success!"}
 
 
 def track_email(request):

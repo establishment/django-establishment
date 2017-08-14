@@ -84,13 +84,10 @@ class EmailTemplateModal extends ActionModal {
         Ajax.postJSON("/email/control/", request).then(
             (data) => {
                 if (data.error) {
-                    console.log(data.error);
-                    for (let field of this.fields) {
-                        if (data.error.toString().indexOf(field) !== -1) {
-                            this[field + "Field"].setError("Invalid " + field);
-                        }
+                    if (data.error.fieldName) {
+                        data.error.message += " (" + data.error.fieldName + ")";
                     }
-                    this.messageArea.showMessage("Error in template operation!!", "red");
+                    this.messageArea.showMessage(data.error.message, "red");
                 } else {
                     this.hide();
                 }
@@ -174,8 +171,10 @@ class GenericConfirmModal extends ActionModal {
         Ajax.postJSON("/email/control/", request).then(
             (data) => {
                 if (data.error) {
-                    console.log(data.error);
-                    this.messageArea.showMessage("Error in campaign operation!!", "red");
+                    if (data.error.fieldName) {
+                        data.error.message += " (" + data.error.fieldName + ")";
+                    }
+                    this.messageArea.showMessage(data.error.message, "red");
                 } else {
                     this.hide();
                 }

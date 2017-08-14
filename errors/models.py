@@ -1,3 +1,5 @@
+import copy
+
 from django.db import models
 
 from establishment.funnel.stream import StreamObjectMixin
@@ -70,6 +72,11 @@ class ErrorMessage(StreamObjectMixin, Exception):
         cls.add_to_cache(error_message)
         return error_message
 
+    def with_extra(self, extra):
+        error_message = copy.deepcopy(self)
+        error_message.extra = extra
+        return error_message
+
     def to_response(self, extra=None, **kwargs):
         from establishment.funnel.base_views import JSONResponse
 
@@ -80,6 +87,7 @@ class ErrorMessage(StreamObjectMixin, Exception):
         }
         if extra:
             response.update(extra)
+        response["error"].update(getattr(self, "extra", {}))
         if self.status_code:
             kwargs["status"] = self.status_code
         self._response = JSONResponse(response, **kwargs)
