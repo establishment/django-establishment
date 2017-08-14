@@ -10,24 +10,31 @@ import {GoogleManager} from "GoogleManager";
 import {Ajax} from "Ajax";
 import {Level, Size} from "ui/Constants";
 
-class GeneralInformationPanel extends Panel {
+
+export class GeneralInformationPanel extends Panel {
+    getFormFields() {
+        return [
+            <FormField ref="firstNameFormField" label="First Name">
+                <TextInput ref="firstNameFormInput" placeholder="John" value={this.options.user.firstName}/>
+            </FormField>,
+            <FormField ref="lastNameFormField" label="Last Name">
+                <TextInput ref="lastNameFormInput" placeholder="Smith" value={this.options.user.lastName}/>
+            </FormField>,
+            <FormField ref="userNameFormField" label="Username">
+                <TextInput ref="userNameFormInput" placeholder="johnsmith" value={this.options.user.username || ""}/>
+            </FormField>,
+            <FormField ref="displayNameFormField" label="Display name">
+                <Select ref="displayNameSelect" options={["Name", "Username"]}/>
+            </FormField>
+        ];
+    }
+
     render() {
         return [
-            <h3>General Info</h3>,
+            <h3>{UI.T("General Info")}</h3>,
             <div>
                 <Form>
-                    <FormField ref="firstNameFormField" label="First Name">
-                        <TextInput ref="firstNameFormInput" placeholder="John" value={this.options.user.firstName}/>
-                    </FormField>
-                    <FormField ref="lastNameFormField" label="Last Name">
-                        <TextInput ref="lastNameFormInput" placeholder="Smith" value={this.options.user.lastName}/>
-                    </FormField>
-                    <FormField ref="userNameFormField" label="Username">
-                        <TextInput ref="userNameFormInput" placeholder="johnsmith" value={this.options.user.username || ""}/>
-                    </FormField>
-                    <FormField ref="displayNameFormField" label="Display name">
-                        <Select ref="displayNameSelect" options={["Name", "Username"]}/>
-                    </FormField>
+                    {this.getFormFields()}
                 </Form>
                 <FormField label=" ">
                   <div><AjaxButton ref="saveProfileButton" level={Level.PRIMARY}
@@ -47,20 +54,22 @@ class GeneralInformationPanel extends Panel {
         });
     }
 
-    saveProfileChanges() {
+    getSaveRequestData() {
         let firstName = this.firstNameFormInput.getValue();
         let lastName = this.lastNameFormInput.getValue();
         let userName = this.userNameFormInput.getValue();
         let displayName = this.displayNameSelect.get();
 
-        let request = {
+        return {
             firstName: firstName,
             lastName: lastName,
             userName: userName,
             displayName: displayName === "Name"
         };
-        console.log("sending request", request);
+    }
 
+    saveProfileChanges() {
+        const request = this.getSaveRequestData();
         this.saveProfileButton.ajaxCall({
             url: "/accounts/profile_changed/",
             type: "POST",
@@ -100,19 +109,19 @@ class GeneralInformationPanel extends Panel {
 }
 
 
-class SecuritySettingsPanel extends Panel {
+export class SecuritySettingsPanel extends Panel {
     render() {
         return [
-            <h3>Password</h3>,
+            <h3>{UI.T("Password")}</h3>,
             <div>
                 <Form>
-                    <FormField ref="oldPasswordGroup" label="Current Password">
+                    <FormField ref="oldPasswordGroup" label={UI.T("Current Password")}>
                         <PasswordInput ref="oldPasswordInput"/>
                     </FormField>
-                    <FormField ref="newPasswordGroup" label="New Password">
+                    <FormField ref="newPasswordGroup" label={UI.T("New Password")}>
                         <PasswordInput ref="newPasswordInput" required/>
                     </FormField>
-                    <FormField ref="newPasswordGroup2" label="New Password (again)">
+                    <FormField ref="newPasswordGroup2" label={[UI.T("New Password"), " (", UI.T("again"), ")"]}>
                         <PasswordInput ref="newPasswordInput2" required/>
                     </FormField>
                 </Form>
@@ -188,7 +197,7 @@ class SecuritySettingsPanel extends Panel {
 }
 
 
-class EmailPanel extends Panel {
+export class EmailPanel extends Panel {
     render() {
         let emails = this.options.user.emails.slice();
 
@@ -253,12 +262,12 @@ class EmailPanel extends Panel {
         }
 
         return [
-            <h3>E-mail Addresses</h3>,
-            <p>The following e-mail addresses are associated with your account:</p>,
+            <h3>{UI.T("E-mail Addresses")}</h3>,
+            <p>{UI.T("The following e-mail addresses are associated with your account:")}</p>,
 
             emailForms,
 
-            <h3>Add E-mail Address</h3>,
+            <h3>{UI.T("Add E-mail Address")}</h3>,
 
             <div>
                 <Form>
@@ -271,11 +280,9 @@ class EmailPanel extends Panel {
                     </FormField>
                 </Form>
             </div>,
-
-            //<UI.CheckboxInput checked={this.options.user.} onClick={}/>
             <h5>
-              <FormField label="Receive email notifications" inline={false}>
-                <CheckboxInput ref="emailSubscriptionCheckbox" checked={true}
+              <FormField label={UI.T("Receive email notifications")} inline={false}>
+                <CheckboxInput ref="emailSubscriptionCheckbox" checked={this.options.user.receivesEmailAnnouncements}
                                   onClick={() => {this.changeEmailSubscription(this.emailSubscriptionCheckbox.getValue())}}/>
               </FormField>
             </h5>,
@@ -374,7 +381,7 @@ class EmailPanel extends Panel {
             email: email
         };
 
-        console.log("sending confirmation", data);
+        console.log("sending confirmation", request);
         Ajax.postJSON("/accounts/email_address_verification_send/", request).then(
             (data) => {
                 if (data.error) {
@@ -412,7 +419,7 @@ class EmailPanel extends Panel {
 }
 
 
-class SocialAccountsPanel extends Panel {
+export class SocialAccountsPanel extends Panel {
     constructor(options) {
         super(options);
         // Ensure FacebookManager is initialized
@@ -422,19 +429,19 @@ class SocialAccountsPanel extends Panel {
 
     render() {
         let addSocialAccountGroup = [
-            <h3>Add a 3rd Party Account</h3>,
+            <h3>{UI.T("Add a 3rd Party Account")}</h3>,
             <div>
               <a style={{cursor: "pointer"}} onClick={() => {
                     GoogleManager.Global().handleAuthClick(window.location.pathname, "connect", (data) => this.onSocialConnect(data));
                 }}>
                 <i className="fa fa-google fa-2x"/>
-                <span className="google-login-text"> Connect Google account</span>
+                <span className="google-login-text"> {UI.T("Connect Google account")}</span>
               </a>
             </div>,
             <div>
               <a onClick={() => {FacebookManager.Global().login(window.location.pathname, "authenticate", "connect")}}>
                 <i className="fa fa-facebook fa-2x"/>
-                <span> Connect Facebook account</span>
+                <span> {UI.T("Connect Facebook account")} </span>
               </a>
             </div>
         ];
@@ -458,8 +465,8 @@ class SocialAccountsPanel extends Panel {
             }
 
             return [
-                <h3>Social accounts</h3>,
-                <p>You can sign in to your account using any of the following third party accounts:</p>,
+                <h3>{UI.T("Social accounts")}</h3>,
+                <p>{UI.T("You can sign in to your account using any of the following third party accounts:")}</p>,
                 <div>
                     {socialAccounts}
                 </div>,
@@ -467,8 +474,8 @@ class SocialAccountsPanel extends Panel {
             ];
         } else {
             return [
-                <h3>Social accounts</h3>,
-                <p>You currently have no social network accounts connected to this account.</p>,
+                <h3>{UI.T("Social accounts")}</h3>,
+                <p>{UI.T("You currently have no social network accounts connected to this account.")}</p>,
                 ...addSocialAccountGroup
             ];
         }
@@ -503,7 +510,7 @@ class SocialAccountsPanel extends Panel {
 }
 
 
-class UserSettingsPanel extends TabArea {
+export class UserSettingsPanel extends Panel {
     extraNodeAttributes(attr) {
         super.extraNodeAttributes(attr);
         attr.setStyle({
@@ -512,20 +519,58 @@ class UserSettingsPanel extends TabArea {
         attr.addClass(GlobalStyle.Container.SMALL);
     }
 
-    setUser(user) {
-        this.user = user;
+    getUrlPrefix(str) {
+        let url = "/accounts/settings/";
+        if (str) {
+            url += str + "/";
+        }
+        return url;
     }
 
-    getGivenChildren() {
-        this.setUser(UserStore.getCurrentUser());
+    setURL(urlParts) {
+        if (this.tabArea) {
+            this.showUrlTab(urlParts[0] || "general");
+        } else {
+            this.initialUrlParts = urlParts;
+        }
+    }
+
+    showUrlTab(tabName) {
+        if (this[tabName + "Panel"]) {
+            this[tabName + "Panel"].dispatch("show");
+        } else {
+            this["generalPanel"].dispatch("show");
+        }
+    }
+
+    getUser() {
+        return UserStore.getCurrentUser();
+    }
+
+    getPanels() {
         return [
-            <GeneralInformationPanel title={UI.T("General Info")} active={true} user={this.user}/>,
-            <EmailPanel title={UI.T("Email")} user={this.user}/>,
-            <SocialAccountsPanel title={UI.T("Social accounts")} user={this.user}/>,
-            <SecuritySettingsPanel ref={this.refLink("securitySettingsPanel")} title={UI.T("Security")}
-                                   user={this.user} />
+            <GeneralInformationPanel title={UI.T("General Info")} active={true}
+                                     user={this.getUser()} ref="generalPanel" tabHref={this.getUrlPrefix("general")} />,
+            <EmailPanel title={UI.T("Email")} user={this.getUser()}
+                        ref="emailPanel" tabHref={this.getUrlPrefix("email")} />,
+            <SocialAccountsPanel title={UI.T("Social accounts")} user={this.getUser()}
+                        ref="socialPanel" tabHref={this.getUrlPrefix("social")} />,
+            <SecuritySettingsPanel title={UI.T("Security")}
+                                   user={this.getUser()} ref="securityPanel" tabHref={this.getUrlPrefix("security")} />
         ];
+    }
+
+    render() {
+        return [
+            <TabArea ref="tabArea" variableHeightPanels>
+                {this.getPanels()}
+            </TabArea>
+        ];
+    }
+
+    onMount() {
+        this.setURL(this.initialUrlParts);
+        delete this.initialUrlPars;
     }
 }
 
-export {UserSettingsPanel};

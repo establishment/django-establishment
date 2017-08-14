@@ -15,7 +15,7 @@ urlpatterns = [
     url(r"^remove_social_account/$", views.remove_social_account),
 
     # User profile
-    url(r"^settings/$", views.account_settings, name="account_settings"),
+    url(r"^settings/", views.account_settings, name="account_settings"),
     url(r"^profile_changed/$", views.edit_profile),
 
     # Password
