@@ -434,23 +434,8 @@ class ArticleManager extends Panel {
         if (this.options.articles && this.options.articles.length > 0) {
             return;
         }
-
-        let request = {};
-        Ajax.getJSON("/get_available_articles/", request).then(
-            (data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    GlobalState.importState(data.state);
-                    this.table.options.articles = ArticleStore.all();
-                    this.table.redraw();
-                }
-            },
-            (error) => {
-                console.log("Error in fetching articles");
-                console.log(error.message);
-                console.log(error.stack);
-            }
+        Ajax.getJSON("/get_available_articles/", {}).then(
+            () => this.table.updateOptions({articles: ArticleStore.all()})
         );
     }
 }
@@ -496,25 +481,15 @@ class TranslationManager extends Panel {
     getTranslations() {
         if (!this.options.baseArticle)
             return;
-        let request = {};
-        Ajax.getJSON("/article/" + this.options.baseArticle.id + "/get_translations/", request).then(
-            (data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    GlobalState.importState(data.state);
-                    for (let article of ArticleStore.all()) {
-                        if (article.baseArticleId == this.options.baseArticle.id) {
-                            this.table.options.articles.push(article);
-                        }
+
+        Ajax.getJSON("/article/" + this.options.baseArticle.id + "/get_translations/", {}).then(
+            () => {
+                for (let article of ArticleStore.all()) {
+                    if (article.baseArticleId === this.options.baseArticle.id) {
+                        this.table.options.articles.push(article);
                     }
-                    this.table.redraw();
                 }
-            },
-            (error) => {
-                console.log("Error in fetching articles");
-                console.log(error.message);
-                console.log(error.stack);
+                this.table.redraw();
             }
         );
     }

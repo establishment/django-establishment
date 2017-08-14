@@ -77,19 +77,7 @@ export class EditEntryModal extends ActionModal {
         let request = this.getAjaxRequest();
         let errorMessage = this.check(request);
         if (!errorMessage) {
-            Ajax.postJSON(this.getAjaxUrl(), request).then(
-                (data) => {
-                    if (data.error) {
-                        console.log(data.error);
-                    } else {
-                        GlobalState.importState(data.state || {});
-                    }
-                },
-                (error) => {
-                    console.log("Error in deleting workspace:\n" + error.message);
-                    console.log(error.stack);
-                }
-            );
+            Ajax.postJSON(this.getAjaxUrl(), request);
         } else {
             this.messageArea.showMessage(errorMessage, "red");
         }

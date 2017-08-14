@@ -150,15 +150,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
                 parentIndex: entry.parentIndex
             });
         }
-        Ajax.postJSON("/docs/change_parents/",{modifiedEntries: JSON.stringify(modified)}).then(
-            () => {
-                console.log("successfully changed parent indices!");
-            },
-            (error) => {
-                console.log(error.message);
-                console.log(error.stack);
-            }
-        );
+        Ajax.postJSON("/docs/change_parents/",{modifiedEntries: JSON.stringify(modified)});
     }
 
     setTarget(element, eventType, borderType, visibleEntries) {
