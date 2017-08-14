@@ -97,17 +97,7 @@ class MiniMessage extends UI.Element {
         }
         Ajax.postJSON("/chat/private_chat_mark_read/", {
             privateChatId: this.options.privateChatId,
-        }).then(
-            (data) => {
-                if (data.error) {
-                    console.error("Failed to fetch objects of type ", this.objectType, ":\n", data.error);
-                }
-            },
-            (error) => {
-                console.error("Error in fetching objects:\n" + error.message);
-                console.error(error.stack);
-            }
-        );
+        }).then(() => {}, () => {});
     }
 
     onMount() {
@@ -201,27 +191,11 @@ class UserSearchInput extends UI.Element {
         this.input.addNodeListener("keyup", () => {
             this.window.show();
             if (this.input.getValue()) {
-                let request = {
+                Ajax.getJSON("/public_user_profiles/", {
                     usernamePrefix: this.input.getValue(),
-                };
-
-                Ajax.get("/public_user_profiles/", {
-                    dataType: "json",
-                    data: request,
-                    cache: false,
                 }).then(
-                    (data) => {
-                        if (data.error) {
-                            console.error("Failed to fetch objects of type ", this.objectType, ":\n", data.error);
-                            return;
-                        }
-                        GlobalState.importState(data.state || {});
-                        this.updateList(data.state.publicuser);
-                    },
-                    (error) => {
-                        console.error("Error in fetching objects:\n" + error.message);
-                        console.error(error.stack);
-                    }
+                    (data) => this.updateList(data.state.publicuser),
+                    () => {}
                 );
             } else {
                 this.updateList();
@@ -275,25 +249,10 @@ class MessagesList extends UI.Element {
     }
 
     refreshList() {
-        let request = {};
-
-        Ajax.get("/chat/private_chat_list/", {
-            dataType: "json",
-            data: request,
-            cache: false,
-        }).then(
-            (data) => {
-                if (data.error) {
-                    console.error("Failed to fetch objects of type ", this.objectType, ":\n", data.error);
-                    return;
-                }
-                GlobalState.importState(data.state || {});
+        Ajax.getJSON("/chat/private_chat_list/", {}).then(
+            () => {
                 this.redraw();
                 this.recalculateTotalUnread();
-            },
-            (error) => {
-                console.error("Error in fetching objects:\n" + error.message);
-                console.error(error.stack);
             }
         );
     }

@@ -96,25 +96,7 @@ class NotificationsList extends UI.Element {
     }
 
     getStoredNotifications() {
-        let request = {};
-
-        Ajax.get("/accounts/get_user_notifications/", {
-            dataType: "json",
-            data: request,
-            cache: false,
-        }).then(
-            (data) => {
-                if (data.error) {
-                    console.error("Failed to fetch objects of type ", this.objectType, ":\n", data.error);
-                    return;
-                }
-                GlobalState.importState(data.state || {});
-            },
-            (error) => {
-                console.log("Error in fetching objects:\n" + error.message);
-                console.log(error.stack);
-            }
-        );
+        Ajax.getJSON("/accounts/get_user_notifications/", {});
     }
 
     insertChild(child, position) {

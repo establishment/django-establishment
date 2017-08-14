@@ -6,6 +6,7 @@ import {PublicUserStore} from "UserStore";
 import {UserReactionCollectionStore} from "UserReactionStore";
 import {MarkupParser} from "MarkupParser";
 import {ServerTime, StemDate} from "Time";
+import {NOOP_FUNCTION} from "Utils";
 
 class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
     constructor(obj, event) {
@@ -100,62 +101,18 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
         return StemDate.unix(this.timeAdded).format("HH:mm");
     }
 
-    edit(content, onSuccess, onError) {
-        //TODO: send a message to the server to edit this message with the new content
-        let request = {
+    edit(content, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
+        Ajax.postJSON("/chat/edit_message/", {
             messageId: this.id,
             message: content,
-        };
-
-        Ajax.postJSON("/chat/edit_message/", request).then(
-            (data) => {
-                if (data.error) {
-                    console.log("error saving message edit", data);
-                    if (onError) {
-                        onError(data);
-                    }
-                } else {
-                    if (onSuccess) {
-                        onSuccess(data);
-                    }
-                }
-            },
-            (error) => {
-                console.log("Error in sending chat message:\n" + error.message);
-                if (onError) {
-                    onError(xhr, errmsg, err);
-                }
-            }
-        );
+        }).then(onSuccess, onError);
     }
 
-    react(reaction, onSuccess, onError) {
-        let request = {
+    react(reaction, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
+        Ajax.postJSON("/chat/edit_message/", {
             messageId: this.id,
             reaction: reaction,
-        };
-
-        Ajax.postJSON("/chat/edit_message/", request).then(
-            (data) => {
-                if (data.error) {
-                    console.log("error saving reaction", data);
-                    if (onError) {
-                        onError(data);
-                    }
-                } else {
-                    if (onSuccess) {
-                        onSuccess(data);
-                    }
-                }
-            },
-            (error) => {
-                console.log("Error in saving reaction:\n" + error.message);
-                console.log(error.stack);
-                if (onError) {
-                    onError(error);
-                }
-            }
-        );
+        }).then(onSuccess, onError);
     }
 
     like(onSuccess, onError) {
@@ -171,26 +128,10 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
     }
 
     deleteMessage(onSuccess, onError) {
-        // send a message to the server to delete this message
-        let request = {
+        Ajax.postJSON("/chat/edit_message/", {
             messageId: this.id,
             hidden: true,
-        };
-
-        Ajax.postJSON("/chat/edit_message/", request).then(
-            (data) => {
-                if (onSuccess) {
-                    onSuccess(data);
-                }
-            },
-            (error) => {
-                console.log("Error in sending delete message:\n" + error.message);
-                console.log(error.stack);
-                if (onError) {
-                    onError(error);
-                }
-            }
-        );
+        }).then(onSuccess, onError);
     }
 
     applyEvent(event) {
@@ -401,29 +342,11 @@ PrivateChatStore.getChatWithUser = function(userId) {
 };
 
 PrivateChatStore.fetchForUser = function (userId, onSuccess, onError) {
-    let request = {
+    Ajax.postJSON("/chat/private_chat_state/", {
         userId: userId,
-    };
-
-    Ajax.postJSON("/chat/private_chat_state/", request).then(
-        (data) => {
-            if (data.error) {
-                console.error("Failed to fetch objects of type ", this.objectType, ":\n", data.error);
-                if (onError) {
-                    onError(data.error);
-                }
-                return;
-            }
-            GlobalState.importState(data.state || {});
-            onSuccess(PrivateChatStore.get(data.privateChatId));
-        },
-        (error) => {
-            console.error("Error in fetching objects:\n" + error.message);
-            console.error(error.stack);
-            if (onError) {
-                onError(error.message);
-            }
-        }
+    }).then(
+        (data) => onSuccess(PrivateChatStore.get(data.privateChatId)),
+        onError
     );
 };
 
