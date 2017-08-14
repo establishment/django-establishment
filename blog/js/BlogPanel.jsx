@@ -82,18 +82,10 @@ export class BlogEntryEditModal extends Modal {
 
         Ajax.postJSON("/blog/change_entry_settings/", request).then(
             (data) => {
-                console.log("Changed entry settings!", data);
-
                 if (data.urlName) {
                     Dispatcher.Global.dispatch("changeURL", "/blog/" + data.urlName + "/");
                 }
                 this.hide();
-            },
-            (error) => {
-                console.log("Error in changing entry settings!");
-                console.log(error.message);
-                console.log(error.stack);
-                this.messageArea.showMessage("Error in changing entry settings!", "red");
             }
         );
     }
@@ -104,17 +96,7 @@ export class BlogEntryEditModal extends Modal {
         };
 
         Ajax.postJSON("/blog/create_entry_discussion/", request).then(
-            (data) => {
-                console.log("Created discussion!", data);
-                GlobalState.importState(data.state);
-                this.hide();
-            },
-            (error) => {
-                console.log("Error in creating discussion!");
-                console.log(error.message);
-                console.log(error.stack);
-                this.messageArea.showMessage("Error in creating discussion!", "red");
-            }
+            () => this.hide()
         );
     }
 }
@@ -169,19 +151,9 @@ export class NewBlogEntryModal extends Modal {
 
         Ajax.postJSON("/blog/add_entry/", data).then(
             (data) => {
-                if (data.error) {
-                    ErrorHandlers.SHOW_ERROR_ALERT(data.error);
-                } else {
-                    GlobalState.importState(data.state);
-                    let blogEntry = BlogEntryStore.get(data.blogEntryId);
-                    Router.changeURL(["blog", blogEntry.urlName]);
-                    this.hide();
-                }
-            },
-            (error) => {
-                console.log("Error in adding blog post!");
-                console.log(error.message);
-                console.log(error.stack);
+                let blogEntry = BlogEntryStore.get(data.blogEntryId);
+                Router.changeURL(["blog", blogEntry.urlName]);
+                this.hide();
             }
         );
     }
@@ -398,22 +370,15 @@ class BlogEntryList extends UI.Element {
                     lastDate: Math.min.apply(null, BlogEntryStore.all().map(x => x.getArticle().dateCreated))
                 }).then(
                     (data) => {
-                        if (data.error) {
-                            console.log(data.error);
-                        } else {
-                            GlobalState.importState(data.state || {});
-                            this.options.finishedLoading = data.finishedLoading;
-                            if (this.options.finishedLoading) {
-                                this.loadMoreButton.options.label = UI.T("No more posts");
-                                this.loadMoreButton.redraw();
-                                this.loadMoreButton.disable();
-                            }
-                            this.redraw();
+                        this.options.finishedLoading = data.finishedLoading;
+                        if (this.options.finishedLoading) {
+                            this.loadMoreButton.options.label = UI.T("No more posts");
+                            this.loadMoreButton.redraw();
+                            this.loadMoreButton.disable();
                         }
-                    },
-                    (error) => {
-                        console.log(error);
-                    });
+                        this.redraw();
+                    }
+                );
             }
         })
     }
