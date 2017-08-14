@@ -218,16 +218,7 @@ class CommandRunCreationModal extends ActionModal {
 }
 
 function runCommand(json, callback) {
-    Ajax.postJSON("/baseconfig/run_command/", json).then((data) => {
-        if (data.error) {
-            console.error(data.error);
-        } else {
-            GlobalState.importState(data.state || {});
-            callback();
-        }
-    }, (error) => {
-        console.error(error);
-    });
+    Ajax.postJSON("/baseconfig/run_command/", json).then(callback);
 }
 
 class CommandManager extends UI.Element {

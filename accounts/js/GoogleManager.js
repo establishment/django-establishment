@@ -1,5 +1,6 @@
 import {Ajax} from "Ajax";
 import {ErrorHandlers} from "ErrorHandlers";
+import {NOOP_FUNCTION} from "Utils";
 
 class GoogleManager {
     constructor() {
@@ -73,22 +74,8 @@ class GoogleManager {
         });
     }
 
-    sendData(url, data, onSuccess) {
-        Ajax.postJSON(url, data).then(
-            (data) => {
-                if (data.error) {
-                    ErrorHandlers.SHOW_ERROR_ALERT(data.error);
-                } else {
-                    if (onSuccess) {
-                        onSuccess(data);
-                    }
-                }
-            },
-            (error) => {
-                console.log("Error :\n" + error.message);
-                console.log(error.stack);
-            }
-        );
+    sendData(url, data, onSuccess=NOOP_FUNCTION) {
+        Ajax.postJSON(url, data).then(onSuccess);
     }
 }
 

@@ -193,27 +193,15 @@ class LoginWidget extends UI.Element {
     }
 
     sendLogin() {
-        var data = {
+        const data = {
             email: this.emailInput.getValue(),
             password: this.passwordInput.getValue(),
             remember: this.rememberInput.getValue()
         };
-        Ajax.request({
-            url: "/accounts/login/",
-            type: "POST",
-            dataType: "json",
-            data: data,
-            success: (data) => {
-                if (data.error) {
-                    this.loginErrorMessage.showMessage(data.error.message || data.error, "red", ERROR_TIMEOUT);
-                } else {
-                    location.reload();
-                }
-            },
-            error: (xhr, errmsg, err) => {
-                console.log("Error logging in:\n" + xhr.status + ":\n" + xhr.responseText);
-            }
-        });
+        Ajax.postJSON("/accounts/login/", data).then(
+            () => location.reload(),
+            (error) => this.loginErrorMessage.showMessage(error.message, "red", ERROR_TIMEOUT)
+        );
     }
 
     onMount() {
@@ -224,7 +212,7 @@ class LoginWidget extends UI.Element {
             });
         }
         FacebookManager.Global().addListener("loginError", (error) => {
-            this.loginErrorMessage.showMessage(error.message || error, "red", ERROR_TIMEOUT);
+            this.loginErrorMessage.showMessage(error.message, "red", ERROR_TIMEOUT);
         });
     }
 }
@@ -334,19 +322,15 @@ class RegisterWidget extends UI.Element {
            data.countryId = this.countrySelect.get().id;
         }
         Ajax.postJSON("/accounts/signup_request/", data).then(
-            (data) => {
-                if (data.error) {
-                    this.errorArea.showMessage("Error in registration: " + (data.error.message || data.error), "red", 4000);
-                    this.submitButton.updateOptions({value: "Sign Up"});
-                    this.recaptchaWidget.redraw();
-                } else {
-                    this.recaptchaWidget.hide();
-                    this.submitButton.hide();
-                    this.errorArea.showMessage("Done! Please check your email to continue", "black", 26 * 60 * 60 * 1000);
-                }
+            () => {
+                this.recaptchaWidget.hide();
+                this.submitButton.hide();
+                this.errorArea.showMessage("Done! Please check your email to continue", "black", 26 * 60 * 60 * 1000);
             },
             (error) => {
-                this.errorArea.showMessage("Error in registraion: " + error, "red", 4000);
+                this.errorArea.showMessage("Error in registration: " + error.message, "red", 4000);
+                this.submitButton.updateOptions({value: "Sign Up"});
+                this.recaptchaWidget.redraw();
             }
         );
     }

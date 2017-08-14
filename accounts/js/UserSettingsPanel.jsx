@@ -331,23 +331,11 @@ export class EmailPanel extends Panel {
             return;
         }
 
-        console.log("removing email", request);
         Ajax.postJSON("/accounts/email_address_remove/", request).then(
-            (data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    UserStore.applyEvent({
-                        objectId: data.user.id,
-                        data: data.user,
-                    });
-                    console.log("Removed email", data);
-                }
-            },
-            (error) => {
-                console.log("Error while removing email:\n" + error.message);
-                console.log(error.stack);
-            }
+            (data) => UserStore.applyEvent({
+                          objectId: data.user.id,
+                          data: data.user,
+                      })
         );
     }
 
@@ -356,65 +344,24 @@ export class EmailPanel extends Panel {
             email: email
         };
 
-        console.log("Making email primary", request);
         Ajax.postJSON("/accounts/email_address_make_primary/", request).then(
-            (data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    UserStore.applyEvent({
-                        objectId: data.user.id,
-                        data: data.user,
-                    });
-                    console.log("Email primarification successful", data);
-                }
-            },
-            (error) => {
-                console.log("Error while changing primary email:\n" + error.message);
-                console.log(error.stack);
-            }
+            (data) => UserStore.applyEvent({
+                          objectId: data.user.id,
+                          data: data.user,
+                      })
         );
     }
 
     sendConfirmation(email) {
-        let request = {
+        Ajax.postJSON("/accounts/email_address_verification_send/", {
             email: email
-        };
-
-        console.log("sending confirmation", request);
-        Ajax.postJSON("/accounts/email_address_verification_send/", request).then(
-            (data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    console.log("Confirmation sent", data);
-                }
-            },
-            (error) => {
-                console.log("Error while sending email confirmation:\n" + error.message);
-                console.log(error.stack);
-            }
-        );
+        });
     }
 
     changeEmailSubscription(receivesEmailAnnouncements) {
-        let request = {
+        Ajax.postJSON("/accounts/profile_changed/", {
             receivesEmailAnnouncements: receivesEmailAnnouncements
-        };
-
-        Ajax.postJSON("/accounts/profile_changed/", request).then(
-            (data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    console.log("Successfully changed email subscription", data);
-                }
-            },
-            (error) => {
-                console.log("Error while removing email:\n" + error.message);
-                console.log(error.stack);
-            }
-        );
+        });
     }
 }
 
@@ -487,24 +434,13 @@ export class SocialAccountsPanel extends Panel {
     }
 
     removeSocialAccount(socialAccountId) {
-        let request = {
+        Ajax.postJSON("/accounts/remove_social_account/", {
             socialAccountId: socialAccountId
-        };
-        Ajax.postJSON("/accounts/remove_social_account/", request).then(
-            (data) => {
-                if (data.error) {
-
-                } else {
-                    UserStore.applyEvent({
-                        objectId: data.user.id,
-                        data: data.user,
-                    });
-                }
-            },
-            (error) => {
-                console.log("Error while removing social account:\n" + error.message);
-                console.log(error.stack);
-            }
+        }).then(
+            (data) => UserStore.applyEvent({
+                          objectId: data.user.id,
+                          data: data.user,
+                      })
         );
     }
 }

@@ -75,17 +75,7 @@ class User extends StoreObject {
             clearTimeout(this.timeouts.get(key));
         }
         this.timeouts.set(key, setTimeout(() => {
-            Ajax.postJSON("/accounts/profile_changed/", request).then(
-                (data) => {
-                    console.log("Profile changed", data);
-                    if (data.error) {
-                    } else {
-                    }
-                },
-                (error) => {
-                    console.log("Error in updating user profile:\n" + error.message);
-                }
-            );
+            Ajax.postJSON("/accounts/profile_changed/", request).then(() => {}, () => {});
         }));
     }
 

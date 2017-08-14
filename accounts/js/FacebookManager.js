@@ -29,18 +29,15 @@ class FacebookManager extends Dispatchable {
 
     sendData(url, data) {
         Ajax.postJSON(url, data).then(
-            (dataJSON) => {
-                if (dataJSON.error) {
-                    this.dispatch("loginError", dataJSON.error);
-                } else if (dataJSON.next) {
-                    window.location.href = dataJSON.next;
+            (data) => {
+                if (data.next) {
+                    window.location.href = data.next;
                 } else {
                     location.reload();
                 }
             },
             (error) => {
-                console.log("Error :\n" + error.message);
-                console.log(error.stack);
+                this.dispatch("loginError", error);
             }
         );
     }
