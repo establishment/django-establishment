@@ -14,6 +14,11 @@ ErrorHandlers.wrapError = (error) => {
     } else {
         if (typeof error === "string" || error instanceof String) {
             error = {message: error};
+        } else if (error instanceof Error) {
+            error = {
+                name: error.name,
+                message: error.message
+            };
         }
         return new ErrorMessage(error);
     }
