@@ -17,22 +17,13 @@ class EditableTextField(JSONField):
     pass
 
 
-class Tag(models.Model):
+class Tag(StreamObjectMixin):
     name = models.CharField(max_length=256, unique=True)
     parent = models.ForeignKey("Tag", on_delete=models.SET_NULL, related_name="children", null=True, blank=True)
     meta = JSONField(null=True, blank=True)
 
     def __str__(self):
         return self.name
-
-    def to_json(self):
-        result = {
-            "id": self.id,
-            "name": self.name
-        }
-        if self.parent:
-            result["parentId"] = self.parent_id
-        return result
 
     class Meta:
         db_table = "Tag"
@@ -49,7 +40,7 @@ class TaggableMixin(models.Model):
         abstract = True
 
 
-class TermDefinition(models.Model):
+class TermDefinition(StreamObjectMixin):
     term = models.CharField(max_length=256, unique=True)
     title = models.CharField(max_length=256, null=True)
     definition = models.TextField(max_length=8192)
@@ -59,18 +50,6 @@ class TermDefinition(models.Model):
 
     def __str__(self):
         return "TermDefinition-" + str(self.id) + " " + self.term
-
-    @classmethod
-    def object_type(cls):
-        return "termdefinition"
-
-    def to_json(self):
-        return {
-            "id": self.id,
-            "term": self.term,
-            "title": self.title or "",
-            "definition": self.definition
-        }
 
 
 class BaseArticleArticle(models.Model):
@@ -82,7 +61,7 @@ class BaseArticleArticle(models.Model):
 
 
 #TODO: ArticleEdit and Article should inherit from a base class with all shared fields
-class ArticleEdit(models.Model):
+class ArticleEdit(StreamObjectMixin):
     article = models.ForeignKey("Article", on_delete=models.CASCADE)
     version = models.IntegerField()
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -92,10 +71,6 @@ class ArticleEdit(models.Model):
     class Meta:
         db_table = "ArticleEdit"
         unique_together = ("article", "version")
-
-    @classmethod
-    def object_type(cls):
-        return "articleedit"
 
     def init(self, article, author):
         self.article = article
