@@ -14,6 +14,8 @@ class BaseGlobalSettings(StreamObjectMixin):
     namespace = models.CharField(max_length=255, null=True, blank=True)
     key = models.CharField(max_length=255)
     value = JSONField()
+    export = models.BooleanField(default=False)
+    export_name = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         abstract = True

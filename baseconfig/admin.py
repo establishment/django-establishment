@@ -4,9 +4,9 @@ from .models import PrivateGlobalSettings, PublicGlobalSettings, CommandInstance
 
 
 class GlobalSettingsAdmin(admin.ModelAdmin):
-    list_display = ("key", "value", "namespace")
-    list_filter = ("namespace",)
-    search_fields = ("key", "namespace")
+    list_display = ("key", "value", "export", "namespace")
+    list_filter = ("export", "namespace",)
+    search_fields = ("key", "export_name", "namespace")
 
 
 admin.site.register(PrivateGlobalSettings, GlobalSettingsAdmin)
