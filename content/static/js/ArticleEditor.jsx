@@ -92,29 +92,15 @@ class DeleteArticleModal extends ActionModal {
     }
 
     deleteArticle() {
-        let request = {};
-        this.deleteArticleButton.ajaxCall({
-            url: "/article/" + this.options.article.id + "/delete/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
-                if (data.error) {
-                    console.log(data.error);
-                    this.messageArea.showMessage(data.error, "red");
-                } else {
-                    console.log("Successfully deleted article", data);
-                    if (this.options.article.baseArticleId)
-                        window.location.replace("/article/" + this.options.article.baseArticleId + "/edit/");
-                    else
-                        window.location.replace(deleteRedirectLink);
-                }
+        this.deleteArticleButton.postJSON("/article/" + this.options.article.id + "/delete/", {}).then(
+            () => {
+                if (this.options.article.baseArticleId)
+                    window.location.replace("/article/" + this.options.article.baseArticleId + "/edit/");
+                else
+                    window.location.replace(deleteRedirectLink);
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in deleting article:\n" + xhr.status + ":\n" + xhr.responseText);
-                this.messageArea.showMessage("Error in deleting article", "red");
-            }
-        });
+            (error) => this.messageArea.showMessage(error.message, "red")
+        );
     }
 }
 
@@ -266,24 +252,16 @@ class ArticleEditor extends Panel {
 
         this.saveMarkupMessageArea.showMessage("Saving...", "black", null);
 
-        this.saveMarkupButton.ajaxCall({
-            url: "/article/" + this.options.articleId + "/edit/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
+        this.saveMarkupButton.postJSON("/article/" + this.options.articleId + "/edit/", request).then(
+            () => {
                 // Add a new version in the dropdown if the save is a success
                 if (ArticleEditor.DiffWidgetClass) {
                     this.addNewVersion(content);
                 }
-                console.log("Successfully saved article", data);
                 this.saveMarkupMessageArea.showMessage("Saved article");
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in saving article:\n" + xhr.status + ":\n" + xhr.responseText);
-                this.saveMarkupMessageArea.showMessage("Error in saving the article", "red");
-            }
-        });
+            (error) => this.saveMarkupMessageArea.showMessage("Error in saving the article: " + error.message, "red")
+        );
     }
 
     saveOptions(options) {
@@ -292,54 +270,20 @@ class ArticleEditor extends Panel {
 
         this.saveOptionsMessageArea.showMessage("Saving...", "black", null);
 
-        this.saveOptionsButton.ajaxCall({
-            url: "/article/" + this.options.articleId + "/edit/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
-                if (data.error) {
-                    console.log(data.error);
-                    this.saveOptionsMessageArea.showMessage(data.error, "red");
-                } else {
-                    console.log("Successfully saved article", data);
-                    this.saveOptionsMessageArea.showMessage("Successfully saved article");
-                    window.location.replace("/article/" + this.options.articleId + "/edit/");
-                }
-            },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in saving article:\n" + xhr.status + ":\n" + xhr.responseText);
-                this.saveOptionsMessageArea.showMessage("Error in saving the article", "red");
-            }
-        });
+        this.saveOptionsButton.postJSON("/article/" + this.options.articleId + "/edit/", request).then(
+            () => window.location.replace("/article/" + this.options.articleId + "/edit/"),
+            (error) => this.saveOptionsMessageArea.showMessage("Error in saving the article: " + error.message, "red")
+        );
     }
 
     setOwner(newOwner) {
-        let request = {
-            newOwner: newOwner
-        };
-
         this.setOwnerMessageArea.showMessage("Saving...", "black", null);
-
-        this.setOwnerButton.ajaxCall({
-            url: "/article/" + this.options.articleId + "/set_owner/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
-                if (data.error) {
-                    console.log(data.error);
-                    this.setOwnerMessageArea.showMessage(data.error, "red");
-                } else {
-                    console.log("Successfully changed owner", data);
-                    this.setOwnerMessageArea.showMessage("Author successfully changed");
-                }
-            },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in changing owner:\n" + xhr.status + ":\n" + xhr.responseText);
-                this.setOwnerMessageArea.showMessage("Error in changing owner", "red");
-            }
-        });
+        this.setOwnerButton.postJSON("/article/" + this.options.articleId + "/set_owner/", {
+            newOwner: newOwner
+        }).then(
+            () => this.setOwnerMessageArea.showMessage("Author successfully changed"),
+            (error) => this.setOwnerMessageArea.showMessage("Error in changing owner " + error.message, "red")
+        );
     }
 
     addNewVersion(content) {

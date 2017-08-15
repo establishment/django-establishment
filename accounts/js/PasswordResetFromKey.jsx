@@ -33,27 +33,14 @@ class PasswordResetFromKey extends UI.Element {
     }
 
     setNewPassword() {
-        var data = {
-            newPassword: this.passwordInput.getValue(),
-        };
         this.passwordFormField.removeError();
 
-        this.setPasswordButton.ajaxCall({
-            url: "/accounts/password_change/",
-            type: "POST",
-            dataType: "json",
-            data: data,
-            success: (data) => {
-                if (data.error) {
-                    this.passwordFormField.setError(data.error);
-                }
-            },
-            error: (error) => {
-                console.log("Error:\n" + error.message);
-                console.log(error.stack);
-            }
-        });
-
+        this.setPasswordButton.postJSON("/accounts/password_change/", {
+            newPassword: this.passwordInput.getValue(),
+        }).then(
+            () => {},
+            (error) => this.passwordFormField.setError(error.message)
+        );
     }
 
 }

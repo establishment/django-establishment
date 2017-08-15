@@ -27,27 +27,19 @@ class PasswordReset extends UI.Element {
     }
 
     sendPasswordReset() {
-        var data = {
-            email: this.emailInput.getValue().trim(),
-        };
         this.emailFormField.removeError();
 
-        this.resetPasswordButton.ajaxCall({
-            url: window.location.href + (window.location.href[window.location.href.length - 1] === "/" ? "" : "/"),
-            type: "POST",
-            dataType: "json",
-            data: data,
-            success: (data) => {
-                if (data.error) {
-                    this.emailFormField.setError(data.error);
-                }
-            },
-            error: (error) => {
-                console.log("Error:\n" + error.message);
-                console.log(error.stack);
-            }
-        });
+        let url = window.location.href;
+        if (!url.endsWith("/")) {
+            url += "/";
+        }
 
+        this.resetPasswordButton.postJSON(url, {
+            email: this.emailInput.getValue().trim(),
+        }).then(
+            () => {},
+            (error) => this.emailFormField.setError(error)
+        );
     }
 
 }

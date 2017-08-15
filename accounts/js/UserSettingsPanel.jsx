@@ -70,41 +70,28 @@ export class GeneralInformationPanel extends Panel {
 
     saveProfileChanges() {
         const request = this.getSaveRequestData();
-        this.saveProfileButton.ajaxCall({
-            url: "/accounts/profile_changed/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
-                console.log("Profile changed", data);
-                this.saveProfileButton.setFaIcon("");
 
-                this.firstNameFormField.removeError();
-                this.lastNameFormField.removeError();
-                this.userNameFormField.removeError();
-
-                if (data.error) {
-                    console.log(data.error);
-                    if (data.error.first_name) {
-                        this.firstNameFormField.setError(data.error.first_name);
-                    }
-                    if (data.error.last_name) {
-                        this.lastNameFormField.setError(data.error.last_name);
-                    }
-                    if (data.error.username) {
-                        this.userNameFormField.setError(data.error.username);
-                    }
-                } else {
-                    UserStore.applyEvent({
-                        objectId: data.user.id,
-                        data: data.user,
-                    });
+        this.saveProfileButton.setFaIcon("");
+        this.firstNameFormField.removeError();
+        this.lastNameFormField.removeError();
+        this.userNameFormField.removeError();
+        this.saveProfileButton.postJSON("/accounts/profile_changed/", request).then(
+            (data) => UserStore.applyEvent({
+                          objectId: data.user.id,
+                          data: data.user,
+                      }),
+            (error) => {
+                if (error.first_name) {
+                    this.firstNameFormField.setError(error.first_name);
                 }
-            },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in updating user profile:\n" + xhr.status + ":\n" + xhr.responseText);
+                if (error.last_name) {
+                    this.lastNameFormField.setError(error.last_name);
+                }
+                if (error.username) {
+                    this.userNameFormField.setError(error.username);
+                }
             }
-        });
+        );
     }
 }
 
@@ -171,28 +158,13 @@ export class SecuritySettingsPanel extends Panel {
             request["oldPassword"] = oldPassword;
         }
 
-        console.log("setting password", request);
-
-        this.setPasswordButton.ajaxCall({
-            url: "/accounts/password_change/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
-                if (data.error) {
-                    this.oldPasswordGroup.setError(data.error.message);
-                } else {
-                    UserStore.applyEvent({
-                        objectId: data.user.id,
-                        data: data.user,
-                    });
-                    console.log("Password set", data);
-                }
-            },
-            error: (xhr, errmsg, err) => {
-                console.log("Error while setting password:\n" + xhr.status + ":\n" + xhr.responseText);
-            }
-        });
+        this.setPasswordButton.postJSON("/accounts/password_change/", request).then(
+            (data) => UserStore.applyEvent({
+                          objectId: data.user.id,
+                          data: data.user,
+                      }),
+            (error) => this.oldPasswordGroup.setError(error.message)
+        );
     }
 }
 
@@ -297,29 +269,16 @@ export class EmailPanel extends Panel {
 
         this.emailFormField.removeError();
 
-        console.log("adding email", request);
-
-        this.addEmailButton.ajaxCall({
-            url: "/accounts/email_address_add/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
-                if (data.error) {
-                    this.emailFormField.setError(data.error.message);
-                } else {
-                    this.emailFormInput.setValue("");
-                    UserStore.applyEvent({
-                        objectId: data.user.id,
-                        data: data.user,
-                    });
-                    console.log("Email added", data);
-                }
+        this.addEmailButton.postJSON("/accounts/email_address_add/", request).then(
+            (data) => {
+                this.emailFormInput.setValue("");
+                UserStore.applyEvent({
+                    objectId: data.user.id,
+                    data: data.user,
+                });
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error while adding email:\n" + xhr.status + ":\n" + xhr.responseText);
-            }
-        });
+            (error) => this.emailFormField.setError(error.message)
+        );
     }
 
     removeEmail(email) {

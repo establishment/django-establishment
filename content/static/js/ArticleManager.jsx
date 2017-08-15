@@ -72,28 +72,14 @@ class TransferOwnershipModal extends ActionModal {
 
         this.messageArea.showMessage("Saving...", "black", null);
 
-        this.transferOwnershipButton.ajaxCall({
-            url: "/article/" + this.article.id + "/set_owner/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
-                if (data.error) {
-                    this.messageArea.showMessage(data.error.message, "red");
-                } else {
-                    console.log("Successfully changed owner", data);
-                    this.messageArea.showMessage("Author successfully changed");
-                    GlobalState.importState(data.state);
-                    console.log(data.state);
-                    table.redraw();
-                    this.hide();
-                }
+        this.transferOwnershipButton.postJSON("/article/" + this.article.id + "/set_owner/", request).then(
+            () => {
+                this.messageArea.showMessage("Author successfully changed");
+                table.redraw();
+                this.hide();
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in changing owner:\n" + xhr.status + ":\n" + xhr.responseText);
-                this.messageArea.showMessage("Error in changing owner", "red");
-            }
-        });
+            (error) => this.messageArea.showMessage("Error in changing owner " + error.message, "red")
+        );
     }
 
     hide() {
@@ -130,25 +116,14 @@ class DeleteArticleModal extends ActionModal {
 
     deleteArticle() {
         let table = this.options.parent.table;
-        let request = {};
-        this.deleteArticleButton.ajaxCall({
-            url: "/article/" + this.article.id + "/delete/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
-                if (data.error) {
-                    this.messageArea.showMessage(data.error.message, "red");
-                } else {
-                    table.options.articles.splice(table.getArticleIndex(this.article.id), 1);
-                    table.redraw();
-                    this.hide();
-                }
+        this.deleteArticleButton.postJSON("/article/" + this.options.article.id + "/delete/", {}).then(
+            () => {
+                table.options.articles.splice(table.getArticleIndex(this.article.id), 1);
+                table.redraw();
+                this.hide();
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in deleting article:\n" + xhr.status + ":\n" + xhr.responseText);
-            }
-        });
+            (error) => this.messageArea.showMessage(error.message, "red")
+        );
     }
 
     hide() {
@@ -204,25 +179,15 @@ class CreateArticleModal extends ActionModal {
         if (options) {
             Object.assign(request, options);
         }
-        this.createArticleButton.ajaxCall({
-            url: "/create_article/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
-                if (data.error) {
-                    this.messageArea.showMessage(data.error.message, "red");
-                } else {
-                    console.log("Successfully created article", data);
-                    GlobalState.importState(data.state);
-                    this.options.parent.table.addArticle(ArticleStore.get(data.article.id));
-                    this.hide();
-                }
+        this.createArticleButton.postJSON("/create_article/", request).then(
+            (data) => {
+                this.options.parent.table.addArticle(ArticleStore.get(data.article.id));
+                this.hide();
             },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in creating article:\n" + xhr.status + ":\n" + xhr.responseText);
+            (error) => {
+                this.messageArea.showMessage(error.message, "red");
             }
-        });
+        );
     }
 
     hide() {

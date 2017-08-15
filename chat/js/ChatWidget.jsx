@@ -529,7 +529,6 @@ let ChatWidget = (ChatMessageClass) => {
                         }
                         let scrollPosition = this.messageWindow.getExcessTop();
                         let oldHeight = this.messageWindow.node.scrollHeight;
-                        GlobalState.importState(data.state || {});
 
                         let scrollDelta = 0;
                         if (!topMessage.shouldShowDayTimestamp()) {
@@ -539,9 +538,6 @@ let ChatWidget = (ChatMessageClass) => {
                         this.messageWindow.scrollToHeight(scrollPosition + this.messageWindow.node.scrollHeight - oldHeight - scrollDelta);
 
                         this.outstandingRequest = false;
-                    },
-                    error: (xhr, errmsg, err) => {
-                        console.log("Error loading more messages:\n" + xhr.status + ":\n" + xhr.responseText);
                     },
                     complete: () => {
                         //TODO(@Rocky): find out why this doesn't work
