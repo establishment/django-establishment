@@ -1,7 +1,7 @@
-import {StyleSet} from "Style";
+import {StyleSheet} from "Style";
 import {styleRule, styleRuleInherit} from "decorators/Style";
 
-class MessagesPanelListStyle extends StyleSet {
+class MessagesPanelListStyle extends StyleSheet {
     descriptionFontSize = "1.05em";
 
     @styleRule
