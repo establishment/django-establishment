@@ -7,31 +7,10 @@ import {Dispatcher} from "Dispatcher";
 import {FileSaver} from "FileSaver";
 import {Ajax} from "Ajax";
 import {Level} from "ui/Constants";
+import {NOOP_FUNCTION} from "Utils";
 
-function ajaxCall(request, successOperation, failOperation) {
-    Ajax.postJSON("/edit_translation/", request).then(
-        (data) => {
-            if (data.error) {
-                console.log(data.error);
-                if (failOperation) {
-                    failOperation(data);
-                }
-            } else {
-                GlobalState.importState(data.state);
-                if (successOperation) {
-                    successOperation(data);
-                }
-            }
-        },
-        (error) => {
-            console.log("Error while editing translation");
-            console.log(error.message);
-            console.log(error.stack);
-            if (failOperation) {
-                failOperation(error);
-            }
-        }
-    );
+function ajaxCall(request, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
+    Ajax.postJSON("/edit_translation/", request).then(onSuccess, onError);
 }
 
 class TranslationEntryTableRow extends TableRow {

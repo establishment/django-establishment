@@ -3,7 +3,7 @@ import {StoreObject, GenericObjectStore} from "Store";
 import {MessageThreadStore, MessageInstanceStore} from "MessageThreadStore";
 import {PublicUserStore} from "UserStore";
 import {Ajax} from "Ajax";
-
+import {NOOP_FUNCTION} from "Utils";
 
 class Forum extends StoreObject {
     constructor(obj) {
@@ -94,26 +94,11 @@ class ForumThread extends StoreObject {
         return this.getNumMessages() - 1;
     }
 
-    deleteThread(onSuccess, onError) {
-        let request = {
+    deleteThread(onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
+        Ajax.postJSON("/forum/edit_forum_thread/", {
             forumThreadId: this.id,
             hidden: true,
-        };
-
-        Ajax.postJSON("/forum/edit_forum_thread/", request).then(
-            (data) => {
-                if (onSuccess) {
-                    onSuccess(data);
-                }
-            },
-            (error) => {
-                console.log("Error in sending delete message:\n" + error.message);
-                console.log(error.stack);
-                if (onError) {
-                    onError(xhr, errmsg, err);
-                }
-            }
-        );
+        }).then(onSuccess, onError);
     }
 
     getNumMessages() {

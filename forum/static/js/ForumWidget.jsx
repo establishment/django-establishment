@@ -313,9 +313,7 @@ class DelayedForumThreadPanel extends StateDependentElement(ForumThreadPanel) {
                 this.importState(data);
                 this.setLoaded();
             },
-            (error) => {
-                console.error(error);
-            }
+            () => {}
         );
     }
 

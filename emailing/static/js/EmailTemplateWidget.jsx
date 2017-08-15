@@ -82,20 +82,12 @@ class EmailTemplateModal extends ActionModal {
         };
 
         Ajax.postJSON("/email/control/", request).then(
-            (data) => {
-                if (data.error) {
-                    if (data.error.fieldName) {
-                        data.error.message += " (" + data.error.fieldName + ")";
-                    }
-                    this.messageArea.showMessage(data.error.message, "red");
-                } else {
-                    this.hide();
-                }
-            },
+            () => this.hide(),
             (error) => {
-                console.log(error.message);
-                console.log(error.stack);
-                this.messageArea.showMessage("Error in template operation!!", "red");
+                if (error.fieldName) {
+                    error.message += " (" + error.fieldName + ")";
+                }
+                this.messageArea.showMessage(error.message, "red");
             }
         );
     }
@@ -169,20 +161,12 @@ class GenericConfirmModal extends ActionModal {
         };
 
         Ajax.postJSON("/email/control/", request).then(
-            (data) => {
-                if (data.error) {
-                    if (data.error.fieldName) {
-                        data.error.message += " (" + data.error.fieldName + ")";
-                    }
-                    this.messageArea.showMessage(data.error.message, "red");
-                } else {
-                    this.hide();
-                }
-            },
+            () => this.hide(),
             (error) => {
-                console.log(error.message);
-                console.log(error.stack);
-                this.messageArea.showMessage("Error in campaign operation!!", "red");
+                if (error.fieldName) {
+                    error.message += " (" + error.fieldName + ")";
+                }
+                this.messageArea.showMessage(error.message, "red");
             }
         );
     }

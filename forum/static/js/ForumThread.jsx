@@ -25,7 +25,7 @@ import {ErrorHandlers} from "ErrorHandlers";
 import {ForumThreadPanelStyle, ForumThreadReplyStyle} from "ForumStyle";
 import {ButtonStyle} from "ForumStyle";
 import {Level, Size} from "ui/Constants";
-
+import {NOOP_FUNCTION} from "Utils";
 
 let forumThreadPanelStyle = ForumThreadPanelStyle.getInstance();
 let buttonStyle = ButtonStyle.getInstance();
@@ -54,7 +54,6 @@ class CreateForumThreadModal extends MarkupEditorModal {
     }
 
     onMount() {
-        super.onMount();
         this.doneButton.addClickListener(() => {
             this.createForumThread();
         });
@@ -74,20 +73,11 @@ class CreateForumThreadModal extends MarkupEditorModal {
 
         Ajax.postJSON("/forum/create_forum_thread/", request).then(
             (data) => {
-                if (data.error) {
-                    ErrorHandlers.SHOW_ERROR_ALERT(data.error);
-                } else {
-                    GlobalState.importState(data.state);
-                    this.routeToThread(data.forumThreadId);
-                    this.titleInput.setValue("");
-                    this.markupEditor.setValue("");
-                    this.markupEditor.redraw();
-                }
-            },
-            (error) => {
-                console.log("Error in creating forum thread");
-                console.log(error.message);
-                console.log(error.stack);
+                this.routeToThread(data.forumThreadId);
+                this.titleInput.setValue("");
+                this.markupEditor.setValue("");
+                this.markupEditor.redraw();
+                this.hide();
             }
         );
     }
@@ -236,26 +226,16 @@ class ForumThreadPanel extends Panel {
         return "/forum/";
     }
 
-    getForumThreadState(callback) {
+    getForumThreadState(callback=NOOP_FUNCTION) {
         let request = {
             forumThreadId: this.options.forumThread.id,
         };
 
         Ajax.postJSON("/forum/forum_thread_state/", request).then(
-            (data) => {
-                if (data.error) {
-                    this.returnToMainForum();
-                } else {
-                    GlobalState.importState(data.state);
-                    if (callback) {
-                        callback();
-                    }
-                }
-            },
+            callback,
             (error) => {
-                console.log("Error in getting forum thread:");
-                console.log(error.message);
-                console.log(error.stack);
+                this.returnToMainForum();
+                ErrorHandlers.SHOW_ERROR_ALERT(error);
             }
         );
     }

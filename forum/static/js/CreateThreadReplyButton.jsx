@@ -47,27 +47,10 @@ class CreateThreadReplyModal extends MarkupEditorModal {
     }
 
     createThreadReply() {
-        let request = {
+        // TODO: should be a dispatch: it should jump and highlight your post
+        Ajax.postJSON("/forum/forum_thread_post/", {
             forumThreadId: this.options.forumThreadId,
             message: this.markupEditor.getValue(),
-        };
-
-        Ajax.request({
-            url: "/forum/forum_thread_post/",
-            type: "POST",
-            dataType: "json",
-            data: request,
-            success: (data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    GlobalState.importState(data.state);
-                    // TODO: should be a dispatch: it should jump and highlight your post
-                }
-            },
-            error: (xhr, errmsg, err) => {
-                console.log("Error in posting forum thread message:\n" + xhr.status + ":\n" + xhr.responseText);
-            }
         });
     }
 }
