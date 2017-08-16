@@ -176,7 +176,7 @@ class MessageThread extends StoreObject {
         if (!this.streamName.startsWith("messagethread-privatechat-")) {
             GlobalState.registerStream(this.streamName);
         }
-        this.online = new Set(this.online);
+        this.online = new Set(this.online || []);
         this.online.delete(0);
     }
 
@@ -194,25 +194,19 @@ class MessageThread extends StoreObject {
     }
 
     applyEvent(event) {
-        if (event.type === "online") {
-            this.online = new Set(event.data.online);
+        if (event.data.online) {
+            this.online = event.data.online = new Set(event.data.online);
             this.online.delete(0);
+        }
+        if (event.type === "online") {
             this.dispatch("usersChanged", event);
         } else if (event.type === "onlineDeltaJoined") {
-            if (this.online == null) {
-                this.online = new Set();
-            }
-
             if (event.data.userId != 0) {
                 this.online.add(event.data.userId);
             }
 
             this.dispatch("usersChanged", event);
         } else if (event.type === "onlineDeltaLeft") {
-            if (this.online == null) {
-                return;
-            }
-
             if (event.data.userId != 0) {
                 this.online.delete(event.data.userId);
             }
