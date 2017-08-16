@@ -73,7 +73,7 @@ class ErrorMessage(StreamObjectMixin, Exception):
         return error_message
 
     def with_extra(self, extra):
-        error_message = copy.deepcopy(self)
+        error_message = copy.copy(self)
         error_message.extra = extra
         return error_message
 
