@@ -593,10 +593,14 @@ let ChatWidget = (ChatMessageClass) => {
             ];
         }
 
+        getDefaultPlugins() {
+            return ChatWidget.defaultPlugins || [];
+        }
+
         onMount() {
             super.onMount();
 
-            for (let plugin of (this.options.plugins || [])) {
+            for (let plugin of (this.options.plugins || this.getDefaultPlugins())) {
                 this.registerPlugin(plugin);
             }
 

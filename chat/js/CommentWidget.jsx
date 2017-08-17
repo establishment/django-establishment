@@ -162,6 +162,10 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
         ];
     }
 
+    getDefaultPlugins() {
+        return CommentWidget.defaultPlugins || [];
+    }
+
     createVirtualMessage(request, message) {
         return null;
     }
