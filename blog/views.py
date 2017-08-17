@@ -1,13 +1,15 @@
 import datetime
 import json
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.utils.text import slugify
 
 from establishment.content.models import Article
 from establishment.blog.models import BlogEntry
+from establishment.errors.errors import BaseError
 from establishment.funnel.state import State
-from establishment.funnel.base_views import ajax_required, superuser_required, global_renderer, single_page_app
+from establishment.funnel.base_views import ajax_required, superuser_required, single_page_app
 
 
 BLOG_FETCH_CHUNK = 5
@@ -34,18 +36,16 @@ def get_blog_state(request):
 
 
 def get_blogpost(request):
-    blog_post = None
     try:
         blog_post = BlogEntry.objects.get(url_name=str(request.GET["entryUrlName"]))
-    except Exception as e:
-        pass
-    if blog_post and not blog_post.visible and not request.user.is_superuser:
-        blog_post = None
+        if not blog_post.visible and not request.user.is_superuser:
+            return BaseError.NOT_ALLOWED
+    except ObjectDoesNotExist:
+        return BaseError.OBJECT_NOT_FOUND
     state = State()
-    if blog_post:
-        state.add(blog_post)
-        state.add(blog_post.article)
-    return state.to_response()
+    state.add(blog_post)
+    state.add(blog_post.article)
+    return state
 
 
 def latest_blog_state(request):
