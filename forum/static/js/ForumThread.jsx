@@ -235,7 +235,7 @@ class ForumThreadPanel extends Panel {
             callback,
             (error) => {
                 this.returnToMainForum();
-                ErrorHandlers.SHOW_ERROR_ALERT(error);
+                ErrorHandlers.showErrorAlert(error);
             }
         );
     }

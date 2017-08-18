@@ -36,3 +36,20 @@ class VisitorMiddleware(object):
     @staticmethod
     def process_exception(request, exception):
         return None
+
+
+# Middleware that only allows login for admins
+class AdminOnlyMiddleware(object):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if not request.user.is_authenticated or not request.user.is_superuser:
+            if request.is_ajax():
+                from establishment.accounts.views import user_login_view
+                return user_login_view(request)
+            else:
+                from establishment.funnel.base_views import global_renderer
+                return global_renderer.render_single_page_app(request)
+
+        return self.get_response(request)

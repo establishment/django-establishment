@@ -2,7 +2,7 @@ import {UI, ErrorModal} from "UI";
 import {StoreObject} from "Store";
 import {ErrorMessageStore, ErrorMessage} from "ErrorMessageStore";
 
-var ErrorHandlers = {};
+const ErrorHandlers = {};
 
 ErrorHandlers.wrapError = (error) => {
     if (error instanceof StoreObject) {
@@ -24,9 +24,12 @@ ErrorHandlers.wrapError = (error) => {
     }
 };
 
-ErrorHandlers.SHOW_ERROR_ALERT = (error) => {
-    error = ErrorHandlers.wrapError(error);
-    ErrorModal.show({error: error});
+ErrorHandlers.showErrorAlert = (error) => {
+    ErrorModal.show({
+        error: ErrorHandlers.wrapError(error)
+    });
 };
+
+ErrorHandlers.PAGE_NOT_FOUND = ErrorHandlers.wrapError("Page not found.");
 
 export {ErrorHandlers};
