@@ -13,10 +13,6 @@ class HTTPRenderer(object):
 global_renderer = HTTPRenderer()
 
 
-def default_render_ui_widget(request, widget_class, state=None, page_title=None, widget_require=None, widget_options={}):
-    pass
-
-
 def default_render_error_message(request, title, message):
     pass
 
@@ -25,9 +21,9 @@ def default_single_page_app(request):
     pass
 
 
-global_renderer.render_ui_widget = default_render_ui_widget
 global_renderer.render_error_message = default_render_error_message
-global_renderer.render_single_page_app = lambda request: global_renderer.render_ui_widget(request, "AppClass")
+global_renderer.render_single_page_app = default_single_page_app
+
 
 def get_remote_ip(request):
     """

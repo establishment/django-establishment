@@ -38,7 +38,7 @@ class PasswordResetFromKey extends UI.Element {
         this.setPasswordButton.postJSON("/accounts/password_change/", {
             newPassword: this.passwordInput.getValue(),
         }).then(
-            () => {},
+            () => location.replace("/"),
             (error) => this.passwordFormField.setError(error.message)
         );
     }

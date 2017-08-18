@@ -38,7 +38,7 @@ class PasswordReset extends UI.Element {
             email: this.emailInput.getValue().trim(),
         }).then(
             () => {},
-            (error) => this.emailFormField.setError(error)
+            (error) => this.emailFormField.setError(error.message)
         );
     }
 

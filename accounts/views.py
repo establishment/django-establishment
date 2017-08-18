@@ -89,15 +89,14 @@ def my_profile(request):
                                   "You need to <a href='/accounts/settings'>set your username</a> to access your public profile.")
 
 
+@single_page_app
 def public_user_profile(request, profile_user):
     state = State()
     user_summary = PublicUserSummary(profile_user)
     state.add(user_summary)
-
-    widget_options = {
+    return state.to_response({
         "userId": profile_user.id,
-    }
-    return global_renderer.render_ui_widget(request, "UserProfilePanel", state, page_title="User Profile", widget_options=widget_options)
+    })
 
 
 def public_username_profile(request, username):
@@ -407,9 +406,8 @@ def user_password_reset_request(request):
     return {"success": True}
 
 
+@single_page_app
 def user_password_reset_from_token(request, user_base36, reset_token):
-    context = {}
-
     user_id = base36_to_int(user_base36)
     reset_user = get_user_manager().get(id=user_id)
 
@@ -417,12 +415,6 @@ def user_password_reset_from_token(request, user_base36, reset_token):
 
     if not token_valid:
         logger.warn("Invalid password reset token to user " + str(reset_user))
-
-        if not request.is_ajax():
-            return global_renderer.render_ui_widget(request, "PasswordResetFromKey", page_title="Set password",
-                                    widget_options={"tokenFail": True})
-
-        # If it's an ajax response (or whatever), just make sure to not continue
         return AccountsError.INVALID_PASSWORD_RESET_TOKEN
 
     reset_user.set_unusable_password()
@@ -431,8 +423,7 @@ def user_password_reset_from_token(request, user_base36, reset_token):
     # Log him in here in a new session
     # update_session_auth_hash(request, request.user)
     login(request, reset_user)
-    # TODO(@gem): redirect to profile/security tab
-    return global_renderer.render_ui_widget(request, "PasswordResetFromKey", page_title="Set password")
+    return {}
 
 
 @ajax_required

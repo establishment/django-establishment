@@ -4,7 +4,8 @@ from django.db.models import Q
 from establishment.chat.errors import ChatError
 from establishment.chat.models import PrivateChat, GroupChat, MessageInstance
 from establishment.errors.errors import BaseError
-from establishment.funnel.base_views import login_required_ajax, ajax_required, login_required, global_renderer
+from establishment.funnel.base_views import login_required_ajax, ajax_required, login_required, global_renderer, \
+    single_page_app
 from establishment.funnel.throttle import UserActionThrottler
 from establishment.funnel.state import State
 
@@ -53,8 +54,9 @@ def edit_message(request):
 
 
 @login_required
+@single_page_app
 def private_chat(request):
-    return global_renderer.render_ui_widget(request, "MessagesPanel", page_title="Private Messages", widget_require="SocialNotifications")
+    return {}
 
 
 @login_required_ajax
