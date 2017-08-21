@@ -1,4 +1,4 @@
-import {UI, Panel, Button, CodeEditor, SectionDivider, ButtonGroup} from "UI";
+import {UI, Panel, Button, CodeEditor, SectionDivider, ButtonGroup, TextArea} from "UI";
 import {MarkupRenderer} from "markup/MarkupRenderer";
 import {Orientation, Level} from "ui/Constants";
 
@@ -23,7 +23,12 @@ class MarkupEditor extends Panel {
     }
 
     getEditor() {
-        return <CodeEditor ref="codeEditor" lineWrapping style={{height:"100%"}} value={this.options.value} aceMode="text" />;
+        return <TextArea ref="codeEditor" style={{
+            width: "100%",
+            height: "calc(100% - 3px)",
+            resize: "none",
+            backgroundColor: "#F9F9F9"
+        }} value={this.options.value}/>;
     }
 
     render() {
@@ -66,8 +71,11 @@ class MarkupEditor extends Panel {
     }
 
     setEditorOptions() {
-        this.codeEditor.setIndentedSoftWrap(false);
-        this.codeEditor.addAceSessionChangeListener((event) => {
+        this.editorPanel.addListener("resize", () => {
+            this.codeEditor.setWidth(this.editorPanel.getWidth() - 15);
+        });
+
+        this.codeEditor.addNodeListener("input", () => {
             let markup = this.codeEditor.getValue();
             try {
                 this.updateValue(markup);

@@ -27,46 +27,19 @@ import {Router} from "Router";
 import {Level} from "ui/Constants";
 const deleteRedirectLink = "/";
 
-//TODO (@kira) : 4. fix line wrapping 5.Fix diffing svg gutter bug 7.Collapse button in section Divider maybe?
 class ArticleMarkupEditor extends MarkupEditor {
     setOptions(options) {
         super.setOptions(options);
         this.options.value = this.options.article.markup;
     }
 
-    setEditorOptions() {
-        this.editorPanel.addListener("resize", () => {
-            this.codeEditor.setWidth(this.editorPanel.getWidth() - 15);
-        });
-
-        this.codeEditor.addNodeListener("input", () => {
-            let markup = this.codeEditor.getValue();
-            try {
-                this.updateValue(markup);
-            } catch (e) {
-                console.error("Exception in parsing markup: ", e);
-            }
-        });
-    }
-
-    getEditor() {
-        return <TextArea ref="codeEditor" style={{
-                                            width:"100%",
-                                            fontFamily: "monospace",
-                                            height: "calc(100% - 3px)",
-                                            resize: "none",
-                                            backgroundColor: "#F9F9F9"
-                    }} value={this.options.value}/>
-    }
-
     getMarkupRenderer() {
-        return <ArticleRenderer ref="articleRenderer" article={this.options.article} style={{flex:"1", height: "100%", overflow: "auto"}} />
+        return <ArticleRenderer ref={this.refLink("markupRenderer")} article={this.options.article} style={{flex:"1", height: "100%", overflow: "auto"}} />
     }
 
     updateValue(markup) {
         this.options.article.markup = markup;
-        this.articleRenderer.setValue(markup);
-        this.articleRenderer.redraw();
+        super.updateValue(markup);
     }
 }
 
