@@ -1,10 +1,15 @@
 // TODO: write own custom Scale
 import {UI, SVG} from "UI";
+import {StemDate} from "Time";
 import {uniqueId} from "Utils";
 import {event, zoom, scaleLinear, scaleTime, select} from "d3";
+import * as d3 from "d3";
 import {Direction} from "ui/Constants";
 
-SVG.AxisTick = class AxisTick extends SVG.Group {
+import {LinePlot} from "./LinePlot";
+import {BasePointPlot} from "./PointPlot";
+
+export class AxisTick extends SVG.Group {
     getDefaultOptions() {
         return {
             gridLineLength: 0,
@@ -94,9 +99,9 @@ SVG.AxisTick = class AxisTick extends SVG.Group {
     hideGridLine() {
         this.gridLine.hide();
     }
-};
+}
 
-SVG.BasicAxis = class BasicAxis extends SVG.Group {
+export class BasicAxis extends SVG.Group {
     getDefaultOptions() {
         return {
             labelFormatFunction: (x) => {return x;}
@@ -124,7 +129,7 @@ SVG.BasicAxis = class BasicAxis extends SVG.Group {
         this.tickValues = this.options.scale.ticks(this.options.ticks);
         for (let i = 0; i < this.tickValues.length; i += 1) {
             let tickValue = this.tickValues[i];
-            this.ticks[i] = <SVG.AxisTick ref={this.refLinkArray("ticks", i)} chartOptions={this.options.chartOptions}
+            this.ticks[i] = <AxisTick ref={this.refLinkArray("ticks", i)} chartOptions={this.options.chartOptions}
                                              scale={this.options.scale} orientation={this.options.orientation}
                                              value={tickValue} label={this.options.labelFormatFunction(tickValue)}/>;
         }
@@ -150,9 +155,9 @@ SVG.BasicAxis = class BasicAxis extends SVG.Group {
             tick.hideGridLine();
         }
     }
-};
+}
 
-SVG.BasicChart = class BasicChart extends SVG.Group {
+export class BasicChart extends SVG.Group {
     getDefaultOptions() {
         return {
             enableZoom: true,
@@ -245,8 +250,8 @@ SVG.BasicChart = class BasicChart extends SVG.Group {
 
     getAxes() {
         return [
-            <SVG.BasicAxis ref={this.refLink("xAxis")} chartOptions={this.options.chartOptions} {...this.xAxisOptions}/>,
-            <SVG.BasicAxis ref={this.refLink("yAxis")} chartOptions={this.options.chartOptions} {...this.yAxisOptions}/>
+            <BasicAxis ref={this.refLink("xAxis")} chartOptions={this.options.chartOptions} {...this.xAxisOptions}/>,
+            <BasicAxis ref={this.refLink("yAxis")} chartOptions={this.options.chartOptions} {...this.yAxisOptions}/>
         ];
     }
 
@@ -305,9 +310,123 @@ SVG.BasicChart = class BasicChart extends SVG.Group {
     addZoomListener(func) {
         this.addListener("zoom", func);
     }
-};
+}
 
-SVG.ChartSVG = class ChartSVG extends SVG.SVGRoot {
+export class TimeChart extends BasicChart {
+    getDefaultOptions() {
+        return Object.assign(super.getDefaultOptions(), {
+            xAxisScaleType: "time",
+            paddingXOnNoPoints: 1000 * 60 * 60 * 24 * 30 * 3,
+            paddingYOnNoPoints: 50,
+            zoomScaleExtent: [1, 20]
+        });
+    }
+
+    getTimeFormat() {
+        return (unixTime) => {
+            let date = new StemDate(unixTime);
+            var formatTypes = [
+                {name: "Seconds", continueSubdivisionOnValue: 0, format: "HH:mm:ss"},
+                {name: "Minutes", continueSubdivisionOnValue: 0, format: "HH:mm"},
+                {name: "Hours", continueSubdivisionOnValue: 0, format: "HH:mm"},
+                {name: "Date", continueSubdivisionOnValue: 1, format: "DD/MMM"},
+                {name: "Month", continueSubdivisionOnValue: 0, format: "MMM"}
+            ];
+
+            for (let i = 0; i < formatTypes.length; i += 1) {
+                // TODO: this is a bit hacky, should be cleaner (maybe included in Date)
+                let subdivisionValue = date["get" + formatTypes[i].name]();
+                if (subdivisionValue !== formatTypes[i].continueSubdivisionOnValue) {
+                    return date.format(formatTypes[i].format);
+                }
+            }
+
+            return date.format("YYYY");
+        };
+    }
+
+    getMinMaxDomain(points, coordinateAlias) {
+        let domain = [coordinateAlias(points[0]), coordinateAlias(points[0])];
+        points.forEach((point) => {
+            domain[0] = Math.min(domain[0], coordinateAlias(point));
+            domain[1] = Math.max(domain[1], coordinateAlias(point));
+        });
+        return domain;
+    }
+
+    defaultXNoPoints() {
+        return [+StemDate.now() - this.options.paddingXOnNoPoints, +StemDate.now() + this.options.paddingXOnNoPoints];
+    }
+
+    getXAxisDomain(points, coordinateAlias) {
+        if (!Array.isArray(points) || points.length === 0) {
+            return this.defaultXNoPoints();
+        } else if (points.length === 1) {
+            return [coordinateAlias(points[0]) - this.options.paddingXOnNoPoints, coordinateAlias(points[0]) + this.options.paddingXOnNoPoints];
+        } else {
+            return this.getMinMaxDomain(points, coordinateAlias);
+        }
+    }
+
+    defaultYNoPoints() {
+        return [0, 100];
+    }
+
+    getYAxisDomain(points, coordinateAlias) {
+        if (!Array.isArray(points) || points.length === 0) {
+            return this.defaultYNoPoints();
+        } else if (points.length === 1) {
+            return [coordinateAlias(points[0]) - this.options.paddingYOnNoPoints, coordinateAlias(points[0]) + this.options.paddingYOnNoPoints];
+        } else {
+            return this.getMinMaxDomain(points, coordinateAlias);
+        }
+    }
+
+    setOptions(options) {
+        options.xAxisLabelFormatFunction = this.getTimeFormat();
+        options.xAxisDomain = this.getXAxisDomain(options.plotOptions.pointsAlias(options.data),
+            options.plotOptions.xCoordinateAlias);
+        options.yAxisDomain = this.getYAxisDomain(options.plotOptions.pointsAlias(options.data),
+            options.plotOptions.yCoordinateAlias);
+        super.setOptions(options);
+    }
+
+    initZoom(infinite=false) {
+        this.options.applyZoom = true;
+        let zoomNode = d3.select(this.interactiveLayer.node);
+        this.zoomListener = () => {
+            if (this.options.applyZoom) {
+                let x = d3.event.transform.x, y = d3.event.transform.y, k = d3.event.transform.k;
+                d3.event.transform.x = Math.min(0, Math.max(x, this.options.chartOptions.width * (1 - k)));
+                d3.event.transform.y = Math.min(0, Math.max(y, this.options.chartOptions.height * (1 - k)));
+                this.xAxisOptions.scale = d3.event.transform.rescaleX(this._initialXScale);
+                this.yAxisOptions.scale = d3.event.transform.rescaleY(this._initialYScale);
+                this.redraw();
+                this.interactiveLayer.node.__zoom = d3.event.transform;
+            }
+        };
+        this.zoomBehavior = d3.zoom();
+        if (!infinite) {
+            this.zoomBehavior = this.zoomBehavior.scaleExtent(this.options.zoomScaleExtent);
+        }
+        this.zoomBehavior = this.zoomBehavior.on("zoom", this.zoomListener);
+        zoomNode.call(this.zoomBehavior);
+
+        // Simulate a center zoom
+        let factor = 1.2;
+        let centerZoom = {
+            k: factor,
+            x: this.options.chartOptions.width / 2 * (1 - factor),
+            y: this.options.chartOptions.height / 2 * (1 - factor)
+        };
+        centerZoom.__proto__ = d3.zoomIdentity.__proto__;
+        d3.customEvent({
+            transform: centerZoom
+        }, this.zoomListener, zoomNode);
+    }
+}
+
+export class ChartSVG extends SVG.SVGRoot {
     setOptions(options) {
         super.setOptions(options);
         this.chartOptions = {
@@ -346,14 +465,13 @@ SVG.ChartSVG = class ChartSVG extends SVG.SVGRoot {
     }
 
     render() {
-        let PointPlot = SVG.PointPlot(SVG.PointPlotElement);
         return [
-            <SVG.BasicChart chartOptions={Object.assign({}, this.chartOptions)}
+            <BasicChart chartOptions={Object.assign({}, this.chartOptions)}
                                 xAxisDomain={this.options.xDomain}
                                 yAxisDomain={this.options.yDomain}>
-                <SVG.LinePlot plotOptions={this.plotOptions} data={this.data}/>
-                <PointPlot plotOptions={this.plotOptions} data={this.data}/>
-            </SVG.BasicChart>
+                <LinePlot plotOptions={this.plotOptions} data={this.data}/>
+                <BasePointPlot plotOptions={this.plotOptions} data={this.data}/>
+            </BasicChart>
         ];
     }
-};
+}

@@ -1,8 +1,7 @@
 import {UI, SVG} from "UI";
-import "BasicChart";
 import {line} from "d3";
 
-SVG.LinePlot = class LinePlot extends SVG.Path {
+class LinePlot extends SVG.Path {
     getDefaultOptions() {
         return {
             d: "",
@@ -37,4 +36,6 @@ SVG.LinePlot = class LinePlot extends SVG.Path {
             this.redraw();
         });
     }
-};
+}
+
+export {LinePlot};
