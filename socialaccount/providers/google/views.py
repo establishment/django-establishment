@@ -36,7 +36,7 @@ def login_by_token(request):
         return {"success": True}
     except requests.RequestException as e:
         logger.exception("Error accessing Google user profile")
-        return SocialAccountError.INVALID_GOOGLE_ACCOUNT
+        return SocialAccountError.INVALID_SOCIAL_ACCOUNT
     except Exception as e:
         logger.exception("Invalid google token")
     return SocialAccountError.INVALID_SOCIAL_TOKEN

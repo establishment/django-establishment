@@ -1,4 +1,4 @@
-from django.contrib.auth import logout
+from django.contrib.auth import logout, get_user_model
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseRedirect
 
@@ -38,16 +38,29 @@ def _complete_social_login(request, social_login):
         logout(request)
 
     if not social_login.email_addresses:
-        raise SocialAccountError.FACEBOOK_ACCOUNT_NO_EMAIL
+        raise SocialAccountError.SOCIAL_ACCOUNT_NO_EMAIL
 
     # Check for an existing user with same email as social email and connect if found
     for email in social_login.email_addresses:
         if social_login.is_temporary():
+            user = None
+
+            # First try to see if there's a matching EmailAddress entry
+            # After that check if there are email addresses with that email
+            # The later case can only happen when user accounts were created from the django createsuperuser command
             try:
                 user = EmailAddress.objects.get(email=email.email, user__isnull=False).user
-                social_login.connect(user)
             except EmailAddress.DoesNotExist:
                 pass
+
+            try:
+                if user is None:
+                    user = get_user_model().objects.get(email=email.email)
+            except Exception:
+                pass
+
+            if user:
+                social_login.connect(user)
 
     # If we couldn't find an email address matching the social_login ones, we need to create a new user
     if social_login.is_temporary():

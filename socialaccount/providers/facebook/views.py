@@ -67,5 +67,5 @@ def login_by_token(request):
             return {"success": True}
     except requests.RequestException as e:
         logger.exception("Error accessing FB user profile")
-        return SocialAccountError.INVALID_FACEBOOK_ACCOUNT
+        return SocialAccountError.INVALID_SOCIAL_ACCOUNT
     return SocialAccountError.INVALID_SOCIAL_TOKEN
