@@ -64,14 +64,22 @@ class GoogleManager {
         }
     }
 
-    handleAuthClick(nextUrl, process, onSuccess) {
+    handleAuthClick(process) {
         this.getGoogleAuth().grantOfflineAccess({"redirect_uri": "postmessage"}).then((data) => {
             Object.assign(data, {
-                next: nextUrl || "",
+                next: window.location.pathname,
                 process: process,
             });
-            this.sendData(this.options.loginByTokenUrl, data, onSuccess);
+            this.sendData(this.options.loginByTokenUrl, data, () => window.location.reload());
         });
+    }
+
+    login() {
+        this.handleAuthClick("login");
+    }
+
+    connect() {
+        this.handleAuthClick("connect")
     }
 
     sendData(url, data, onSuccess=NOOP_FUNCTION) {

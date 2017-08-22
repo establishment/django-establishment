@@ -15,12 +15,15 @@ import {
 
 import {ensure} from "Require";
 import {Ajax} from "Ajax";
-import {GoogleManager} from "GoogleManager";
-import {FacebookManager} from "FacebookManager";
+import {GoogleManager} from "./GoogleManager";
+import {FacebookManager} from "./FacebookManager";
+import {GithubManager} from "./GithubManager";
 import {CountryStore} from "CountryStore";
 
 import {FAIcon} from "FontAwesome";
 import {LoginStyle} from "./LoginStyle";
+
+import {SocialAppStore} from "SocialAppStore";
 
 const ERROR_TIMEOUT = 6 * 1000;
 const accountsConfig = {
@@ -28,6 +31,58 @@ const accountsConfig = {
     country: true,
 };
 
+const socialLoginSpecificInfo = {
+    Google: {
+        name: "Google",
+        color: "#de4b39",
+        icon: "google-plus",
+        loginManager: GoogleManager,
+    },
+    Facebook: {
+        name: "Facebook",
+        color: "#3b5998",
+        icon: "facebook",
+        loginManager: FacebookManager,
+    },
+    Github: {
+        name: "Github",
+        color: "#000",
+        icon: "github",
+        loginManager: GithubManager,
+    }
+};
+
+
+@registerStyle(LoginStyle)
+class SocialConnectButton extends UI.Element {
+    extraNodeAttributes(attr) {
+        let {specificInfo} = this.options;
+
+        attr.addClass(this.styleSheet.socialConnectButtonContainer);
+        attr.setStyle({
+            backgroundColor: specificInfo.color,
+        });
+    }
+
+    render() {
+        let {specificInfo} = this.options;
+
+        return [
+            <FAIcon icon={specificInfo.icon} className={this.styleSheet.socialConnectButtonIcon} />,
+            <span> {specificInfo.name}</span>
+        ];
+    }
+
+    onMount() {
+        let {specificInfo} = this.options;
+
+        this.addClickListener(() => {
+            specificInfo.loginManager.Global().login(window.location.pathname, "login", () => {
+                window.location.reload();
+            });
+        });
+    }
+}
 
 @registerStyle(LoginStyle)
 class ThirdPartyLogin extends UI.Element {
@@ -35,6 +90,10 @@ class ThirdPartyLogin extends UI.Element {
         super.setOptions(options);
         FacebookManager.Global();
         GoogleManager.Global();
+    }
+
+    getSocialApps() {
+        return SocialAppStore.all();
     }
 
     getConnectWith() {
@@ -47,39 +106,46 @@ class ThirdPartyLogin extends UI.Element {
 
     getConnectWithButtons() {
         return (
-            <div style={this.styleSheet.connectIcons}>
-                <FAIcon icon="facebook"
-                        className={this.styleSheet.faLogo}
-                        style={{
-                            backgroundColor: "#3b5998",
-                            cursor: "pointer",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            fontWeight: "bold",
-                        }}
-                        ref="facebookButton">
-                    <span className={this.styleSheet.connectWithButtonsSpan}>
-                        facebook
-                    </span>
-                </FAIcon>
-                <FAIcon icon="google-plus"
-                        className={this.styleSheet.faLogo}
-                        style={{
-                            backgroundColor: "#DE4B39",
-                            cursor: "pointer",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            fontWeight: "bold",
-                        }}
-                        ref="googleButton">
-                    <span className={this.styleSheet.connectWithButtonsSpan}>
-                        google
-                    </span>
-                </FAIcon>
+            <div className={this.styleSheet.thirdPartyLoginContainer}>
+                {
+                    this.getSocialApps().map(socialApp => <SocialConnectButton specificInfo={socialLoginSpecificInfo[socialApp.name]} />)
+                }
             </div>
         );
+        // return (
+        //     <div style={this.styleSheet.connectIcons}>
+        //         <FAIcon icon="facebook"
+        //                 className={this.styleSheet.faLogo}
+        //                 style={{
+        //                     backgroundColor: "#3b5998",
+        //                     cursor: "pointer",
+        //                     display: "flex",
+        //                     justifyContent: "center",
+        //                     alignItems: "center",
+        //                     fontWeight: "bold",
+        //                 }}
+        //                 ref="facebookButton">
+        //             <span className={this.styleSheet.connectWithButtonsSpan}>
+        //                 facebook
+        //             </span>
+        //         </FAIcon>
+        //         <FAIcon icon="google-plus"
+        //                 className={this.styleSheet.faLogo}
+        //                 style={{
+        //                     backgroundColor: "#DE4B39",
+        //                     cursor: "pointer",
+        //                     display: "flex",
+        //                     justifyContent: "center",
+        //                     alignItems: "center",
+        //                     fontWeight: "bold",
+        //                 }}
+        //                 ref="googleButton">
+        //             <span className={this.styleSheet.connectWithButtonsSpan}>
+        //                 google
+        //             </span>
+        //         </FAIcon>
+        //     </div>
+        // );
     }
 
     render() {
@@ -88,17 +154,17 @@ class ThirdPartyLogin extends UI.Element {
             this.getConnectWithButtons(),
         ];
     }
-
-    onMount() {
-        this.googleButton.addClickListener(() => {
-            GoogleManager.Global().handleAuthClick(window.location.pathname, "login", () => {
-                window.location.reload();
-            });
-        });
-        this.facebookButton.addClickListener(() => {
-            FacebookManager.Global().login(window.location.pathname, 'authenticate', 'login');
-        });
-    }
+    //
+    // onMount() {
+    //     this.googleButton.addClickListener(() => {
+    //         GoogleManager.Global().handleAuthClick(window.location.pathname, "login", () => {
+    //             window.location.reload();
+    //         });
+    //     });
+    //     this.facebookButton.addClickListener(() => {
+    //         FacebookManager.Global().login(window.location.pathname, 'authenticate', 'login');
+    //     });
+    // }
 }
 
 
@@ -226,7 +292,7 @@ class RecaptchaWidget extends UI.Element {
     redraw() {
         super.redraw();
 
-        if (window.grecaptcha) {
+        if (window.grecaptcha && window.GOOGLE_RECAPTCHA_PUBLIC_KEY) {
             this.captchaId = grecaptcha.render(this.children[0].node, {
                 "sitekey": window.GOOGLE_RECAPTCHA_PUBLIC_KEY,
             });
