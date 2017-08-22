@@ -310,6 +310,37 @@ class LoginStyle extends StyleSheet {
         paddingLeft: "15px",
         fontSize: "15px",
     };
+
+    @styleRule
+    thirdPartyLoginContainer = {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexWrap: "wrap",
+        margin: "15px 0",
+    };
+
+    socialConnectDimensions = "35px";
+
+    @styleRule
+    socialConnectButtonContainer = {
+        display: "flex",
+        alignItems: "center",
+        height: this.socialConnectDimensions,
+        color: "#fff",
+        paddingRight: "10px",
+        borderRadius: "5px",
+        margin: "5px",
+    };
+
+    @styleRule
+    socialConnectButtonIcon = {
+        height: this.socialConnectDimensions,
+        width: this.socialConnectDimensions,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+    };
 }
 
 

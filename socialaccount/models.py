@@ -89,6 +89,14 @@ class SocialApp(models.Model):
     def __str__(self):
         return self.name
 
+    def to_json(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "clientId": self.client_id,
+            "key": self.key,
+        }
+
 
 class SocialAccount(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

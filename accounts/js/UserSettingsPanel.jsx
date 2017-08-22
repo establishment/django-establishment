@@ -337,15 +337,13 @@ export class SocialAccountsPanel extends Panel {
         let addSocialAccountGroup = [
             <h3>{UI.T("Add a 3rd Party Account")}</h3>,
             <div>
-              <a style={{cursor: "pointer"}} onClick={() => {
-                    GoogleManager.Global().handleAuthClick(window.location.pathname, "connect", (data) => this.onSocialConnect(data));
-                }}>
+              <a style={{cursor: "pointer"}} onClick={() => GoogleManager.Global().connect()}>
                 <i className="fa fa-google fa-2x"/>
                 <span className="google-login-text"> {UI.T("Connect Google account")}</span>
               </a>
             </div>,
             <div>
-              <a onClick={() => {FacebookManager.Global().login(window.location.pathname, "authenticate", "connect")}}>
+              <a onClick={() => {FacebookManager.Global().connect()}}>
                 <i className="fa fa-facebook fa-2x"/>
                 <span> {UI.T("Connect Facebook account")} </span>
               </a>
@@ -386,10 +384,6 @@ export class SocialAccountsPanel extends Panel {
             ];
         }
 
-    }
-
-    onSocialConnect(data) {
-        window.location.reload();
     }
 
     removeSocialAccount(socialAccountId) {

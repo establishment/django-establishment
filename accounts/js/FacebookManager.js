@@ -74,7 +74,7 @@ class FacebookManager extends Dispatchable {
     onAsyncInit() {
     }
 
-    login(nextUrl, action, process) {
+    login(nextUrl=window.location.pathname, action="authenticate", process="login") {
         if (!window.FB) {
             console.error("Can't process this request just yet");
             // TODO: should enqueue a request for onInit here
@@ -93,6 +93,10 @@ class FacebookManager extends Dispatchable {
                 this.onLoginError(response);
             }
         }, this.options.loginOptions);
+    }
+
+    connect() {
+        this.login(window.location.pathname, "authenticate", "connect");
     }
 
     onLoginCanceled(response) {
