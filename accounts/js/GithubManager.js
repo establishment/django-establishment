@@ -1,25 +1,19 @@
 import {composeURL} from "Fetch";
+import {SocialAccountManager} from "SocialAccountManager";
+import {SocialAppStore} from "SocialAppStore";
 
-class GithubManager {
+class GithubManager extends SocialAccountManager {
     constructor() {
-        this.options = Object.assign({
+        super(SocialAppStore.getSocialAppByName("Github"), {
             loginWindowOptions: "height=600,width=800,scrollbars=yes",
-        }, window.GITHUB_MANAGER_OPTIONS || {});
-    }
-
-
-    static Global() {
-        if (!this._Global) {
-            this._Global = new GithubManager();
-        }
-        return this._Global;
+        });
     }
 
     login(callback) {
         const githubUri = "https://github.com/login/oauth/authorize";
 
         const rawParams = {
-            client_id: this.options.clientId,
+            client_id: this.getClientId(),
         };
 
         const uri = composeURL(githubUri, rawParams);

@@ -49,7 +49,7 @@ const socialLoginSpecificInfo = {
         color: "#000",
         icon: "github",
         loginManager: GithubManager,
-    }
+    },
 };
 
 
@@ -64,6 +64,10 @@ class SocialConnectButton extends UI.Element {
         });
     }
 
+    getLoginManager() {
+        return this.options.specificInfo.loginManager.getInstance();
+    }
+
     render() {
         let {specificInfo} = this.options;
 
@@ -74,24 +78,14 @@ class SocialConnectButton extends UI.Element {
     }
 
     onMount() {
-        let {specificInfo} = this.options;
-
         this.addClickListener(() => {
-            specificInfo.loginManager.Global().login(window.location.pathname, "login", () => {
-                window.location.reload();
-            });
+            this.getLoginManager().login();
         });
     }
 }
 
 @registerStyle(LoginStyle)
 class ThirdPartyLogin extends UI.Element {
-    setOptions(options) {
-        super.setOptions(options);
-        FacebookManager.Global();
-        GoogleManager.Global();
-    }
-
     getSocialApps() {
         return SocialAppStore.all();
     }
@@ -108,44 +102,12 @@ class ThirdPartyLogin extends UI.Element {
         return (
             <div className={this.styleSheet.thirdPartyLoginContainer}>
                 {
-                    this.getSocialApps().map(socialApp => <SocialConnectButton specificInfo={socialLoginSpecificInfo[socialApp.name]} />)
+                    this.getSocialApps().map(
+                        socialApp => <SocialConnectButton specificInfo={socialLoginSpecificInfo[socialApp.name]} />
+                    )
                 }
             </div>
         );
-        // return (
-        //     <div style={this.styleSheet.connectIcons}>
-        //         <FAIcon icon="facebook"
-        //                 className={this.styleSheet.faLogo}
-        //                 style={{
-        //                     backgroundColor: "#3b5998",
-        //                     cursor: "pointer",
-        //                     display: "flex",
-        //                     justifyContent: "center",
-        //                     alignItems: "center",
-        //                     fontWeight: "bold",
-        //                 }}
-        //                 ref="facebookButton">
-        //             <span className={this.styleSheet.connectWithButtonsSpan}>
-        //                 facebook
-        //             </span>
-        //         </FAIcon>
-        //         <FAIcon icon="google-plus"
-        //                 className={this.styleSheet.faLogo}
-        //                 style={{
-        //                     backgroundColor: "#DE4B39",
-        //                     cursor: "pointer",
-        //                     display: "flex",
-        //                     justifyContent: "center",
-        //                     alignItems: "center",
-        //                     fontWeight: "bold",
-        //                 }}
-        //                 ref="googleButton">
-        //             <span className={this.styleSheet.connectWithButtonsSpan}>
-        //                 google
-        //             </span>
-        //         </FAIcon>
-        //     </div>
-        // );
     }
 
     render() {
@@ -154,17 +116,6 @@ class ThirdPartyLogin extends UI.Element {
             this.getConnectWithButtons(),
         ];
     }
-    //
-    // onMount() {
-    //     this.googleButton.addClickListener(() => {
-    //         GoogleManager.Global().handleAuthClick(window.location.pathname, "login", () => {
-    //             window.location.reload();
-    //         });
-    //     });
-    //     this.facebookButton.addClickListener(() => {
-    //         FacebookManager.Global().login(window.location.pathname, 'authenticate', 'login');
-    //     });
-    // }
 }
 
 
@@ -277,9 +228,6 @@ class LoginWidget extends UI.Element {
                 event.preventDefault();
             });
         }
-        FacebookManager.Global().addListener("loginError", (error) => {
-            this.loginErrorMessage.showMessage(error.message, "red", ERROR_TIMEOUT);
-        });
     }
 }
 
