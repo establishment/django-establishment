@@ -1,12 +1,11 @@
 import {Ajax} from "Ajax";
 import {Dispatchable} from "Dispatcher";
+import {SocialAccountManager} from "SocialAccountManager";
+import {SocialAppStore} from "SocialAppStore";
 
-// TODO: this class should only include Facebook SDK only when absolutely needed,
-// so the user is not being tracked by those corporate assholes
-class FacebookManager extends Dispatchable {
+class FacebookManager extends SocialAccountManager {
     constructor() {
-        super();
-        let options = Object.assign({
+        super(SocialAppStore.getSocialAppByName("Facebook"), {
             version: "v2.7",
             loginByTokenUrl: "/accounts/facebook/login/token/",
             loginOptions: {
@@ -16,22 +15,15 @@ class FacebookManager extends Dispatchable {
             logoutUrl: "/accounts/logout/",
             // TODO: should probably look at https://www.facebook.com/translations/FacebookLocales.xml and Language.Locale
             locale: "en_US",
-        }, window.FACEBOOK_MANAGER_OPTIONS || {});
-        this.init(options);
-    }
-
-    static Global() {
-        if (!this._Global) {
-            this._Global = new FacebookManager();
-        }
-        return this._Global;
+        });
+        this.ensureScriptNodeExists();
     }
 
     sendData(url, data) {
         Ajax.postJSON(url, data).then(
             (data) => {
                 if (data.next) {
-                    window.location.href = data.next;
+                    self.location.href = data.next;
                 } else {
                     location.reload();
                 }
@@ -42,24 +34,19 @@ class FacebookManager extends Dispatchable {
         );
     }
 
-    init(options) {
-        this.options = options;
-
-        window.fbAsyncInit = () => {
+    ensureScriptNodeExists() {
+        self.fbAsyncInit = () => {
             FB.init({
-                appId: this.options.appId,
+                appId: this.getClientId(),
                 version: this.options.version,
                 status: true,
                 cookie: true,
                 xfbml: true
             });
-            this.onAsyncInit();
+
+            this.setLoaded();
         };
 
-        this.ensureFacebookSDKScriptNodeExists();
-    }
-
-    ensureFacebookSDKScriptNodeExists() {
         const id = "facebook-jssdk";
         if (document.getElementById(id)) {
             return;
@@ -71,16 +58,48 @@ class FacebookManager extends Dispatchable {
         document.getElementsByTagName("head")[0].appendChild(scriptElement);
     }
 
-    onAsyncInit() {
+    onLoginCanceled(response) {
     }
 
-    login(nextUrl=window.location.pathname, action="authenticate", process="login") {
-        if (!window.FB) {
-            console.error("Can't process this request just yet");
-            // TODO: should enqueue a request for onInit here
+    onLoginError(response) {
+    }
+
+    onLoginSuccess(response, nextUrl, process) {
+        let data = {
+            next: nextUrl || '',
+            process: process,
+            access_token: response.authResponse.accessToken,
+            expires_in: response.authResponse.expiresIn
+        };
+        this.sendData(this.options.loginByTokenUrl, data);
+    }
+
+    logout(nextUrl) {
+        if (!self.FB) {
             return;
         }
-        if (action == "reauthenticate") {
+        FB.logout((response) => {
+            this.onLogoutSuccess(response, nextUrl);
+        });
+    }
+
+    onLogoutSuccess(response, nextUrl) {
+        let data = {
+            next: nextUrl || ''
+        };
+
+        if (this.options.logoutUrl) {
+            this.sendData(this.options.logoutUrl, data);
+        }
+    }
+
+    handleProcess(nextUrl, action, process) {
+        if (!this.loaded) {
+            this.addListenerOnce("loaded", () => this.handleProcess(process));
+            return;
+        }
+
+        if (action === "reauthenticate") {
             this.options.loginOptions.auth_type = action;
         }
 
@@ -95,43 +114,12 @@ class FacebookManager extends Dispatchable {
         }, this.options.loginOptions);
     }
 
-    connect() {
-        this.login(window.location.pathname, "authenticate", "connect");
+    login(nextUrl, action, process) {
+        this.handleProcess(nextUrl=self.location.pathname, action="authenticate", process="login");
     }
 
-    onLoginCanceled(response) {
-    }
-
-    onLoginError(response) {
-    }
-
-    onLoginSuccess(response, nextUrl, process) {
-        var data = {
-            next: nextUrl || '',
-            process: process,
-            access_token: response.authResponse.accessToken,
-            expires_in: response.authResponse.expiresIn
-        };
-        this.sendData(this.options.loginByTokenUrl, data);
-    }
-
-    logout(nextUrl) {
-        if (!window.FB) {
-            return;
-        }
-        FB.logout((response) => {
-            this.onLogoutSuccess(response, nextUrl);
-        });
-    }
-
-    onLogoutSuccess(response, nextUrl) {
-        var data = {
-            next: nextUrl || ''
-        };
-
-        if (this.options.logoutUrl) {
-            this.sendData(this.options.logoutUrl, data);
-        }
+    connect(nextUrl, action, process) {
+        this.handleProcess(nextUrl=self.location.pathname, action="authenticate", process="connect");
     }
 }
 

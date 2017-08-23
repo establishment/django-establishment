@@ -1,23 +1,22 @@
 import {Ajax} from "Ajax";
 import {ErrorHandlers} from "ErrorHandlers";
 import {NOOP_FUNCTION} from "Utils";
+import {SocialAccountManager} from "SocialAccountManager";
+import {SocialAppStore} from "SocialAppStore";
 
-class GoogleManager {
+class GoogleManager extends SocialAccountManager {
     constructor() {
-        this.options = Object.assign({
+        super(SocialAppStore.getSocialAppByName("Google"), {
             loginByTokenUrl: "/accounts/google/login/token/",
-        }, window.GOOGLE_MANAGER_OPTIONS || {});
-        this.ensureGoogleScriptNodeExists();
+        });
+        this.ensureScriptNodeExists();
     }
 
-    static Global() {
-        if (!this._Global) {
-            this._Global = new GoogleManager();
-        }
-        return this._Global;
+    sendData(url, data, onSuccess=NOOP_FUNCTION) {
+        Ajax.postJSON(url, data).then(onSuccess);
     }
 
-    ensureGoogleScriptNodeExists() {
+    ensureScriptNodeExists() {
         const id = "google-jsapi";
         if (document.getElementById(id)) {
             return;
@@ -25,25 +24,25 @@ class GoogleManager {
         let scriptElement = document.createElement("script");
         scriptElement.id = id;
         scriptElement.async = true;
-        scriptElement.onload = () => {this.init()};
+        scriptElement.onload = () => {
+            gapi.load("auth2", () => {
+                gapi.auth2.init({
+                    client_id: this.getClientId(),
+                }).then(() => {
+                    // Listen for sign-in state changes.
+                    // gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus);
+                    this.getGoogleAuth().isSignedIn.listen(this.updateSigninStatus);
+
+                    // Handle the initial sign-in state.
+                    // this.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+                    this.updateSigninStatus(this.getGoogleAuth().isSignedIn.get());
+
+                    this.setLoaded();
+                });
+            });
+        };
         scriptElement.src = "https://apis.google.com/js/platform.js";
         document.getElementsByTagName("head")[0].appendChild(scriptElement);
-    }
-
-    init() {
-        gapi.load("auth2", () => {
-            gapi.auth2.init({
-                client_id: this.options.clientId,
-            }).then(() => {
-                // Listen for sign-in state changes.
-                // gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus);
-                this.getGoogleAuth().isSignedIn.listen(this.updateSigninStatus);
-
-                // Handle the initial sign-in state.
-                // this.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-                this.updateSigninStatus(this.getGoogleAuth().isSignedIn.get());
-            });
-        })
     }
 
     getGoogleAuth() {
@@ -60,30 +59,30 @@ class GoogleManager {
 
     updateSigninStatus(isSignedIn) {
         if (isSignedIn) {
-            console.log("google user is signed in");
+            console.log("Google user is signed in");
         }
     }
 
-    handleAuthClick(process) {
+    handleProcess(process) {
+        if (!this.loaded) {
+            this.addListenerOnce("loaded", () => this.handleProcess(process));
+            return;
+        }
         this.getGoogleAuth().grantOfflineAccess({"redirect_uri": "postmessage"}).then((data) => {
             Object.assign(data, {
-                next: window.location.pathname,
+                next: self.location.pathname,
                 process: process,
             });
-            this.sendData(this.options.loginByTokenUrl, data, () => window.location.reload());
+            this.sendData(this.options.loginByTokenUrl, data, () => self.location.reload());
         });
     }
 
     login() {
-        this.handleAuthClick("login");
+        this.handleProcess("login");
     }
 
     connect() {
-        this.handleAuthClick("connect")
-    }
-
-    sendData(url, data, onSuccess=NOOP_FUNCTION) {
-        Ajax.postJSON(url, data).then(onSuccess);
+        this.handleProcess("connect")
     }
 }
 

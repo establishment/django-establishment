@@ -2,6 +2,9 @@ import {StoreObject, GenericObjectStore} from "Store";
 import {GlobalState} from "State";
 
 export class SocialApp extends StoreObject {
+    getClientId() {
+        return this.clientId;
+    }
 }
 
 class SocialAppStoreClass extends GenericObjectStore {
