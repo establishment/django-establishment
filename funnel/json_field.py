@@ -5,7 +5,7 @@ from django.db.models.fields import Field
 from django.core.exceptions import ValidationError
 
 from establishment.funnel.encoder import StreamJSONEncoder
-from establishment.funnel.json_helper import to_camel_case, to_underscore_case
+from establishment.funnel.json_helper import to_camel_case, to_underscore_case, from_json_dict
 
 
 # BaseJSONSerializable Usage
@@ -72,10 +72,7 @@ class BaseJSONSerializable:
         if isinstance(json_obj, cls):
             return json_obj  # which is not a json
 
-        # make all keys underscore_case
-        arg_list = dict()
-        for key in json_obj:
-            arg_list[to_underscore_case(key)] = json_obj[key]
+        arg_list = from_json_dict(json_obj)
 
         return cls(**arg_list)
 

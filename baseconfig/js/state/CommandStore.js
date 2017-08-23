@@ -5,6 +5,10 @@ export class CommandInstance extends StoreObject {
     toString() {
         return this.name;
     }
+
+    requiresConfirmation() {
+        return this.promptForConfirmation || (this.runOptions.length !== 0);
+    }
 }
 
 const verboseStatus = ["Waiting", "Running", "Failed", "Successful"];

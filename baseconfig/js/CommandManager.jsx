@@ -1,4 +1,4 @@
-import {UI, Select, Button, Table, ProgressBar, Modal, ActionModal, Form, FormField, TextInput, StaticCodeHighlighter} from "UI";
+import {UI, Select, Button, Table, ProgressBar, Modal, ActionModal, Form, FormField, TextInput, StaticCodeHighlighter, CheckboxInput, NumberInput} from "UI";
 import {FAIcon} from "FontAwesome";
 import {Ajax} from "Ajax";
 import {StemDate} from "Time";
@@ -182,6 +182,122 @@ class PastCommandsTable extends Table {
     }
 }
 
+class AutoFormFieldHelper extends UI.Element {
+    render() {
+        return [
+                <span ref="container" style={{position: "relative", overflow: "hidden", "cursor": "pointer",}}>
+                    <FAIcon icon="question-circle" ref="span" />
+                </span>
+        ];
+    }
+
+    onMount() {
+        this.span.addNodeListener("mouseover", () => {
+            this.popup = UI.Popup.create(this.container, Object.assign({
+                target: this.span,
+                title: this.options.title,
+                children: this.options.description,
+                transitionTime: 300,
+                titleFontSize: "10pt",
+                contentStyle: {
+                    padding: "8px",
+                    textAlign: "left"
+                },
+                style: {
+                    minWidth: "300px",
+                    maxWidth: "500px"
+                }
+            }));
+        });
+
+        this.span.addNodeListener("mouseout", () => {
+            if (this.popup) {
+                this.popup.hide();
+            }
+        })
+    }
+}
+
+class AutoFormFieldSelectOption {
+    constructor(options) {
+        Object.assign(this, options);
+    }
+
+    toString() {
+        return this.label;
+    }
+
+    getValue() {
+        return this.key;
+    }
+}
+
+class AutoFormField extends UI.Element {
+    fieldType = {
+       "text": 1,
+        "number": 2,
+        "checkbox": 3,
+        "select": 4
+    };
+
+    getInputRef() {
+        return this.options.shortName + "Input";
+    }
+
+    render() {
+        let formField = null;
+
+        if (this.options.type === this.fieldType.text) {
+            formField = <TextInput ref={this.getInputRef()} value={this.options.defaultValue}/>;
+        }
+        if (this.options.type === this.fieldType.number) {
+            formField = <NumberInput ref={this.getInputRef()} value={this.options.defaultValue}/>;
+        }
+        if (this.options.type === this.fieldType.checkbox) {
+            formField = <CheckboxInput ref={this.getInputRef()} checked={this.options.defaultValue}/>;
+        }
+        if (this.options.type === this.fieldType.select) {
+            let options = [];
+            for (let option of this.options.choices) {
+                options.push(new AutoFormFieldSelectOption(option));
+            }
+            formField = <Select ref={this.getInputRef()} options={options} />;
+        }
+
+        return <div style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "row",
+        }}>
+            <div style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "12px",
+            }}>
+                {
+                    this.options.description &&
+                    <AutoFormFieldHelper description={this.options.description} title={this.options.shortName}/>
+                }
+            </div>
+            <div style={{flex: "1"}}>
+                <FormField label={this.options.longName}>
+                    {formField}
+                </FormField>
+            </div>
+        </div>
+    }
+
+    getValue() {
+        if (this.options.type === this.fieldType.select) {
+            return this[this.getInputRef()].get().getValue();
+        } else {
+            return this[this.getInputRef()].getValue();
+        }
+    }
+}
+
+
 class CommandRunCreationModal extends ActionModal {
     getTitle() {
         return this.options.commandInstance.name;
@@ -189,8 +305,14 @@ class CommandRunCreationModal extends ActionModal {
 
     getBody() {
         let body = [];
-        if (this.options.commandInstance.promptForConfirmation) {
-            body.push(<h4 style={{color: "red"}}>This command requires a confirmation. Are you sure you want to run this command?</h4>);
+        if (this.options.commandInstance.requiresConfirmation()) {
+            if (this.options.commandInstance.promptForConfirmation) {
+                body.push(<h4 style={{color: "red"}}>This command requires a confirmation. Are you sure you want to run
+                    this command?</h4>);
+            }
+            for (let entry of this.options.commandInstance.runOptions) {
+                body.push(<AutoFormField ref={entry.shortName} {...entry}/>);
+            }
         }
         return body;
     }
@@ -208,8 +330,16 @@ class CommandRunCreationModal extends ActionModal {
 
     action() {
         let requestJson = {
-            commandInstanceId: this.options.commandInstance.id
+            commandInstanceId: this.options.commandInstance.id,
+            arguments: {}
         };
+
+        for (let entry of this.options.commandInstance.runOptions) {
+            requestJson.arguments[entry.shortName] = this[entry.shortName].getValue();
+        }
+        requestJson.arguments = JSON.stringify(requestJson.arguments);
+
+
         runCommand(requestJson, () => {
             CommandRunStore.dispatch("redrawTable");
         });
@@ -262,7 +392,7 @@ class CommandManager extends UI.Element {
 
         this.runCommandButton.addClickListener(() => {
             let commandInstance = this.commandSelect.get();
-            if (commandInstance.promptForConfirmation) {
+            if (commandInstance.requiresConfirmation()) {
                 CommandRunCreationModal.show({commandInstance});
             } else {
                 runCommand({

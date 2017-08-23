@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
 
 from establishment.funnel.stream import StreamObjectMixin
+from establishment.funnel.json_helper import to_json_dict, from_json_dict
 
 
 class BaseGlobalSettings(StreamObjectMixin):
@@ -44,7 +45,6 @@ class PublicGlobalSettings(BaseGlobalSettings):
 
 class CommandInstance(StreamObjectMixin):
     class_instance = models.CharField(max_length=255, unique=True)
-    # arguments = JSONField(null=True, blank=True)
 
     def __str__(self):
         return self.class_instance
@@ -64,6 +64,8 @@ class CommandInstance(StreamObjectMixin):
         result["description"] = self.get_class().get_description()
         result["name"] = self.get_class().get_name()
         result["promptForConfirmation"] = self.get_class().prompt_for_confirmation
+        run_options = self.get_class().get_arguments()
+        result["runOptions"] = [option.to_json() for option in run_options]
         return result
 
 
@@ -105,6 +107,7 @@ class CommandRun(StreamObjectMixin):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     command_instance = models.ForeignKey(CommandInstance, on_delete=models.PROTECT)
+    arguments = JSONField(null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_finished = models.DateTimeField(null=True, blank=True)
     status = models.IntegerField(choices=COMMAND_RUN_STATUS, default=0)
@@ -129,6 +132,7 @@ class CommandRun(StreamObjectMixin):
         self.save()
         self.publish_update_event()
 
+        self.arguments = to_json_dict(*args, **kwargs)
         self.result = command.run_safe(*args, **kwargs)
 
         # Setting the command in either "failed" or "succeeded" status
@@ -141,14 +145,14 @@ class CommandRun(StreamObjectMixin):
         self.publish_update_event()
 
     @classmethod
-    def run(cls, user, command_instance, *args, **kwargs):
+    def run(cls, user, command_instance, arguments=dict(), *args, **kwargs):
         # Creating the command
         command_run = cls(user=user, command_instance=command_instance)
         command_run.save()
         command_run.publish_create_event()
 
         # Running the command
-        command_run.execute(*args, **kwargs)
+        command_run.execute(*args, **kwargs, **from_json_dict(arguments))
 
         return command_run
 
