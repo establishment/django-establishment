@@ -14,11 +14,10 @@ import {ChatStyle} from "ChatStyle";
 import {Pluginable} from "Plugin";
 import {Level, Size} from "ui/Constants";
 
-// TODO: fix this hack
-import {GlobalStyle} from "ui/GlobalStyle";
+import {ButtonStyle} from "ui/button/ButtonStyle";
 import {InputStyle} from "ui/input/Style";
 
-GlobalStyle.Button.ensureFirstUpdate();
+ButtonStyle.getInstance().ensureFirstUpdate();
 InputStyle.getInstance().ensureFirstUpdate();
 
 class PreviewMarkupButton extends Button {

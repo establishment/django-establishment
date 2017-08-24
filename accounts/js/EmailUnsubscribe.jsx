@@ -1,5 +1,5 @@
-import {UI, Link} from "UI";
-import {GlobalStyle} from "GlobalStyle";
+import {UI, Link} from "ui/UI";
+import {ButtonStyle} from "ui/button/ButtonStyle";
 
 class EmailUnsubscribe extends UI.Element {
     extraNodeAttributes(attr) {
@@ -15,7 +15,7 @@ class EmailUnsubscribe extends UI.Element {
             message = <div>
                 <h1>Email unsubscribed!</h1>
                 <h3>You can continue navigating on the website.</h3>
-                <Link href="/accounts/settings/" className={GlobalStyle.Button.DEFAULT} value="Edit user profile" />
+                <Link href="/accounts/settings/" className={ButtonStyle.getInstance().DEFAULT} value="Edit user profile" />
             </div>;
         } else {
             message = <div>
