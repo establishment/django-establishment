@@ -194,6 +194,11 @@ class LoginWidget extends UI.Element {
     }
 
     render() {
+        const thirdPartyLogin = SocialAppStore.all().length ? [
+            this.getHorizontalLine(),
+            <ThirdPartyLogin/>,
+
+        ]: null;
         return [
             <form ref="form">
                 {this.getEmailInput()}
@@ -204,8 +209,7 @@ class LoginWidget extends UI.Element {
                 <div style={{clear: "both", height: "20px"}}/>
                 {this.getBadLogin()}
             </form>,
-            this.getHorizontalLine(),
-            <ThirdPartyLogin/>,
+            thirdPartyLogin,
         ];
     }
 
