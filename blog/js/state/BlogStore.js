@@ -8,8 +8,10 @@ class BlogEntry extends StoreObject {
 }
 
 class BlogEntryStoreClass extends GenericObjectStore {
-    constructor(objectType="BlogEntry", ObjectWrapper=BlogEntry, ...args) {
-        super(objectType, ObjectWrapper, ...args);
+    constructor(objectType="BlogEntry", ObjectWrapper=BlogEntry) {
+        super(objectType, ObjectWrapper, {
+            dependencies: ["Article"],
+        });
     }
 
     getEntryForURL(urlName) {

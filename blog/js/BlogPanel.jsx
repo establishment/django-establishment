@@ -195,7 +195,6 @@ class BlogEntryPreview extends UI.Element {
         let modifiedFormat;
 
         let articleInfoStyle = {
-            margin: "3px",
             color: "#777",
             fontSize: "1em",
             margin: "0",
@@ -342,8 +341,8 @@ class BlogEntryList extends UI.Element {
         return [
             USER.isSuperUser ?
                 <Button label="New Entry"
-                           level={Level.DEFAULT}
-                           onClick={() => this.showNewBlogPostModal()}
+                        level={Level.DEFAULT}
+                        onClick={() => this.showNewBlogPostModal()}
                 />
                 : null,
             <div ref="entriesList">
@@ -357,7 +356,7 @@ class BlogEntryList extends UI.Element {
             <div style={{
                 height: "45px",
                 width: "100%",
-            }}></div>
+            }}/>
         ];
     }
 
@@ -380,7 +379,11 @@ class BlogEntryList extends UI.Element {
                     }
                 );
             }
-        })
+        });
+
+        this.attachCreateListener(BlogEntryStore, () => {
+            this.redraw();
+        });
     }
 }
 
