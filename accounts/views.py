@@ -156,13 +156,6 @@ def edit_profile(request):
             return {
                 "error": e.message_dict
             }
-        # user_event = {
-        #     "type": "profileChanged",
-        #     "objectType": "user",
-        #     "objectId": request.user.id,
-        #     "data": request.user
-        # }
-        # RedisStreamPublisher.publish_to_stream("user-" + str(request.user.id) + "-events", user_event)
         request.user.publish_event("profileChanged", request.user)
 
     return {
@@ -436,7 +429,7 @@ def public_user_profiles(request):
         users = list(precise_user) + list(prefix_users)
     else:
         user_ids = int_list(request.GET.getlist("ids[]"))
-        if len(user_ids) > 1024:
+        if len(user_ids) > 512:
             # TODO: log this, may need to ban that asshole
             return AccountsError.TOO_MANY_PROFILES_REQUESTED
         users = get_user_manager().filter(id__in=user_ids)
