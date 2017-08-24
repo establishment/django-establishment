@@ -26,6 +26,7 @@ import {LoginStyle} from "./LoginStyle";
 import {SocialAppStore} from "SocialAppStore";
 
 const ERROR_TIMEOUT = 6 * 1000;
+
 const accountsConfig = {
     username: true,
     country: true,
@@ -54,7 +55,7 @@ const socialLoginSpecificInfo = {
 
 
 @registerStyle(LoginStyle)
-class SocialConnectButton extends UI.Element {
+class SocialConnectButton extends UI.Primitive("button") {
     extraNodeAttributes(attr) {
         let {specificInfo} = this.options;
 
@@ -78,7 +79,12 @@ class SocialConnectButton extends UI.Element {
     }
 
     onMount() {
+        // Access the login manager, to load any scripts needed by the social provider
+        // TODO: try to find a way to not load all provider scripts on the login page
+        this.getLoginManager();
         this.addClickListener(() => {
+            const loginElement = this.options.loginElement;
+            loginElement && loginElement.clearErrorMessage();
             this.getLoginManager().login();
         });
     }
@@ -103,7 +109,8 @@ class ThirdPartyLogin extends UI.Element {
             <div className={this.styleSheet.thirdPartyLoginContainer}>
                 {
                     this.getSocialApps().map(
-                        socialApp => <SocialConnectButton specificInfo={socialLoginSpecificInfo[socialApp.name]} />
+                        socialApp => <SocialConnectButton specificInfo={socialLoginSpecificInfo[socialApp.name]}
+                                                          loginElement={this.options.loginElement} />
                     )
                 }
             </div>
@@ -117,7 +124,6 @@ class ThirdPartyLogin extends UI.Element {
         ];
     }
 }
-
 
 @registerStyle(LoginStyle)
 class LoginWidget extends UI.Element {
@@ -178,7 +184,7 @@ class LoginWidget extends UI.Element {
                      value={UI.T("Forgot Password?")} />;
     }
 
-    getBadLogin() {
+    getErrorArea() {
         return <TemporaryMessageArea className={this.styleSheet.badLogin} ref="loginErrorMessage"/>;
     }
 
@@ -196,7 +202,7 @@ class LoginWidget extends UI.Element {
     render() {
         const thirdPartyLogin = SocialAppStore.all().length ? [
             this.getHorizontalLine(),
-            <ThirdPartyLogin/>,
+            <ThirdPartyLogin loginElement={this}/>,
 
         ]: null;
         return [
@@ -207,13 +213,22 @@ class LoginWidget extends UI.Element {
                 {this.getForgotPassword()}
                 {this.getSignInButton()}
                 <div style={{clear: "both", height: "20px"}}/>
-                {this.getBadLogin()}
+                {this.getErrorArea()}
             </form>,
             thirdPartyLogin,
         ];
     }
 
+    setErrorMessage(error) {
+        this.loginErrorMessage.showMessage(error.message, "red", ERROR_TIMEOUT);
+    }
+
+    clearErrorMessage() {
+        this.loginErrorMessage.clear();
+    }
+
     sendLogin() {
+        this.clearErrorMessage();
         const data = {
             email: this.emailInput.getValue(),
             password: this.passwordInput.getValue(),
@@ -221,7 +236,7 @@ class LoginWidget extends UI.Element {
         };
         Ajax.postJSON("/accounts/login/", data).then(
             () => location.reload(),
-            (error) => this.loginErrorMessage.showMessage(error.message, "red", ERROR_TIMEOUT)
+            (error) => this.setErrorMessage(error)
         );
     }
 

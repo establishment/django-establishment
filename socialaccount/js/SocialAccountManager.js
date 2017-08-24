@@ -28,11 +28,12 @@ class SocialAccountManager extends Dispatchable {
         return this._Global;
     }
 
-    static login() {
+    // TODO: all managers should call the onError function (if one is passed in) to report issues
+    static login(callback, onError) {
         this.getInstance().login(...arguments);
     }
 
-    static connect() {
+    static connect(callback, onError) {
         this.getInstance().connect(...arguments);
     }
 }

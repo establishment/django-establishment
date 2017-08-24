@@ -71,10 +71,10 @@ class FacebookManager extends SocialAccountManager {
             access_token: response.authResponse.accessToken,
             expires_in: response.authResponse.expiresIn
         };
-        this.sendData(this.options.loginByTokenUrl, data);
+        this.sendData(this.options.loginByTokenUrl, {});
     }
 
-    logout(nextUrl) {
+    logout() {
         if (!self.FB) {
             return;
         }
@@ -83,11 +83,7 @@ class FacebookManager extends SocialAccountManager {
         });
     }
 
-    onLogoutSuccess(response, nextUrl) {
-        let data = {
-            next: nextUrl || ''
-        };
-
+    onLogoutSuccess(response) {
         if (this.options.logoutUrl) {
             this.sendData(this.options.logoutUrl, data);
         }

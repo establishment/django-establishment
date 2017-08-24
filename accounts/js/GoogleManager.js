@@ -29,13 +29,13 @@ class GoogleManager extends SocialAccountManager {
                 gapi.auth2.init({
                     client_id: this.getClientId(),
                 }).then(() => {
-                    // Listen for sign-in state changes.
-                    // gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus);
-                    this.getGoogleAuth().isSignedIn.listen(this.updateSigninStatus);
-
                     // Handle the initial sign-in state.
                     // this.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
                     this.updateSigninStatus(this.getGoogleAuth().isSignedIn.get());
+
+                    // Listen for sign-in state changes.
+                    // gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus);
+                    this.getGoogleAuth().isSignedIn.listen(this.updateSigninStatus);
 
                     this.setLoaded();
                 });
@@ -68,9 +68,11 @@ class GoogleManager extends SocialAccountManager {
             this.addListenerOnce("loaded", () => this.handleProcess(process));
             return;
         }
-        this.getGoogleAuth().grantOfflineAccess({"redirect_uri": "postmessage"}).then((data) => {
+        this.getGoogleAuth().grantOfflineAccess({
+            redirect_uri: "postmessage",
+            immediate: false,
+        }).then((data) => {
             Object.assign(data, {
-                next: self.location.pathname,
                 process: process,
             });
             this.sendData(this.options.loginByTokenUrl, data, () => self.location.reload());
