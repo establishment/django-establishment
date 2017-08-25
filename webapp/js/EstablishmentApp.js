@@ -4,12 +4,23 @@ import {getCookie} from "base/Utils";
 import {ErrorHandlers} from "ErrorHandlers";
 import {GlobalState} from "state/State";
 import {WebsocketSubscriber} from "websocket/WebsocketSubscriber";
+import {GlobalStyleSheet} from "./GlobalStyleSheet";
 
 export class EstablishmentApp extends StemApp {
     static init() {
         this.addAjaxProcessors();
         this.registerWebsocketStreams();
+        this.configureTheme();
+        this.initializeGlobalStyle();
         return super.init();
+    }
+
+    static configureTheme() {
+
+    }
+
+    static initializeGlobalStyle() {
+        GlobalStyleSheet.instantiate();
     }
 
     static registerWebsocketStreams() {
