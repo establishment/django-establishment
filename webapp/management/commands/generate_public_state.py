@@ -35,7 +35,7 @@ class Command(BaseCommand):
         context_dict = {}
         from collections import OrderedDict
         global_constants = OrderedDict()
-        print(settings.PUBLIC_STATE_COLLECTORS)
+
         for collector in settings.PUBLIC_STATE_COLLECTORS:
             if isinstance(collector, str):
                 collector = import_module_attribute(collector)
