@@ -1,3 +1,9 @@
+"""
+This file is meant to patch Django's default static file server, in order to only delay serving static
+resources (js/css/etc.) until they're done bundling.
+It need to synch with the code compilers themselves in order to do this.
+"""
+
 import os
 import subprocess
 import time
