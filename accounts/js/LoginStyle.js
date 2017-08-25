@@ -331,6 +331,13 @@ class LoginStyle extends StyleSheet {
         paddingRight: "10px",
         borderRadius: "5px",
         margin: "5px",
+        outline: "none",
+        paddingTop: "0",
+        cursor: "pointer",
+        fontSize: "13px",
+        ":hover": {
+            opacity: ".85",
+        }
     };
 
     @styleRule
