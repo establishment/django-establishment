@@ -3,11 +3,27 @@ import {StemApp} from "app/StemApp";
 import {getCookie} from "base/Utils";
 import {ErrorHandlers} from "ErrorHandlers";
 import {GlobalState} from "state/State";
+import {WebsocketSubscriber} from "websocket/WebsocketSubscriber";
 
 export class EstablishmentApp extends StemApp {
     static init() {
         this.addAjaxProcessors();
+        this.registerWebsocketStreams();
         return super.init();
+    }
+
+    static registerWebsocketStreams() {
+        GlobalState.registerStream = function (streamName) {
+            WebsocketSubscriber.addListener(streamName, GlobalState.applyEventWrapper);
+        };
+
+        //Register on the global event stream
+        GlobalState.registerStream("global-events");
+
+        //Register on the user event stream
+        if (self.USER && self.USER.id) {
+            GlobalState.registerStream("user-" + self.USER.id + "-events");
+        }
     }
 
     static addAjaxProcessors() {
