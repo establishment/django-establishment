@@ -23,4 +23,53 @@ export class GlobalStyleSheet extends StyleSheet {
         textDecoration: "none",
         color: this.themeProperties.COLOR_LINK || "#337ab7"
     };
+
+    @styleRuleCustom({selector: "hr"})
+    hr = {
+        height: 0,
+        marginTop: "20px",
+        marginBottom: "20px",
+        border: 0,
+        borderTop: "1px solid #eee",
+        boxSizing: "content-box",
+    };
+
+    @styleRuleCustom({selector: "code, pre"})
+    codeAndPre = {
+        fontFamily: this.themeProperties.FONT_FAMILY_MONOSPACE,
+    };
+
+    @styleRuleCustom({selector: "code"})
+    code ={
+        padding: "2px 4px", // TODO: should be in rem
+        fontSize: "90%",
+        color: "#345 !important", // TODO: take colors from theme
+        backgroundColor: "#f8f2f4 !important",
+        borderRadius: this.themeProperties.BUTTON_BORDER_RADIUS,
+    };
+
+    @styleRuleCustom({selector: "pre"})
+    pre = {
+        overflow: "auto",
+        display: "block",
+        padding: this.themeProperties.BUTTON_BORDER_RADIUS,
+        margin: "0 0 10px",
+        fontSize: "13px",
+        lineHeight: 1.42857143,
+        color: "#333",
+        wordBreak: "break-all",
+        wordWrap: "break-word",
+        backgroundColor: "#f5f5f5",
+        border: "1px solid #ccc",
+    };
+
+    @styleRuleCustom({selector: "pre code"})
+    preInCode = {
+        padding: 0,
+        fontSize: "inherit",
+        color: "inherit",
+        whiteSpace: "pre-wrap",
+        backgroundColor: "transparent",
+        borderRadius: 0,
+    };
 }
