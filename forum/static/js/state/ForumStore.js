@@ -9,12 +9,17 @@ class Forum extends StoreObject {
     constructor(obj) {
         super(obj);
         this.forumThreads = new Map();
-        GlobalState.registerStream("forum-" + this.id);
+        // TODO: not appropriate to register to streams here
+        this.registerToStream();
         ForumThreadStore.addDeleteListener((forumThread) => {
             if (forumThread.parentId === this.id && this.forumThreads.has(forumThread.id)) {
                 this.deleteForumThread(forumThread);
             }
         });
+    }
+
+    getStreamName() {
+        return "forum-" + this.id;
     }
 
     getForumThreads() {
