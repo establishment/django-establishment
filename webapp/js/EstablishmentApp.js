@@ -8,6 +8,7 @@ import {GlobalStyleSheet} from "./GlobalStyleSheet";
 
 export class EstablishmentApp extends StemApp {
     static init() {
+        this.loadPublicState();
         this.addAjaxProcessors();
         this.registerWebsocketStreams();
         this.configureTheme();
@@ -15,8 +16,11 @@ export class EstablishmentApp extends StemApp {
         return super.init();
     }
 
-    static configureTheme() {
+    static loadPublicState() {
+        GlobalState.importState(self.PUBLIC_STATE || {});
+    }
 
+    static configureTheme() {
     }
 
     static initializeGlobalStyle() {
@@ -24,6 +28,7 @@ export class EstablishmentApp extends StemApp {
     }
 
     static registerWebsocketStreams() {
+        // TODO: first check if websockets are enabled
         GlobalState.registerStream = function (streamName) {
             WebsocketSubscriber.addListener(streamName, GlobalState.applyEventWrapper);
         };
