@@ -24,7 +24,7 @@ export class EstablishmentApp extends StemApp {
     }
 
     static initializeGlobalStyle() {
-        GlobalStyleSheet.instantiate();
+        GlobalStyleSheet.initialize();
     }
 
     static registerWebsocketStreams() {

@@ -55,7 +55,7 @@ export class GlobalStyleSheet extends StyleSheet {
         padding: this.themeProperties.BUTTON_BORDER_RADIUS,
         margin: "0 0 10px",
         fontSize: "13px",
-        lineHeight: 1.42857143,
+        lineHeight: "1.42857143",
         color: "#333",
         wordBreak: "break-all",
         wordWrap: "break-word",
