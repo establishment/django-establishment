@@ -1,19 +1,14 @@
 import {UI, registerStyle} from "UI";
 import {LoginModal} from "LoginModal";
 import {UserReactionCollection} from "UserReactionStore";
-import {Orientation} from "ui/Constants";
+import {Orientation, VoteStatus} from "ui/Constants";
 import {VotingWidgetStyle} from "./VotingWidgetStyle";
-
-const VoteStatus = {
-    DISLIKE: 0,
-    LIKE: 1,
-};
 
 class VotingWidget extends UI.Element {
     setOptions(options) {
         options = Object.assign({
             votesBalance: 0,
-            userVote: UI.VoteStatus.NONE,
+            userVote: VoteStatus.NONE,
             size: 1,
             likeColor: this.options.likeColor || "#1E8921", //            |
             dislikeColor: this.options.dislikeColor || "#C5302C", //      |- Triadic colors + Shades
