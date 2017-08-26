@@ -6,8 +6,8 @@ import {Ajax} from "Ajax";
 import {NOOP_FUNCTION} from "Utils";
 
 class Forum extends StoreObject {
-    constructor(obj) {
-        super(obj);
+    constructor() {
+        super(...arguments);
         this.forumThreads = new Map();
         // TODO: not appropriate to register to streams here
         this.registerToStream();

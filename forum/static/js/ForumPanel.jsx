@@ -1,21 +1,22 @@
-import {UI, Panel, Link, Route, Router, TimePassedSpan, registerStyle} from "UI";
+import {UI, Panel, Link, Route, Router, TimePassedSpan, registerStyle, CardPanel} from "ui/UI";
 import {Dispatcher} from "base/Dispatcher";
 import {Ajax} from "base/Ajax";
-import {GlobalState} from "State";
-import {ForumStore, ForumThreadStore} from "ForumStore";
+import {GlobalState} from "state/State";
 import {PreviewMarkupButton} from "ChatWidget";
 import {UserHandle} from "UserHandle";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
-import {MessageThreadStore, MessageInstanceStore} from "MessageThreadStore";
-import {ForumThreadPanel, CreateForumThreadButton} from "ForumThread";
-import {slugify} from "base/Utils"; // TODO: import the individual methods
-import {ForumThreadHeaderStyle, ForumThreadPreviewStyle, ForumThreadBubbleStyle, ForumPanelStyle} from "ForumStyle";
+import {MessageThreadStore, MessageInstanceStore} from "state/MessageThreadStore";
 import {StateDependentElement} from "StateDependentElement";
-import {Size} from "ui/Constants";
+import {Size, Level} from "ui/Constants";
+import {slugify} from "base/Utils";
+
+import {ForumStore, ForumThreadStore} from "../state/ForumStore";
+import {ForumThreadPanel, CreateForumThreadButton} from "./ForumThread";
+import {ForumThreadHeaderStyle, ForumThreadPreviewStyle, ForumThreadBubbleStyle, ForumPanelStyle} from "./ForumStyle";
 
 
 @registerStyle(ForumThreadHeaderStyle)
-class ForumThreadHeader extends UI.Element {
+export class ForumThreadHeader extends UI.Element {
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.mainClass);
     }
@@ -69,14 +70,14 @@ class ForumThreadHeader extends UI.Element {
 }
 
 @registerStyle(ForumThreadPreviewStyle)
-class ForumThreadPreview extends ChatMarkupRenderer {
+export class ForumThreadPreview extends ChatMarkupRenderer {
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.forumThreadPreview);
     }
 }
 
 @registerStyle(ForumThreadBubbleStyle)
-class ForumThreadBubble extends UI.Element {
+export class ForumThreadBubble extends UI.Element {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
         attr.addClass(this.styleSheet.mainClass);
@@ -199,7 +200,7 @@ class ForumThreadBubble extends UI.Element {
     }
 }
 
-class ForumThreadList extends UI.Element {
+export class ForumThreadList extends UI.Element {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
         attr.setStyle({
@@ -254,7 +255,7 @@ class ForumThreadList extends UI.Element {
 }
 
 @registerStyle(ForumPanelStyle)
-class ForumPanel extends Panel {
+export class ForumPanel extends Panel {
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.mainClass);
     }
@@ -296,14 +297,14 @@ class ForumPanel extends Panel {
     }
 }
 
-class DelayedForumPanel extends StateDependentElement(ForumPanel) {
+export class DelayedForumPanel extends StateDependentElement(ForumPanel) {
     importState(data) {
         super.importState(data);
         this.options.forum = ForumStore.get(this.options.forumId);
     }
 }
 
-class DelayedForumThreadPanel extends StateDependentElement(ForumThreadPanel) {
+export class DelayedForumThreadPanel extends StateDependentElement(ForumThreadPanel) {
     // TODO: must be able to specify if URL is POST or GET in StateDependentElement
     beforeRedrawNotLoaded() {
         Ajax.postJSON("/forum/forum_thread_state/", {
@@ -323,7 +324,7 @@ class DelayedForumThreadPanel extends StateDependentElement(ForumThreadPanel) {
     }
 }
 
-class ForumRoute extends Route {
+export class ForumRoute extends Route {
     getSubroutes() {
         return [
             new Route(["%s", "%s"], (options) => {
@@ -345,5 +346,3 @@ class ForumRoute extends Route {
         this.subroutes = this.getSubroutes();
     }
 }
-
-export {ForumRoute};
