@@ -10,7 +10,7 @@ import {StateDependentElement} from "StateDependentElement";
 import {Size, Level} from "ui/Constants";
 import {slugify} from "base/Utils";
 
-import {ForumStore, ForumThreadStore} from "../state/ForumStore";
+import {ForumStore, ForumThreadStore} from "./state/ForumStore";
 import {ForumThreadPanel, CreateForumThreadButton} from "./ForumThread";
 import {ForumThreadHeaderStyle, ForumThreadPreviewStyle, ForumThreadBubbleStyle, ForumPanelStyle} from "./ForumStyle";
 

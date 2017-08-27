@@ -83,7 +83,7 @@ export class BlogEntryEditModal extends Modal {
         Ajax.postJSON("/blog/change_entry_settings/", request).then(
             (data) => {
                 if (data.urlName) {
-                    Dispatcher.Global.dispatch("changeURL", "/blog/" + data.urlName + "/");
+                    Router.changeURL(["blog", data.urlName]);
                 }
                 this.hide();
             }
