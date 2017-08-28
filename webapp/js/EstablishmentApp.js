@@ -5,12 +5,16 @@ import {ErrorHandlers} from "ErrorHandlers";
 import {GlobalState} from "state/State";
 import {WebsocketSubscriber} from "websocket/WebsocketSubscriber";
 import {GlobalStyleSheet} from "./GlobalStyleSheet";
+import {ViewportMeta} from "ui/UIPrimitives";
 
 export class EstablishmentApp extends StemApp {
+    static MIN_VIEWPORT_META_WIDTH = 375; // Iphone 6
+
     static init() {
         this.loadPublicState();
         this.addAjaxProcessors();
         this.registerWebsocketStreams();
+        this.initializeViewportMeta();
         this.configureTheme();
         this.initializeGlobalStyle();
         return super.init();
@@ -18,28 +22,6 @@ export class EstablishmentApp extends StemApp {
 
     static loadPublicState() {
         GlobalState.importState(self.PUBLIC_STATE || {});
-    }
-
-    static configureTheme() {
-    }
-
-    static initializeGlobalStyle() {
-        GlobalStyleSheet.initialize();
-    }
-
-    static registerWebsocketStreams() {
-        // TODO: first check if websockets are enabled
-        GlobalState.registerStream = function (streamName) {
-            WebsocketSubscriber.addListener(streamName, GlobalState.applyEventWrapper);
-        };
-
-        //Register on the global event stream
-        GlobalState.registerStream("global-events");
-
-        //Register on the user event stream
-        if (self.USER && self.USER.id) {
-            GlobalState.registerStream("user-" + self.USER.id + "-events");
-        }
     }
 
     static addAjaxProcessors() {
@@ -68,5 +50,32 @@ export class EstablishmentApp extends StemApp {
 
         // Add a default error handler
         Ajax.errorHandler = (error) => ErrorHandlers.showErrorAlert(error);
+    }
+
+    static registerWebsocketStreams() {
+        // TODO: first check if websockets are enabled
+        GlobalState.registerStream = function (streamName) {
+            WebsocketSubscriber.addListener(streamName, GlobalState.applyEventWrapper);
+        };
+
+        //Register on the global event stream
+        GlobalState.registerStream("global-events");
+
+        //Register on the user event stream
+        if (self.USER && self.USER.id) {
+            GlobalState.registerStream("user-" + self.USER.id + "-events");
+        }
+    }
+
+    static initializeViewportMeta() {
+        return this.viewportMeta = ViewportMeta.create(document.head);
+    }
+
+    static configureTheme() {
+        // Nothing to do by default
+    }
+
+    static initializeGlobalStyle() {
+        GlobalStyleSheet.initialize();
     }
 }
