@@ -4,12 +4,11 @@ import time
 from django.db import IntegrityError, models, transaction
 
 from establishment.errors.errors import BaseError
-from establishment.funnel.state import State
-from establishment.funnel.base_views import login_required, login_required_ajax, ajax_required, \
+from establishment.webapp.base_views import login_required, login_required_ajax, ajax_required, \
     superuser_required, single_page_app
-
-from .models import TermDefinition, ArticleEdit, UserFeedback, Article
+from establishment.webapp.state import State
 from .errors import ContentError
+from .models import TermDefinition, ArticleEdit, UserFeedback, Article
 
 
 @superuser_required

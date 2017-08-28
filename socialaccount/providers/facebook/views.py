@@ -4,10 +4,10 @@ import logging
 
 import requests
 
-from establishment.funnel.base_views import ajax_required
+from establishment.socialaccount.errors import SocialAccountError
 from establishment.socialaccount.helpers import complete_social_login
 from establishment.socialaccount.models import SocialLogin, SocialToken
-from establishment.socialaccount.errors import SocialAccountError
+from establishment.webapp.base_views import ajax_required
 from .provider import FacebookProvider, GRAPH_API_URL
 
 logger = logging.getLogger("django")

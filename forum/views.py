@@ -1,9 +1,9 @@
 from establishment.errors.errors import BaseError
 from establishment.forum.errors import ForumError
 from establishment.forum.models import ForumThread, Forum
-from establishment.funnel.base_views import ajax_required, login_required_ajax, global_renderer, single_page_app
-from establishment.funnel.state import State
-from establishment.funnel.throttle import UserActionThrottler, ActionThrottler
+from establishment.webapp.base_views import ajax_required, login_required_ajax, single_page_app
+from establishment.webapp.state import State
+from establishment.webapp.throttle import UserActionThrottler, ActionThrottler
 
 
 @single_page_app

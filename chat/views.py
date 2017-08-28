@@ -4,10 +4,9 @@ from django.db.models import Q
 from establishment.chat.errors import ChatError
 from establishment.chat.models import PrivateChat, GroupChat, MessageInstance
 from establishment.errors.errors import BaseError
-from establishment.funnel.base_views import login_required_ajax, ajax_required, login_required, global_renderer, \
-    single_page_app
-from establishment.funnel.throttle import UserActionThrottler
-from establishment.funnel.state import State
+from establishment.webapp.base_views import login_required_ajax, ajax_required, login_required, single_page_app
+from establishment.webapp.state import State
+from establishment.webapp.throttle import UserActionThrottler
 
 
 @login_required_ajax

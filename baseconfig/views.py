@@ -1,9 +1,10 @@
 import json
-from establishment.funnel.base_views import superuser_required, ajax_required, single_page_app
-from establishment.funnel.state import State
+
 from establishment.misc.threading_helper import ThreadHandler
-from .models import CommandInstance, CommandRun
+from establishment.webapp.base_views import superuser_required, ajax_required, single_page_app
+from establishment.webapp.state import State
 from .errors import BaseconfigError
+from .models import CommandInstance, CommandRun
 
 
 @superuser_required

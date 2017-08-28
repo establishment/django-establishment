@@ -1,12 +1,13 @@
 import os
+
 from django.conf import settings
 from django.core.management import BaseCommand
 from django.template import Context, Template
 from django.utils.safestring import mark_safe
 
 from establishment.funnel.encoder import StreamJSONEncoder
-from establishment.funnel.state import State
 from establishment.misc.util import import_module_attribute
+from establishment.webapp.state import State
 
 
 class Command(BaseCommand):

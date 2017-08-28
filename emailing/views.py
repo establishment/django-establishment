@@ -2,11 +2,11 @@ from PIL import Image
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 
-from establishment.funnel.base_views import superuser_required, single_page_app
-from establishment.funnel.state import State
-from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway
-from .errors import EmailingError
+from establishment.webapp.base_views import superuser_required, single_page_app
+from establishment.webapp.state import State
 from mercury.api import MercuryRedisAPI
+from .errors import EmailingError
+from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway
 
 
 @superuser_required

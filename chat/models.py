@@ -1,6 +1,6 @@
 import re
-
 from datetime import datetime
+
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models
@@ -9,9 +9,9 @@ from django.utils import timezone
 from establishment.accounts.models import ReactionableMixin
 from establishment.chat.errors import ChatError
 from establishment.errors.errors import BaseError
-from establishment.funnel.state import State
 from establishment.funnel.nodews_meta import NodeWSMeta
 from establishment.funnel.stream import register_stream_handler, StreamObjectMixin
+from establishment.webapp.state import State
 
 
 class MessageThread(StreamObjectMixin):

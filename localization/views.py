@@ -1,9 +1,9 @@
 import json
 
-from establishment.funnel.base_views import superuser_required
-from establishment.funnel.state import State
-from .models import TranslationEntry, TranslationKey
+from establishment.webapp.base_views import superuser_required
+from establishment.webapp.state import State
 from .errors import LocalizationError
+from .models import TranslationEntry, TranslationKey
 
 
 def check_translation_entries(entries):

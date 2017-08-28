@@ -5,12 +5,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.utils.text import slugify
 
-from establishment.content.models import Article
 from establishment.blog.models import BlogEntry
+from establishment.content.models import Article
 from establishment.errors.errors import BaseError
-from establishment.funnel.state import State
-from establishment.funnel.base_views import ajax_required, superuser_required, single_page_app
-
+from establishment.webapp.base_views import ajax_required, superuser_required, single_page_app
+from establishment.webapp.state import State
 
 BLOG_FETCH_CHUNK = 5
 

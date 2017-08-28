@@ -1,14 +1,13 @@
-# TODO: this file should be renamed to state.py
 import json
 import time
 
-from establishment.funnel.base_views import JSONResponse
 from establishment.funnel.encoder import StreamJSONEncoder
+from establishment.webapp.base_views import JSONResponse
 
 STATE_FILTERS = []
 
 
-# TODO: this isn't fully thread-safe yet
+# TODO: This should be made thread safe even without relying on the GIL
 class DBObjectStore(object):
     def __init__(self, object_class, objects=None, default_max_age=None):
         if not objects:
@@ -20,7 +19,6 @@ class DBObjectStore(object):
             self.add(obj)
 
     # TODO: add method for object removal
-    # TODO: add expiration
     def get_raw(self, id):
         if not self.has(id):
             self.add(self.object_class.objects.get(id=id))

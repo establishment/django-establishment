@@ -2,8 +2,8 @@ import json
 
 from establishment.content.models import Article
 from establishment.documentation.models import DocumentationEntry
-from establishment.funnel.base_views import ajax_required, superuser_required, single_page_app
-from establishment.funnel.state import State
+from establishment.webapp.base_views import ajax_required, superuser_required, single_page_app
+from establishment.webapp.state import State
 
 
 @ajax_required

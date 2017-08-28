@@ -3,12 +3,12 @@ import logging
 import requests
 from oauth2client import client
 
-from establishment.funnel.base_views import ajax_required
+from establishment.socialaccount.errors import SocialAccountError
 from establishment.socialaccount.helpers import complete_social_login
 from establishment.socialaccount.models import SocialToken, SocialLogin
-from establishment.socialaccount.errors import SocialAccountError
-
+from establishment.webapp.base_views import ajax_required
 from .provider import GoogleProvider
+
 logger = logging.getLogger("django")
 
 

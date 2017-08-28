@@ -3,7 +3,6 @@ from django.db import IntegrityError
 
 from establishment.errors.errors import BaseError
 from establishment.errors.models import ErrorMessage
-from establishment.funnel.base_views import JSONResponse
 
 
 class ErrorMessageProcessingMiddleware(object):

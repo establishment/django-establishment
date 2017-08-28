@@ -63,7 +63,7 @@ class UnverifiedEmail(StreamObjectMixin):
         return expiration_date <= timezone.now()
 
     def send(self, request=None, signup=False):
-        from establishment.funnel.throttle import UserActionThrottler
+        from establishment.webapp.throttle import UserActionThrottler
 
         email_throttler = UserActionThrottler(self.user or 0, "verify-email-" + self.email, 60 * 60, 3)
         if not email_throttler.increm():

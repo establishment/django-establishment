@@ -10,13 +10,13 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.http import base36_to_int, int_to_base36
-from establishment.funnel.base_views import login_required, login_required_ajax, ajax_required, global_renderer
-from establishment.funnel.throttle import ActionThrottler
 
-from establishment.funnel.state import State, int_list
-from establishment.funnel.base_views import single_page_app
-from .errors import AccountsError
+from establishment.webapp.base_views import login_required, login_required_ajax, ajax_required, global_renderer
+from establishment.webapp.base_views import single_page_app
+from establishment.webapp.state import State, int_list
+from establishment.webapp.throttle import ActionThrottler
 from .adapter import login, perform_login
+from .errors import AccountsError
 from .models import EmailAddress, UnverifiedEmail, TempUser, UserSummary, PublicUserSummary
 from .recaptcha_client import test_recaptcha
 from .utils import send_template_mail, get_user_manager
@@ -365,7 +365,7 @@ def user_password_change(request):
 def user_password_reset_request(request):
     reset_email_address = request.POST["email"]
 
-    from establishment.funnel.throttle import UserActionThrottler
+    from establishment.webapp.throttle import UserActionThrottler
 
     reset_password_throttler = UserActionThrottler(request.user or 0, "reset-password-" + reset_email_address, 60 * 60, 2)
     if not reset_password_throttler.increm():
