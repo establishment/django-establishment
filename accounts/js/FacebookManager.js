@@ -68,10 +68,10 @@ class FacebookManager extends SocialAccountManager {
         let data = {
             next: nextUrl || '',
             process: process,
-            access_token: response.authResponse.accessToken,
-            expires_in: response.authResponse.expiresIn
+            accessToken: response.authResponse.accessToken,
+            expiresIn: response.authResponse.expiresIn
         };
-        this.sendData(this.options.loginByTokenUrl, {});
+        this.sendData(this.options.loginByTokenUrl, data);
     }
 
     logout() {

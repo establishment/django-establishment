@@ -42,7 +42,7 @@ def login_by_token(request):
         provider = FacebookProvider.get_instance()
         login_options = provider.get_fb_login_options(request)
         app = provider.get_app(request)
-        access_token = data["access_token"]
+        access_token = data["accessToken"]
         if login_options.get("auth_type") == "reauthenticate":
             info = requests.get(GRAPH_API_URL + "/oauth/access_token_info",
                                 params={"client_id": app.client_id,
