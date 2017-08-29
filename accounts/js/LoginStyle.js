@@ -335,6 +335,7 @@ class LoginStyle extends StyleSheet {
         paddingTop: "0",
         cursor: "pointer",
         fontSize: "13px",
+        border: "0",
         ":hover": {
             opacity: ".85",
         }
@@ -344,7 +345,7 @@ class LoginStyle extends StyleSheet {
     socialConnectButtonIcon = {
         height: this.socialConnectDimensions,
         width: this.socialConnectDimensions,
-        display: "flex",
+        display: "flex !important",
         justifyContent: "center",
         alignItems: "center",
     };
