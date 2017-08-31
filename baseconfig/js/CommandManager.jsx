@@ -6,8 +6,11 @@ import {StemDate} from "Time";
 import {CommandInstanceStore, CommandRunStore} from "CommandStore";
 import {GlobalState} from "State";
 import {UserHandle} from "UserHandle";
-import {util} from "csa";
 import {Level, Size} from "ui/Constants";
+
+// TODO: This is CSAcademy dependency. Fix this!!
+import {Formatter} from "util";
+
 
 class CommandRunStatus extends UI.Element {
     render() {
@@ -125,7 +128,7 @@ class CommandRunDuration extends UI.Primitive("span") {
         } else {
             time = this.options.commandRun.dateFinished - this.options.commandRun.dateCreated
         }
-        return util.Formatter.truncate(time, 2);
+        return Formatter.truncate(time, 2);
     }
 
     onMount() {
