@@ -1,6 +1,7 @@
 import {UI, Button, Link, Modal} from "UI";
 import {MarkupEditor} from "MarkupEditor";
 import {Level, Size} from "ui/Constants";
+import {BasePopup} from "../Popup";
 // import {Emoji as EmojiMini} from "EmojiMini";
 // import "EmojiUI";
 
@@ -51,7 +52,7 @@ class EmojiButton extends Button {
         for (let twitchEmoji in EmojiMini.TWITCH_EMOTICONS) {
             emotesList.push(<ClickableTwitchEmote textBox={textBox} afterClick={afterClick} value={twitchEmoji}/>);
         }
-        return UI.BasePopup.create(this.parent, {
+        return BasePopup.create(this.parent, {
                 target: this,
                 children: emotesList,
                 arrowDirection: UI.Direction.DOWN,

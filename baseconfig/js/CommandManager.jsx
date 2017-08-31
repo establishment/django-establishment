@@ -1,5 +1,6 @@
 import {UI, Select, Button, Table, ProgressBar, Modal, ActionModal, Form, FormField, TextInput, StaticCodeHighlighter, CheckboxInput, NumberInput} from "UI";
 import {FAIcon} from "FontAwesome";
+import {Popup} from "Popup";
 import {Ajax} from "Ajax";
 import {StemDate} from "Time";
 import {CommandInstanceStore, CommandRunStore} from "CommandStore";
@@ -193,7 +194,7 @@ class AutoFormFieldHelper extends UI.Element {
 
     onMount() {
         this.span.addNodeListener("mouseover", () => {
-            this.popup = UI.Popup.create(this.container, Object.assign({
+            this.popup = Popup.create(this.container, Object.assign({
                 target: this.span,
                 title: this.options.title,
                 children: this.options.description,
