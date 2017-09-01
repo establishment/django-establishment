@@ -140,14 +140,18 @@ class State(object):
     def dumps(self):
         return json.dumps(self, cls=StreamJSONEncoder, check_circular=False, separators=(',', ':'))
 
-    def to_response(self, extra=None):
-        result = {
-            "state": self
+    def wrapped(self):
+        return {
+            "state": self,
         }
+
+    def to_response(self, extra=None):
+        result = self.wrapped()
         if extra:
             result.update(extra)
         return JSONResponse(result)
 
+    # TODO: rename to from
     @classmethod
     def from_objects(cls, *args):
         state = cls()
@@ -157,12 +161,6 @@ class State(object):
             else:
                 state.add(arg)
         return state
-
-    @classmethod
-    def from_objects_wrapped(cls, *args):
-        return {
-            "state": cls.from_objects(*args)
-        }
 
 
 # TODO: this doesn't belong here

@@ -17,9 +17,9 @@ from establishment.webapp.state import State, int_list
 from establishment.webapp.throttle import ActionThrottler
 from .adapter import login, perform_login
 from .errors import AccountsError
-from .models import EmailAddress, UnverifiedEmail, TempUser, UserSummary, PublicUserSummary
+from .models import EmailAddress, UnverifiedEmail, TempUser, UserSummary
 from .recaptcha_client import test_recaptcha
-from .utils import send_template_mail, get_user_manager
+from .utils import send_template_mail, get_user_manager, get_public_user_class
 
 logger = logging.getLogger("django.request")
 
@@ -92,7 +92,7 @@ def my_profile(request):
 @single_page_app
 def public_user_profile(request, profile_user):
     state = State()
-    user_summary = PublicUserSummary(profile_user)
+    user_summary = get_public_user_class()(profile_user)
     state.add(user_summary)
     return state.to_response({
         "userId": profile_user.id,
@@ -421,7 +421,6 @@ def user_password_reset_from_token(request, user_base36, reset_token):
 
 @ajax_required
 def public_user_profiles(request):
-    state = State()
     if "usernamePrefix" in request.GET:
         username_prefix = request.GET["usernamePrefix"]
         precise_user = get_user_manager().filter(username__iexact=username_prefix)
@@ -430,14 +429,11 @@ def public_user_profiles(request):
     else:
         user_ids = int_list(request.GET.getlist("ids[]"))
         if len(user_ids) > 512:
-            # TODO: log this, may need to ban that asshole
+            # TODO: log this, may need to ban someone
             return AccountsError.TOO_MANY_PROFILES_REQUESTED
         users = get_user_manager().filter(id__in=user_ids)
 
-    for user in users:
-        state.add(PublicUserSummary(user))
-
-    return state.to_response()
+    return State.from_objects(get_public_user_class().wrap_user_list(users))
 
 
 @login_required_ajax

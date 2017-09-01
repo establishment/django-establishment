@@ -365,31 +365,36 @@ class BaseUserSummary(object):
     def object_type(cls):
         return "user"
 
-    # TODO: rename to add_users_to_state
     @classmethod
     def add_users_to_state(cls, state, user_ids):
         users = get_user_manager().filter(id__in=user_ids)
         for user in users:
             state.add(cls(user))
 
+    @classmethod
+    def wrap_user_list(cls, user_list):
+        return map(lambda user: cls(user), user_list)
+
     @property
     def id(self):
         return self.user.id
 
+    def to_json(self):
+        raise NotImplementedError("Need to implement to_json")
+
 
 # Wrapper classes
-class PublicUserSummary(BaseUserSummary):
+class PublicUserWrapper(BaseUserSummary):
     @classmethod
     def object_type(cls):
-        return "publicuser"
+        return "PublicUser"
 
     def to_json(self):
-        # All public info from the user model (rating, etc) should go here
+        # All public info from the user model should go here
         rez = {
             "id": self.user.id,
             "name": ("%s %s" % (self.user.first_name, self.user.last_name)).strip(),
             "username": self.user.username,
-            "displayName": self.user.display_name,
         }
         if self.user.is_superuser:
             rez["isAdmin"] = self.user.is_superuser

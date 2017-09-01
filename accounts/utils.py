@@ -7,6 +7,8 @@ from django.core.mail import EmailMultiAlternatives, EmailMessage, get_connectio
 
 from django.utils.encoding import force_text
 
+from establishment.misc.util import import_module_attribute
+
 
 def format_email_subject(subject):
     site = Site.objects.get_current()
@@ -78,6 +80,14 @@ def send_verification_mail(request, unverified_email, signup):
 def get_user_manager():
     from django.contrib.auth import get_user_model
     return get_user_model().objects
+
+
+def get_public_user_class():
+    from .models import PublicUserWrapper
+    public_user_class = getattr(settings, "PUBLIC_USER_CLASS", PublicUserWrapper)
+    if isinstance(public_user_class, str):
+        public_user_class = import_module_attribute(public_user_class)
+    return public_user_class
 
 
 def get_request_param(request, param, default=None):
