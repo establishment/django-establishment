@@ -6,6 +6,7 @@ import {PrivateChatWidget} from "ChatWidget";
 import {Router, Route} from "Router";
 import {Ajax} from "Ajax";
 import {FAIcon} from "FontAwesome";
+import {PublicUserStore} from "UserStore";
 import {PrivateChatStore, MessageThreadStore} from "MessageThreadStore";
 import {UserHandle} from "UserHandle";
 import {StemDate} from "Time";
@@ -191,7 +192,7 @@ class UserSearchInput extends UI.Element {
         this.input.addNodeListener("keyup", () => {
             this.window.show();
             if (this.input.getValue()) {
-                Ajax.getJSON("/public_user_profiles/", {
+                Ajax.getJSON(PublicUserStore.options.fetchURL, {
                     usernamePrefix: this.input.getValue(),
                 }).then(
                     (data) => this.updateList(data.state.publicuser),

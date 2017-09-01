@@ -18,6 +18,9 @@ urlpatterns = [
     url(r"^settings/", views.account_settings, name="account_settings"),
     url(r"^profile_changed/$", views.edit_profile),
 
+    # Public user profiles
+    url(r"^public_user_profiles", views.public_user_profiles),
+
     # Password
     url(r"^password_change/$", views.user_password_change, name="account_password_change"),
 

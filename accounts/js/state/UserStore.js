@@ -121,7 +121,7 @@ var PublicUserStoreClass = AjaxFetchMixin(GenericObjectStore);
 var PublicUserStore = new PublicUserStoreClass("publicuser", PublicUser, {
     fetchTimeoutDuration: 20,
     maxFetchObjectCount: 512,
-    fetchURL: "/public_user_profiles/",
+    fetchURL: "/accounts/public_user_profiles/",
 });
 
 window.USER = Object.assign({
