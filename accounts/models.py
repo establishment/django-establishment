@@ -176,6 +176,9 @@ class AbstractStreamObjectUser(AbstractBaseUser, SuperuserPermissionsMixin, Stre
     date_joined = models.DateTimeField(default=timezone.now)
     locale_language = models.ForeignKey("localization.Language", default=1, on_delete=models.PROTECT)
 
+    country = models.ForeignKey("localization.Country", related_name="users", null=True, blank=True)
+    chat_muted = models.BooleanField(default=False)
+
     # These are for Django,
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
