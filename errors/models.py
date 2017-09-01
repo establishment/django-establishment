@@ -80,8 +80,6 @@ class ErrorMessage(StreamObjectMixin, Exception):
     def to_response(self, extra=None, **kwargs):
         from establishment.webapp.base_views import JSONResponse
 
-        if hasattr(self, "_response"):
-            return self._response
         response = {
             "error": self.to_json(),
         }
@@ -90,8 +88,7 @@ class ErrorMessage(StreamObjectMixin, Exception):
         response["error"].update(getattr(self, "extra", {}))
         if self.status_code:
             kwargs["status"] = self.status_code
-        self._response = JSONResponse(response, **kwargs)
-        return self._response
+        return JSONResponse(response, **kwargs)
 
     def to_json(self):
         result = {
