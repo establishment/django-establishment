@@ -6,6 +6,8 @@ import {GlobalState} from "state/State";
 import {WebsocketSubscriber} from "websocket/WebsocketSubscriber";
 import {GlobalStyleSheet} from "./GlobalStyleSheet";
 import {ViewportMeta} from "ui/UIPrimitives";
+import {StemDate} from "time/Date";
+import {ServerTime} from "time/Time";
 
 export class EstablishmentApp extends StemApp {
     static MIN_VIEWPORT_META_WIDTH = 375; // Iphone 6
@@ -34,6 +36,17 @@ export class EstablishmentApp extends StemApp {
         // Add a postprocessor to load any state received from an Ajax response
         Ajax.addPostprocessor((payload) => {
             payload.state && GlobalState.importState(payload.state);
+        });
+
+        // Sync server time
+        Ajax.addPostprocessor((payload, xhrPromise) => {
+            const responseHeaders = xhrPromise.getResponseHeaders();
+            const responseDate = responseHeaders.get("date");
+            if (responseDate) {
+                // Estimate server time, with 500ms rounding and 100 ms latency
+                const estimatedServerTime = new StemDate(responseDate).add(600);
+                ServerTime.set(estimatedServerTime, true);
+            }
         });
 
         // Raise any error, to be handled by the error processor

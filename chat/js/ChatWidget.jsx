@@ -332,7 +332,7 @@ class ChatMessageScrollSection extends InfiniteScrollable {
 let ChatWidget = (ChatMessageClass) => {
     @registerStyle(ChatStyle)
     class ChatWidgetClass extends Pluginable(Panel) {
-        getDefaultOptions() {
+        getDefaultOptions(options) {
             return {
                 dateTimestamps: true,
                 renderMessage: (messageInstance) => {
@@ -341,15 +341,13 @@ let ChatWidget = (ChatMessageClass) => {
             };
         }
 
+        get messageThread() {
+            return this.options.messageThread;
+        }
+
         setOptions(options) {
             super.setOptions(options);
-
-            this.messageThread = options.messageThread;
-
-            // TODO: this is a shitty way of knowing if there are more messages!
-            if (this.messageThread.getNumMessages() >= 20) {
-                this.showLoadMoreButton = true;
-            }
+            this.initializeShowLoadMoreButton();
         }
 
         extraNodeAttributes(attr) {
@@ -362,6 +360,13 @@ let ChatWidget = (ChatMessageClass) => {
 
         canOverwrite() {
             return false;
+        }
+
+        initializeShowLoadMoreButton() {
+            // TODO: this is a shitty way of knowing if there are more messages!
+            if (this.messageThread.getNumMessages() >= 20) {
+                this.showLoadMoreButton = true;
+            }
         }
 
         createVirtualMessage(request, message) {
