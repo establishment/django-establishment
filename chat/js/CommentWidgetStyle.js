@@ -3,7 +3,6 @@ import {StyleSheet, styleRule} from "UI";
 class CommentWidgetStyle extends StyleSheet {
     loadMoreButton = {
         border: "0px",
-        fontFamily: "lato",
         color: "#333",
         borderRadius: "0",
         borderBottom: "0",
@@ -23,7 +22,6 @@ class CommentWidgetStyle extends StyleSheet {
         paddingBottom: "0",
         fontSize: "14px",
         borderRadius: "0",
-        fontFamily: "lato",
         outline: "none",
         paddingLeft: "8px",
         paddingTop: "5px",

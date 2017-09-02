@@ -278,7 +278,6 @@ class ButtonStyle extends StyleSheet {
         padding: "5px 10px",
         marginBottom: "0",
         borderColor: colors.BLUE,
-        fontFamily: "lato",
         fontSize: "13px",
         transition: ".2s",
         outline: "none",

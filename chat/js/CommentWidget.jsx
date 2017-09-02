@@ -40,7 +40,7 @@ class ThreadMessage extends EditableMessage {
         let votes = <CommentVotingWidgetWithThumbs height={40} style={{float: "left"}} message={this.message} ref="commentVotingWidget" />;
 
         return [
-            <span style={{float: "right", display: "inline-block", height: "40px", lineHeight: "40px", fontFamily: "lato",}}>{messageDate}</span>,
+            <span style={{float: "right", display: "inline-block", height: "40px", lineHeight: "40px",}}>{messageDate}</span>,
             <div style={{
                 height: "40px",
                 lineHeight: "40px",
@@ -50,7 +50,6 @@ class ThreadMessage extends EditableMessage {
                     lineHeight: "40px",
                     display: "inline-block",
                     float: "left",
-                    fontFamily: "lato",
                     fontSize: ".95em",
                     color: "#333",
                 }}>
@@ -60,7 +59,6 @@ class ThreadMessage extends EditableMessage {
             </div>,
             <div style={{
                 paddingTop: "5px",
-                fontFamily: "lato",
                 fontSize: "16px",
             }}>
                 {this.contentSwitcher}
@@ -176,8 +174,6 @@ class CommentWidget extends BlogCommentWidget {
     setOptions(options) {
         super.setOptions(options);
 
-        // TODO: remove old message thread, if any
-        this.messageThread = options.messageThread;
         this.key = this.messageThread.id;
 
         this.options.baseRequest = {
@@ -195,13 +191,11 @@ class CommentWidget extends BlogCommentWidget {
             return super.renderMessageBox();
         } else {
             return <div style={{
-                fontFamily: "lato",
                 color: "#333",
                 paddingTop: "5px",
                 paddingBottom: "5px",
             }}>You need to&nbsp;
                 <ToggleLogin style={{
-                    fontFamily: "lato",
                     backgroundColor: "#eee",
                     cursor: "pointer",
                     padding: "5px 10px",
@@ -256,7 +250,6 @@ class AsyncCommentThread extends UI.Element {
                     width: "100%",
                     height: "60px",
                     lineHeight: "60px",
-                    fontFamily: "lato",
                     fontSize: "1em",
                     textAlign: "center",
                     textTransform: "uppercase",

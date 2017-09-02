@@ -146,7 +146,6 @@ class BlogStyle extends StyleSheet {
         borderRadius: "0px",
         backgroundColor: CSAStyle.color.BLUE,
         borderColor: "#333",
-        fontFamily: "lato",
         fontSize: "13px",
         transition: ".2s",
         ":hover": {
