@@ -1,6 +1,8 @@
 import {UI} from "UI";
-import {ArticleStore} from "ArticleStore";
-import {MarkupEditor} from "MarkupEditor";
+
+import {ArticleStore} from "./state/ArticleStore";
+import {MarkupEditor} from "./markup/MarkupEditor";
+
 
 // TODO: should probably be in a modal component
 class DemoMarkupEditor extends UI.Element {

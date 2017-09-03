@@ -14,17 +14,17 @@ import {
     TemporaryMessageArea,
     TextArea,
     TextInput,
+    Level,
     UI,
 } from "UI";
-import {GlobalState} from "State";
-import {Ajax} from "Ajax";
-import {MarkupEditor} from "MarkupEditor";
-import {ArticleRenderer} from "ArticleRenderer";
-import {ArticleStore} from "ArticleStore";
 import {Language} from "LanguageStore";
-import {TranslationManager} from "ArticleManager";
-import {Router} from "Router";
-import {Level} from "ui/Constants";
+
+import {ArticleStore} from "./state/ArticleStore";
+import {TranslationManager} from "./ArticleManager";
+import {ArticleRenderer} from "./ArticleRenderer";
+import {MarkupEditor} from "./markup/MarkupEditor";
+
+
 const deleteRedirectLink = "/";
 
 class ArticleMarkupEditor extends MarkupEditor {

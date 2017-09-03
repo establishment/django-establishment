@@ -1,9 +1,9 @@
 import {UI} from "UI";
-import "MarkupRenderer";
+
 
 let katex = null;
 
-class Latex extends UI.Element {
+export class Latex extends UI.Element {
     setOptions(options) {
         if (options.children && options.children.length) {
             let value = "";
@@ -42,9 +42,3 @@ class Latex extends UI.Element {
         });
     }
 }
-
-function registerMarkup(markupClassMap) {
-    markupClassMap.addClass("Latex", Latex);
-}
-
-export {Latex, registerMarkup}

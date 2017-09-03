@@ -1,6 +1,8 @@
 import {UI, SVG, Switcher, Button} from "UI";
 import {MarkupRenderer, MarkupClassMap} from "MarkupRenderer";
-import {Article, ArticleStore} from "ArticleStore";
+
+import {Article, ArticleStore} from "./state/ArticleStore";
+
 
 class ArticleRenderer extends MarkupRenderer {
     setOptions(options) {
@@ -58,8 +60,6 @@ class ArticleRenderer extends MarkupRenderer {
     }
 }
 
-ArticleRenderer.markupClassMap = new MarkupClassMap(MarkupClassMap.GLOBAL);
-
 class RecursiveArticleRenderer extends ArticleRenderer {
     setOptions(options) {
         super.setOptions(options);
@@ -70,11 +70,7 @@ class RecursiveArticleRenderer extends ArticleRenderer {
         if (this.options.article) {
             return super.redraw();
         } else {
-            ArticleStore.fetch(this.options.articleId, (article) => {
-                this.options.article = article;
-                this.setOptions(this.options);
-                this.redraw();
-            })
+            ArticleStore.fetch(this.options.articleId, (article) => this.updateOptions({ article }));
         }
     }
 }
@@ -130,7 +126,9 @@ class ArticleSwitcher extends Switcher {
     }
 }
 
-ArticleRenderer.markupClassMap.addClass("Article", RecursiveArticleRenderer);
-ArticleRenderer.markupClassMap.addClass("RawSVG", SVG.RawSVG);
+ArticleRenderer.markupClassMap = new MarkupClassMap(MarkupClassMap.GLOBAL, [
+    ["Article", RecursiveArticleRenderer],
+    ["RawSVG", SVG.RawSVG]
+]);
 
 export {ArticleRenderer, RecursiveArticleRenderer, ArticleSwitcher};

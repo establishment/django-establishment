@@ -1,6 +1,6 @@
-import {UI, Panel, Button, CodeEditor, SectionDivider, ButtonGroup, TextArea} from "UI";
+import {UI, Panel, Button, CodeEditor, SectionDivider, ButtonGroup, TextArea, Orientation, Level} from "UI";
 import {MarkupRenderer} from "markup/MarkupRenderer";
-import {Orientation, Level} from "ui/Constants";
+
 
 class MarkupEditor extends Panel {
     getDefaultOptions() {

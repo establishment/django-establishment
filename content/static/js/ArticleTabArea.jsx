@@ -1,9 +1,8 @@
-import {UI, SVG, Router} from "UI";
-import {TabArea} from "TabArea";
+import {UI, SVG, Router, TabArea, BasicTabTitle} from "UI";
 import {Dispatchable} from "Dispatcher";
-import {ArticleStore} from "ArticleStore";
-import {ArticleSwitcher} from "ArticleRenderer";
-import {BasicTabTitle} from "TabArea";
+
+import {ArticleSwitcher} from "./ArticleRenderer";
+
 
 class ArticleTabArea extends TabArea {
     getDefaultOptions() {

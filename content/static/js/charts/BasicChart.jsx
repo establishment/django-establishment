@@ -1,10 +1,9 @@
 // TODO: write own custom Scale
-import {UI, SVG} from "UI";
+import {UI, SVG, Direction} from "UI";
 import {StemDate} from "Time";
 import {uniqueId} from "Utils";
 import {event, zoom, scaleLinear, scaleTime, select} from "d3";
 import * as d3 from "d3";
-import {Direction} from "ui/Constants";
 
 import {LinePlot} from "./LinePlot";
 import {BasePointPlot} from "./PointPlot";

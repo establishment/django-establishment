@@ -13,17 +13,18 @@ import {
     SortableTable,
     TemporaryMessageArea,
     TextInput,
+    Level,
     UI,
 } from "UI";
-import {GlobalState} from "State";
 import {Ajax} from "Ajax";
 import {StemDate} from "Time";
-import {ArticleStore} from "ArticleStore";
 import {PublicUserStore} from "UserStore";
 import {Language} from "LanguageStore";
 import {UserHandle} from "UserHandle";
 import {GlobalStyle} from "GlobalStyle";
-import {Level} from "ui/Constants";
+
+import {ArticleStore} from "./state/ArticleStore";
+
 
 class TransferOwnershipModal extends ActionModal {
     getActionName() {
