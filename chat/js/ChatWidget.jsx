@@ -3,7 +3,7 @@ import {StemDate} from "Time";
 import {GlobalState} from "State";
 import {MessageThreadStore, MessageThread, MessageInstance, MessageInstanceStore, GroupChatStore} from "MessageThreadStore";
 import {UserHandle} from "UserHandle";
-import {MarkupEditorModal} from "MarkupEditorModal";
+import {MarkupEditorModal} from "markup/MarkupEditorModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {CommentVotingWidgetWithThumbs} from "VotingWidget";
 import {LoginModal} from "LoginModal";

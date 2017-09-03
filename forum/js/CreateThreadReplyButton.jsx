@@ -1,7 +1,7 @@
 import {Ajax} from "Ajax";
 import {UI, Button, registerStyle} from "UI";
 import {GlobalState} from "State";
-import {MarkupEditorModal} from "MarkupEditorModal";
+import {MarkupEditorModal} from "markup/MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {ButtonStyle} from "ForumStyle";

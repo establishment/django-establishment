@@ -1,5 +1,5 @@
 import {UI, Button} from "UI";
-import {MarkupEditorModal} from "MarkupEditorModal";
+import {MarkupEditorModal} from "markup/MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {Level} from "ui/Constants";

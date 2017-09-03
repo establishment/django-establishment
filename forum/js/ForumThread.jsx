@@ -13,7 +13,7 @@ import {
     registerStyle,
 } from "UI";
 import {ConcentricCirclesLoadingScreen} from "ui/ConcentricCirclesLoadingScreen";
-import {MarkupEditorModal} from "MarkupEditorModal";
+import {MarkupEditorModal} from "markup/MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {UserHandle} from "UserHandle";

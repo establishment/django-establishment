@@ -4,7 +4,7 @@ import {StemDate} from "Time";
 import {GlobalState} from "State";
 import {BlogEntryStore} from "BlogStore";
 import {ArticleStore} from "ArticleStore";
-import {MarkupEditor} from "MarkupEditor";
+import {MarkupEditor} from "markup/MarkupEditor";
 import {UserHandle} from "UserHandle";
 import {BlogArticleRenderer} from "./BlogArticleRenderer";
 import {ArticleEditor} from "ArticleEditor";
