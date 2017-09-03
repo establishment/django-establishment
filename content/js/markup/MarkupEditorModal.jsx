@@ -1,4 +1,4 @@
-import {UI, Button, Link, Modal, Level, Size} from "UI";
+import {UI, Button, Link, Modal, Level, Size, Direction} from "UI";
 import {MarkupEditor} from "./MarkupEditor";
 import {BasePopup} from "../Popup";
 // import {Emoji as EmojiMini} from "EmojiMini";
@@ -54,7 +54,7 @@ class EmojiButton extends Button {
         return BasePopup.create(this.parent, {
                 target: this,
                 children: emotesList,
-                arrowDirection: UI.Direction.DOWN,
+                arrowDirection: Direction.DOWN,
                 style: {
                     display: "flex",
                     overflow: "auto",
