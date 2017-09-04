@@ -10,6 +10,7 @@ from establishment.webapp.state import State
 from .errors import ContentError
 from .models import TermDefinition, ArticleEdit, UserFeedback, Article
 
+from django.core.mail import mail_admins
 
 @superuser_required
 @single_page_app
@@ -206,5 +207,11 @@ def send_feedback(request):
         user_feedback.sender_email = request.POST["email"]
 
     user_feedback.save()
+
+    mail_admins(
+        "User feedback from " + user_feedback.sender_email,
+        message,
+        user_feedback.sender_email
+    )
 
     return {"success": True, "feedbackId": user_feedback.id}
