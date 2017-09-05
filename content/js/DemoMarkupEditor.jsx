@@ -5,7 +5,7 @@ import {MarkupEditor} from "./markup/MarkupEditor";
 
 
 // TODO: should probably be in a modal component
-class DemoMarkupEditor extends UI.Element {
+export class DemoMarkupEditor extends UI.Element {
     getArticle() {
         return ArticleStore.get(this.options.articleId);
     }
@@ -21,9 +21,3 @@ class DemoMarkupEditor extends UI.Element {
         return [];
     }
 }
-
-function registerMarkup(markupClassMap) {
-    markupClassMap.addClass("DemoMarkupEditor", DemoMarkupEditor);
-}
-
-export {DemoMarkupEditor, registerMarkup};
