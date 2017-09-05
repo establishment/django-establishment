@@ -217,25 +217,26 @@ export class FeedbackForm extends UI.Element {
         return [
             <Form ref="feedbackForm" className={this.styleSheet.container}>
                 <div className={this.styleSheet.nameAndEmailContainer}>
-                    <div className={this.styleSheet.field}>
-                        <label className={this.styleSheet.label}>
-                            Name
-                        </label>
-                        <Input ref="nameInput"
-                               className={this.styleSheet.input}
-                               disabled={this.isDisabled()} />
-                    </div>
                     {
                         !USER.isAuthenticated ?
-                        <div className={this.styleSheet.field}>
-                            <label className={this.styleSheet.label}>
-                                Email
-                            </label>
-                            <EmailInput ref="emailInput"
-                                        className={this.styleSheet.input}
-                                        disabled={this.isDisabled()} />
-                        </div> :
-                        null
+                        [
+                            <div className={this.styleSheet.field}>
+                                <label className={this.styleSheet.label}>
+                                    Name
+                                </label>
+                                <Input ref="nameInput"
+                                       className={this.styleSheet.input}
+                                       disabled={this.isDisabled()} />
+                            </div>,
+                            <div className={this.styleSheet.field}>
+                                <label className={this.styleSheet.label}>
+                                    Email
+                                </label>
+                                <EmailInput ref="emailInput"
+                                            className={this.styleSheet.input}
+                                            disabled={this.isDisabled()} />
+                            </div>
+                        ] : null
                     }
                 </div>
                 <div className={this.styleSheet.textAreaField}>
@@ -255,7 +256,7 @@ export class FeedbackForm extends UI.Element {
 
     submitMessage() {
         let data = {
-            name: this.nameInput.getValue(),
+            name: (this.nameInput && this.nameInput.getValue()) || null,
             email: (this.emailInput && this.emailInput.getValue()) || null,
             message: this.messageInput.getValue(),
         };

@@ -200,16 +200,19 @@ def send_feedback(request):
     client_message = request.POST.get("clientMessage", "{}")
 
     user_feedback = UserFeedback(message=message, client_message=client_message)
+
     if request.user.is_authenticated:
         user_feedback.user = request.user
+        name = request.user.get_full_name()
         user_feedback.sender_email = request.user.email
     else:
+        name = request.POST["name"]
         user_feedback.sender_email = request.POST["email"]
 
     user_feedback.save()
 
     mail_admins(
-        "User feedback from " + user_feedback.sender_email,
+        "Feedback from %s (%s)" % (name, user_feedback.sender_email),
         message,
         user_feedback.sender_email
     )
