@@ -580,6 +580,10 @@ class UserGroup(OwnerUserMixin):
         user_group_members = UserGroupMember.objects.filter(user=user).prefetch_related("group")
         return [member.group for member in user_group_members]
 
+    def add_user(self, user):
+        group_member, created = UserGroupMember.objects.get_or_create(user=user, group=self)
+        return group_member
+
 
 class UserGroupMember(models.Model):
     group = models.ForeignKey(UserGroup, on_delete=models.CASCADE, related_name="members")

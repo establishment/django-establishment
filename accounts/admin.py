@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from .utils import get_user_search_fields
 from .models import EmailAddress, UnverifiedEmail, UserCustomSettings, \
-    UserReaction, UserReactionCollection, UserNotification, TempUser
+    UserReaction, UserReactionCollection, UserNotification, TempUser, UserGroupMember, UserGroup
 
 
 class EmailAddressAdmin(admin.ModelAdmin):
@@ -102,3 +102,5 @@ admin.site.register(UserCustomSettings)
 admin.site.register(UserReactionCollection, UserReactionCollectionAdmin)
 admin.site.register(UserReaction, UserReactionAdmin)
 admin.site.register(UserNotification, UserNotificationAdmin)
+admin.site.register(UserGroup)
+admin.site.register(UserGroupMember)
