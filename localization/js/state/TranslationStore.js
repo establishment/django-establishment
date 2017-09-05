@@ -1,11 +1,12 @@
-import {GlobalState} from "State";
 import {StoreObject, GenericObjectStore} from "Store";
-import {Language} from "LanguageStore";
+
+import {Language} from "./LanguageStore";
+
 
 class TranslationKey extends StoreObject {
 }
 
-var TranslationKeyStore = new GenericObjectStore("TranslationKey", TranslationKey);
+export const TranslationKeyStore = new GenericObjectStore("TranslationKey", TranslationKey);
 
 class TranslationEntry extends StoreObject {
     getLanguage() {
@@ -17,7 +18,7 @@ class TranslationEntry extends StoreObject {
     }
 }
 
-var TranslationEntryStore = new GenericObjectStore("TranslationEntry", TranslationEntry);
+export const TranslationEntryStore = new GenericObjectStore("TranslationEntry", TranslationEntry);
 
 Language.addListener("buildTranslationMap", (language) => {
     for (let translationEntry of TranslationEntryStore.all()) {
@@ -26,5 +27,3 @@ Language.addListener("buildTranslationMap", (language) => {
         }
     }
 });
-
-export {TranslationKeyStore, TranslationEntryStore};

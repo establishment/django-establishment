@@ -1,4 +1,3 @@
-import {GlobalState} from "State";
 import {StoreObject, GenericObjectStore} from "Store";
 
 class Country extends StoreObject {

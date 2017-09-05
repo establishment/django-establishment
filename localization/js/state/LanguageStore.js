@@ -1,5 +1,4 @@
 // A basic store that can be used to keep objects that map to ISO-code backed languages
-import {GlobalState} from "State";
 import {StoreObject, GenericObjectStore} from "Store";
 
 class LanguageObject extends StoreObject {

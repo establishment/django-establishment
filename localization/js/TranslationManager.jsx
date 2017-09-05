@@ -1,13 +1,12 @@
 // TODO: this whole file needs a refactoring
-import {UI, TabArea, TableRow, Table, TextInput, Button, Select, FileInput, CheckboxInput, TextArea, Panel} from "UI";
-import {GlobalState} from "State";
-import {TranslationKeyStore, TranslationEntryStore} from "TranslationStore";
-import {Language} from "LanguageStore";
+import {UI, TabArea, TableRow, Table, TextInput, Button, Select, FileInput, CheckboxInput, TextArea, Panel, Level} from "UI";
 import {Dispatcher} from "Dispatcher";
 import {FileSaver} from "FileSaver";
 import {Ajax} from "Ajax";
-import {Level} from "ui/Constants";
 import {NOOP_FUNCTION} from "Utils";
+
+import {TranslationKeyStore, TranslationEntryStore} from "./state/TranslationStore";
+import {Language} from "./state/LanguageStore";
 
 function ajaxCall(request, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
     Ajax.postJSON("/edit_translation/", request).then(onSuccess, onError);
