@@ -14,6 +14,7 @@ import {enhance} from "Color";
 
 
 export class FeedbackFormStyle extends StyleSheet {
+    feedbackFormWidth = 720;
     marginBottom = 10;
     padding = 15;
     width = 300;
@@ -21,9 +22,15 @@ export class FeedbackFormStyle extends StyleSheet {
 
     @styleRule
     feedbackForm = {
-        width: 350,
-        maxWidth: "96%",
+        width: () => this.feedbackFormWidth,
+        maxWidth: "100%",
         margin: "0 auto",
+    };
+
+    @styleRule
+    container = {
+        display: "flex",
+        flexDirection: "column",
     };
 
     @styleRule
@@ -32,8 +39,30 @@ export class FeedbackFormStyle extends StyleSheet {
     };
 
     @styleRule
-    field = {
+    nameAndEmailContainer = {
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
+    };
 
+    @styleRule
+    field = {
+        display: "flex",
+        width: "50%",
+        flex: "1",
+        flexDirection: "column",
+        padding: "0 10px",
+        width: "100%",
+        minWidth: "240px",
+    };
+
+    @styleRule
+    textAreaField = {
+        maxWidth: "100%",
+        width: "100%",
+        padding: "0 10px",
     };
 
     @styleRule
@@ -46,8 +75,6 @@ export class FeedbackFormStyle extends StyleSheet {
 
     @styleRule
     input = {
-        width: "90%",
-        maxWidth: this.width,
         borderRadius: "0px !important",
         height: this.inputHeight,
         lineHeight: this.inputHeight,
@@ -59,6 +86,9 @@ export class FeedbackFormStyle extends StyleSheet {
         border: "0",
         border: "2px solid #ddd",
         transition: "0.25s",
+        display: "flex",
+        width: "100%",
+        flex: "1",
 
         outline: "0",
         ":focus": {
@@ -80,10 +110,14 @@ export class FeedbackFormStyle extends StyleSheet {
         height: "175px",
         lineHeight: "initial",
         padding: this.padding,
+        maxWidth: "100%",
+        width: "100%",
     };
 
     @styleRule
     submitInput = {
+        margin: "0 10px",
+        marginTop: "20px",
         padding: "5px 15px",
         fontSize: "18px",
         fontFamily: this.themeProperties.FONT_FAMILY_SANS_SERIF,
@@ -181,28 +215,30 @@ export class FeedbackForm extends UI.Element {
 
     render() {
         return [
-            <Form ref="feedbackForm">
-                <div className={this.styleSheet.field}>
-                    <label className={this.styleSheet.label}>
-                        Name
-                    </label>
-                    <Input ref="nameInput"
-                           className={this.styleSheet.input}
-                           disabled={this.isDisabled()} />
-                </div>
-                {
-                    !USER.isAuthenticated ?
+            <Form ref="feedbackForm" className={this.styleSheet.container}>
+                <div className={this.styleSheet.nameAndEmailContainer}>
                     <div className={this.styleSheet.field}>
                         <label className={this.styleSheet.label}>
-                            Email
+                            Name
                         </label>
-                        <EmailInput ref="emailInput"
-                                    className={this.styleSheet.input}
-                                    disabled={this.isDisabled()} />
-                    </div> :
-                    null
-                }
-                <div className={this.styleSheet.field}>
+                        <Input ref="nameInput"
+                               className={this.styleSheet.input}
+                               disabled={this.isDisabled()} />
+                    </div>
+                    {
+                        !USER.isAuthenticated ?
+                        <div className={this.styleSheet.field}>
+                            <label className={this.styleSheet.label}>
+                                Email
+                            </label>
+                            <EmailInput ref="emailInput"
+                                        className={this.styleSheet.input}
+                                        disabled={this.isDisabled()} />
+                        </div> :
+                        null
+                    }
+                </div>
+                <div className={this.styleSheet.textAreaField}>
                     <label className={this.styleSheet.label}>
                         Message
                     </label>
