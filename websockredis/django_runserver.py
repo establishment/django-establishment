@@ -5,7 +5,6 @@ import wsgiref
 import logging
 from hashlib import sha1
 
-from django.conf import settings
 from django.core.management.commands import runserver
 from django.core.servers.basehttp import WSGIServer
 from django.core.wsgi import get_wsgi_application
@@ -14,8 +13,6 @@ from django.utils.encoding import force_str
 from .websocket import WebSocket
 from .wsgi_server import WebsocketWSGIServer, HandshakeError, UpgradeRequiredError
 
-if not settings.DEBUG:
-    raise Exception("This module should only be used in DEBUG mode")
 
 logger = logging.getLogger("django.server")
 
