@@ -193,7 +193,7 @@ def delete_article(request, article_id):
 
 
 def send_feedback(request):
-    if request.visitor.get_throttler("postFeedback", (24 * 60 * 60, 5)).increm():
+    if not request.visitor.get_throttler("postFeedback", (24 * 60 * 60, 5)).increm():
         return ContentError.TOO_MUCH_FEEDBACK
 
     message = request.POST["message"]
