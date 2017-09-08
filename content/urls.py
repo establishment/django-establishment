@@ -13,4 +13,7 @@ urlpatterns = [
     url(r"^create_article/$", views.create_article),
 
     url(r"^send_feedback/$", views.send_feedback),
+    url(r"^questionnaire_state/$", views.questionnaire_state),
+    url(r"^questionnaire_answer/$", views.questionnaire_answer),
+    url(r"^questionnaire_submit/$", views.questionnaire_submit)
 ]

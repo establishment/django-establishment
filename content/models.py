@@ -5,6 +5,7 @@ from django.db import transaction
 
 from establishment.funnel.stream import StreamObjectMixin
 from establishment.localization.models import Language
+from django.contrib.postgres.fields import JSONField
 
 
 class EditableTextField(JSONField):
@@ -191,3 +192,84 @@ class UserFeedback(StreamObjectMixin):
             user_feedback.sender_email = request.user.email
         return user_feedback
 
+
+class Questionnaire(StreamObjectMixin):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    name = models.CharField(max_length=256)
+    visible = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "Questionnaire"
+        unique_together = (("owner", "name"), )
+
+    def __str__(self):
+        return self.name
+
+    def add_to_state(self, state, user=None):
+        # Questionnaire itself
+        state.add(self)
+        for question in self.questions.all():
+            state.add(question)
+            state.add_all(question.options.all())
+        # The user's session. If the user requested the questionnaire, and he does not have a session,
+        # one will be created for him.
+        if user:
+            instance, created = QuestionnaireInstance.objects.get_or_create(questionnaire=self, user=user)
+            state.add(instance)
+            state.add_all(instance.question_answers.all())
+
+
+class QuestionnaireQuestion(StreamObjectMixin):
+    QUESTION_TYPE = (
+        (1, "Plain text"),
+        (2, "Multiple choice")
+    )
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, related_name="questions")
+    type = models.IntegerField(choices=QUESTION_TYPE, default=1)
+    text = models.CharField(max_length=8192)
+
+    class Meta:
+        db_table = "QuestionnaireQuestion"
+
+    def __str__(self):
+        return self.questionnaire.name + ": " + self.text
+
+
+class QuestionnaireQuestionOption(StreamObjectMixin):
+    question = models.ForeignKey(QuestionnaireQuestion, on_delete=models.CASCADE, related_name="options")
+    answer = models.CharField(max_length=8192)
+
+    class Meta:
+        db_table = "QuestionnaireQuestionOption"
+
+    def __str__(self):
+        return self.question.text + ": " + self.answer
+
+
+class QuestionnaireInstance(StreamObjectMixin):
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, related_name="instances")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_submitted = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "QuestionnaireInstance"
+        unique_together = (("questionnaire", "user"), )
+
+    def __str__(self):
+        return str(self.user) + "'s answer to " + self.questionnaire.name
+
+
+class QuestionnaireQuestionResponse(StreamObjectMixin):
+    instance = models.ForeignKey(QuestionnaireInstance, on_delete=models.CASCADE, related_name="question_answers")
+    question = models.ForeignKey(QuestionnaireQuestion, on_delete=models.CASCADE, related_name="responses")
+    text = models.CharField(max_length=8192, null=True, blank=True)
+    choice = models.ForeignKey(QuestionnaireQuestionOption, on_delete=models.CASCADE, null=True, blank=True)
+    # Since the answer can be modified, we want auto_now instead of auto_now_add
+    date_answered = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "QuestionnaireQuestionResponse"
+
+    def __str__(self):
+        return str(self.instance) + ": " + self.question.text

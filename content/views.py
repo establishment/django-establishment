@@ -1,16 +1,19 @@
 import json
 import time
 
+from django.core.mail import mail_admins
 from django.db import IntegrityError, models, transaction
+from django.utils import timezone
 
 from establishment.errors.errors import BaseError
 from establishment.webapp.base_views import login_required, login_required_ajax, ajax_required, \
     superuser_required, single_page_app
 from establishment.webapp.state import State
 from .errors import ContentError
-from .models import TermDefinition, ArticleEdit, UserFeedback, Article
+from .models import TermDefinition, ArticleEdit, UserFeedback, Article, Questionnaire, QuestionnaireQuestion, \
+                    QuestionnaireInstance, QuestionnaireQuestionResponse, QuestionnaireQuestionOption
 
-from django.core.mail import mail_admins
+
 
 @superuser_required
 @single_page_app
@@ -218,3 +221,63 @@ def send_feedback(request):
     )
 
     return {"success": True, "feedbackId": user_feedback.id}
+
+
+@login_required_ajax
+def questionnaire_state(request):
+    questionnaire_id = int(request.POST["questionnaireId"])
+    questionnaire = Questionnaire.objects.get(id=questionnaire_id)
+
+    if not request.user.is_superuser and not questionnaire.visible:
+        return BaseError.NOT_ALLOWED
+
+    state = State()
+    questionnaire.add_to_state(state, request.user)
+    return state
+
+
+@login_required_ajax
+def questionnaire_answer(request):
+    questionnaire_id = int(request.POST["questionnaireId"])
+
+    questionnaire = Questionnaire.objects.get(id=questionnaire_id)
+    if not request.user.is_superuser and not questionnaire.visible:
+        return BaseError.NOT_ALLOWED
+
+    question = QuestionnaireQuestion.objects.get(id=int(request.POST["questionId"]))
+    if question.questionnaire_id != questionnaire.id:
+        return BaseError.NOT_ALLOWED
+
+    instance = QuestionnaireInstance.objects.get(user=request.user, questionnaire=questionnaire)
+    if instance.date_submitted:
+        return BaseError.NOT_ALLOWED
+
+    question_response, created = QuestionnaireQuestionResponse.objects.get_or_create(instance=instance, question=question)
+
+    if question.type == 1:  # Plain texts
+        question_response.text = request.POST.get("text", "")
+    else:
+        question_choice = QuestionnaireQuestionOption.objects.get(id=request.POST["choiceId"])
+        if question_choice.question_id != question.id:
+            return BaseError.NOT_ALLOWED
+        question_response.choice = question_choice
+    question_response.save()
+    return State.from_objects(question_response)
+
+
+@login_required_ajax
+def questionnaire_submit(request):
+    questionnaire_id = int(request.POST["questionnaireId"])
+
+    questionnaire = Questionnaire.objects.get(id=questionnaire_id)
+    if not request.user.is_superuser and not questionnaire.visible:
+        return BaseError.NOT_ALLOWED
+
+    instance = QuestionnaireInstance.objects.get(user=request.user, questionnaire=questionnaire)
+    if instance.date_submitted:
+        return BaseError.NOT_ALLOWED
+
+    instance.date_submitted = timezone.now()
+    instance.save()
+
+    return State.from_objects(instance)
