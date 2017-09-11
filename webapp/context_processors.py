@@ -27,6 +27,8 @@ def user_json(request):
     if request.user.is_authenticated:
         user_dict = request.user.to_json()
     user_dict["isAuthenticated"] = bool(request.user.is_authenticated)
+    if request.user.is_authenticated:
+        user_dict.update(request.user.get_custom_settings().to_json())
 
     return {
         "USER": json_safe(StreamJSONEncoder.dumps(user_dict)),
