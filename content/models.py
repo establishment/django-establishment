@@ -208,15 +208,13 @@ class Questionnaire(StreamObjectMixin):
     def add_to_state(self, state, user=None):
         # Questionnaire itself
         state.add(self)
-        for question in self.questions.all():
-            state.add(question)
-            state.add_all(question.options.all())
+        for question in self.questions.all().prefetch_related("options"):
+            question.add_to_state(state)
         # The user's session. If the user requested the questionnaire, and he does not have a session,
         # one will be created for him.
         if user:
             instance, created = QuestionnaireInstance.objects.get_or_create(questionnaire=self, user=user)
-            state.add(instance)
-            state.add_all(instance.question_answers.all())
+            instance.add_to_state(state)
 
 
 class QuestionnaireQuestion(StreamObjectMixin):
@@ -233,6 +231,10 @@ class QuestionnaireQuestion(StreamObjectMixin):
 
     def __str__(self):
         return self.questionnaire.name + ": " + self.text
+
+    def add_to_state(self, state, user=None):
+        state.add(self)
+        state.add_all(self.options.all())
 
 
 class QuestionnaireQuestionOption(StreamObjectMixin):
@@ -258,6 +260,10 @@ class QuestionnaireInstance(StreamObjectMixin):
 
     def __str__(self):
         return str(self.user) + "'s answer to " + self.questionnaire.name
+
+    def add_to_state(self, state, user=None):
+        state.add(self)
+        state.add_all(self.question_answers.all())
 
 
 class QuestionnaireQuestionResponse(StreamObjectMixin):

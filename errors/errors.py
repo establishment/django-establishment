@@ -51,6 +51,7 @@ class BaseError(ErrorList):
     USER_NOT_AUTHENTICATED = get_error(id=1, message="User not authenticated")
     NOT_ALLOWED = get_error(id=2, message="Not allowed")
     OBJECT_NOT_FOUND = get_error(id=3, message="Object not found")
+    INVALID_URL = get_error(message="Invalid url")
     OBJECT_ALREADY_EXISTS = get_error(message="The object you want to create already exists")
     INVALID_DATA = get_error(message="Validation error")
     TOO_MANY_OBJECTS = get_error(message="Requesting too many objects")

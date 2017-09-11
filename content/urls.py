@@ -14,6 +14,7 @@ urlpatterns = [
 
     url(r"^send_feedback/$", views.send_feedback),
     url(r"^questionnaire_state/$", views.questionnaire_state),
+    url(r"^questionnaire_all_answers/$", views.questionnaire_all_answers),
     url(r"^questionnaire_answer/$", views.questionnaire_answer),
     url(r"^questionnaire_submit/$", views.questionnaire_submit)
 ]

@@ -14,6 +14,10 @@ class Questionnaire extends StoreObject {
     addQuestion(question) {
         this.questions.push(question);
     }
+
+    getAllInstances() {
+        return QuestionnaireInstanceStore.all().filter(instance => instance.questionnaireId === this.id);
+    }
 }
 
 export const QuestionnaireStore = new GenericObjectStore("questionnaire", Questionnaire);
@@ -24,9 +28,13 @@ export class QuestionnaireQuestion extends StoreObject {
         MULTIPLE_CHOICE: 2,
     };
 
+    getQuestionnaire() {
+        return QuestionnaireStore.get(this.questionnaireId);
+    }
+
     constructor() {
         super(...arguments);
-        QuestionnaireStore.get(this.questionnaireId).addQuestion(this);
+        this.getQuestionnaire().addQuestion(this);
         this.options = [];
     }
 
@@ -67,6 +75,10 @@ class QuestionnaireInstance extends StoreObject {
     constructor() {
         super(...arguments);
         this.questionResponses = new Map();
+    }
+
+    getQuestionnaire() {
+        return QuestionnaireStore.get(this.questionnaireId);
     }
 
     addQuestionResponse(questionResponse) {

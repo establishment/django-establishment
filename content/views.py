@@ -228,11 +228,30 @@ def questionnaire_state(request):
     questionnaire_id = int(request.POST["questionnaireId"])
     questionnaire = Questionnaire.objects.get(id=questionnaire_id)
 
-    if not request.user.is_superuser and not questionnaire.visible:
+    if not request.user.is_superuser and not questionnaire.visible and questionnaire.owner_id != request.user.id:
         return BaseError.NOT_ALLOWED
 
     state = State()
     questionnaire.add_to_state(state, request.user)
+    return state
+
+
+@login_required_ajax
+def questionnaire_all_answers(request):
+    questionnaire_id = int(request.GET["questionnaireId"])
+    questionnaire = Questionnaire.objects.get(id=questionnaire_id)
+
+    if not request.user.is_superuser and questionnaire.owner_id != request.user.id:
+        return BaseError.NOT_ALLOWED
+
+    state = State()
+    questionnaire.add_to_state(state)
+
+    answers = QuestionnaireInstance.objects.filter(questionnaire=questionnaire, date_submitted__isnull=False)\
+                                           .prefetch_related("question_answers")
+    for answer in answers:
+        answer.add_to_state(state)
+
     return state
 
 

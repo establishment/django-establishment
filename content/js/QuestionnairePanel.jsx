@@ -60,7 +60,13 @@ class QuestionnaireStyle extends StyleSheet {
 
 
 @registerStyle(QuestionnaireStyle)
-class QuestionPage extends UI.Element {
+export class QuestionPage extends UI.Element {
+    getDefaultOptions() {
+        return {
+            editable: true
+        };
+    }
+
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.questionPage);
     }
@@ -71,25 +77,33 @@ class QuestionPage extends UI.Element {
             formFields = this.options.question.getOptions().map(
                 option => <div className={this.styleSheet.radioInputContainer}>
                             <RadioInput ref={"option" + option.id} name={this.options.question.id}
-                                        checked={this.isChecked(option)}/>
+                                        checked={this.isChecked(option)} disabled={!this.options.editable} />
                             {option.answer}
                           </div>
             )
         } else {
             formFields = [
-                <TextArea className={this.styleSheet.textArea} value={this.getTextValue()} ref="textArea"/>
+                <TextArea className={this.styleSheet.textArea} value={this.getTextValue()}
+                          ref="textArea" readOnly={!this.options.editable}/>
             ];
         }
         return <Form className={this.styleSheet.form}>{formFields}</Form>
     }
 
+    getResponse() {
+        if (this.options.instance) {
+            return this.options.instance.getQuestionResponse(this.options.question.id);
+        }
+        return this.options.question.getCurrentUserResponse();
+    }
+
     isChecked(questionOption) {
-        const userResponse = this.options.question.getCurrentUserResponse();
+        const userResponse = this.getResponse();
         return (userResponse && userResponse.choiceId === questionOption.id) || false;
     }
 
     getTextValue() {
-        const userResponse = this.options.question.getCurrentUserResponse();
+        const userResponse = this.getResponse();
         return (userResponse && userResponse.text) || "";
     }
 
@@ -112,6 +126,9 @@ class QuestionPage extends UI.Element {
     }
 
     onMount() {
+        if (!this.options.editable) {
+            return;
+        }
         if (this.options.question.type === QuestionnaireQuestion.Type.MULTIPLE_CHOICE) {
             for (const option of this.options.question.getOptions()) {
                 this["option" + option.id].addChangeListener(() => {
@@ -169,27 +186,7 @@ export class QuestionnairePanel extends UI.Element {
         return this.getQuestionnaire().getQuestions();
     }
 
-    isFinished() {
-        return !!QuestionnaireInstanceStore.getCurrentUserInstance(this.options.questionnaireId).dateSubmitted;
-    }
-
     render() {
-        if (this.options.error) {
-            return StateDependentElement.renderError(this.options.error);
-        }
-        if (!this.options.loaded) {
-            return StateDependentElement.renderLoading();
-        }
-        if (this.isFinished()) {
-            return <div className={this.styleSheet.finished}>
-                        <div>
-                            {UI.T("We have received your answer for this form.")}
-                        </div>
-                        <div>
-                            {UI.T("Thank you!")}
-                        </div>
-                   </div>;
-        }
         const questions = this.getQuestions();
         return [
             <OrderedChildrenSwitcher ref="questionPageSwitcher" style={{minHeight: "300px"}}>
@@ -207,18 +204,10 @@ export class QuestionnairePanel extends UI.Element {
         ];
     }
 
-    redraw() {
-        super.redraw();
-        if (this.options.loaded && !this.options.error && !this.isFinished() && !this._loadedListeners) {
-            this.setLoadedListeners();
-            this._loadedListeners = true;
-        }
-    }
-
     finish() {
         Ajax.postJSON("/questionnaire_submit/", {
             questionnaireId: this.options.questionnaireId
-        }).then(() => this.redraw());
+        }).then(() => (this.parent instanceof DelayedQuestionnairePanel) && this.parent.redraw());
     }
 
     updateFooter() {
@@ -240,7 +229,7 @@ export class QuestionnairePanel extends UI.Element {
         }
     }
 
-    setLoadedListeners() {
+    onMount() {
         this.updateFooter();
         this.backButton.addClickListener(() => {
             this.questionPageSwitcher.updateChildIndex(-1);
@@ -250,6 +239,34 @@ export class QuestionnairePanel extends UI.Element {
             this.questionPageSwitcher.updateChildIndex(1);
             this.updateFooter();
         });
+    }
+}
+
+
+@registerStyle(QuestionnaireStyle)
+export class DelayedQuestionnairePanel extends UI.Element {
+    isFinished() {
+        return !!QuestionnaireInstanceStore.getCurrentUserInstance(this.options.questionnaireId).dateSubmitted;
+    }
+
+    render() {
+        if (this.options.error) {
+            return StateDependentElement.renderError(this.options.error);
+        }
+        if (!this.options.loaded) {
+            return StateDependentElement.renderLoading();
+        }
+        if (this.isFinished()) {
+            return <div className={this.styleSheet.finished}>
+                        <div>
+                            {UI.T("We have received your answer for this form.")}
+                        </div>
+                        <div>
+                            {UI.T("Thank you!")}
+                        </div>
+                   </div>;
+        }
+        return <QuestionnairePanel questionnaireId={this.options.questionnaireId}/>
     }
 
     onMount() {
