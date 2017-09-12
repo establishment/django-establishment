@@ -25,7 +25,8 @@ export const QuestionnaireStore = new GenericObjectStore("questionnaire", Questi
 export class QuestionnaireQuestion extends StoreObject {
     static Type = {
         PLAIN_TEXT: 1,
-        MULTIPLE_CHOICE: 2,
+        SINGLE_CHOICE: 2,
+        MULTIPLE_CHOICE: 3
     };
 
     getQuestionnaire() {

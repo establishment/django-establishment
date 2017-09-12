@@ -247,8 +247,7 @@ def questionnaire_all_answers(request):
     state = State()
     questionnaire.add_to_state(state)
 
-    answers = QuestionnaireInstance.objects.filter(questionnaire=questionnaire, date_submitted__isnull=False)\
-                                           .prefetch_related("question_answers")
+    answers = QuestionnaireInstance.objects.filter(questionnaire=questionnaire).prefetch_related("question_answers")
     for answer in answers:
         answer.add_to_state(state)
 
@@ -273,13 +272,28 @@ def questionnaire_answer(request):
 
     question_response, created = QuestionnaireQuestionResponse.objects.get_or_create(instance=instance, question=question)
 
-    if question.type == 1:  # Plain texts
-        question_response.text = request.POST.get("text", "")
-    else:
-        question_choice = QuestionnaireQuestionOption.objects.get(id=request.POST["choiceId"])
-        if question_choice.question_id != question.id:
+    question_response.text = request.POST.get("text", None)
+
+    if question.type == 2:  # Single choice
+        choice_id = request.POST.getlist("choiceIds[]", [])
+        print(choice_id)
+        if len(choice_id):
+            choice_id = choice_id[0]
+            question_choice = QuestionnaireQuestionOption.objects.get(id=choice_id)
+            if question_choice.question_id != question.id:
+                return BaseError.NOT_ALLOWED
+            question_response.choices.set([question_choice])
+        else:
+            question_response.choices.set([])
+    if question.type == 3:  # Multiple choice
+        choice_ids = request.POST.getlist("choiceIds[]", [])
+        question_choices = QuestionnaireQuestionOption.objects.filter(id__in=choice_ids)
+        if len(question_choices) != len(choice_ids):
             return BaseError.NOT_ALLOWED
-        question_response.choice = question_choice
+        for question_choice in question_choices:
+            if question_choice.question_id != question.id:
+                return BaseError.NOT_ALLOWED
+        question_response.choices.set(list(question_choices))
     question_response.save()
     return State.from_objects(question_response)
 

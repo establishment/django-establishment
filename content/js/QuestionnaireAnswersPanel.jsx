@@ -50,6 +50,13 @@ class QuestionSummary extends UI.Element {
         return instance.getQuestionResponse(this.options.question.id);
     }
 
+    isOtherResponse(response) {
+        if (this.options.question.type === QuestionnaireQuestion.Type.SINGLE_CHOICE) {
+            return (response.choiceIds || []).length === 0 && response.text;
+        }
+        return !!response.text;
+    }
+
     getInstances() {
         return this.options.question.getQuestionnaire().getAllInstances().filter(
             instance => this.getInstanceResponse(instance)
@@ -60,7 +67,12 @@ class QuestionSummary extends UI.Element {
         let frequencyMap = new Map();
         for (const instance of this.getInstances()) {
             const instanceResponse = this.getInstanceResponse(instance);
-            frequencyMap.set(instanceResponse.choiceId, (frequencyMap.get(instanceResponse.choiceId) || 0) + 1);
+            for (let choiceId of instanceResponse.choiceIds || []) {
+                frequencyMap.set(choiceId, (frequencyMap.get(choiceId) || 0) + 1);
+            }
+            if (this.isOtherResponse(instanceResponse)) {
+                frequencyMap.set(0, (frequencyMap.get(0) || 0) + 1);
+            }
         }
         return frequencyMap;
     }
@@ -77,12 +89,21 @@ class QuestionSummary extends UI.Element {
                 });
             }
         }
+        if (frequencyMap.get(0)) {
+            sectorData.push({
+                size: frequencyMap.get(0),
+                color: ColorGenerator.getPersistentColor(options.length)
+            });
+        }
         return <PieChartSVG sectors={sectorData} />;
     }
 
     getColorList() {
         const frequencyMap = this.buildChoiceFrequencyMap();
-        const options = this.options.question.getOptions();
+        let options = this.options.question.getOptions();
+        if (this.options.question.otherChoice) {
+            options.push({id: 0, answer: "Other"});
+        }
         return <Table entries={options}
                       columns={[
                           {value: option => option.answer, headerName: UI.T("Choice")},
@@ -95,17 +116,7 @@ class QuestionSummary extends UI.Element {
     render() {
         const question = this.options.question;
         let content;
-        if (question.type === QuestionnaireQuestion.Type.MULTIPLE_CHOICE) {
-            content = [
-                <div style={{display: "inline-block", height: "100%", width: "50%", textAlign: "center", float: "left"}}>
-                    {this.getPieChart()}
-                </div>,
-                <div style={{display: "inline-block", height: "100%", width: "50%", float: "right"}}>
-                    {this.getColorList()}
-                </div>,
-                <div style={{clear: "both"}} />
-            ];
-        } else {
+        if (question.type === QuestionnaireQuestion.Type.PLAIN_TEXT) {
             content = <RowList  rows={this.getInstances()}
                                 style={{maxHeight: "200px"}}
                                 rowParser={
@@ -115,6 +126,29 @@ class QuestionSummary extends UI.Element {
                                         instance.getQuestionResponse(question.id).text
                                     ]
                                 }/>;
+        } else {
+            content = [
+                <div style={{display: "inline-block", height: "100%", width: "50%", textAlign: "center", float: "left"}}>
+                    {this.getPieChart()}
+                </div>,
+                <div style={{display: "inline-block", height: "100%", width: "50%", float: "right"}}>
+                    {this.getColorList()}
+                </div>,
+                <div style={{clear: "both"}} />
+            ];
+            const otherAnswers = this.getInstances().filter(instance => instance.getQuestionResponse(question.id).text);
+            if (otherAnswers.length) {
+                content.push(<h4 style={{marginRight: "10px"}}>Other answers:</h4>);
+                content.push(<RowList  rows={otherAnswers}
+                                style={{maxHeight: "200px", border: "1px solid black"}}
+                                rowParser={
+                                    instance => [
+                                        <UserHandle userId={instance.userId} />,
+                                        ": ",
+                                        instance.getQuestionResponse(question.id).text
+                                    ]
+                                }/>)
+            }
         }
         return <CardPanel level={Level.PRIMARY} title={question.text} headingCentered={false} style={{marginBottom: "10px", width: "80%", marginLeft: "10%"}}>
             {content}

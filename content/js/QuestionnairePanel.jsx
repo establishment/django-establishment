@@ -1,4 +1,4 @@
-import {UI, Switcher, Level, Button, registerStyle, StyleSheet, styleRule, Form, TextArea, RadioInput} from "UI";
+import {UI, Switcher, Level, Button, registerStyle, StyleSheet, styleRule, Form, TextArea, TextInput, RadioInput, CheckboxInput} from "UI";
 import {Ajax} from "Ajax";
 import {StateDependentElement} from "StateDependentElement";
 
@@ -56,6 +56,24 @@ class QuestionnaireStyle extends StyleSheet {
         justifyContent: "center",
         textAlign: "center"
     };
+
+    @styleRule
+    otherInput = {
+        outline: 0,
+        border: 0,
+        minWidth: "220px",
+        borderBottom: "1px solid #eee",
+        marginLeft: "5px",
+        transition: "0.4s",
+        ":focus": {
+            transition: "0.4s",
+            borderBottom: "1px solid #777"
+        },
+        ":hover": {
+            transition: "0.4s",
+            borderBottom: "1px solid #777"
+        }
+    };
 }
 
 
@@ -71,16 +89,45 @@ export class QuestionPage extends UI.Element {
         attr.addClass(this.styleSheet.questionPage);
     }
 
+    isPlainText() {
+        return this.options.question.type === QuestionnaireQuestion.Type.PLAIN_TEXT;
+    }
+
+    isSingleChoice() {
+        return this.options.question.type === QuestionnaireQuestion.Type.SINGLE_CHOICE;
+    }
+
+    isMultipleChoice() {
+        return this.options.question.type === QuestionnaireQuestion.Type.MULTIPLE_CHOICE;
+    }
+
     getForm() {
         let formFields;
-        if (this.options.question.type === QuestionnaireQuestion.Type.MULTIPLE_CHOICE) {
+        let InputType;
+        if (this.isSingleChoice()) {
+            InputType = RadioInput;
+        }
+        if (this.isMultipleChoice()) {
+            InputType = CheckboxInput;
+        }
+        if (!this.isPlainText()) {
             formFields = this.options.question.getOptions().map(
                 option => <div className={this.styleSheet.radioInputContainer}>
-                            <RadioInput ref={"option" + option.id} name={this.options.question.id}
+                            <InputType ref={"option" + option.id} name={this.options.question.id}
                                         checked={this.isChecked(option)} disabled={!this.options.editable} />
                             {option.answer}
                           </div>
-            )
+            );
+            if (this.options.question.otherChoice) {
+                formFields.push(
+                    <div className={this.styleSheet.radioInputContainer}>
+                        <InputType ref="otherChoice" name={this.options.question.id}
+                                    checked={this.isOtherChoice()} disabled={!this.options.editable} />
+                        Other: <TextInput   ref="textArea" value={this.getTextValue()}
+                                            className={this.styleSheet.otherInput} readOnly={!this.options.editable}/>
+                    </div>
+                );
+            }
         } else {
             formFields = [
                 <TextArea className={this.styleSheet.textArea} value={this.getTextValue()}
@@ -99,7 +146,12 @@ export class QuestionPage extends UI.Element {
 
     isChecked(questionOption) {
         const userResponse = this.getResponse();
-        return (userResponse && userResponse.choiceId === questionOption.id) || false;
+        return (userResponse && userResponse.choiceIds.indexOf(questionOption.id) >= 0) || false;
+    }
+
+    isOtherChoice() {
+        const userResponse = this.getResponse();
+        return (userResponse && (userResponse.choiceIds.length === 0 || this.isMultipleChoice()) && userResponse.text);
     }
 
     getTextValue() {
@@ -118,31 +170,50 @@ export class QuestionPage extends UI.Element {
         ];
     }
 
-    getBaseRequest() {
-        return {
+    getResponseData() {
+        let response = {
             questionnaireId: this.options.question.questionnaireId,
             questionId: this.options.question.id
         };
+        if (this.isPlainText() || this.options.question.otherChoice) {
+            if (this.textArea.getValue()) {
+                response.text = this.textArea.getValue();
+            }
+        }
+        if (!this.isPlainText()) {
+            let choiceIds = [];
+            for (const option of this.options.question.getOptions()) {
+                if (this["option" + option.id].getValue()) {
+                    choiceIds.push(option.id);
+                }
+            }
+            if (choiceIds.length) {
+                response.choiceIds = choiceIds;
+            }
+        }
+        return response;
     }
 
     onMount() {
         if (!this.options.editable) {
             return;
         }
-        if (this.options.question.type === QuestionnaireQuestion.Type.MULTIPLE_CHOICE) {
+        if (!this.isPlainText()) {
             for (const option of this.options.question.getOptions()) {
                 this["option" + option.id].addChangeListener(() => {
-                    Ajax.postJSON("/questionnaire_answer/", Object.assign({
-                        choiceId: option.id
-                    }, this.getBaseRequest()));
+                    Ajax.postJSON("/questionnaire_answer/", this.getResponseData());
                 });
             }
-        } else {
+            if (this.options.question.otherChoice) {
+                this.otherChoice.addChangeListener(() => {
+                    Ajax.postJSON("/questionnaire_answer/", this.getResponseData());
+                });
+            }
+        }
+        if (this.isPlainText() || this.options.question.otherChoice) {
             this.textArea.addNodeListener("input", () => {
-                Ajax.postJSON("/questionnaire_answer/", Object.assign({
-                    text: this.textArea.getValue()
-                }, this.getBaseRequest()));
-            })
+                Ajax.postJSON("/questionnaire_answer/", this.getResponseData());
+            });
         }
     }
 }

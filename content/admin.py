@@ -17,7 +17,7 @@ class QuestionnaireQuestionInline(admin.TabularInline):
     model = QuestionnaireQuestion
     extra = 0
 
-    fields = ("type", "text")
+    fields = ("type", "other_choice", "text")
 
 
 class QuestionnaireAdmin(admin.ModelAdmin):
@@ -59,3 +59,4 @@ admin.site.register(UserFeedback, UserFeedbackAdmin)
 admin.site.register(Questionnaire, QuestionnaireAdmin)
 admin.site.register(QuestionnaireQuestion, QuestionnaireQuestionAdmin)
 admin.site.register(QuestionnaireInstance, QuestionnaireInstanceAdmin)
+admin.site.register(QuestionnaireQuestionOption)

@@ -220,11 +220,13 @@ class Questionnaire(StreamObjectMixin):
 class QuestionnaireQuestion(StreamObjectMixin):
     QUESTION_TYPE = (
         (1, "Plain text"),
-        (2, "Multiple choice")
+        (2, "Single choice"),
+        (3, "Multiple choice")
     )
     questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, related_name="questions")
     type = models.IntegerField(choices=QUESTION_TYPE, default=1)
     text = models.CharField(max_length=8192)
+    other_choice = models.BooleanField(default=False)
 
     class Meta:
         db_table = "QuestionnaireQuestion"
@@ -270,7 +272,7 @@ class QuestionnaireQuestionResponse(StreamObjectMixin):
     instance = models.ForeignKey(QuestionnaireInstance, on_delete=models.CASCADE, related_name="question_answers")
     question = models.ForeignKey(QuestionnaireQuestion, on_delete=models.CASCADE, related_name="responses")
     text = models.CharField(max_length=8192, null=True, blank=True)
-    choice = models.ForeignKey(QuestionnaireQuestionOption, on_delete=models.CASCADE, null=True, blank=True)
+    choices = models.ManyToManyField(QuestionnaireQuestionOption, blank=True)
     # Since the answer can be modified, we want auto_now instead of auto_now_add
     date_answered = models.DateTimeField(auto_now=True)
 
@@ -279,3 +281,6 @@ class QuestionnaireQuestionResponse(StreamObjectMixin):
 
     def __str__(self):
         return str(self.instance) + ": " + self.question.text
+
+    def to_json(self):
+        return self.meta_to_json(include_many_to_many=True, exclude_none=False)
