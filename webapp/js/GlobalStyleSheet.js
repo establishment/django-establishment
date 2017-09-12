@@ -5,6 +5,7 @@ export class GlobalStyleSheet extends StyleSheet {
     @styleRuleCustom({selector: "body"})
     body = {
         margin: 0,
+        fontSize: this.themeProperties.FONT_SIZE_DEFAULT,
         fontFamily: this.themeProperties.FONT_FAMILY_SANS_SERIF
     };
 
