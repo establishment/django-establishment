@@ -6,7 +6,7 @@ export class GlobalStyleSheet extends StyleSheet {
     body = {
         margin: 0,
         fontSize: this.themeProperties.FONT_SIZE_DEFAULT,
-        fontFamily: this.themeProperties.FONT_FAMILY_SANS_SERIF
+        fontFamily: this.themeProperties.FONT_FAMILY_DEFAULT,
     };
 
     @styleRuleCustom({selector: ".hidden"})
