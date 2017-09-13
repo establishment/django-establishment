@@ -227,6 +227,7 @@ class QuestionnaireQuestion(StreamObjectMixin):
     type = models.IntegerField(choices=QUESTION_TYPE, default=1)
     text = models.CharField(max_length=8192)
     other_choice = models.BooleanField(default=False)
+    priority = models.IntegerField(verbose_name="Priority inside questionnaire", default=0)
 
     class Meta:
         db_table = "QuestionnaireQuestion"
@@ -242,6 +243,7 @@ class QuestionnaireQuestion(StreamObjectMixin):
 class QuestionnaireQuestionOption(StreamObjectMixin):
     question = models.ForeignKey(QuestionnaireQuestion, on_delete=models.CASCADE, related_name="options")
     answer = models.CharField(max_length=8192)
+    priority = models.IntegerField(verbose_name="Priority inside question", default=0)
 
     class Meta:
         db_table = "QuestionnaireQuestionOption"

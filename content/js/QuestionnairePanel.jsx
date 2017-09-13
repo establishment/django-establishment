@@ -202,18 +202,24 @@ export class QuestionPage extends UI.Element {
         if (!this.isPlainText()) {
             for (const option of this.options.question.getOptions()) {
                 this["option" + option.id].addChangeListener(() => {
-                    Ajax.postJSON("/questionnaire_answer/", this.getResponseData());
+                    Ajax.postJSON("/questionnaire_answer/", this.getResponseData()).then(
+                        () => this.options.panel.dispatch("updateFooter", false)
+                    );
                 });
             }
             if (this.options.question.otherChoice) {
                 this.otherChoice.addChangeListener(() => {
-                    Ajax.postJSON("/questionnaire_answer/", this.getResponseData());
+                    Ajax.postJSON("/questionnaire_answer/", this.getResponseData()).then(
+                        () => this.options.panel.dispatch("updateFooter", false)
+                    );
                 });
             }
         }
         if (this.isPlainText() || this.options.question.otherChoice) {
             this.textArea.addNodeListener("input", () => {
-                Ajax.postJSON("/questionnaire_answer/", this.getResponseData());
+                Ajax.postJSON("/questionnaire_answer/", this.getResponseData()).then(
+                    () => this.options.panel.dispatch("updateFooter", false)
+                );
             });
         }
     }
@@ -262,7 +268,7 @@ export class QuestionnairePanel extends UI.Element {
         const questions = this.getQuestions();
         return [
             <OrderedChildrenSwitcher ref="questionPageSwitcher" style={{minHeight: "300px"}}>
-                {questions.map(question => <QuestionPage question={question} />)}
+                {questions.map(question => <QuestionPage question={question} panel={this}/>)}
             </OrderedChildrenSwitcher>,
             <div className={this.styleSheet.footer}>
                 <div>
@@ -288,6 +294,13 @@ export class QuestionnairePanel extends UI.Element {
         const isLastPage = this.questionPageSwitcher.isLastChild();
         this.forwardButton.setStyle("visibility", isLastPage ? "hidden" : "initial");
 
+        const currentQuestion = this.getQuestions()[this.questionPageSwitcher.childIndex];
+        if (currentQuestion.getCurrentUserResponse()) {
+            this.forwardButton.updateOptions({faIcon: "arrow-right", label: ""});
+        } else {
+            this.forwardButton.updateOptions({faIcon: "", label: UI.T("Skip")});
+        }
+
         if (isLastPage) {
             this.progressArea.setChildren([
                 <Button onClick={() => this.finish()} level={Level.PRIMARY}>{UI.T("Submit")}</Button>
@@ -309,6 +322,9 @@ export class QuestionnairePanel extends UI.Element {
         });
         this.forwardButton.addClickListener(() => {
             this.questionPageSwitcher.updateChildIndex(1);
+            this.updateFooter();
+        });
+        this.addListener("updateFooter", () => {
             this.updateFooter();
         });
     }
@@ -363,7 +379,7 @@ export class QuestionnaireButton extends ActionModalButton(QuestionnaireModal) {
     getDefaultOptions() {
         return {
             level: Level.PRIMARY,
-            label: UI.T("Questionnaire")
+            label: UI.T("Answer Questionnaire")
         }
     }
 

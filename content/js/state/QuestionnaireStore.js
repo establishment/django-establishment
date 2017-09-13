@@ -8,7 +8,9 @@ class Questionnaire extends StoreObject {
     }
 
     getQuestions() {
-        return this.questions.sort((a, b) => a.id - b.id);
+        return this.questions.sort(
+            (a, b) => a.priority === b.priority ? a.id - b.id : a.priority - b.priority
+        );
     }
 
     addQuestion(question) {
@@ -44,7 +46,9 @@ export class QuestionnaireQuestion extends StoreObject {
     }
 
     getOptions() {
-        return this.options.sort((a, b) => a.id - b.id);
+        return this.options.sort(
+            (a, b) => a.priority === b.priority ? a.id - b.id : a.priority - b.priority
+        );
     }
 
     getCurrentUserResponse() {

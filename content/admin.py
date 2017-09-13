@@ -17,7 +17,7 @@ class QuestionnaireQuestionInline(admin.TabularInline):
     model = QuestionnaireQuestion
     extra = 0
 
-    fields = ("type", "other_choice", "text")
+    fields = ("type", "other_choice", "priority", "text")
 
 
 class QuestionnaireAdmin(admin.ModelAdmin):
