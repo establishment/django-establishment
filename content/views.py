@@ -270,7 +270,10 @@ def questionnaire_answer(request):
     # if instance.date_submitted:
     #     return BaseError.NOT_ALLOWED
 
-    question_response, created = QuestionnaireQuestionResponse.objects.get_or_create(instance=instance, question=question)
+    try:
+        question_response, created = QuestionnaireQuestionResponse.objects.get_or_create(instance=instance, question=question)
+    except Exception:
+        question_response = QuestionnaireQuestionResponse.objects.filter(instance=instance, question=question).first()
 
     question_response.text = request.POST.get("text", None)
 
