@@ -22,7 +22,7 @@ class EmailTemplateModal extends ActionModal {
         });
     }
 
-    getGivenChildren() {
+    render() {
         return [
             <div className={this.styleSheet.header}>{this.getHeader()}</div>,
             (

@@ -32,7 +32,7 @@ let buttonStyle = ButtonStyle.getInstance();
 
 
 class CreateForumThreadModal extends MarkupEditorModal {
-    getGivenChildren() {
+    render() {
         let inputStyle = {
             "margin-bottom": "4px",
             "border": "0",
@@ -49,7 +49,7 @@ class CreateForumThreadModal extends MarkupEditorModal {
 
         return [
             <Input label={UI.T("Title")} ref="titleInput" style={inputStyle} placeholder="Click here to edit the title (max. 160 characters)." />,
-            ...super.getGivenChildren(),
+            ...super.render(),
         ];
     }
 

@@ -33,7 +33,7 @@ export class BlogEntryEditModal extends Modal {
         });
     }
 
-    getGivenChildren() {
+    render() {
         let entry = BlogEntryStore.get(this.options.entryId);
         let article = entry.getArticle();
 
@@ -102,7 +102,7 @@ export class BlogEntryEditModal extends Modal {
 }
 
 export class NewBlogEntryModal extends Modal {
-    getGivenChildren() {
+    render() {
         return [
             <h1>New Entry</h1>,
             <FormGroup>

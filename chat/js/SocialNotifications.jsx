@@ -22,9 +22,9 @@ class Notification extends UI.Element {
         return attr;
     }
 
-    render() {
+    getChildrenToRender() {
         return [
-            <div style={{textAlign: "initial"}}>{this.getGivenChildren()}</div>,
+            <div style={{textAlign: "initial"}}>{this.render()}</div>,
             <TimePassedSpan timeStamp={this.options.notification.dateCreated} />
         ];
     }
@@ -35,7 +35,7 @@ class RatingNotification extends Notification {
         return "ratingNotification";
     }
 
-    getGivenChildren() {
+    render() {
         let oldRating = this.options.notification.data.oldRating;
         let newRating = this.options.notification.data.newRating;
         if (oldRating < newRating) {
@@ -53,7 +53,7 @@ class AnnouncementNotification extends Notification {
         return "announcementNotification";
     }
 
-    getGivenChildren() {
+    render() {
         return <MarkupRenderer value={this.options.notification.data.value} />;
     }
 }

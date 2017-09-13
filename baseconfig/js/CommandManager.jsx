@@ -45,7 +45,7 @@ class CommandRunStatus extends UI.Element {
 }
 
 class CommandRunDetailsModal extends Modal {
-    getGivenChildren() {
+    render() {
         let children = [
             <h2>Command run #{this.options.commandRun.id}</h2>,
             <h4>Ran by <UserHandle userId={this.options.commandRun.userId} /></h4>,

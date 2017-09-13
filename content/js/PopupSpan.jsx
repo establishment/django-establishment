@@ -4,10 +4,10 @@ import {BasePopup} from "./Popup";
 
 
 export class PopupSpan extends UI.Primitive("span") {
-    render() {
+    getChildrenToRender() {
         return [
             <div ref="content">
-                {this.getGivenChildren()}
+                {this.render()}
             </div>
         ];
     }

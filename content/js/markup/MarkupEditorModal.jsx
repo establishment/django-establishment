@@ -109,7 +109,7 @@ class MarkupEditorModal extends Modal {
         }
     }
 
-    getGivenChildren() {
+    render() {
         return [
             <MarkupEditor ref={this.refLink("markupEditor")} classMap={this.options.classMap} showButtons={false} style={this.getMarkupEditorStyle()}/>,
             <div ref={this.refLink("buttonPanel")} style={{"text-align": "center"}} >

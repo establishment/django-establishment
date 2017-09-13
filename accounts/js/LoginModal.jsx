@@ -39,7 +39,7 @@ class LoginModal extends Modal {
         };
     }
 
-    getGivenChildren() {
+    render() {
         return <Login/>;
     }
 
