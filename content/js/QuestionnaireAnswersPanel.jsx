@@ -263,6 +263,21 @@ export class QuestionnaireAnswersPanel extends UI.Element {
 
 
 export class DelayedQuestionnaireAnswersPanel extends UI.Element {
+    getDefaultOptions() {
+        return {
+            style: {
+                margin: "0 10%"
+            }
+        };
+    }
+
+    setOptions(options) {
+        // this is here since this class can be used as a stand-alone page in a webapp
+        // pattern of URL in mind: /questionnaire/{id}/answers/
+        options.questionnaireId = options.questionnaireId || (parseInt(options.args[0]) || 0);
+        super.setOptions(options);
+    }
+
     render() {
         if (this.options.error) {
             return StateDependentElement.renderError(this.options.error);
