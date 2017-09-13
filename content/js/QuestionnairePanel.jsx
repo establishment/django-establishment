@@ -1,4 +1,5 @@
-import {UI, Switcher, Level, Button, registerStyle, StyleSheet, styleRule, Form, TextArea, TextInput, RadioInput, CheckboxInput} from "UI";
+import {UI, Switcher, Level, Button, registerStyle, StyleSheet, styleRule,
+        Form, TextArea, TextInput, RadioInput, CheckboxInput, Modal, ActionModalButton} from "UI";
 import {Ajax} from "Ajax";
 import {StateDependentElement} from "StateDependentElement";
 
@@ -347,5 +348,28 @@ export class DelayedQuestionnairePanel extends UI.Element {
             () => this.updateOptions({loaded: true}),
             (error) => this.updateOptions({error})
         );
+    }
+}
+
+
+export class QuestionnaireModal extends Modal {
+    render() {
+        return <DelayedQuestionnairePanel questionnaireId={this.options.questionnaireId} />;
+    }
+}
+
+
+export class QuestionnaireButton extends ActionModalButton(QuestionnaireModal) {
+    getDefaultOptions() {
+        return {
+            level: Level.PRIMARY,
+            label: UI.T("Questionnaire")
+        }
+    }
+
+    getModalOptions() {
+        return {
+            questionnaireId: this.options.questionnaireId
+        };
     }
 }
