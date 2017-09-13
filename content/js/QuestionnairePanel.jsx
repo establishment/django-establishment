@@ -1,5 +1,6 @@
 import {UI, Switcher, Level, Button, registerStyle, StyleSheet, styleRule,
         Form, TextArea, TextInput, RadioInput, CheckboxInput, Modal, ActionModalButton} from "UI";
+import {MarkupRenderer} from "MarkupRenderer";
 import {Ajax} from "Ajax";
 import {StateDependentElement} from "StateDependentElement";
 
@@ -75,6 +76,14 @@ class QuestionnaireStyle extends StyleSheet {
             borderBottom: "1px solid #777"
         }
     };
+
+    @styleRule
+    markup = {
+        display: "inline-block",
+        " p": {
+            margin: 0
+        }
+    };
 }
 
 
@@ -116,7 +125,7 @@ export class QuestionPage extends UI.Element {
                 option => <div className={this.styleSheet.radioInputContainer}>
                             <InputType ref={"option" + option.id} name={this.options.question.id}
                                         checked={this.isChecked(option)} disabled={!this.options.editable} />
-                            {option.answer}
+                            <MarkupRenderer value={option.answer} className={this.styleSheet.markup}/>
                           </div>
             );
             if (this.options.question.otherChoice) {
@@ -163,7 +172,7 @@ export class QuestionPage extends UI.Element {
     render() {
         return [
             <div className={this.styleSheet.questionTextArea}>
-                {this.options.question.text}
+                <MarkupRenderer value={this.options.question.text} className={this.styleSheet.markup} />
             </div>,
             <div className={this.styleSheet.questionAnswerArea}>
                 {this.getForm()}
