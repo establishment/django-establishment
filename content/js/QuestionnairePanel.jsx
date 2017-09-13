@@ -294,7 +294,9 @@ export class QuestionnairePanel extends UI.Element {
     finish() {
         Ajax.postJSON("/questionnaire_submit/", {
             questionnaireId: this.options.questionnaireId
-        }).then(() => (this.parent instanceof DelayedQuestionnairePanel) && this.parent.redraw());
+        });
+        this.dispatch("finished");
+        (this.parent instanceof DelayedQuestionnairePanel) && this.parent.dispatch("finished");
     }
 
     updateFooter() {
@@ -312,7 +314,7 @@ export class QuestionnairePanel extends UI.Element {
 
         if (isLastPage) {
             this.progressArea.setChildren([
-                <Button onClick={() => this.finish()} level={Level.PRIMARY}>{UI.T("Submit")}</Button>
+                <Button onClick={() => this.finish()} level={Level.PRIMARY}>{UI.T("Finish")}</Button>
             ]);
         } else {
             this.progressArea.setChildren([
@@ -353,16 +355,16 @@ export class DelayedQuestionnairePanel extends UI.Element {
         if (!this.options.loaded) {
             return StateDependentElement.renderLoading();
         }
-        if (this.isFinished()) {
-            return <div className={this.styleSheet.finished}>
-                        <div>
-                            {UI.T("We have received your answer for this form.")}
-                        </div>
-                        <div>
-                            {UI.T("Thank you!")}
-                        </div>
-                   </div>;
-        }
+        // if (this.isFinished()) {
+        //     return <div className={this.styleSheet.finished}>
+        //                 <div>
+        //                     {UI.T("We have received your answer for this form.")}
+        //                 </div>
+        //                 <div>
+        //                     {UI.T("Thank you!")}
+        //                 </div>
+        //            </div>;
+        // }
         return <QuestionnairePanel questionnaireId={this.options.questionnaireId}/>
     }
 
@@ -379,7 +381,12 @@ export class DelayedQuestionnairePanel extends UI.Element {
 
 export class QuestionnaireModal extends Modal {
     render() {
-        return <DelayedQuestionnairePanel questionnaireId={this.options.questionnaireId} />;
+        return <DelayedQuestionnairePanel questionnaireId={this.options.questionnaireId} ref="questionnairePanel"/>;
+    }
+
+    onMount() {
+        super.onMount();
+        this.questionnairePanel.addListener("finished", () => this.hide());
     }
 }
 

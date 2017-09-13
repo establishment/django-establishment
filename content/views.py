@@ -267,8 +267,8 @@ def questionnaire_answer(request):
         return BaseError.NOT_ALLOWED
 
     instance = QuestionnaireInstance.objects.get(user=request.user, questionnaire=questionnaire)
-    if instance.date_submitted:
-        return BaseError.NOT_ALLOWED
+    # if instance.date_submitted:
+    #     return BaseError.NOT_ALLOWED
 
     question_response, created = QuestionnaireQuestionResponse.objects.get_or_create(instance=instance, question=question)
 
@@ -307,8 +307,8 @@ def questionnaire_submit(request):
         return BaseError.NOT_ALLOWED
 
     instance = QuestionnaireInstance.objects.get(user=request.user, questionnaire=questionnaire)
-    if instance.date_submitted:
-        return BaseError.NOT_ALLOWED
+    # if instance.date_submitted:
+    #     return BaseError.NOT_ALLOWED
 
     instance.date_submitted = timezone.now()
     instance.save()
