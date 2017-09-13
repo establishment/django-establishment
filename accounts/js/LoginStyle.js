@@ -14,7 +14,6 @@ let signInButtonWidth = 120;
 
 
 class LoginStyle extends StyleSheet {
-    fontFamily = "lato, open sans";
 
     @styleRule
     loginRegisterSystem = () => {
@@ -56,7 +55,6 @@ class LoginStyle extends StyleSheet {
         alignItems: "center",
         justifyContent: "center",
         textAlign: "center",
-        fontFamily: this.fontFamily,
         fontSize: "100%",
         width: "50%",
         backgroundColor: "#f6f6f6",
@@ -79,7 +77,6 @@ class LoginStyle extends StyleSheet {
         alignItems: "center",
         justifyContent: "center",
         textAlign: "center",
-        fontFamily: this.fontFamily,
         fontSize: "100%",
         width: "50%",
         backgroundColor: "#f6f6f6",
@@ -198,7 +195,6 @@ class LoginStyle extends StyleSheet {
         fontSize: "14px",
         color: "#d80000",
         textAlign: "center",
-        fontFamily: this.fontFamily,
     };
 
     @styleRule
@@ -206,14 +202,12 @@ class LoginStyle extends StyleSheet {
         display: "inline-block",
         float: "left",
         paddingLeft: "5px",
-        fontFamily: this.fontFamily,
     };
 
     @styleRule
     forgotPassword = {
         display: "inline-block",
         float: "right",
-        fontFamily: this.fontFamily,
         paddingRight: "5px",
     };
 
@@ -240,7 +234,6 @@ class LoginStyle extends StyleSheet {
         border: "0px solid #d3d5d9",
         fontSize: "18px",
         color: "#252525",
-        fontFamily: this.fontFamily,
         ":hover": {
             border: "0px solid #0b79a7",
             borderBottom: "2px solid #0b79a7",
@@ -258,7 +251,6 @@ class LoginStyle extends StyleSheet {
     connectWith = {
         width: "100%",
         textAlign: "center",
-        fontFamily: this.fontFamily,
         marginTop: "20px",
     };
 
@@ -306,7 +298,6 @@ class LoginStyle extends StyleSheet {
 
     @styleRule
     connectWithButtonsSpan = {
-        fontFamily: "lato, open sans",
         paddingLeft: "15px",
         fontSize: "15px",
     };

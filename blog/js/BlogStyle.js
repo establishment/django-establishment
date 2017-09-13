@@ -13,12 +13,10 @@ let CSAStyle = {
 };
 
 class BlogStyle extends StyleSheet {
-    fontFamily = "lato, open sans";
     titleFontSize = "2em";
 
     @styleRule
     commentsTitle = {
-        fontFamily: this.fontFamily,
         height: "20px",
         color: "#333",
         marginTop: "10px",
@@ -35,7 +33,6 @@ class BlogStyle extends StyleSheet {
 
     @styleRule
     blogEntryView = {
-        "font-size": this.fontFamily,
         "margin": "0 auto",
         "width": "900px",
         "max-width": "100%",
@@ -58,21 +55,18 @@ class BlogStyle extends StyleSheet {
         "width": "100%",
         "text-align": "left",
         "padding-top": "20px",
-        "font-family": this.fontFamily,
         "font-size": "1em",
         "color": "#666",
     };
 
     article = {
         "text-align": "justify",
-        "font-family": this.fontFamily,
         "font-size": "17px",
     };
 
     link = {
         textDecoration: "none",
         textAlign: "center",
-        fontFamily: this.fontFamily,
         marginTop: "-15pt",
         fontSize: "1.1em",
     };
@@ -82,7 +76,6 @@ class BlogStyle extends StyleSheet {
         position: "relative",
         maxHeight: "180px",
         "text-align": "justify",
-        "font-family": this.fontFamily,
         "font-size": "17px",
         marginBottom: "25px",
     };
@@ -110,7 +103,6 @@ class BlogStyle extends StyleSheet {
         border: "0",
         padding: "5px 10px",
         borderColor: CSAStyle.color.BLUE,
-        fontFamily: this.fontFamily,
         fontSize: "1em",
         transition: ".2s",
         textTransform: "uppercase",

@@ -14,7 +14,6 @@ const colors = {
 
 
 class ForumThreadReplyStyle extends StyleSheet {
-    fontFamily = "lato, open sans";
 
     @styleRule
     mainClass = {
@@ -31,7 +30,6 @@ class ForumThreadReplyStyle extends StyleSheet {
         fontSize: "15px",
         marginTop: "8px",
         marginBottom: "8px",
-        fontFamily: this.fontFamily,
     };
 
     @styleRule
@@ -40,14 +38,12 @@ class ForumThreadReplyStyle extends StyleSheet {
         float: "left",
         color: "#444",
         fontSize: "14px",
-        fontFamily: this.fontFamily,
     };
 
     @styleRule
     repliesDate = {
         display: "inline-block",
         float: "right",
-        fontFamily: this.fontFamily,
     };
 
     @styleRule
@@ -61,7 +57,6 @@ class ForumThreadReplyStyle extends StyleSheet {
 let height = 70;
 
 class ForumThreadPanelStyle extends StyleSheet {
-    fontFamily = "lato, open sans";
     fontSize = "0.9em";
     numRepliesFontSize = "1.03em";
     messageFontSize = "1.2em";
@@ -72,7 +67,6 @@ class ForumThreadPanelStyle extends StyleSheet {
         margin: "0 auto",
         marginBottom: "20px",
         width: "100%",
-        fontFamily: this.fontFamily,
     };
 
     @styleRule
@@ -81,7 +75,6 @@ class ForumThreadPanelStyle extends StyleSheet {
         maxWidth: "1200px",
         margin: "0 auto",
         fontSize: "2em",
-        fontFamily: this.fontFamily,
         color: "#333",
         minHeight: "50px",
         display: "flex",
@@ -190,7 +183,6 @@ class ForumThreadPanelStyle extends StyleSheet {
     @styleRule
     voting = {
         paddingRight: "12px",
-        fontFamily: this.fontFamily,
     };
 
     @styleRule
@@ -312,7 +304,6 @@ class ForumThreadHeaderStyle extends StyleSheet {
     widthLimit = 800;
 
     tagsHeight = 50;
-    fontFamily = "lato, open sans";
     // borderTopColor = "rgb(232, 189, 35)";
     borderTopColor = "#333";
 
@@ -320,7 +311,6 @@ class ForumThreadHeaderStyle extends StyleSheet {
         height: this.tagsHeight + "px",
         // display: "inline-block",
         // float: "left",
-        fontFamily: this.fontFamily,
         color: "#262626",
         // letterSpacing: "-0.3px",
         display: "flex",
@@ -438,7 +428,6 @@ class ForumThreadPreviewStyle extends StyleSheet {
 
     // design
     fontSize = ".88em";
-    fontFamily = "lato, open sans";
     color = "#aaa";
 
     @styleRule
@@ -447,7 +436,6 @@ class ForumThreadPreviewStyle extends StyleSheet {
         lineHeight: this.lineHeight + "px",
         overflow: "hidden",
         fontSize: this.fontSize,
-        fontFamily: this.fontFamily,
         color: this.color,
         " *": {
             marginBottom: "0",
@@ -463,7 +451,6 @@ class ForumThreadBubbleStyle extends StyleSheet {
         });
     }
 
-    fontFamily = "lato, open sans";
     fontSize = "1em";
     titlePaddingBottom = "10px";
     widthLimit = 800;
@@ -471,7 +458,6 @@ class ForumThreadBubbleStyle extends StyleSheet {
     baseStyleObject = {
         display: "inline-block",
         verticalAlign: "top",
-        fontFamily: this.fontFamily,
         fontSize: this.fontSize,
     };
 
@@ -649,7 +635,6 @@ class ForumThreadBubbleStyle extends StyleSheet {
         alignItems: "center",
         paddingLeft: "4px",
         paddingRight: "12px",
-        fontFamily: this.fontFamily,
         fontSize: ".85em",
     }];
 }
@@ -658,7 +643,6 @@ class ForumThreadBubbleStyle extends StyleSheet {
 class ForumPanelStyle extends StyleSheet {
     textColor = "#333";
     headerItemHeight = 50;
-    fontFamily = "lato, open sans";
 
     @styleRule
     mainClass = {
@@ -670,7 +654,6 @@ class ForumPanelStyle extends StyleSheet {
         width: "100%",
         // textAlign: "center",
         fontSize: "2em",
-        fontFamily: this.fontFamily,
         color: this.textColor,
         height: this.headerItemHeight + "px",
         display: "flex",

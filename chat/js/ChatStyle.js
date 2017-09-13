@@ -5,7 +5,6 @@ class ChatStyle extends StyleSheet {
     navbarHeight = "50px";
     renderMessageHeight = "100px";
 
-    fontFamily = "lato, open sans";
     userFontSize = "1.1em";
     commentFontSize = "1.1em";
 
@@ -43,7 +42,6 @@ class ChatStyle extends StyleSheet {
         paddingBottom: "0",
         fontSize: "14px",
         borderRadius: "0",
-        fontFamily: this.fontFamily,
         paddingLeft: "8px",
         border: "0px",
         paddingTop: "5px",
@@ -68,7 +66,6 @@ class ChatStyle extends StyleSheet {
         textAlign: "center",
         flex: "1",
         backgroundColor: "#fff",
-        fontFamily: this.fontFamily,
         border: "0",
         fontSize: "18px",
         transition: ".2s",
@@ -111,7 +108,6 @@ class ChatStyle extends StyleSheet {
 
     loadMoreButton = {
         border: "0px",
-        fontFamily: this.fontFamily,
         color: "#333",
         borderRadius: "0",
         borderBottom: "0",
@@ -143,7 +139,6 @@ class ChatStyle extends StyleSheet {
         paddingRight: "10px",
         backgroundColor: this.backgroundColor,
         textAlign: "center",
-        fontFamily: this.fontFamily,
         color: "#222",
         fontWeight: "bold",
     };
@@ -160,7 +155,6 @@ class ChatStyle extends StyleSheet {
         paddingRight: "12px",
         paddingTop: "12px",
         paddingBottom: "12px",
-        fontFamily: this.fontFamily,
         ":hover": {
             backgroundColor: this.hoverBackgroundColor,
         },
@@ -176,7 +170,6 @@ class ChatStyle extends StyleSheet {
         " p": {
             marginTop: "0",
             marginBottom: "0",
-            fontFamily: this.fontFamily,
             fontSize: this.commentFontSize,
             color: "#454545",
             // textAlign: "justify",
@@ -186,7 +179,6 @@ class ChatStyle extends StyleSheet {
 
     @styleRule
     timestamp = {
-        fontFamily: this.fontFamily,
         color: "#262626",
         fontWeight: "bold",
         margin: "0 10px",
