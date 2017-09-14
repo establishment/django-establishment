@@ -1,15 +1,16 @@
-import {UI, TabArea, Panel, Switcher, Theme, registerStyle, StyleSheet, styleRule, Level, RowList, CardPanel, Table} from "UI";
 import {Ajax} from "base/Ajax";
+import {UI, TabArea, Panel, Switcher, Theme, registerStyle, styleRule, Level, RowList, CardPanel, Table, CheckboxInput} from "ui/UI";
 import {StateDependentElement} from "ui/StateDependentElement";
+import {ColorGenerator} from "ui/Color";
+import {MarkupRenderer} from "markup/MarkupRenderer";
 import {UserHandle} from "UserHandle";
-import {ColorGenerator} from "Color";
 
 import {PieChartSVG} from "./charts/PieChart";
 import {QuestionnaireStore, QuestionnaireQuestion} from "./state/QuestionnaireStore";
-import {QuestionPage} from "./QuestionnairePanel";
+import {QuestionPage, QuestionnaireStyle} from "./QuestionnairePanel";
 
 
-class QuestionnaireAnswersStyle extends StyleSheet {
+class QuestionnaireAnswersStyle extends QuestionnaireStyle {
     @styleRule
     miniInstance = {
         padding: "5px",
@@ -42,9 +43,16 @@ class QuestionnaireAnswersStyle extends StyleSheet {
         height: "100%",
         overflow: "auto"
     };
+
+    @styleRule
+    rowList = {
+        maxHeight: "200px",
+        overflowY: "auto"
+    };
 }
 
 
+@registerStyle(QuestionnaireAnswersStyle)
 class QuestionSummary extends UI.Element {
     getInstanceResponse(instance) {
         return instance.getQuestionResponse(this.options.question.id);
@@ -58,7 +66,7 @@ class QuestionSummary extends UI.Element {
     }
 
     getInstances() {
-        return this.options.question.getQuestionnaire().getAllInstances().filter(
+        return this.options.instances.filter(
             instance => this.getInstanceResponse(instance)
         );
     }
@@ -75,6 +83,14 @@ class QuestionSummary extends UI.Element {
             }
         }
         return frequencyMap;
+    }
+
+    getQuestionOptions() {
+        let options = [...this.options.question.getOptions()];
+        if (this.options.question.otherChoice) {
+            options.push({id: 0, answer: "Other"});
+        }
+        return options;
     }
 
     getPieChart() {
@@ -100,16 +116,13 @@ class QuestionSummary extends UI.Element {
 
     getColorList() {
         const frequencyMap = this.buildChoiceFrequencyMap();
-        let options = this.options.question.getOptions();
-        if (this.options.question.otherChoice) {
-            options.push({id: 0, answer: "Other"});
-        }
-        return <Table entries={options}
+        return <Table entries={this.getQuestionOptions()}
                       columns={[
-                          {value: option => option.answer, headerName: UI.T("Choice")},
+                          {value: option => <MarkupRenderer value={option.answer} className={this.styleSheet.markup} />, headerName: UI.T("Choice")},
                           {value: option => frequencyMap.get(option.id) || 0, headerName: UI.T("Votes")},
                           {value: (option, index) => <div style={{height: "20px", width: "20px", backgroundColor: ColorGenerator.getPersistentColor(index)}}/>,
-                           headerName: UI.T("Color")}
+                           headerName: UI.T("Color")},
+                          {value: (option) => <CheckboxInput ref={this.refLink("optionFilter" + option.id)} />, headerName: UI.T("Filter")}
                       ]} />;
     }
     
@@ -118,7 +131,7 @@ class QuestionSummary extends UI.Element {
         let content;
         if (question.type === QuestionnaireQuestion.Type.PLAIN_TEXT) {
             content = <RowList  rows={this.getInstances()}
-                                style={{maxHeight: "200px"}}
+                                className={this.styleSheet.rowList}
                                 rowParser={
                                     instance => [
                                         <UserHandle userId={instance.userId} />,
@@ -140,32 +153,93 @@ class QuestionSummary extends UI.Element {
             if (otherAnswers.length) {
                 content.push(<h4 style={{marginRight: "10px"}}>Other answers:</h4>);
                 content.push(<RowList  rows={otherAnswers}
-                                style={{maxHeight: "200px", border: "1px solid black"}}
-                                rowParser={
-                                    instance => [
-                                        <UserHandle userId={instance.userId} />,
-                                        ": ",
-                                        instance.getQuestionResponse(question.id).text
-                                    ]
-                                }/>)
+                                       className={this.styleSheet.rowList}
+                                       rowParser={
+                                           instance => [
+                                               <UserHandle userId={instance.userId} />,
+                                               ": ",
+                                               instance.getQuestionResponse(question.id).text
+                                           ]
+                                       }/>)
             }
         }
-        return <CardPanel level={Level.PRIMARY} title={question.text} headingCentered={false} style={{marginBottom: "10px", width: "80%", marginLeft: "10%"}}>
+        return <CardPanel level={Level.PRIMARY} title={question.text} headingCentered={false}
+                          style={{marginBottom: "10px", width: "80%", marginLeft: "10%"}}>
             {content}
         </CardPanel>;
+    }
+
+    onMount() {
+        if (this.options.question.type !== QuestionnaireQuestion.Type.PLAIN_TEXT) {
+            for (const option of this.getQuestionOptions()) {
+                this["optionFilter" + option.id].addChangeListener(() => {
+                    let acceptableChoices = [];
+                    for (const choice of this.getQuestionOptions()) {
+                        if (this["optionFilter" + choice.id].getValue()) {
+                            acceptableChoices.push(choice.id);
+                        }
+                    }
+                    this.options.widget.dispatch("updateFilter", this.options.question, acceptableChoices);
+                });
+            }
+        }
     }
 }
 
 
 class QuestionnaireSummaryWidget extends UI.Element {
+    getDefaultOptions() {
+        return {
+            filters: {}
+        };
+    }
+
     getQuestionnaire() {
         return QuestionnaireStore.get(this.options.questionnaireId);
     }
 
-    render() {
-        return this.getQuestionnaire().getQuestions().map(
-            question => <QuestionSummary question={question}/>
+    respectsFilters(instance) {
+        const filters = this.options.filters || {};
+        for (const questionId of Object.keys(filters)) {
+            const response = instance.getQuestionResponse(parseInt(questionId));
+            const acceptableOptions = filters[questionId];
+            if (Array.isArray(acceptableOptions) && acceptableOptions.length) {
+                if (!response) {
+                    return false;
+                }
+                let respectsFilter = false;
+                for (const choiceId of response.choiceIds || []) {
+                    if (acceptableOptions.indexOf(choiceId) >= 0) {
+                        respectsFilter = true;
+                    }
+                }
+                if (!respectsFilter) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    getInstances() {
+        return this.getQuestionnaire().getAllInstances().filter(
+            instance => this.respectsFilters(instance)
         );
+    }
+
+    render() {
+        const instances = this.getInstances();
+        return this.getQuestionnaire().getQuestions().map(
+            question => <QuestionSummary question={question} instances={instances} widget={this} />
+        );
+    }
+
+    onMount() {
+        this.addListener("updateFilter", (question, acceptableOptions) => {
+            this.options.filters[question.id] = acceptableOptions;
+            this.redraw();
+            this.dispatch("updateInstanceList", this.getInstances());
+        });
     }
 }
 
@@ -205,10 +279,15 @@ class QuestionnaireResponsesWidget extends UI.Element {
         return QuestionnaireStore.get(this.options.questionnaireId);
     }
 
+    setOptions(options) {
+        super.setOptions(options);
+        this.options.instances = this.options.instances || this.getQuestionnaire().getAllInstances();
+    }
+
     switchToInstance(instance) {
         this.instanceSwitcher.switchToInstance(instance);
 
-        const allInstances = this.getQuestionnaire().getAllInstances();
+        const allInstances = this.getInstances();
         for (const otherInstance of allInstances) {
             const obj = this["miniInstanceDiv" + otherInstance.id];
             if (instance === otherInstance) {
@@ -219,8 +298,12 @@ class QuestionnaireResponsesWidget extends UI.Element {
         }
     }
 
+    getInstances() {
+        return this.options.instances;
+    }
+
     render() {
-        const allInstances = this.getQuestionnaire().getAllInstances();
+        const allInstances = this.getInstances();
         const miniResponses = allInstances.map(
             instance => <div onClick={() => this.switchToInstance(instance)} ref={"miniInstanceDiv" + instance.id}
                              className={this.styleSheet.miniInstance}>
@@ -240,8 +323,9 @@ class QuestionnaireResponsesWidget extends UI.Element {
         ];
     }
 
-    onMount() {
-        this.switchToInstance(this.getQuestionnaire().getAllInstances()[0]);
+    redraw() {
+        super.redraw();
+        this.switchToInstance(this.getInstances()[0]);
     }
 }
 
@@ -251,13 +335,19 @@ export class QuestionnaireAnswersPanel extends UI.Element {
         return [
             <TabArea>
                 <Panel title={UI.T("Summary")} style={{paddingTop: "10px"}}>
-                    <QuestionnaireSummaryWidget questionnaireId={this.options.questionnaireId} />
+                    <QuestionnaireSummaryWidget questionnaireId={this.options.questionnaireId} ref="questionnaireSummary"/>
                 </Panel>
                 <Panel title={UI.T("Responses")}>
-                    <QuestionnaireResponsesWidget questionnaireId={this.options.questionnaireId} />
+                    <QuestionnaireResponsesWidget questionnaireId={this.options.questionnaireId} ref="questionnaireResponses"/>
                 </Panel>
             </TabArea>
         ];
+    }
+
+    onMount() {
+        this.questionnaireSummary.addListener("updateInstanceList", (instances) => {
+            this.questionnaireResponses.updateOptions({instances});
+        })
     }
 }
 

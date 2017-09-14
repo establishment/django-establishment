@@ -1,13 +1,14 @@
+import {Ajax} from "base/Ajax";
+import {CallThrottler} from "base/Utils";
 import {UI, Switcher, Level, Button, registerStyle, StyleSheet, styleRule,
-        Form, TextArea, TextInput, RadioInput, CheckboxInput, Modal, ActionModalButton} from "UI";
-import {MarkupRenderer} from "MarkupRenderer";
-import {Ajax} from "Ajax";
-import {StateDependentElement} from "StateDependentElement";
+        Form, TextArea, TextInput, RadioInput, CheckboxInput, Modal, ActionModalButton} from "ui/UI";
+import {StateDependentElement} from "ui/StateDependentElement";
+import {MarkupRenderer} from "markup/MarkupRenderer";
 
 import {QuestionnaireStore, QuestionnaireQuestion, QuestionnaireInstanceStore} from "./state/QuestionnaireStore";
 
 
-class QuestionnaireStyle extends StyleSheet {
+export class QuestionnaireStyle extends StyleSheet {
     @styleRule
     footer = {
         width: "100%",
@@ -204,32 +205,30 @@ export class QuestionPage extends UI.Element {
         return response;
     }
 
+    sendResponse() {
+        this.ajaxThrottler = this.ajaxThrottler || new CallThrottler({throttle: 3000, debounce: 500});
+        this.ajaxThrottler.wrap(
+            () => Ajax.postJSON("/questionnaire_answer/", this.getResponseData()).then(
+                      () => this.options.panel.dispatch("updateFooter", false)
+                  )
+        )();
+
+    }
+
     onMount() {
         if (!this.options.editable) {
             return;
         }
         if (!this.isPlainText()) {
             for (const option of this.options.question.getOptions()) {
-                this["option" + option.id].addChangeListener(() => {
-                    Ajax.postJSON("/questionnaire_answer/", this.getResponseData()).then(
-                        () => this.options.panel.dispatch("updateFooter", false)
-                    );
-                });
+                this["option" + option.id].addChangeListener(() => this.sendResponse());
             }
             if (this.options.question.otherChoice) {
-                this.otherChoice.addChangeListener(() => {
-                    Ajax.postJSON("/questionnaire_answer/", this.getResponseData()).then(
-                        () => this.options.panel.dispatch("updateFooter", false)
-                    );
-                });
+                this.otherChoice.addChangeListener(() => this.sendResponse());
             }
         }
         if (this.isPlainText() || this.options.question.otherChoice) {
-            this.textArea.addNodeListener("input", () => {
-                Ajax.postJSON("/questionnaire_answer/", this.getResponseData()).then(
-                    () => this.options.panel.dispatch("updateFooter", false)
-                );
-            });
+            this.textArea.addNodeListener("input", () => this.sendResponse());
         }
     }
 }
@@ -395,7 +394,7 @@ export class QuestionnaireButton extends ActionModalButton(QuestionnaireModal) {
     getDefaultOptions() {
         return {
             level: Level.PRIMARY,
-            label: UI.T("Answer Questionnaire")
+            label: UI.T("Open Questionnaire")
         }
     }
 
