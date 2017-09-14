@@ -280,6 +280,7 @@ class QuestionnaireQuestionResponse(StreamObjectMixin):
 
     class Meta:
         db_table = "QuestionnaireQuestionResponse"
+        unique_together = (("instance", "question"), )
 
     def __str__(self):
         return str(self.instance) + ": " + self.question.text
