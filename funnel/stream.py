@@ -98,8 +98,15 @@ class StreamObjectMixin(models.Model):
 
     def get_field_value(self, meta_field):
         if type(meta_field.remote_field) is ManyToManyRel:
-            ids = list(getattr(self, meta_field.attname).all().values_list('id', flat=True))
-
+            rel_queryset = getattr(self, meta_field.attname)
+            try:
+                # this is actually the only way objects might have been pre-fetched (Django 1.11)
+                self._prefetched_objects_cache[rel_queryset.prefetch_cache_name]
+                # Ok, it's pefetched
+                ids = list(map(lambda obj: obj.id, rel_queryset.all()))
+            except (AttributeError, KeyError):
+                # Not prefetched
+                ids = list(rel_queryset.all().values_list("id", flat=True))
             return ids
         else:
             return getattr(self, meta_field.attname)

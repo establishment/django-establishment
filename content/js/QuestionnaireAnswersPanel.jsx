@@ -245,15 +245,28 @@ class QuestionnaireSummaryWidget extends UI.Element {
 
 
 class QuestionnaireInstanceSwitcher extends Switcher {
+    getDefaultOptions() {
+        return Object.assign(super.getDefaultOptions(), {
+            lazyRender: true
+        });
+    }
+
     constructor() {
         super(...arguments);
         this.instanceMap = new Map();
         for (const instanceUIElement of this.options.children) {
             this.instanceMap.set(instanceUIElement.options.instance.id, instanceUIElement);
         }
+        if (!this.instanceMap.has(0)) {
+            this.instanceMap.set(0, <div />);
+        }
     }
 
     switchToInstance(instance) {
+        if (!instance) {
+            this.setActive(this.instanceMap.get(0));
+            return;
+        }
         this.setActive(this.instanceMap.get(instance.id));
     }
 }

@@ -247,7 +247,7 @@ def questionnaire_all_answers(request):
     state = State()
     questionnaire.add_to_state(state)
 
-    answers = QuestionnaireInstance.objects.filter(questionnaire=questionnaire).prefetch_related("question_answers")
+    answers = QuestionnaireInstance.objects.filter(questionnaire=questionnaire).prefetch_related("question_answers__choices")
     for answer in answers:
         answer.add_to_state(state)
 
