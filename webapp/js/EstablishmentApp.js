@@ -34,8 +34,10 @@ export class EstablishmentApp extends StemApp {
         });
 
         // Add a postprocessor to load any state received from an Ajax response
-        Ajax.addPostprocessor((payload) => {
-            payload.state && GlobalState.importState(payload.state);
+        Ajax.addPostprocessor((payload, xhrPromise) => {
+            if (payload.state && !xhrPromise.options.disableStateImport) {
+                GlobalState.importState(payload.state);
+            }
         });
 
         // Sync server time

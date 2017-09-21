@@ -418,7 +418,7 @@ let ChatWidget = (ChatMessageClass) => {
             this.chatInput.setValue("");
             this.chatInput.dispatch("messageSent");
 
-            Ajax.postJSON(this.getPostURL(), request).then(onSuccess, onError);
+            Ajax.postJSON(this.getPostURL(), request, {disableStateImport: true}).then(onSuccess, onError);
         }
 
         saveScrollPosition() {
