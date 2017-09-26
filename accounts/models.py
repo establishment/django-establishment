@@ -584,9 +584,9 @@ class UserGroup(OwnerUserMixin):
         return [member.group for member in user_group_members]
 
     @classmethod
-    def get_group_raw(cls, group_name, default_owner):
+    def get_group_raw(cls, group_name, default_owner_id):
         try:
-            group, created = cls.objects.get_or_create(name=group_name, defaults={"owner": default_owner})
+            group, created = cls.objects.get_or_create(name=group_name, defaults={"owner_id": default_owner_id})
         except cls.MultipleObjectsReturned:
             # This can only happen once!
             groups = cls.objects.filter(name=group_name)
@@ -595,9 +595,9 @@ class UserGroup(OwnerUserMixin):
         return group
 
     @classmethod
-    def get_group(cls, group_name, default_owner):
+    def get_group(cls, group_name, default_owner_id):
         # This method is here for future cache-ing support
-        return cls.get_group_raw(group_name, default_owner)
+        return cls.get_group_raw(group_name, default_owner_id)
 
     def has_user(self, user):
         return self.members.filter(user=user).exists()
