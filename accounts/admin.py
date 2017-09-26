@@ -95,6 +95,24 @@ class UserNotificationAdmin(admin.ModelAdmin):
         return ["type"] + ["user__" + attr for attr in get_user_search_fields()]
 
 
+class UserGroupMemberInline(admin.TabularInline):
+    model = UserGroupMember
+    extra = 0
+    raw_id_fields = ("user", )
+
+
+class UserGroupMemberAdmin(admin.ModelAdmin):
+    list_display = ("id", "group", "user")
+    raw_id_fields = ("user", "group")
+
+
+class UserGroupAdmin(admin.ModelAdmin):
+    list_display = ("id", "name", "owner")
+    search_fields = ("id", "name", )
+    raw_id_fields = ("owner", )
+    inlines = (UserGroupMemberInline, )
+
+
 admin.site.register(TempUser, TempUserAdmin)
 admin.site.register(EmailAddress, EmailAddressAdmin)
 admin.site.register(UnverifiedEmail, UnverifiedEmailAdmin)
@@ -102,5 +120,5 @@ admin.site.register(UserCustomSettings)
 admin.site.register(UserReactionCollection, UserReactionCollectionAdmin)
 admin.site.register(UserReaction, UserReactionAdmin)
 admin.site.register(UserNotification, UserNotificationAdmin)
-admin.site.register(UserGroup)
-admin.site.register(UserGroupMember)
+admin.site.register(UserGroup, UserGroupAdmin)
+admin.site.register(UserGroupMember, UserGroupMemberAdmin)

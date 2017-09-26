@@ -574,18 +574,47 @@ class UserGroup(OwnerUserMixin):
     class Meta:
         db_table = "UserGroup"
 
+    def __str__(self):
+        return self.name
+
     @classmethod
     def get_groups_for_user(cls, user):
         # TODO: this should be done in a single DB query
         user_group_members = UserGroupMember.objects.filter(user=user).prefetch_related("group")
         return [member.group for member in user_group_members]
 
+    @classmethod
+    def get_group_raw(cls, group_name, default_owner):
+        try:
+            group, created = cls.objects.get_or_create(name=group_name, defaults={"owner": default_owner})
+        except cls.MultipleObjectsReturned:
+            # This can only happen once!
+            groups = cls.objects.filter(name=group_name)
+            group = groups[0]
+            groups[1:].delete()
+        return group
+
+    @classmethod
+    def get_group(cls, group_name, default_owner):
+        # This method is here for future cache-ing support
+        return cls.get_group_raw(group_name, default_owner)
+
+    def has_user(self, user):
+        return self.members.filter(user=user).exists()
+
     def add_user(self, user):
         group_member, created = UserGroupMember.objects.get_or_create(user=user, group=self)
         return group_member
 
+    def remove_user(self, user):
+        return self.members.filter(user=user).delete()
 
-class UserGroupMember(models.Model):
+    def add_to_state(self, state, user=None):
+        state.add(self)
+        state.add_all(self.members.all())
+
+
+class UserGroupMember(StreamObjectMixin):
     group = models.ForeignKey(UserGroup, on_delete=models.CASCADE, related_name="members")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="custom_groups")
     muted = models.BooleanField(default=False)
@@ -593,6 +622,9 @@ class UserGroupMember(models.Model):
     class Meta:
         db_table = "UserGroupMember"
         unique_together = ("group", "user")
+
+    def __str__(self):
+        return str(self.user)
 
 
 class ObjectPermission(StreamObjectMixin):
