@@ -6,7 +6,7 @@ from establishment.misc.settings_with_default import SettingsWithDefault
 settings = SettingsWithDefault("SESSION_REDIS",
                                HOST="localhost",
                                PORT=6379,
-                               SOCKET_TIMEOUT=0.1,
+                               SOCKET_TIMEOUT=0.2,
                                RETRY_ON_TIMEOUT=True,
                                DB=0,
                                PASSWORD=None,
