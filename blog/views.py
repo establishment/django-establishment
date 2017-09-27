@@ -47,20 +47,6 @@ def get_blogpost(request):
     return state
 
 
-def latest_blog_state(request):
-    state = State(request)
-
-    blog_entries = BlogEntry.objects.filter(visible=True, discussion__isnull=False).prefetch_related("article", "discussion", "discussion__message_thread")
-    blog_entries = list(blog_entries)
-    blog_entries.sort(key=lambda entry: entry.get_discussion_last_activity(), reverse=True)
-    blog_entries = blog_entries[:5]
-
-    for blog_entry in blog_entries:
-        blog_entry.add_to_state(state)
-
-    return state
-
-
 @single_page_app
 def blog(request):
     state, finished_loading = get_blog_state(request)
@@ -123,3 +109,14 @@ def create_entry_discussion(request):
     entry.create_discussion()
     entry.save()
     return State.from_objects(entry)
+
+
+def latest_blog_state():
+    blog_entries = BlogEntry.objects.filter(visible=True, discussion__isnull=False)\
+                                    .order_by("-discussion__message_thread__last_activity")\
+                                    .prefetch_related("article", "discussion", "discussion__message_thread")[:5]
+
+    state = State()
+    for blog_entry in blog_entries:
+        blog_entry.add_to_state(state)
+    return state

@@ -14,21 +14,6 @@ def main_forum_view(request):
     return state.to_response(extra={"forumId": main_forum.id})
 
 
-def latest_forum_state(request):
-    state = State()
-
-    forum_threads = ForumThread.objects.filter(hidden=False).prefetch_related("message_thread", "parent")
-    forum_threads = list(forum_threads)
-    forum_threads.sort(key=lambda thread: thread.get_last_active(), reverse=True)
-    forum_threads = forum_threads[:5]
-
-    for forum_thread in forum_threads:
-        state.add(forum_thread)
-        state.add(forum_thread.parent)
-
-    return state
-
-
 @login_required_ajax
 def create_forum_thread(request):
     if not request.user.is_superuser:
@@ -117,3 +102,17 @@ def forum_thread_state(request):
     state = State(request)
     forum_thread.add_to_state(state, request)
     return state.to_response()
+
+
+def latest_forum_state():
+    state = State()
+
+    forum_threads = ForumThread.objects.filter(hidden=False)\
+                                       .order_by("-message_thread__last_activity")\
+                                       .prefetch_related("message_thread", "parent", "content", "content__reaction_collection")[:5]
+
+    for forum_thread in forum_threads:
+        state.add(forum_thread)
+        state.add(forum_thread.parent)
+
+    return state
