@@ -40,6 +40,8 @@ urlpatterns = [
     # Notifications
     url(r"^get_user_notifications/$", views.get_user_notifications, name="get_user_notifications"),
     url(r"^set_user_notifications_read/$", views.set_user_notifications_read, name="set_user_notifications_read"),
+
+    url(r"^change_user_group/$", views.change_user_group, name="change_user_group")
 ]
 
 urlpatterns += establishment.socialaccount.urls.urlpatterns

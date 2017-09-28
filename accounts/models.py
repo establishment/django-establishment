@@ -591,13 +591,19 @@ class UserGroup(OwnerUserMixin):
             # This can only happen once!
             groups = cls.objects.filter(name=group_name)
             group = groups[0]
-            groups[1:].delete()
+            for group in groups[1:]:
+                group.delete()
         return group
 
     @classmethod
     def get_group(cls, group_name, default_owner_id):
         # This method is here for future cache-ing support
         return cls.get_group_raw(group_name, default_owner_id)
+
+    @classmethod
+    def get_group_by_id(cls, group_id):
+        # This method is here for future cache-ing support
+        return cls.objects.get(id=group_id)
 
     def has_user(self, user):
         return self.members.filter(user=user).exists()

@@ -11,13 +11,14 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.http import base36_to_int, int_to_base36
 
+from establishment.errors.errors import BaseError
 from establishment.webapp.base_views import login_required, login_required_ajax, ajax_required, global_renderer
 from establishment.webapp.base_views import single_page_app
 from establishment.webapp.state import State, int_list
 from establishment.webapp.throttle import ActionThrottler
 from .adapter import login, perform_login
 from .errors import AccountsError
-from .models import EmailAddress, UnverifiedEmail, TempUser, UserSummary
+from .models import EmailAddress, UnverifiedEmail, TempUser, UserSummary, UserGroup, UserGroupMember
 from .recaptcha_client import test_recaptcha
 from .utils import send_template_mail, get_user_manager, get_public_user_class
 
@@ -449,3 +450,21 @@ def set_user_notifications_read(request):
     if last_user_notification:
         request.user.get_custom_settings().set_last_read_notification(last_user_notification)
     return {"success": True}
+
+
+@ajax_required
+def change_user_group(request):
+    group_id = int(request.POST["groupId"])
+    group = UserGroup.get_group_by_id(group_id)
+    if not request.user.is_superuser and group.owner_id != request.user.id:
+        return BaseError.NOT_ALLOWED
+
+    state = State()
+    user_id = int(request.POST["userId"])
+    action = request.POST["action"]
+    if action == "remove":
+        UserGroupMember.objects.filter(user_id=user_id, group_id=group_id).delete()
+    elif action == "add":
+        group_member, created = UserGroupMember.objects.get_or_create(user_id=user_id, group_id=group_id)
+        state.add(group_member)
+    return state
