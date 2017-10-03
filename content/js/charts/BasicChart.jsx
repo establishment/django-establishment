@@ -344,12 +344,16 @@ export class TimeChart extends BasicChart {
         };
     }
 
-    getMinMaxDomain(points, coordinateAlias) {
+    getMinMaxDomain(points, coordinateAlias, padding) {
         let domain = [coordinateAlias(points[0]), coordinateAlias(points[0])];
         points.forEach((point) => {
             domain[0] = Math.min(domain[0], coordinateAlias(point));
             domain[1] = Math.max(domain[1], coordinateAlias(point));
         });
+        if (domain[0] === domain[1]) {
+            domain[0] -= padding;
+            domain[1] += padding;
+        }
         return domain;
     }
 
@@ -360,11 +364,8 @@ export class TimeChart extends BasicChart {
     getXAxisDomain(points, coordinateAlias) {
         if (!Array.isArray(points) || points.length === 0) {
             return this.defaultXNoPoints();
-        } else if (points.length === 1) {
-            return [coordinateAlias(points[0]) - this.options.paddingXOnNoPoints, coordinateAlias(points[0]) + this.options.paddingXOnNoPoints];
-        } else {
-            return this.getMinMaxDomain(points, coordinateAlias);
         }
+        return this.getMinMaxDomain(points, coordinateAlias, this.options.paddingXOnNoPoints);
     }
 
     defaultYNoPoints() {
@@ -374,11 +375,8 @@ export class TimeChart extends BasicChart {
     getYAxisDomain(points, coordinateAlias) {
         if (!Array.isArray(points) || points.length === 0) {
             return this.defaultYNoPoints();
-        } else if (points.length === 1) {
-            return [coordinateAlias(points[0]) - this.options.paddingYOnNoPoints, coordinateAlias(points[0]) + this.options.paddingYOnNoPoints];
-        } else {
-            return this.getMinMaxDomain(points, coordinateAlias);
         }
+        return this.getMinMaxDomain(points, coordinateAlias, this.options.paddingYOnNoPoints);
     }
 
     setOptions(options) {
