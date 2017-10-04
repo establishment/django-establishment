@@ -19,11 +19,15 @@ class WebsocketSubscriber extends Dispatchable {
         this.dispatch("connectionStatus", connectionStatus);
     }
 
+    newConnection() {
+        return new WebSocket(this.url);
+    }
+
     connect() {
         this.setConnectionStatus(WebsocketSubscriber.ConnectionStatus.CONNECTING);
         try {
             console.log("WebsocketSubscriber: Connecting to " + this.url + " ...");
-            this.websocket = new WebSocket(this.url);
+            this.websocket = this.newConnection();
             this.websocket.onopen = () => {
                 this.onWebsocketOpen();
             };
