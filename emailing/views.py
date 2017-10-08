@@ -34,8 +34,11 @@ def control(request):
     action = load_field("action")
 
     if object_type == "campaign":
-        if action in ["start", "stop", "pause", "continue"]:
+        if action == "start":
             campaign_id = load_field("id")
+            campaign = get_obj(EmailCampaign, campaign_id)
+            if campaign.manual_send_only:
+                return EmailingError.INVALID_CAMPAIGN_START
             return MercuryRedisAPI.get_api().send_campaign_start(campaign_id)
         elif action == "test":
             campaign_id = load_field("id")

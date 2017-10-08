@@ -193,7 +193,7 @@ class LoginStyle extends StyleSheet {
         height: "30px",
         width: "100%",
         fontSize: "14px",
-        color: "#d80000",
+        color: this.themeProperties.COLOR_DANGER,
         textAlign: "center",
     };
 
@@ -202,6 +202,11 @@ class LoginStyle extends StyleSheet {
         display: "inline-block",
         float: "left",
         paddingLeft: "5px",
+    };
+
+    @styleRule
+    rememberMeCheckbox = {
+        float: "left"
     };
 
     @styleRule
@@ -227,7 +232,7 @@ class LoginStyle extends StyleSheet {
         marginRight: "auto",
         backgroundColor: "#f6f6f6",
         marginTop: "20px",
-        width: signInButtonWidth + "px",
+        minWidth: signInButtonWidth + "px",
         height: signInButtonHeight + "px",
         textAlign: "center",
         lineHeight: signInButtonHeight + "px",

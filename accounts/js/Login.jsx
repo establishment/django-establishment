@@ -10,7 +10,8 @@ import {
     Switcher,
     Select,
     registerStyle,
-    TemporaryMessageArea
+    TemporaryMessageArea,
+    Theme
 } from "UI";
 
 import {ensure} from "Require";
@@ -126,7 +127,7 @@ class ThirdPartyLogin extends UI.Element {
 }
 
 @registerStyle(LoginStyle)
-class LoginWidget extends UI.Element {
+export class LoginWidget extends UI.Element {
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.loginWidget);
     }
@@ -170,11 +171,7 @@ class LoginWidget extends UI.Element {
     getRememberMeCheckbox() {
         return [
             <CheckboxInput checked={true}
-                              ref="rememberInput"
-                              style={{
-                                  "float": "left",
-                              }}
-            />,
+                              ref="rememberInput" className={this.styleSheet.rememberMeCheckbox} />,
             <div className={this.styleSheet.rememberMe}>{UI.T("Remember me")}</div>,
         ];
     }
@@ -188,9 +185,13 @@ class LoginWidget extends UI.Element {
         return <TemporaryMessageArea className={this.styleSheet.badLogin} ref="loginErrorMessage"/>;
     }
 
+    getSignInValue() {
+        return "Sign In";
+    }
+
     getSignInButton() {
-        return <div style={{width: "100%", height: "50px", display: "flex", alignItems: "center", justifyContent: "center",}}>
-            <SubmitInput className={this.styleSheet.signInButton} value="Sign In"/>
+        return <div className={this.styleSheet.signInButtonContainer}>
+            <SubmitInput className={this.styleSheet.signInButton} value={this.getSignInValue()} />
         </div>;
     }
 
@@ -199,12 +200,15 @@ class LoginWidget extends UI.Element {
         </div>;
     }
 
-    render() {
-        const thirdPartyLogin = SocialAppStore.all().length ? [
+    getThirdPartyLogin() {
+        return SocialAppStore.all().length ? [
             this.getHorizontalLine(),
             <ThirdPartyLogin loginElement={this}/>,
-
         ]: null;
+    }
+
+    render() {
+
         return [
             <form ref="form">
                 {this.getEmailInput()}
@@ -215,12 +219,12 @@ class LoginWidget extends UI.Element {
                 <div style={{clear: "both", height: "20px"}}/>
                 {this.getErrorArea()}
             </form>,
-            thirdPartyLogin,
+            this.getThirdPartyLogin(),
         ];
     }
 
-    setErrorMessage(error) {
-        this.loginErrorMessage.showMessage(error.message, "red", ERROR_TIMEOUT);
+    setErrorMessage(error, isError=true) {
+        this.loginErrorMessage.showMessage(error.message, isError? Theme.Global.getProperty("COLOR_DANGER") : "#000", ERROR_TIMEOUT);
     }
 
     clearErrorMessage() {
@@ -279,7 +283,7 @@ class RecaptchaWidget extends UI.Element {
 
 
 @registerStyle(LoginStyle)
-class RegisterWidget extends UI.Element {
+export class RegisterWidget extends UI.Element {
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.registerWidget);
     }

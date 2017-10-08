@@ -72,6 +72,7 @@ class EmailCampaign(StreamObjectMixin):
     from_address = models.CharField(max_length=512, null=True, blank=True)
     gateway = models.ForeignKey(EmailGateway, on_delete=models.PROTECT, null=True, blank=True)
     is_newsletter = models.BooleanField(default=True) # TODO: rename to is_newsletter?
+    manual_send_only = models.BooleanField(default=False)
 
     class Meta:
         db_table = "EmailCampaign"
