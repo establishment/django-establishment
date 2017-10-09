@@ -2,6 +2,28 @@ import {Dispatchable} from "base/Dispatcher";
 import {WebsocketStreamHandler} from "./WebsocketStreamHandler";
 
 class WebsocketSubscriber extends Dispatchable {
+    static ConnectionStatus = {
+        NONE: 0,
+        CONNECTING: 1,
+        CONNECTED: 2,
+        DISCONNECTED: 3
+    };
+
+    static StreamStatus = {
+        NONE: 0,
+        SUBSCRIBING: 1,
+        SUBSCRIBED: 2,
+        UNSUBSCRIBED: 3
+    };
+
+    static STREAM_SUBSCRIBE_TIMEOUT = 3000;
+    static STREAM_SUBSCRIBE_MAX_TIMEOUT = 30000;
+
+    static CONNECT_RETRY_TIMEOUT = 3000;
+    static CONNECT_RETRY_MAX_TIMEOUT = 30000;
+
+    static HEARTBEAT_MESSAGE = "-hrtbt-";
+
     constructor(url=self.WEBSOCKET_URL) {
         super();
         this.url = url;
@@ -10,6 +32,7 @@ class WebsocketSubscriber extends Dispatchable {
         this.connectionStatus = WebsocketSubscriber.ConnectionStatus.NONE;
         this.websocket = null;
         this.failedReconnectAttempts = 0;
+        // TODO: streamStatus should be merged with streamHandlers
         this.streamStatus = new Map();
         //TODO: should probably try to connect right now!
     }
@@ -300,34 +323,12 @@ class WebsocketSubscriber extends Dispatchable {
         }
         streamHandler.addListener(callback);
     }
+
+    static addListener(streamName, callback) {
+        return this.Global.addStreamListener(streamName, callback);
+    };
 }
 
-WebsocketSubscriber.ConnectionStatus = {
-    NONE: 0,
-    CONNECTING: 1,
-    CONNECTED: 2,
-    DISCONNECTED: 3
-};
-
-WebsocketSubscriber.StreamStatus = {
-    NONE: 0,
-    SUBSCRIBING: 1,
-    SUBSCRIBED: 2,
-    UNSUBSCRIBED: 3
-};
-
-WebsocketSubscriber.STREAM_SUBSCRIBE_TIMEOUT = 1000;
-WebsocketSubscriber.STREAM_SUBSCRIBE_MAX_TIMEOUT = 10000;
-
-WebsocketSubscriber.CONNECT_RETRY_TIMEOUT = 1500;
-WebsocketSubscriber.CONNECT_RETRY_MAX_TIMEOUT = 15000;
-
-WebsocketSubscriber.HEARTBEAT_MESSAGE = "-hrtbt-";
-
 WebsocketSubscriber.Global = new WebsocketSubscriber();
-
-WebsocketSubscriber.addListener = function (streamName, callback) {
-    return this.Global.addStreamListener(streamName, callback);
-};
 
 export {WebsocketSubscriber};
