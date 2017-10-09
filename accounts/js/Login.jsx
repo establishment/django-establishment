@@ -181,6 +181,10 @@ export class LoginWidget extends UI.Element {
                      value={UI.T("Forgot Password?")} />;
     }
 
+    getClearBothArea() {
+        return <div style={{clear: "both", height: "20px"}}/>;
+    }
+
     getErrorArea() {
         return <TemporaryMessageArea className={this.styleSheet.badLogin} ref="loginErrorMessage"/>;
     }
@@ -216,7 +220,7 @@ export class LoginWidget extends UI.Element {
                 {this.getRememberMeCheckbox()}
                 {this.getForgotPassword()}
                 {this.getSignInButton()}
-                <div style={{clear: "both", height: "20px"}}/>
+                {this.getClearBothArea()}
                 {this.getErrorArea()}
             </form>,
             this.getThirdPartyLogin(),
