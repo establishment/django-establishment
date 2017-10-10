@@ -9,13 +9,6 @@ class WebsocketSubscriber extends Dispatchable {
         DISCONNECTED: 3
     };
 
-    static StreamStatus = {
-        NONE: 0,
-        SUBSCRIBING: 1,
-        SUBSCRIBED: 2,
-        UNSUBSCRIBED: 3
-    };
-
     static STREAM_SUBSCRIBE_TIMEOUT = 3000;
     static STREAM_SUBSCRIBE_MAX_TIMEOUT = 30000;
 
@@ -32,9 +25,7 @@ class WebsocketSubscriber extends Dispatchable {
         this.connectionStatus = WebsocketSubscriber.ConnectionStatus.NONE;
         this.websocket = null;
         this.failedReconnectAttempts = 0;
-        // TODO: streamStatus should be merged with streamHandlers
-        this.streamStatus = new Map();
-        //TODO: should probably try to connect right now!
+        //TODO: should probably try to connect right now?
     }
 
     setConnectionStatus(connectionStatus) {
@@ -85,9 +76,11 @@ class WebsocketSubscriber extends Dispatchable {
         }
     }
 
-    // Stream options:
-    // rawMessage = true means we won't try to decode a json object from the message
-    // parseMayFail = true means that we'll pass the raw message if JSON.parse fails
+    getStreamStatus(streamName) {
+        const streamHandler = this.getStreamHandler(streamName);
+        return streamHandler && streamHandler.status;
+    }
+
     subscribe(streamName) {
         // TODO: make sure to not explicitly support streams with spaces in the name
         console.log("WebsocketSubscriber: Subscribing to stream ", streamName);
@@ -102,103 +95,47 @@ class WebsocketSubscriber extends Dispatchable {
             return;
         }
 
-        // Check if the websocket connection is open
-        if (this.websocket && this.websocket.readyState === 1) {
-            this.sendSubscribe(streamName);
-        }   //TODO: no else?
-
-        let streamHandler = new WebsocketStreamHandler(streamName);
+        let streamHandler = new WebsocketStreamHandler(this, streamName);
         this.streamHandlers.set(streamName, streamHandler);
+
+        // Check if the websocket connection is open, to see if we can send the subscription now
+        if (this.isOpen()) {
+            this.sendSubscribe(streamName);
+        }
+
         return streamHandler;
     }
 
-    canSendSubscribe(streamName) {
-        if (this.streamStatus.has(streamName)) {
-            let streamStatus = this.streamStatus.get(streamName);
-            return streamStatus.status == WebsocketSubscriber.StreamStatus.UNSUBSCRIBED ||
-                    streamStatus.status == WebsocketSubscriber.StreamStatus.NONE;
-        }
-        return true;
-    }
-
-    updateStreamStatus(streamName, index) {
-        let streamStatus = null;
-        if (!this.streamStatus.has(streamName)) {
-            streamStatus = {
-                index: index,
-                status: WebsocketSubscriber.StreamStatus.SUBSCRIBING,
-                checkTimeout: null,
-                tryCount: 0,
-            };
-        } else {
-            streamStatus = this.streamStatus.get(streamName);
-            streamStatus.status = WebsocketSubscriber.StreamStatus.SUBSCRIBING;
-        }
-        if (streamStatus.checkTimeout != null) {
-            clearTimeout(streamStatus.checkTimeout);
-            streamStatus.checkTimeout = null;
-        }
-        streamStatus.tryCount ++;
-        let streamTimeout = Math.min(WebsocketSubscriber.STREAM_SUBSCRIBE_TIMEOUT * streamStatus.tryCount,
-                                     WebsocketSubscriber.STREAM_SUBSCRIBE_MAX_TIMEOUT);
-        streamStatus.checkTimeout = setTimeout(() => {
-            this.subscribeTimeout(streamName);
-        }, streamTimeout);
-        this.streamStatus.set(streamName, streamStatus);
-    }
-
-    subscribeTimeout(streamName) {
-        console.log("WebsocketSubscriber: stream subscribe timeout for #" + streamName +
-                    " reached! Trying to resubscribe again!");
-        let streamStatus = this.streamStatus.get(streamName);
-        streamStatus.checkTimeout = null;
-        streamStatus.status = WebsocketSubscriber.StreamStatus.NONE;
-        if (streamStatus.index) {
-            this.sendResubscribe(streamName, streamStatus.index);
-        } else {
-            this.sendSubscribe(streamName);
-        }
+    isOpen() {
+        return this.websocket && this.websocket.readyState === 1;
     }
 
     sendSubscribe(streamName) {
-        if (this.canSendSubscribe(streamName)) {
+        if (this.isOpen()) {
             this.send("s " + streamName);
-            this.updateStreamStatus(streamName);
         }
     }
 
     sendResubscribe(streamName, index) {
-        if (this.canSendSubscribe(streamName)) {
+        if (this.isOpen(streamName)) {
             this.send("r " + index + " " + streamName);
-            this.updateStreamStatus(streamName, index);
         }
     }
 
     resubscribe() {
         // Iterate over all streams and resubscribe to them
-        for (let key of this.streamHandlers.keys()) {
-            if (this.streamHandlers.get(key).haveIndex()) {
-                let index = this.streamHandlers.get(key).getLastIndex();
-                console.log("WebsocketSubscriber: Sending (re)subscribe to indexed stream ", key, " from index ", index);
-                this.sendResubscribe(key, index);
-            } else {
-                console.log("WebsocketSubscriber: Sending (re)subscribe to stream ", key);
-                this.sendSubscribe(key);
-            }
+        for (let streamHandler of this.streamHandlers.values()) {
+            streamHandler.sendSubscribe();
         }
     }
 
     onStreamSubscribe(streamName) {
-        if (!this.streamStatus.has(streamName)) {
-            console.error("WebsocketSubscriber: received subscribe success response for unrequested stream #" +
-                          streamName);
+        const streamHandler = this.getStreamHandler(streamName);
+        if (!streamHandler) {
+            console.error("WebsocketSubscriber: received subscribe success response for unrequested stream #" + streamName);
+            return;
         }
-        let streamStatus = this.streamStatus.get(streamName);
-        if (streamStatus.checkTimeout) {
-            clearTimeout(streamStatus.checkTimeout);
-            streamStatus.checkTimeout = null;
-        }
-        streamStatus.status = WebsocketSubscriber.StreamStatus.SUBSCRIBED;
+        streamHandler.setStatusSubscribed();
     }
 
     onWebsocketOpen() {
@@ -259,10 +196,10 @@ class WebsocketSubscriber extends Dispatchable {
                 if (errorType === "invalidSubscription") {
                     // Stop trying to resubscribe to a stream that's been rejected by the server
                     const streamName = payload[1];
-                    const streamStatus = this.streamStatus.get(streamName);
-                    if (streamStatus && streamStatus.checkTimeout != null) {
-                        clearTimeout(streamStatus.checkTimeout);
-                        streamStatus.checkTimeout = null;
+                    const streamHandler = this.getStreamHandler(streamName);
+                    if (streamHandler) {
+                        // TODO: set permission denied explicitly?
+                        streamHandler.clearResubscribeTimeout();
                     }
                 }
             } else if (type === "s") { // subscribed
@@ -282,12 +219,9 @@ class WebsocketSubscriber extends Dispatchable {
 
     reset() {
         this.setConnectionStatus(WebsocketSubscriber.ConnectionStatus.DISCONNECTED);
-        for (let streamStatus of this.streamStatus) {
-            if (streamStatus.checkTimeout) {
-                clearTimeout(streamStatus.checkTimeout);
-            }
+        for (let streamHandler of this.streamHandlers.values()) {
+            streamHandler.resetStatus();
         }
-        this.streamStatus.clear();
     }
 
     onWebsocketError(event) {

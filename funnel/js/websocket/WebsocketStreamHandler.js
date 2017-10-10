@@ -1,8 +1,16 @@
 import {Dispatcher} from "base/Dispatcher";
 
 class WebsocketStreamHandler extends Dispatcher {
-    constructor(streamName, options={}) {
+    static NONE = Symbol();
+    static SUBSCRIBING = Symbol();
+    static SUBSCRIBED = Symbol();
+    static UNSUBSCRIBED = Symbol();
+
+    static MISSING_MESSAGE = "INVALID_MESSAGE_MISSING_FROM_ROLLING_WINDOW";
+
+    constructor(websocketSubscriber, streamName, options={}) {
         super();
+        this.websocketSubscriber = websocketSubscriber;
         this.streamName = streamName;
         this.options = options;
         this.bytesReceived = 0;
@@ -10,6 +18,54 @@ class WebsocketStreamHandler extends Dispatcher {
         this.lastMessageIndex = -1;
         this.messageBuffer = new Map();
         this.missedPackets = 0;
+        this.status = this.constructor.NONE;
+        this.tryCount = 0; // TODO: rename to resubscribesubscribeTryCount
+    }
+
+    sendSubscribe() {
+        const websocketSubscriber = this.websocketSubscriber;
+
+        this.clearResubscribeTimeout();
+        this.status = this.constructor.SUBSCRIBING;
+
+        if (this.haveIndex()) {
+            websocketSubscriber.sendResubscribe(this.streamName, this.getLastIndex());
+        } else {
+            websocketSubscriber.sendSubscribe(this.streamName);
+        }
+
+        this.subscribeTryCount++;
+
+        const subscribeTimeout = websocketSubscriber.constructor.STREAM_SUBSCRIBE_TIMEOUT || 3000;
+        const subscribeTimeoutMax = websocketSubscriber.constructor.STREAM_SUBSCRIBE_MAX_TIMEOUT || 30000;
+        const timeoutDuration = Math.min(subscribeTimeout * this.subscribeTryCount, subscribeTimeoutMax);
+
+        this.resendSubscribeTimeout = setTimeout(() => {
+            console.log("WebsocketSubscriber: stream subscribe timeout for #" + streamName + " reached! Trying to resubscribe again!");
+            this.sendSubscribe();
+        }, timeoutDuration);
+    }
+
+    clearResubscribeTimeout() {
+        if (this.resendSubscribeTimeout) {
+            clearTimeout(this.resendSubscribeTimeout);
+            this.resendSubscribeTimeout = undefined;
+        }
+    }
+
+    setStatusSubscribed() {
+        this.clearResubscribeTimeout();
+        this.status = this.constructor.SUBSCRIBED;
+    }
+
+    getStatus() {
+        return this.status;
+    }
+
+    resetStatus() {
+        this.clearResubscribeTimeout();
+        this.status = this.constructor.NONE;
+        this.subscribeTryCount = 0;
     }
 
     processPacket(packet) {
@@ -102,7 +158,5 @@ class WebsocketStreamHandler extends Dispatcher {
         return this.lastMessageIndex;
     }
 }
-
-WebsocketStreamHandler.MISSING_MESSAGE = "INVALID_MESSAGE_MISSING_FROM_ROLLING_WINDOW";
 
 export {WebsocketStreamHandler};
