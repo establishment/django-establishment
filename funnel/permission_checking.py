@@ -17,9 +17,11 @@ def guest_can_subscribe_to_stream(stream_name):
     stream_handler = get_stream_handler(stream_name)
 
     if stream_handler:
-        if stream_handler.guest_can_subscribe(stream_name):
+        can_subscribe, reason = stream_handler.guest_can_subscribe(stream_name)
+        if can_subscribe:
             return True, "OK"
         else:
+            # TODO: return the actual reason?
             return False, "Invalid rights"
 
     return False, "No matching streams"
@@ -49,9 +51,11 @@ def user_can_subscribe_to_stream(user, stream_name):
     stream_handler = get_stream_handler(stream_name)
 
     if stream_handler:
-        if stream_handler.can_subscribe(user, stream_name):
+        can_subscribe, reason = stream_handler.can_subscribe(user, stream_name)
+        if can_subscribe:
             return True, "OK"
         else:
+            # TODO: return the actual reason?
             return False, "Invalid rights"
 
     return False, "No matching streams"
