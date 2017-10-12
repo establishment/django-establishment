@@ -17,9 +17,12 @@ class WebsocketSubscriber extends Dispatchable {
 
     static HEARTBEAT_MESSAGE = "-hrtbt-";
 
-    constructor(url=self.WEBSOCKET_URL) {
+    constructor(urls=self.WEBSOCKET_URL) {
         super();
-        this.url = url;
+        if (!Array.isArray(urls)) {
+            urls = [urls]
+        }
+        this.urls = urls;
         this.streamHandlers = new Map();
         this.attemptedConnect = false;
         this.connectionStatus = WebsocketSubscriber.ConnectionStatus.NONE;
@@ -33,15 +36,21 @@ class WebsocketSubscriber extends Dispatchable {
         this.dispatch("connectionStatus", connectionStatus);
     }
 
-    newConnection() {
-        return new WebSocket(this.url);
+    getNextUrl() {
+        const currentURLIndex = this.failedReconnectAttempts % this.urls.length;
+        return this.urls[currentURLIndex];
+    }
+
+    newConnection(url) {
+        return new WebSocket(url);
     }
 
     connect() {
+        const url = this.getNextUrl();
         this.setConnectionStatus(WebsocketSubscriber.ConnectionStatus.CONNECTING);
         try {
-            console.log("WebsocketSubscriber: Connecting to " + this.url + " ...");
-            this.websocket = this.newConnection();
+            console.log("WebsocketSubscriber: Connecting to " + url + " ...");
+            this.websocket = this.newConnection(url);
             this.websocket.onopen = () => {
                 this.onWebsocketOpen();
             };
@@ -57,7 +66,7 @@ class WebsocketSubscriber extends Dispatchable {
 
         } catch (e) {
             this.tryReconnect();
-            console.error("WebsocketSubscriber: Failed to connect to ", this.url, "\nError: ", e.message);
+            console.error("WebsocketSubscriber: Failed to connect to ", url, "\nError: ", e.message);
         }
     }
 
