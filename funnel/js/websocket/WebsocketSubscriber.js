@@ -28,6 +28,7 @@ class WebsocketSubscriber extends Dispatchable {
         this.connectionStatus = WebsocketSubscriber.ConnectionStatus.NONE;
         this.websocket = null;
         this.failedReconnectAttempts = 0;
+        this.numConnectionAttempts = 0;
         //TODO: should probably try to connect right now?
     }
 
@@ -37,7 +38,7 @@ class WebsocketSubscriber extends Dispatchable {
     }
 
     getNextUrl() {
-        const currentURLIndex = this.failedReconnectAttempts % this.urls.length;
+        const currentURLIndex = (this.numConnectionAttempts++) % this.urls.length;
         return this.urls[currentURLIndex];
     }
 
