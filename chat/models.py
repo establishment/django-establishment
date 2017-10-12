@@ -377,7 +377,7 @@ class GroupChat(StreamObjectMixin):
 
     @classmethod
     def matches_stream_name(cls, stream_name):
-        return cls.stream_name_pattern.match(stream_name)
+        return cls.stream_name_pattern.match(stream_name) is not None
 
     @classmethod
     def can_subscribe(cls, user, stream_name):
