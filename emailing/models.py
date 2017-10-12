@@ -73,6 +73,7 @@ class EmailCampaign(StreamObjectMixin):
     gateway = models.ForeignKey(EmailGateway, on_delete=models.PROTECT, null=True, blank=True)
     is_newsletter = models.BooleanField(default=True) # TODO: rename to is_newsletter?
     manual_send_only = models.BooleanField(default=False)
+    # TODO: should have a field clear_existing_status
 
     class Meta:
         db_table = "EmailCampaign"
@@ -173,17 +174,21 @@ class EmailTemplate(StreamObjectMixin):
             for extra_stream_name in extra_stream_names:
                 RedisStreamPublisher.publish_to_stream(extra_stream_name, event)
 
-    def send_to_user(self, user, context_dict={}):
+    def send_to_user(self, user, context_dict={}, clear_existing_status=False):
         from django.template import Context, Template
         from django.core.mail import EmailMultiAlternatives
 
         if self.campaign.is_newsletter and not user.receives_email_announcements:
             return False
 
-        if EmailStatus.objects.filter(user=user, campaign=self.campaign).first():
+        existing_email_status = EmailStatus.objects.filter(user=user, campaign=self.campaign).first()
+
+        if existing_email_status:
             # We have already sent this email to the user
-            # TODO: need an explicit overwrite for this?
-            return False
+            if clear_existing_status:
+                existing_email_status.delete()
+            else:
+                return False
 
         tracking_key = random_key()
 
