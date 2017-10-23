@@ -1,13 +1,16 @@
 import {UI, SVG, Switcher, Button} from "UI";
 import {MarkupRenderer, MarkupClassMap} from "MarkupRenderer";
+import {Language} from "LanguageStore";
 
 import {Article, ArticleStore} from "./state/ArticleStore";
 
 
 class ArticleRenderer extends MarkupRenderer {
-    setOptions(options) {
-        options.classMap = options.classMap || this.constructor.markupClassMap;
-        super.setOptions(options);
+    getDefaultOptions() {
+        return {
+            classMap: this.constructor.markupClassMap,
+            liveLanguage: false
+        };
     }
 
     getEditButton() {
@@ -29,11 +32,7 @@ class ArticleRenderer extends MarkupRenderer {
     }
 
     setArticle(article) {
-        this.options.article = article;
-        this.setOptions(this.options);
-        if (this.node) {
-            this.redraw();
-        }
+        this.updateOptions({ article });
     }
 
     getValue() {
@@ -57,6 +56,17 @@ class ArticleRenderer extends MarkupRenderer {
             // this needs to be inside of an anonymous function to preserve arguments
             requireAndRedraw(Array.from(arguments));
         });
+    }
+
+    onMount() {
+        if (this.options.liveLanguage) {
+            this.attachListener(Language, "localeChange", () => {
+                const baseArticle = this.options.article.getBaseArticle();
+                if (baseArticle) {
+                    this.setArticle(baseArticle.getTranslation());
+                }
+            });
+        }
     }
 }
 

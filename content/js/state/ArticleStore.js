@@ -29,6 +29,10 @@ class Article extends StoreObject {
         }
         return this;
     }
+
+    getBaseArticle() {
+        return ArticleStore.get(this.baseArticleId) || this;
+    }
 }
 
 class ArticleEdit extends StoreObject {

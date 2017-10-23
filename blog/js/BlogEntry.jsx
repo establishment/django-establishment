@@ -9,7 +9,9 @@ class BlogEntry extends Panel {
     }
 
     render() {
-        let articleRenderer = <ArticleRenderer ref="articleRenderer" article={this.getBlogEntry().getArticle()} />;
+        let articleRenderer = <ArticleRenderer ref="articleRenderer"
+                                               article={this.getBlogEntry().getArticle()}
+                                               liveLanguage />;
         let commentWidget;
 
         let discussion = this.getBlogEntry().getDiscussion();
