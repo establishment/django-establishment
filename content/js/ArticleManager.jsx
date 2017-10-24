@@ -16,6 +16,7 @@ import {
     Level,
     UI,
 } from "UI";
+import {FAIcon} from "FontAwesome";
 import {Ajax} from "Ajax";
 import {StemDate} from "Time";
 import {PublicUserStore} from "UserStore";
@@ -35,12 +36,16 @@ class TransferOwnershipModal extends ActionModal {
         return Level.PRIMARY;
     }
 
+    getArticle() {
+        return this.options.article;
+    }
+
     getBody() {
         return [
-            <UI.TextElement ref="text" value={"Set owner"}/>,
+            <UI.TextElement ref="text" value={"Set owner for " + this.getArticle().name + ":"}/>,
             <Form style={{marginTop: "10px"}}>
                 <FormField ref="ownerFormField" label="Author ID">
-                    <TextInput ref="ownerFormInput"  value=""/>
+                    <TextInput ref="ownerFormInput"  value={this.getArticle().userCreatedId} />
                 </FormField>
             </Form>
         ];
@@ -51,21 +56,14 @@ class TransferOwnershipModal extends ActionModal {
             <TemporaryMessageArea ref="messageArea"/>,
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
-                <AjaxButton ref="transferOwnershipButton" level={this.getActionLevel()} onClick={() => {this.action()}}
+                <AjaxButton ref="transferOwnershipButton" level={this.getActionLevel()} onClick={() => this.action()}
                                statusOptions={[this.getActionName(), {faIcon: "spinner fa-spin", label:" transfering ownership ..."},
                                                this.getActionName(), "Failed"]}/>
             </ButtonGroup>
         ];
     }
 
-    setArticle(article) {
-        this.article = article;
-        this.text.setValue("Set owner for " + this.article.name + ":");
-        this.ownerFormInput.setValue(this.article.userCreatedId);
-    }
-
     action() {
-        let table = this.options.parent.table;
         let newOwner = this.ownerFormInput.getValue();
         let request = {
             newOwner: newOwner
@@ -73,12 +71,8 @@ class TransferOwnershipModal extends ActionModal {
 
         this.messageArea.showMessage("Saving...", "black", null);
 
-        this.transferOwnershipButton.postJSON("/article/" + this.article.id + "/set_owner/", request).then(
-            () => {
-                this.messageArea.showMessage("Author successfully changed");
-                table.redraw();
-                this.hide();
-            },
+        this.transferOwnershipButton.postJSON("/article/" + this.getArticle().id + "/set_owner/", request).then(
+            () => this.hide(),
             (error) => this.messageArea.showMessage("Error in changing owner " + error.message, "red")
         );
     }
@@ -96,7 +90,11 @@ class DeleteArticleModal extends ActionModal {
     }
 
     getBody() {
-        return <UI.TextElement ref="text" value={"Delete article?"}/>;
+        return <UI.TextElement ref="text" value={"Delete " + this.getArticle().name + "?"}/>;
+    }
+
+    getArticle() {
+        return this.options.article;
     }
 
     getFooter() {
@@ -110,16 +108,11 @@ class DeleteArticleModal extends ActionModal {
         ];
     }
 
-    setArticle(article) {
-        this.article = article;
-        this.text.setValue("Delete " + this.article.name + "?");
-    }
-
     deleteArticle() {
-        let table = this.options.parent.table;
-        this.deleteArticleButton.postJSON("/article/" + this.options.article.id + "/delete/", {}).then(
+        this.deleteArticleButton.postJSON("/article/" + this.getArticle().id + "/delete/", {}).then(
             () => {
-                table.options.articles.splice(table.getArticleIndex(this.article.id), 1);
+                let table = this.options.parent.table;
+                table.options.articles.splice(table.getArticleIndex(this.getArticle().id), 1);
                 table.redraw();
                 this.hide();
             },
@@ -238,6 +231,52 @@ class AddTranslationModal extends CreateArticleModal {
     }
 }
 
+class ArticleOwnerSpan extends UI.Primitive("span") {
+    getArticle() {
+        return this.options.article;
+    }
+
+    render() {
+        return <UserHandle id={this.getArticle().userCreatedId}/>;
+    }
+
+    onMount() {
+        this.attachUpdateListener(this.getArticle(), () => this.redraw());
+    }
+}
+
+class ArticlePublicSpan extends FAIcon {
+    getDefaultOptions() {
+        return {
+            size: "lg"
+        };
+    }
+
+    getArticle() {
+        return this.options.article;
+    }
+
+    isPublic() {
+        return this.options.article.isPublic;
+    }
+
+    extraNodeAttributes(attr) {
+        super.extraNodeAttributes(attr);
+        attr.setStyle("color", this.isPublic() ? "green" : "red");
+    }
+
+    setOptions(options) {
+        super.setOptions(options);
+        this.options.icon = this.isPublic() ? "check" : "times";
+    }
+
+    onMount() {
+        this.attachUpdateListener(this.getArticle(),
+            () => this.updateOptions({icon: this.isPublic() ? "check" : "times"})
+        );
+    }
+}
+
 class ArticleTable extends SortableTable {
     setOptions(options) {
         super.setOptions(options);
@@ -278,14 +317,13 @@ class ArticleTable extends SortableTable {
             headerStyle: headerStyle,
             cellStyle: cellStyle
         }, {
-            value: article => <UserHandle id={article.userCreatedId}/>,
+            value: article => <ArticleOwnerSpan article={article} />,
             rawValue: article => PublicUserStore.get(article.userCreatedId).username,
             headerName: "Author",
             headerStyle: headerStyle,
             cellStyle: cellStyle
         }, {
-            value: article => (article.isPublic ? <span className="fa fa-check fa-lg" style={{color: "green"}}/>
-                : <span className="fa fa-times fa-lg" style={{color: "red"}}/>),
+            value: article => <ArticlePublicSpan article={article} />,
             rawValue: article => (article.isPublic ? "Yes" : "No"),
             headerName: "Public",
             headerStyle: headerStyle,
@@ -315,10 +353,7 @@ class ArticleTable extends SortableTable {
             if (USER.isSuperUser) {
                 columns.push({
                     value: article => <Button level={Level.PRIMARY} label="Set owner"
-                                                 onClick={() => {
-                                                     this.options.parent.transferOwnershipModal.show();
-                                                     this.options.parent.transferOwnershipModal.setArticle(article);
-                                                 }}/>,
+                                              onClick={() => TransferOwnershipModal.show({ article })}/>,
                     headerName: "Set owner",
                     headerStyle: headerStyle,
                     cellStyle: cellStyle
@@ -327,8 +362,10 @@ class ArticleTable extends SortableTable {
             columns.push({
                 value: article => <Button level={Level.DANGER} label="Delete"
                                              onClick={() => {
-                                                 this.options.parent.deleteArticleModal.show();
-                                                 this.options.parent.deleteArticleModal.setArticle(article);
+                                                 DeleteArticleModal.show({
+                                                     article,
+                                                     parent: this.options.parent
+                                                 });
                                              }}/>,
                 headerName: "Delete",
                 headerStyle: headerStyle,
@@ -366,7 +403,7 @@ class ArticleManager extends Panel {
         if (!this.options.readOnly) {
             addButton = <div className="pull-right">
                 <Button level={Level.PRIMARY} label="Create article"
-                           onClick={() => this.createArticleModal.show()}
+                           onClick={() => CreateArticleModal.show({parent: this})}
                            style={{marginTop: "5px", marginBottom: "5px"}}/>
             </div>;
         }
@@ -381,22 +418,6 @@ class ArticleManager extends Panel {
     }
 
     onMount() {
-        super.onMount();
-        this.getArticles();
-
-        if (this.options.readOnly === true)
-            return;
-
-        this.createArticleModal = <CreateArticleModal parent={this}/>;
-
-        if (USER.isSuperUser) {
-            this.transferOwnershipModal = <TransferOwnershipModal parent={this}/>;
-        }
-
-        this.deleteArticleModal = <DeleteArticleModal parent={this}/>;
-    }
-
-    getArticles() {
         if (this.options.articles && this.options.articles.length > 0) {
             return;
         }
@@ -406,7 +427,7 @@ class ArticleManager extends Panel {
     }
 }
 
-class TranslationManager extends Panel {
+class ArticleTranslationManager extends Panel {
     getDefaultOptions() {
         return {
             title: "Translation manager"
@@ -421,32 +442,21 @@ class TranslationManager extends Panel {
     render() {
         this.table = <ArticleTable articles={[]} parent={this}/>;
         let addButton = null;
-        if (!this.options.readOnly)
+        if (!this.options.readOnly) {
             addButton = <div className="pull-right"><Button level={Level.PRIMARY} label="Add translation"
-                                                               onClick={() => this.addTranslationModal.show()}
-                                                               style={{marginTop: "5px", marginBottom: "5px"}}/></div>;
+                                                            onClick={() => AddTranslationModal.show({
+                                                                parent: this,
+                                                                baseArticle: this.options.baseArticle
+                                                            })}
+                                                            style={{marginTop: "5px", marginBottom: "5px"}}/></div>;
+        }
         return [<div className="pull-left"><h4><strong>{this.options.title}</strong></h4></div>, addButton, this.table];
     }
 
     onMount() {
-        super.onMount();
-        this.getTranslations();
-
-        if (this.options.readOnly === true)
+        if (!this.options.baseArticle) {
             return;
-
-        this.addTranslationModal = <AddTranslationModal parent={this} baseArticle={this.options.baseArticle}/>;
-
-        if (USER.isSuperUser) {
-            this.transferOwnershipModal = <TransferOwnershipModal parent={this}/>;
         }
-
-        this.deleteArticleModal = <DeleteArticleModal parent={this}/>;
-    }
-
-    getTranslations() {
-        if (!this.options.baseArticle)
-            return;
 
         Ajax.getJSON("/article/" + this.options.baseArticle.id + "/get_translations/", {}).then(
             () => {
@@ -461,4 +471,4 @@ class TranslationManager extends Panel {
     }
 }
 
-export {ArticleManager, TranslationManager};
+export {ArticleManager, ArticleTranslationManager};

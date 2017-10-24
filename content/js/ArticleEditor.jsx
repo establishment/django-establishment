@@ -20,7 +20,7 @@ import {
 import {Language} from "LanguageStore";
 
 import {ArticleStore} from "./state/ArticleStore";
-import {TranslationManager} from "./ArticleManager";
+import {ArticleTranslationManager} from "./ArticleManager";
 import {ArticleRenderer} from "./ArticleRenderer";
 import {MarkupEditor} from "./markup/MarkupEditor";
 
@@ -124,7 +124,7 @@ class ArticleEditor extends Panel {
             </FormField>;
         } else {
             translationsPanel = <Panel title="Translations">
-                <TranslationManager title={"Translations for " + this.getArticle().name}
+                <ArticleTranslationManager title={"Translations for " + this.getArticle().name}
                                     baseArticle={this.getArticle()}/>
             </Panel>
         }
