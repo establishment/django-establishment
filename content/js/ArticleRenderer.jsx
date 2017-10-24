@@ -6,11 +6,9 @@ import {Article, ArticleStore} from "./state/ArticleStore";
 
 
 class ArticleRenderer extends MarkupRenderer {
-    getDefaultOptions() {
-        return {
-            classMap: this.constructor.markupClassMap,
-            liveLanguage: false
-        };
+    setOptions(options) {
+        options.classMap = options.classMap || this.constructor.markupClassMap;
+        super.setOptions(options);
     }
 
     getEditButton() {
@@ -36,36 +34,36 @@ class ArticleRenderer extends MarkupRenderer {
     }
 
     getValue() {
-        super.setValue(this.options.article.markup);
+        super.setValue(this.getArticleToRender().markup);
         return super.getValue();
     }
 
+    getArticleToRender() {
+        return this.options.article.getTranslation();
+    }
+
+    getArticleDependencies() {
+        const dependencies = this.options.article.dependency;
+        return dependencies && dependencies.split(",");
+    }
+
     redraw() {
-        if (!this.options.article.dependency) {
+        const dependencies = this.getArticleDependencies();
+        if (!dependencies) {
             super.redraw();
             return;
         }
 
-        let dependencyArray = this.options.article.dependency.split(",");
-        let requireAndRedraw = (dependencies) => {
-            this.registerDependencies(dependencies);
-            super.redraw();
-        };
         // Not using require directly to fool webpack
-        window["require"](dependencyArray, function () {
-            // this needs to be inside of an anonymous function to preserve arguments
-            requireAndRedraw(Array.from(arguments));
+        window["require"](dependencies, (...args) => {
+            this.registerDependencies(args);
+            super.redraw();
         });
     }
 
     onMount() {
         if (this.options.liveLanguage) {
-            this.attachListener(Language, "localeChange", () => {
-                const baseArticle = this.options.article.getBaseArticle();
-                if (baseArticle) {
-                    this.setArticle(baseArticle.getTranslation());
-                }
-            });
+            this.attachListener(Language, "localeChange", () => this.redraw());
         }
     }
 }
