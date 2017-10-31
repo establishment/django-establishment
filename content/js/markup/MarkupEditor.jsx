@@ -115,6 +115,7 @@ class MarkupEditor extends Panel {
     }
 
     setValue(value) {
+        this.updateValue(value);
         return this.codeEditor.setValue(value);
     }
 }
