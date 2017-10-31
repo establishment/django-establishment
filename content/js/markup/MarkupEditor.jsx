@@ -28,7 +28,7 @@ class MarkupEditor extends Panel {
             height: "calc(100% - 3px)",
             resize: "none",
             backgroundColor: "#F9F9F9"
-        }} value={this.options.value}/>;
+        }} value={this.options.value || ""}/>;
     }
 
     render() {
