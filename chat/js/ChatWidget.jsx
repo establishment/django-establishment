@@ -518,35 +518,36 @@ let ChatWidget = (ChatMessageClass) => {
                 lastMessageId: lastMessageId
             }, this.options.baseRequest || {});
 
+            const oldScrollHeight = this.messageWindow.node.scrollHeight;
+
             if (this.loadMoreButton) {
                 this.loadMoreButton.ajaxCall({
                     url: this.getGetURL(),
                     type: this.getGetType(),
                     dataType: "json",
                     data: request,
-                    success: (data) => {
-                        if (!data.state || !data.state.MessageInstance || data.state.MessageInstance.length < 20) {
-                            if (this.loadMoreButton) {
-                                this.loadMoreButton.hide();
-                            }
-                            this.showLoadMoreButton = false;
-                        }
-                        let scrollPosition = this.messageWindow.getExcessTop();
-                        let oldHeight = this.messageWindow.node.scrollHeight;
-
-                        let scrollDelta = 0;
-                        if (!topMessage.shouldShowDayTimestamp()) {
-                            scrollDelta += topMessage.dayTimestamp.getHeight();
-                            topMessage.dayTimestamp.addClass("hidden");
-                        }
-                        this.messageWindow.scrollToHeight(scrollPosition + this.messageWindow.node.scrollHeight - oldHeight - scrollDelta);
-
-                        this.outstandingRequest = false;
-                    },
                     complete: () => {
                         //TODO(@Rocky): find out why this doesn't work
                         this.outstandingRequest = false;
                     }
+                }).then((data) => {
+                    if (!data.state || !data.state.MessageInstance || data.state.MessageInstance.length < 20) {
+                        if (this.loadMoreButton) {
+                            this.loadMoreButton.hide();
+                        }
+                        this.showLoadMoreButton = false;
+
+                        return;
+                    }
+
+                    let scrollDelta = 0;
+                    if (!topMessage.shouldShowDayTimestamp()) {
+                        scrollDelta += topMessage.dayTimestamp.getHeight();
+                        topMessage.dayTimestamp.addClass("hidden");
+                    }
+                    this.messageWindow.scrollToHeight(this.messageWindow.node.scrollHeight - oldScrollHeight - scrollDelta);
+
+                    this.outstandingRequest = false;
                 });
             }
         }
