@@ -132,7 +132,9 @@ class RedisCache(object):
         # Returning the deserialized value to be consistent between calls of cached/uncached values
         return self.deserialize(serialized_value)
 
-    def get_or_set(self, key, generator, timeout, stale_extra=1, retries_per_second=50):
+    def get_or_set(self, key, generator, timeout, stale_extra=None, retries_per_second=50):
+        if stale_extra is None:
+            stale_extra = min(timeout, max(1, timeout // 5))
         key = key or generator.__name__
         if self.key_prefix:
             key = self.key_prefix + key
