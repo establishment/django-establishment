@@ -531,13 +531,16 @@ let ChatWidget = (ChatMessageClass) => {
                         this.outstandingRequest = false;
                     }
                 }).then((data) => {
-                    if (!data.state || !data.state.MessageInstance || data.state.MessageInstance.length < 20) {
+                    const emptyData = !data.state || !data.state.MessageInstance;
+                    if (emptyData || data.state.MessageInstance.length < 20) {
                         if (this.loadMoreButton) {
                             this.loadMoreButton.hide();
                         }
                         this.showLoadMoreButton = false;
 
-                        return;
+                        if (emptyData) {
+                            return;
+                        }
                     }
 
                     let scrollDelta = 0;
