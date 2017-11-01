@@ -13,8 +13,8 @@ export class AxisTick extends SVG.Group {
         return {
             gridLineLength: 0,
             axisLineLength: 6,
-            gridLineStroke: "#EEE",
-            labelPadding: 3,
+            gridLineStroke: "rgba(255, 255, 255, .7)",
+            labelPadding: 6,
             labelStrokeWidth: 0.5,
             labelFontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif"
         };
