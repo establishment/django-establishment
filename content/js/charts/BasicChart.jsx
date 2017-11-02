@@ -8,6 +8,8 @@ import * as d3 from "d3";
 import {LinePlot} from "./LinePlot";
 import {BasePointPlot} from "./PointPlot";
 
+// TODO: This file desperately needs a refactoring.
+
 export class AxisTick extends SVG.Group {
     getDefaultOptions() {
         return {
@@ -357,34 +359,45 @@ export class TimeChart extends BasicChart {
         return domain;
     }
 
-    defaultXNoPoints() {
-        return [+StemDate.now() - this.options.paddingXOnNoPoints, +StemDate.now() + this.options.paddingXOnNoPoints];
+    defaultXNoPoints(padding=this.options.paddingXOnNoPoints) {
+        return [+StemDate.now() - padding, +StemDate.now() + padding];
     }
 
-    getXAxisDomain(points, coordinateAlias) {
+    getXAxisDomain(points, coordinateAlias, padding=this.options.paddingXOnNoPoints) {
         if (!Array.isArray(points) || points.length === 0) {
-            return this.defaultXNoPoints();
+            return this.defaultXNoPoints(padding);
         }
-        return this.getMinMaxDomain(points, coordinateAlias, this.options.paddingXOnNoPoints);
+        return this.getMinMaxDomain(points, coordinateAlias, padding);
     }
 
-    defaultYNoPoints() {
-        return [0, 100];
+    defaultYNoPoints(padding) {
+        return [-padding, padding];
     }
 
-    getYAxisDomain(points, coordinateAlias) {
+    getYAxisDomain(points, coordinateAlias, padding=this.options.paddingYOnNoPoints) {
         if (!Array.isArray(points) || points.length === 0) {
-            return this.defaultYNoPoints();
+            return this.defaultYNoPoints(padding);
         }
-        return this.getMinMaxDomain(points, coordinateAlias, this.options.paddingYOnNoPoints);
+        return this.getMinMaxDomain(points, coordinateAlias, padding);
     }
 
     setOptions(options) {
         options.xAxisLabelFormatFunction = this.getTimeFormat();
+
+        // TODO: This REALLY needs a refactoring.
+        let paddingXOnNoPoints = options.paddingXOnNoPoints;
+        if (paddingXOnNoPoints == null) {
+            paddingXOnNoPoints = this.getDefaultOptions().paddingXOnNoPoints;
+        }
+        let paddingYOnNoPoints = options.paddingYOnNoPoints;
+        if (paddingYOnNoPoints == null) {
+            paddingYOnNoPoints = this.getDefaultOptions().paddingYOnNoPoints;
+        }
+
         options.xAxisDomain = this.getXAxisDomain(options.plotOptions.pointsAlias(options.data),
-            options.plotOptions.xCoordinateAlias);
+            options.plotOptions.xCoordinateAlias, paddingXOnNoPoints);
         options.yAxisDomain = this.getYAxisDomain(options.plotOptions.pointsAlias(options.data),
-            options.plotOptions.yCoordinateAlias);
+            options.plotOptions.yCoordinateAlias, paddingYOnNoPoints);
         super.setOptions(options);
     }
 
