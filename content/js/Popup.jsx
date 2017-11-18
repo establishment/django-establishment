@@ -2,6 +2,8 @@ import {UI, FloatingWindow, Direction, Panel, Button} from "UI";
 import {Device} from "Device";
 
 export class BasePopup extends FloatingWindow {
+    static bodyPopups = new Set();
+
     getDefaultOptions() {
         let options = super.getDefaultOptions();
         options.x = 0;
@@ -107,8 +109,13 @@ export class BasePopup extends FloatingWindow {
         let top = parseFloat(this.options.y) + (this.options.arrowDirection === Direction.UP ? 11 : - this.getHeight() - 11);
         let arrowMargin = -11;
         left -= this.getWidth() / 2;
-        if (this.target) {
-            if (this.node.offsetParent) {
+        if (this.options.bodyPlaced && this.target) {
+            const {x, y} = this.target.getBoundingClientRect();
+            left += x;
+            top += y;
+        }
+        if (this.target && !this.options.bodyPlaced) {
+            if (this.node.offsetParent && !this.options.bodyPlaced) {
                 let left2 = left + this.node.offsetParent.offsetLeft;
                 if (left2 < 0) {
                     left -= left2 - 2;
@@ -131,6 +138,7 @@ export class BasePopup extends FloatingWindow {
         }
         this.popupArrow.setStyle("margin-left", arrowMargin + "px");
         this.popupArrowOutline.setStyle("margin-left", arrowMargin + "px");
+
         this.setStyle("left", left + "px");
         this.setStyle("top", top + "px");
     }
@@ -166,6 +174,20 @@ export class BasePopup extends FloatingWindow {
         }
     }
 
+    static clearBodyPopups() {
+        for (const popup of this.bodyPopups) {
+            popup.hide();
+        }
+        this.bodyPopups.clear();
+    }
+
+    onUnmount() {
+        super.onUnmount();
+        if (this.options.bodyPlaced && this.target) {
+            this.constructor.bodyPopups.delete(this);
+        }
+    }
+
     onMount() {
         if(this.options.target) {
             if (this.options.target instanceof HTMLElement) {
@@ -179,6 +201,9 @@ export class BasePopup extends FloatingWindow {
         super.onMount();
         // Set the Popup inside the parent
         this.bindInsideParent();
+        if (this.options.bodyPlaced && this.target) {
+            this.constructor.bodyPopups.add(this);
+        }
     }
 }
 
