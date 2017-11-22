@@ -110,9 +110,9 @@ export class BasePopup extends FloatingWindow {
         let arrowMargin = -11;
         left -= this.getWidth() / 2;
         if (this.options.bodyPlaced && this.target) {
-            const {x, y} = this.target.getBoundingClientRect();
-            left += x;
-            top += y;
+            const rect = this.target.getBoundingClientRect();
+            left += rect.left;
+            top += rect.top;
         }
         if (this.target && !this.options.bodyPlaced) {
             if (this.node.offsetParent && !this.options.bodyPlaced) {
