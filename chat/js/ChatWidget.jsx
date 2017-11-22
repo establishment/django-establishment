@@ -173,8 +173,8 @@ class GroupChatMessage extends EditableMessage {
 
     render() {
         let editButton;
-        //if (this.message.userId === USER.id || USER.isSuperUser) {
-        if (USER.isSuperUser) {
+        if (this.message.userId === USER.id || USER.isSuperUser) {
+        // if (USER.isSuperUser) {
             editButton = <a style={Object.assign({"cursor": "pointer"}, this.styleSheet.timestamp)}
                             onClick={() => this.toggleEditMode()}>{UI.T("Edit")}</a>;
         }
