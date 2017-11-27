@@ -198,6 +198,9 @@ class EmailTemplate(StreamObjectMixin):
             "tracking_key": tracking_key,
         }
 
+        # TODO: Add unsubscribe link to the model
+        unsubscribe_link = "https://csacademy.com/accounts/email_unsubscribe/" + user.email_unsubscribe_key
+
         context.update(context_dict)
 
         context = Context(context)
@@ -215,7 +218,8 @@ class EmailTemplate(StreamObjectMixin):
                                            plaintext_message,
                                            self.get_from_address(),
                                            [user.email],
-                                           connection=connection)
+                                           connection=connection,
+                                           headers={"List-Unsubscribe": "<" + unsubscribe_link + ">"})
             if html_message:
                 email.attach_alternative(html_message, "text/html")
             email.send(fail_silently=False)
