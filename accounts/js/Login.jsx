@@ -378,8 +378,8 @@ export class RegisterWidget extends UI.Element {
 
     onMount() {
         this.form.addNodeListener("submit", (event) => {
-            this.sendRegistration();
             event.preventDefault();
+            this.sendRegistration();
         })
     }
 }
