@@ -105,7 +105,8 @@ function translationKeyFinder(dirname, options) {
                     col = source[i].length - endlines.last;
                 }
             }
-            fs.writeFile("translations.json", getTranslationKeyJson(), () => {});
+            let logFileName = id.substr(0, id.indexOf(dirname) + dirname.length) + "/translations.json";
+            fs.writeFile(logFileName, getTranslationKeyJson(), () => {});
             return {
                 code: sourceCopy,
             };
