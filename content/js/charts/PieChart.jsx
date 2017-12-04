@@ -107,10 +107,16 @@ class PieChartSector extends SVG.Group {
         this.addNodeListener("mouseenter", () => {
             this.changeOpacityTransition(this.options.endOpacity, this.options.hoverTime).start();
             this.changeRadiusTransition(this.options.hoverExpandRadius, this.options.hoverTime).start();
+            if (typeof this.options.mouseenterCallback === "function") {
+                this.options.mouseenterCallback();
+            }
         });
         this.addNodeListener("mouseout", () => {
             this.changeOpacityTransition(this.options.startOpacity, this.options.hoverTime).start();
             this.changeRadiusTransition(0, this.options.hoverTime).start();
+            if (typeof this.options.mouseoutCallback === "function") {
+                this.options.mouseoutCallback();
+            }
         });
     }
 }
