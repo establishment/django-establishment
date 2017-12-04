@@ -5,9 +5,17 @@ import {Transition} from "Transition";
 class PieChartSector extends SVG.Group {
     getDefaultOptions() {
         return {
-            opacity: 0.65,
-            hoverTime: 250
-        }
+            startOpacity: 0.65,
+            endOpacity: 1,
+            hoverTime: 250,
+            displayPercent: true
+        };
+    }
+
+    setOptions(options) {
+        super.setOptions(options);
+        // This is overwritten to make opacity attribute the same as the startOpacity option
+        this.options.opacity = this.options.opacity || this.options.startOpacity;
     }
 
     getArcPoint(angle, radius, orientation) {
@@ -73,31 +81,35 @@ class PieChartSector extends SVG.Group {
             func: (t) => {
                 this.path.setPath(this.getPath(t * extra));
                 let middlePoint = this.getMiddlePoint(t * extra);
-                this.label.setPosition(middlePoint.x, middlePoint.y);
+                if (this.options.displayPercents) {
+                    this.label.setPosition(middlePoint.x, middlePoint.y);
+                }
             },
             duration: duration,
         });
     }
 
     render() {
-        return [
-            <SVG.Path ref="path" d={this.getPath()} fill={this.options.pathFill}/>,
-            <SVG.Text ref="label"
-                         text={(this.options.percent * 100).toFixed(1) + "%"}
+        let children = [
+            <SVG.Path ref="path" d={this.getPath()} fill={this.options.pathFill}/>
+        ];
+        if (this.options.displayPercents) {
+            children.push(<SVG.Text ref="label"
+                         text={this.options.label || ((this.options.percent * 100).toFixed(1) + "%")}
                          {...this.getMiddlePoint()}
                          color="white"
-                         fill="white"
-            />,
-        ];
+                         fill="white" />);
+        }
+        return children;
     }
 
     onMount() {
         this.addNodeListener("mouseenter", () => {
-            this.changeOpacityTransition(1, this.options.hoverTime).start();
+            this.changeOpacityTransition(this.options.endOpacity, this.options.hoverTime).start();
             this.changeRadiusTransition(this.options.hoverExpandRadius, this.options.hoverTime).start();
         });
         this.addNodeListener("mouseout", () => {
-            this.changeOpacityTransition(0.65, this.options.hoverTime).start();
+            this.changeOpacityTransition(this.options.startOpacity, this.options.hoverTime).start();
             this.changeRadiusTransition(0, this.options.hoverTime).start();
         });
     }
@@ -110,7 +122,8 @@ export class PieChart extends SVG.Group {
             outerRadius: 60,
             hoverExpandRadius: 10,
             startAngle: Math.PI * 3 / 2,
-            spacing: 2
+            spacing: 2,
+            sectorExtraOptions: {}
         }
     }
 
@@ -136,6 +149,8 @@ export class PieChart extends SVG.Group {
                 spacing={this.options.spacing}
                 pathFill={sector.color}
                 percent={sector.size / totalSize}
+                {...this.options.sectorExtraOptions}
+                {...sector}
             />);
 
             currentAngle += angleSpan;
@@ -152,6 +167,7 @@ export class PieChartSVG extends SVG.SVGRoot {
             innerRadius: 50,
             outerRadius: 100,
             hoverExpandRadius: 20,
+            sectorExtraOptions: {}
         }
     }
 
@@ -166,6 +182,7 @@ export class PieChartSVG extends SVG.SVGRoot {
                       innerRadius={this.options.innerRadius}
                       outerRadius={this.options.outerRadius}
                       hoverExpectedRadius={this.options.hoverExpandRadius}
+                      sectorExtraOptions={this.options.sectorExtraOptions}
                       sectors={this.options.sectors}
             />
         ];
