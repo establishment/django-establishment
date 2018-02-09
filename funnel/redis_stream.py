@@ -321,7 +321,7 @@ class RedisMutex(object):
         if self.acquired:
             return True
         result = self.redis_connection.set(self.redis_mutex_key, self.owner_id, nx=True, ex=self.expire)
-        if result is not None or result == 0:
+        if result is None or result == 0:
             self.acquired = False
             return False
         self.acquired = True
