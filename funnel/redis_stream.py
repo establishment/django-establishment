@@ -285,6 +285,7 @@ class RedisQueue(object):
         return self.pipe.execute()[0]
 
 
+# Implementation for Redis server 2.6.12 or greater and redis-py 2.7.4 or greater
 class RedisMutex(object):
     keep_alive_thread = None
     acquired_mutexes_mutex = threading.Lock()
@@ -319,17 +320,10 @@ class RedisMutex(object):
     def try_acquire(self):
         if self.acquired:
             return True
-        result = self.redis_connection.get(self.redis_mutex_key)
-        if result is not None:
+        result = self.redis_connection.set(self.redis_mutex_key, self.owner_id, nx=True, ex=self.expire)
+        if result is not None or result == 0:
             self.acquired = False
             return False
-        result = self.redis_connection.getset(self.redis_mutex_key, self.owner_id)
-        if result is not None:
-            self.redis_connection.set(self.redis_mutex_key, result)
-            self.redis_connection.expire(self.redis_mutex_key, self.expire)
-            self.acquired = False
-            return False
-        self.redis_connection.expire(self.redis_mutex_key, self.expire)
         self.acquired = True
         with RedisMutex.acquired_mutexes_mutex:
             RedisMutex.acquired_mutexes.add(self)
