@@ -10,13 +10,16 @@ from django.utils.encoding import force_text
 from establishment.misc.util import import_module_attribute
 
 
-def format_email_subject(subject):
+def format_email_subject(subject, add_prefix=True):
     site = Site.objects.get_current()
     prefix = "[{name}] ".format(name=site.name)
-    return prefix + force_text(subject)
+    result = force_text(subject)
+    if add_prefix:
+        result = prefix + result
+    return result
 
 
-def render_template_mail(template_prefix, email, context):
+def render_template_mail(template_prefix, email, context, add_subject_prefix=True):
     """
     Renders an e-mail to `email`.  `template_prefix` identifies the
     e-mail that is to be sent, e.g. "account/email/email_confirmation"
@@ -24,7 +27,7 @@ def render_template_mail(template_prefix, email, context):
     subject = render_to_string('{0}_subject.txt'.format(template_prefix), context)
     # remove superfluous line breaks
     subject = " ".join(subject.splitlines()).strip()
-    subject = format_email_subject(subject)
+    subject = format_email_subject(subject, add_prefix=add_subject_prefix)
 
     bodies = {}
     for ext in ['html', 'txt']:
@@ -53,8 +56,8 @@ def render_template_mail(template_prefix, email, context):
     return msg
 
 
-def send_template_mail(template_prefix, email, context):
-    msg = render_template_mail(template_prefix, email, context)
+def send_template_mail(template_prefix, email, context, add_subject_prefix=True):
+    msg = render_template_mail(template_prefix, email, context, add_subject_prefix=add_subject_prefix)
     msg.send()
 
 
