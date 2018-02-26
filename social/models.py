@@ -32,8 +32,8 @@ class UserSocialSettings(StreamObjectMixin):
 
 
 class Friendship(StreamObjectMixin):
-    user1 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    user2 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user1 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
+    user2 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
 
     class Meta:
         unique_together = (("user1", "user2"), )
@@ -42,8 +42,8 @@ class Friendship(StreamObjectMixin):
 
 
 class Follower(StreamObjectMixin):
-    target = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    target = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="followers")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="following")
 
     class Meta:
         unique_together = (("target", "user"), )
