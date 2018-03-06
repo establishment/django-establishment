@@ -39,6 +39,10 @@ class ThreadHandler(object):
     def is_alive(self):
         return self.thread.is_alive()
 
+    @property
+    def is_working(self):
+        return self.is_alive()
+
 
 class ThreadIntervalHandler(ThreadHandler):
     def __init__(self, name, worker, interval, *args, **kwargs):
