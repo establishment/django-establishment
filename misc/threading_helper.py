@@ -32,16 +32,14 @@ class ThreadHandler(object):
         self.thread.setDaemon(is_daemon)
         self.thread.start()
 
+        self.is_working = True
+
     def raise_if_needed(self):
         if self.exception:
             raise self.exception
 
     def is_alive(self):
         return self.thread.is_alive()
-
-    @property
-    def is_working(self):
-        return self.is_alive()
 
 
 class ThreadIntervalHandler(ThreadHandler):
