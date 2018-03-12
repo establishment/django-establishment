@@ -1,12 +1,13 @@
 import base64
 import select
+import socketserver
 import threading
 import wsgiref
 import logging
 from hashlib import sha1
 
 from django.core.management.commands import runserver
-from django.core.servers.basehttp import WSGIServer
+from django.core.servers.basehttp import WSGIServer, WSGIRequestHandler, ServerHandler
 from django.core.wsgi import get_wsgi_application
 from django.utils.encoding import force_str
 
@@ -66,7 +67,25 @@ class WebsocketRunServer(WebsocketWSGIServer):
         return threading.Event()
 
 
-old_runserver_run = runserver.run
+class WSGIRequestHandlerRunServer(WSGIRequestHandler):
+    def handle(self):
+        self.raw_requestline = self.rfile.readline(65537)
+        if len(self.raw_requestline) > 65536:
+            self.requestline = ''
+            self.request_version = ''
+            self.command = ''
+            self.send_error(414)
+            return
+
+        if not self.parse_request():  # An error code has been sent, just exit
+            return
+
+        handler = ServerHandler(
+            self.rfile, self.wfile, self.get_stderr(), self.get_environ()
+        )
+        handler.request_handler = self      # backpointer for logging
+        handler.http_version = '1.1'
+        handler.run(self.server.get_app())
 
 
 def run(addr, port, wsgi_handler, ipv6=False, threading=False, server_cls=WSGIServer):
@@ -76,8 +95,10 @@ def run(addr, port, wsgi_handler, ipv6=False, threading=False, server_cls=WSGISe
     """
     if not threading:
         raise Exception("Debug server must run with threading enabled")
-
-    old_runserver_run(addr, port, wsgi_handler, ipv6, threading)
+    httpd_cls = type('WSGIServer', (socketserver.ThreadingMixIn, WSGIServer), {'daemon_threads': True})
+    httpd = httpd_cls((addr, port), WSGIRequestHandlerRunServer, ipv6=ipv6)
+    httpd.set_app(wsgi_handler)
+    httpd.serve_forever()
 
 
 runserver.run = run
