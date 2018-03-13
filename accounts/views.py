@@ -159,10 +159,7 @@ def edit_profile(request):
             }
         request.user.publish_event("profileChanged", request.user)
 
-    return {
-        "success": True,
-        "user": UserSummary(request.user)
-    }
+    return State.from_objects([UserSummary(request.user)]).to_response(extra={"success": True})
 
 
 @login_required_ajax
