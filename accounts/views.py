@@ -309,15 +309,21 @@ def email_address_verify(request, key):
 
     if unverified_email.user is None:
         # create a new user
-        user = get_user_manager().create_user(unverified_email.email)
         try:
             temp_user = TempUser.objects.get(email=unverified_email)
             update_dict = temp_user.extra or {}
+            extra = []
             update_dict["password"] = temp_user.password
-            if "username" in temp_user.extra and user.has_field("username"):
-                update_dict["username"] = get_user_model().get_available_username(temp_user.extra["username"])
-            user.edit_from_dict(update_dict)
+            if "username" in temp_user.extra and (get_user_model()()).has_field("username"):
+                available_username = get_user_model().get_available_username(temp_user.extra["username"])
+                extra = [None, available_username]
+                update_dict["username"] = available_username
         except ObjectDoesNotExist:
+            extra = []
+            update_dict = {}
+        user = get_user_manager().create_user(unverified_email.email, *extra)
+        user.edit_from_dict(update_dict)
+        if "password" not in update_dict:
             user.set_unusable_password()
         unverified_email.user = user
 
