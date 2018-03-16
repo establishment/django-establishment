@@ -6,6 +6,9 @@ RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
 
 def test_recaptcha(request):
+    if not private_settings_cache.get("USE_GOOGLE_RECAPTCHA", True):
+        return True
+
     recaptcha_key = request.POST["recaptchaKey"]
 
     google_request = {
