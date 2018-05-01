@@ -71,14 +71,19 @@ class WebsocketStreamHandler extends Dispatcher {
     processPacket(packet) {
         this.bytesReceived += packet.length;
 
-        let firstSpace = packet.indexOf(" ");
         let type, payload;
-        if (firstSpace > 0) {
-            type = packet.substr(0, firstSpace).trim();
-            payload = packet.substr(firstSpace + 1).trim();
+        if (packet[0] === "{") {
+            type = "v";
+            payload = packet;
         } else {
-            console.error("WebsocketStreamHandler: Could not process stream packet: " + packet);
-            return;
+            let firstSpace = packet.indexOf(" ");
+            if (firstSpace > 0) {
+                type = packet.substr(0, firstSpace).trim();
+                payload = packet.substr(firstSpace + 1).trim();
+            } else {
+                console.error("WebsocketStreamHandler: Could not process stream packet: " + packet);
+                return;
+            }
         }
 
         if (type === "i") {
