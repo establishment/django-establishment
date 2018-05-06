@@ -336,11 +336,15 @@ export class RegisterWidget extends UI.Element {
             formFields[formFields.length - 1] = this.getPasswordInput({style: {}});
             formFields.push(this.getCountryInput());
         }
+        // TODO: This should be done in another way.
+        if (window.location.hostname !== "localhost") {
+            this.recaptchaWidget = <RecaptchaWidget />
+        }
         return [
             <form ref="form">
                 {formFields}
                 <div className={this.styleSheet.recaptchaContainer}>
-                    <RecaptchaWidget ref="recaptchaWidget" />
+                    {this.recaptchaWidget}
                     {this.getSignUpButton()}
                     <TemporaryMessageArea ref="errorArea" />
                 </div>
@@ -353,7 +357,7 @@ export class RegisterWidget extends UI.Element {
 
         const data = {
             email: this.emailInput.getValue(),
-            recaptchaKey: this.recaptchaWidget.getResponse(),
+            recaptchaKey: this.recaptchaWidget && this.recaptchaWidget.getResponse(),
             password: this.passwordInput.getValue(),
         };
         if (this.usernameInput) {
@@ -364,14 +368,14 @@ export class RegisterWidget extends UI.Element {
         }
         Ajax.postJSON("/accounts/signup_request/", data).then(
             () => {
-                this.recaptchaWidget.hide();
+                this.recaptchaWidget && this.recaptchaWidget.hide();
                 this.submitButton.hide();
                 this.errorArea.showMessage("Done! Please check your email to continue", "black", 26 * 60 * 60 * 1000);
             },
             (error) => {
                 this.errorArea.showMessage("Error in registration: " + error.message, "red", 4000);
                 this.submitButton.updateOptions({value: "Sign Up"});
-                this.recaptchaWidget.redraw();
+                this.recaptchaWidget && this.recaptchaWidget.redraw();
             }
         );
     }
