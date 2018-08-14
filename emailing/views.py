@@ -42,9 +42,8 @@ def control(request):
             return MercuryRedisAPI.get_api().send_campaign_start(campaign_id)
         elif action == "test":
             campaign_id = load_field("id")
-            id_from = load_field("fromId")
-            id_to = load_field("toId")
-            return MercuryRedisAPI.get_api().send_campaign_test(campaign_id, id_from, id_to)
+            receiver_id = load_field("receiverId")
+            return MercuryRedisAPI.get_api().send_campaign_test(campaign_id, receiver_id)
         elif action == "clearStatus":
             campaign_id = load_field("id")
             EmailStatus.objects.all().filter(campaign_id=campaign_id).delete()

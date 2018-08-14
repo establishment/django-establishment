@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models import F
 
@@ -12,6 +13,21 @@ from establishment.funnel.redis_stream import RedisStreamPublisher
 
 def random_key():
     return uuid.uuid4().hex
+
+
+class EmailNewsletterSubscription(StreamObjectMixin):
+    name = models.CharField(max_length=256, null=True, blank=True)
+    email = models.CharField(max_length=256, unique=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    email_unsubscribe_key = models.CharField(max_length=64, unique=True, default=random_key)
+    active = models.BooleanField(default=True)
+    subscription_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "EmailNewsletterSubscription"
+
+    def __str__(self):
+        return self.email
 
 
 class EmailGateway(StreamObjectMixin):
@@ -71,7 +87,7 @@ class EmailCampaign(StreamObjectMixin):
     name = models.CharField(max_length=256, unique=True)
     from_address = models.CharField(max_length=512, null=True, blank=True)
     gateway = models.ForeignKey(EmailGateway, on_delete=models.PROTECT, null=True, blank=True)
-    is_newsletter = models.BooleanField(default=True) # TODO: rename to is_newsletter?
+    is_newsletter = models.BooleanField(default=True)
     manual_send_only = models.BooleanField(default=False)
     # TODO: should have a field clear_existing_status
 
@@ -174,14 +190,17 @@ class EmailTemplate(StreamObjectMixin):
             for extra_stream_name in extra_stream_names:
                 RedisStreamPublisher.publish_to_stream(extra_stream_name, event)
 
-    def send_to_user(self, user, context_dict={}, clear_existing_status=False):
+    def send_to_user(self, receiver, context_dict={}, clear_existing_status=False):
         from django.template import Context, Template
         from django.core.mail import EmailMultiAlternatives
 
-        if self.campaign.is_newsletter and not user.receives_email_announcements:
-            return False
+        if isinstance(receiver, EmailNewsletterSubscription):
+            existing_email_status = EmailStatus.objects.filter(subscription=receiver, campaign=self.campaign).first()
+        else:
+            if self.campaign.is_newsletter and not receiver.receives_email_announcements:
+                return False
 
-        existing_email_status = EmailStatus.objects.filter(user=user, campaign=self.campaign).first()
+            existing_email_status = EmailStatus.objects.filter(user=receiver, campaign=self.campaign).first()
 
         if existing_email_status:
             # We have already sent this email to the user
@@ -193,13 +212,14 @@ class EmailTemplate(StreamObjectMixin):
         tracking_key = random_key()
 
         context = {
-            "user": user,
-            "unsubscribe_key": user.email_unsubscribe_key,
+            "user": receiver,
+            "unsubscribe_key": receiver.email_unsubscribe_key,
             "tracking_key": tracking_key,
         }
 
         # TODO: Add unsubscribe link to the model
-        unsubscribe_link = "https://csacademy.com/accounts/email_unsubscribe/" + user.email_unsubscribe_key
+        unsubscribe_link = "https://" + Site.objects.get_current().domain + "/accounts/email_unsubscribe/" \
+                           + receiver.email_unsubscribe_key
 
         context.update(context_dict)
 
@@ -217,15 +237,18 @@ class EmailTemplate(StreamObjectMixin):
             email = EmailMultiAlternatives(subject,
                                            plaintext_message,
                                            self.get_from_address(),
-                                           [user.email],
+                                           [receiver.email],
                                            connection=connection,
                                            headers={"List-Unsubscribe": "<" + unsubscribe_link + ">"})
             if html_message:
                 email.attach_alternative(html_message, "text/html")
             email.send(fail_silently=False)
 
-        email_status = EmailStatus(user=user, campaign=self.campaign, template=self, key=tracking_key)
-        email_status.save()
+        if isinstance(receiver, EmailNewsletterSubscription):
+            EmailStatus.objects.create(subscription=receiver, campaign=self.campaign, template=self, key=tracking_key)
+        else:
+            EmailStatus.objects.create(user=receiver, campaign=self.campaign, template=self, key=tracking_key)
+
         return True
 
     def to_json(self):
@@ -242,7 +265,8 @@ class EmailTemplate(StreamObjectMixin):
 
 
 class EmailStatus(StreamObjectMixin):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
+    subscription = models.ForeignKey(EmailNewsletterSubscription, on_delete=models.CASCADE, related_name="+", null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+", null=True)
     campaign = models.ForeignKey(EmailCampaign, on_delete=models.PROTECT, related_name="+")
     template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, related_name="+")
     key = models.CharField(max_length=64, default=random_key, unique=True, null=True, blank=True)
@@ -253,7 +277,7 @@ class EmailStatus(StreamObjectMixin):
 
     class Meta:
         db_table = "EmailStatus"
-        unique_together = (("user", "campaign"), )
+        unique_together = (("user", "subscription", "campaign"), )
 
     def mark_read(self, timestamp=datetime.now()):
         self.read_count = F("read_count") + 1
@@ -281,10 +305,21 @@ class EmailStatus(StreamObjectMixin):
             for extra_stream_name in extra_stream_names:
                 RedisStreamPublisher.publish_to_stream(extra_stream_name, event)
 
+    def get_receiver_id(self):
+        if self.get_receiver_type() is "user":
+            return self.user_id
+        return self.subscription_id
+
+    def get_receiver_type(self):
+        if self.user is None:
+            return "subscription"
+        return "user"
+
     def to_json(self):
         return {
             "id": self.id,
-            "userId": self.user_id,
+            "receiverType": self.get_receiver_type(),
+            "receiverId": self.get_receiver_id(),
             "campaignId": self.campaign_id,
             "templateId": self.template_id,
             "timeSent": self.time_sent,

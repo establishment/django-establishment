@@ -87,12 +87,9 @@ class TestSendCampaignModal extends ActionModal {
 
     getBody() {
         return [
-            <FormField label="Name" ref="fromIdField">
-                <TextInput value={USER.id} ref="fromIdInput"/>
+            <FormField label="Receiver id" ref="receiverIdField">
+                <TextInput ref="receiverIdInput"/>
             </FormField>,
-            <FormField label="From address" ref="toIdField">
-                <TextInput value={USER.id} ref="toIdInput"/>
-            </FormField>
         ];
     }
 
@@ -100,8 +97,7 @@ class TestSendCampaignModal extends ActionModal {
         const request = {
             action: "test",
             objectType: "campaign",
-            fromId: this.fromIdInput.getValue(),
-            toId: this.toIdInput.getValue(),
+            receiverId: this.receiverIdInput.getValue(),
             id: this.options.campaign ? this.options.campaign.id : null,
         };
 
