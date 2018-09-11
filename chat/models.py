@@ -390,6 +390,10 @@ class GroupChat(StreamObjectMixin):
     def guest_can_subscribe(cls, stream_name):
         return cls.matches_stream_name(stream_name), "It matches stream name so should be just fine!"
 
+    @classmethod
+    def get_message_thread_id(cls, stream_name):
+        return int(cls.stream_name_pattern.split(stream_name)[2])
+
     def can_post(self, user, message):
         if user.chat_muted:
             return False, BaseError.NOT_ALLOWED
