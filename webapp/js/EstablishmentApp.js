@@ -29,8 +29,10 @@ export class EstablishmentApp extends StemApp {
     static addAjaxProcessors() {
         // Add the csrf cookie and credential for all requests
         Ajax.addPreprocessor((options) => {
-            options.credentials = options.credentials || "include";
-            options.headers.set("X-CSRFToken", getCookie("csrftoken"));
+            if (!options.disableCredentials) {
+                options.credentials = options.credentials || "include";
+                options.headers.set("X-CSRFToken", getCookie("csrftoken"));
+            }
         });
 
         // Add a postprocessor to load any state received from an Ajax response
