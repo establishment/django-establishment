@@ -25,7 +25,7 @@ class BaseGlobalSettings(StreamObjectMixin):
     @classmethod
     def set(cls, key, value, namespace=None):
         setting, created = cls.objects.get_or_create(key=key, namespace=namespace, defaults={"value": value})
-        if created:
+        if not created:
             setting.set_value(value)
 
     def set_value(self, value):
