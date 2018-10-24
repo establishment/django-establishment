@@ -408,6 +408,8 @@ class ArticleManager extends Panel {
             </div>;
         }
 
+        this.options.articles = ArticleStore.all();
+
         return [
             <div className="pull-left">
                 <h4><strong>{this.options.title}</strong></h4>
@@ -415,15 +417,6 @@ class ArticleManager extends Panel {
             addButton,
             <ArticleTable ref="table" articles={this.options.articles} parent={this}/>,
         ];
-    }
-
-    onMount() {
-        if (this.options.articles && this.options.articles.length > 0) {
-            return;
-        }
-        Ajax.getJSON("/get_available_articles/", {}).then(
-            () => this.table.updateOptions({articles: ArticleStore.all()})
-        );
     }
 }
 
