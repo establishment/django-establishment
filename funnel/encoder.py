@@ -1,5 +1,6 @@
 import datetime
 import json
+import string
 
 
 class StreamJSONEncoder(json.JSONEncoder):
@@ -11,8 +12,20 @@ class StreamJSONEncoder(json.JSONEncoder):
             return obj.to_json()
         elif isinstance(obj, datetime.datetime):
             return obj.timestamp()
+        elif isinstance(obj, bytes):
+            return self.encode_bytes_as_hex(obj)
+        elif isinstance(obj, memoryview):
+            return self.encode_bytes_as_hex(obj.tobytes())
         else:
             super().default(obj)
+
+    @staticmethod
+    def encode_bytes_as_hex(bytes_blob):
+        hex_characters = []
+        for byte in bytes_blob:
+            hex_characters.append(string.hexdigits[byte >> 4])
+            hex_characters.append(string.hexdigits[byte & 15])
+        return "".join(hex_characters)
 
     @classmethod
     def dumps(cls, obj):
