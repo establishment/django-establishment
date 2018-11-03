@@ -1,21 +1,18 @@
-import {UI, Switcher, AjaxButton, TextArea, Button, ButtonGroup, Panel, InfiniteScrollable, registerStyle} from "UI";
-import {StemDate} from "Time";
-import {GlobalState} from "State";
-import {MessageThreadStore, MessageThread, MessageInstance, MessageInstanceStore, GroupChatStore} from "MessageThreadStore";
-import {UserHandle} from "UserHandle";
+import {Ajax} from "base/Ajax";
+import {Pluginable} from "base/Plugin";
+import {GlobalState} from "state/State";
+import {StemDate, isDifferentDay} from "time/Time";
+import {UI, Switcher, AjaxButton, TextArea, Button, ButtonGroup, Panel, InfiniteScrollable, registerStyle, Level, Size} from "ui/UI";
+import {ButtonStyle} from "ui/button/ButtonStyle";
+import {InputStyle} from "ui/input/Style";
+
+import {MessageThreadStore, MessageInstanceStore, GroupChatStore} from "state/MessageThreadStore";
 import {MarkupEditorModal} from "markup/MarkupEditorModal";
+import {UserHandle} from "UserHandle";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {CommentVotingWidgetWithThumbs} from "VotingWidget";
 import {LoginModal} from "LoginModal";
-import {isDifferentDay} from "Time";
-import {RunOnce} from "Dispatcher";
-import {Ajax} from "Ajax";
 import {ChatStyle} from "ChatStyle";
-import {Pluginable} from "Plugin";
-import {Level, Size} from "ui/Constants";
-
-import {ButtonStyle} from "ui/button/ButtonStyle";
-import {InputStyle} from "ui/input/Style";
 
 ButtonStyle.getInstance().ensureFirstUpdate();
 InputStyle.getInstance().ensureFirstUpdate();

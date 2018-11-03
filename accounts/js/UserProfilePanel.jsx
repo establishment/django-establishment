@@ -1,8 +1,6 @@
-import {UI, TabArea, Panel} from "UI";
-import {GlobalState} from "State";
-import {PublicUserStore} from "UserStore";
-import {MessageThreadStore} from "MessageThreadStore";
-import {ChatWidget} from "ChatWidget";
+import {UI, TabArea, Panel} from "ui/UI";
+
+import {PublicUserStore} from "state/UserStore";
 import {UserHandle} from "UserHandle";
 
 class ProfilePanel extends Panel {

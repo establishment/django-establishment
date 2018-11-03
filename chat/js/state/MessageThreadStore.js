@@ -1,12 +1,12 @@
-import {Ajax} from "Ajax";
-import {GlobalState} from "State";
-import {StoreObject, GenericObjectStore} from "Store";
-import {AjaxFetchMixin, VirtualStoreObjectMixin, VirtualStoreMixin} from "StoreMixins";
-import {PublicUserStore} from "UserStore";
-import {UserReactionCollectionStore} from "UserReactionStore";
-import {MarkupParser} from "MarkupParser";
-import {ServerTime, StemDate} from "Time";
-import {NOOP_FUNCTION} from "Utils";
+import {Ajax} from "base/Ajax";
+import {GlobalState} from "state/State";
+import {NOOP_FUNCTION} from "base/Utils";
+import {StoreObject, GenericObjectStore} from "state/Store";
+import {AjaxFetchMixin, VirtualStoreObjectMixin, VirtualStoreMixin} from "state/StoreMixins";
+import {ServerTime, StemDate} from "time/Time";
+
+import {PublicUserStore} from "state/UserStore";
+import {UserReactionCollectionStore} from "state/UserReactionStore";
 
 class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
     constructor(obj, event) {

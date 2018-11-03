@@ -1,5 +1,4 @@
-import {GlobalState} from "State";
-import {StoreObject, GenericObjectStore} from "Store";
+import {StoreObject, GenericObjectStore} from "state/Store";
 
 class Tag extends StoreObject {
     toString() {

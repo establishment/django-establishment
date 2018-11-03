@@ -1,5 +1,6 @@
-import {StoreObject, GenericObjectStore} from "Store";
-import {ArticleStore} from "ArticleStore";
+import {StoreObject, GenericObjectStore} from "state/Store";
+
+import {ArticleStore} from "state/ArticleStore";
 
 class BlogEntry extends StoreObject {
     getArticle() {
@@ -19,6 +20,4 @@ class BlogEntryStoreClass extends GenericObjectStore {
     }
 }
 
-var BlogEntryStore = new BlogEntryStoreClass();
-
-export {BlogEntryStore};
+export const BlogEntryStore = new BlogEntryStoreClass();

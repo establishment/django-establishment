@@ -1,9 +1,9 @@
 import {UI, Button, Level, Size} from "ui/UI";
 import {Ajax} from "base/Ajax";
-import {UserHandle} from "UserHandle";
-import {UserInputField} from "UsersAutocompletion";
 
 import {UserGroupStore, UserGroupMemberStore} from "./state/UserGroupStore";
+import {UserHandle} from "UserHandle";
+import {UserInputField} from "UsersAutocompletion";
 
 
 export class UserGroupMemberUI extends UI.Element {

@@ -1,6 +1,4 @@
-import {StoreObject, GenericObjectStore} from "Store";
-import {UserStore} from "UserStore";
-
+import {StoreObject, GenericObjectStore} from "state/Store";
 
 class PredefinedTheme extends StoreObject {
     toString() {

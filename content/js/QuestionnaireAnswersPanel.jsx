@@ -3,10 +3,10 @@ import {UI, TabArea, Panel, Switcher, Theme, registerStyle, styleRule, Level, Ro
 import {StateDependentElement} from "ui/StateDependentElement";
 import {ColorGenerator} from "ui/Color";
 import {MarkupRenderer} from "markup/MarkupRenderer";
-import {UserHandle} from "UserHandle";
 
-import {PieChartSVG} from "./charts/PieChart";
+import {UserHandle} from "UserHandle";
 import {QuestionnaireStore, QuestionnaireQuestion} from "./state/QuestionnaireStore";
+import {PieChartSVG} from "./charts/PieChart";
 import {QuestionPage, QuestionnaireStyle} from "./QuestionnairePanel";
 
 

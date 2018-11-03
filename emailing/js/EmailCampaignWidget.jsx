@@ -1,13 +1,11 @@
+import {Ajax} from "base/Ajax";
 import {
-    UI, SortableTable, Button, FormField,
+    UI, Level, SortableTable, Button, FormField,
     TextInput, ActionModal, Select, CheckboxInput,
     TableRow, Panel
-} from "UI";
-import {EmailGatewayStore} from "EmailGatewayStore";
-import {EmailCampaignStore} from "EmailCampaignStore";
-import {EmailTemplateStore} from "EmailTemplateStore";
-import {Ajax} from "Ajax";
-import {Level} from "ui/Constants";
+} from "ui/UI";
+import {EmailGatewayStore} from "state/EmailGatewayStore";
+import {EmailCampaignStore} from "state/EmailCampaignStore";
 
 class GenericConfirmModal extends ActionModal {
     constructor(options) {

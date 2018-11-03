@@ -1,12 +1,10 @@
-import {UI, Panel, Router, registerStyle} from "UI";
-import {ArticleSwitcher} from "ArticleRenderer";
-import {DocumentationEntryStore} from "DocumentationStore";
-import {Dispatcher} from "Dispatcher";
+import {Dispatcher} from "base/Dispatcher";
+import {UI, Orientation, Panel, Router, registerStyle} from "ui/UI";
 
+import {ArticleSwitcher} from "ArticleRenderer";
+import {DocumentationEntryStore} from "state/DocumentationStore";
 import {SimpleDocumentationNavElement} from "./DocumentationNavElement";
 import {DocumentationStyle} from "./DocumentationStyle";
-
-import {Orientation} from "ui/Constants";
 
 @registerStyle(DocumentationStyle)
 class DocumentationPanel extends UI.Element {

@@ -1,12 +1,13 @@
-import {UI, Select, Button, Table, ProgressBar, Modal, ActionModal, Form, FormField, TextInput, StaticCodeHighlighter, CheckboxInput, NumberInput} from "UI";
-import {FAIcon} from "FontAwesome";
-import {Popup} from "Popup";
-import {Ajax} from "Ajax";
-import {StemDate} from "Time";
-import {CommandInstanceStore, CommandRunStore} from "CommandStore";
-import {GlobalState} from "State";
-import {UserHandle} from "UserHandle";
+import {Ajax} from "base/Ajax";
+import {GlobalState} from "state/State";
+import {StemDate} from "time/Time";
+import {UI, Select, Button, Table, ProgressBar, Modal, ActionModal, FormField, TextInput, StaticCodeHighlighter, CheckboxInput, NumberInput} from "ui/UI";
+import {FAIcon} from "ui/FontAwesome";
 import {Level, Size} from "ui/Constants";
+
+import {CommandInstanceStore, CommandRunStore} from "state/CommandStore";
+import {Popup} from "Popup";
+import {UserHandle} from "UserHandle";
 
 // TODO: This is CSAcademy dependency. Fix this!!
 import {Formatter} from "util";

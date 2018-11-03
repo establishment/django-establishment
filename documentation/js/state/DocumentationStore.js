@@ -1,6 +1,7 @@
-import {GenericObjectStore, StoreObject} from "Store";
-import {ArticleStore} from "ArticleStore";
-import * as Utils from "Utils";
+import {GenericObjectStore, StoreObject} from "state/Store";
+
+import {ArticleStore} from "state/ArticleStore";
+
 
 class DocumentationEntry extends StoreObject {
     getArticle() {

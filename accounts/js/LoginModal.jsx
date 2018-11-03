@@ -1,6 +1,6 @@
-import {UI, Modal} from "UI";
+import {UI, Modal} from "ui/UI";
 import {Login} from "Login";
-import {Device} from "Device";
+import {Device} from "base/Device";
 
 class LoginModal extends Modal {
     getModalWindowStyle() {

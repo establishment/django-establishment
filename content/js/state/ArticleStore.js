@@ -1,7 +1,7 @@
-import {GlobalState} from "State";
-import {StoreObject, GenericObjectStore} from "Store";
-import {AjaxFetchMixin} from "StoreMixins";
-import {Language} from "LanguageStore";
+import {StoreObject, GenericObjectStore} from "state/Store";
+import {AjaxFetchMixin} from "state/StoreMixins";
+
+import {Language} from "state/LanguageStore";
 
 class Article extends StoreObject {
     constructor(obj) {

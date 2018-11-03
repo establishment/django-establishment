@@ -1,5 +1,4 @@
-import {UI, Link, FormField, PasswordInput, AjaxButton} from "UI";
-import {Ajax} from "Ajax";
+import {UI, Link, FormField, PasswordInput, AjaxButton} from "ui/UI";
 import {Level} from "ui/Constants";
 
 class PasswordResetFromKey extends UI.Element {

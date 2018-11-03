@@ -1,5 +1,5 @@
-import {StyleSheet, styleRule} from "UI";
-import {Device} from "Device";
+import {StyleSheet, styleRule} from "ui/UI";
+import {Device} from "base/Device";
 
 
 let loginHeight = 500;

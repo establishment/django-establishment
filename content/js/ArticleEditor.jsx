@@ -8,16 +8,14 @@ import {
     FormField,
     Link,
     Panel,
-    SectionDivider,
     Select,
     TabArea,
     TemporaryMessageArea,
-    TextArea,
     TextInput,
     Level,
     UI,
-} from "UI";
-import {Language} from "LanguageStore";
+} from "ui/UI";
+import {Language} from "state/LanguageStore";
 
 import {ArticleStore} from "./state/ArticleStore";
 import {ArticleTranslationManager} from "./ArticleManager";

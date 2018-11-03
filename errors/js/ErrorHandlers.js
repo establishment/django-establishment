@@ -1,6 +1,7 @@
-import {UI, ErrorModal} from "UI";
-import {StoreObject} from "Store";
-import {ErrorMessageStore, ErrorMessage} from "ErrorMessageStore";
+import {StoreObject} from "state/Store";
+import {UI, ErrorModal} from "ui/UI";
+
+import {ErrorMessageStore, ErrorMessage} from "state/ErrorMessageStore";
 
 const ErrorHandlers = {};
 

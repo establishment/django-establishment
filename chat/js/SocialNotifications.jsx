@@ -1,8 +1,8 @@
-import {UI, TimePassedSpan} from "UI";
-import {MarkupRenderer} from "MarkupRenderer";
-import {GlobalState} from "State";
-import {UserNotificationStore} from "UserStore";
-import {Ajax} from "Ajax";
+import {Ajax} from "base/Ajax";
+import {MarkupRenderer} from "markup/MarkupRenderer";
+import {UI, TimePassedSpan} from "ui/UI";
+
+import {UserNotificationStore} from "state/UserStore";
 
 class Notification extends UI.Element {
     getNodeType() {

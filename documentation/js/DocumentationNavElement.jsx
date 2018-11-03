@@ -1,10 +1,11 @@
-import {UI} from "UI";
-import {Draggable} from "Draggable";
-import {Dispatcher} from "Dispatcher";
-import {FACollapseIcon} from "FontAwesome";
+import {Dispatcher} from "base/Dispatcher";
+import {UI} from "ui/UI";
+import {Draggable} from "ui/Draggable";
+import {FACollapseIcon} from "ui/FontAwesome";
 
-import {DocumentationStyle} from "./DocumentationStyle";
 import {EditEntryModal} from "./CreateEntryModal";
+import {DocumentationStyle} from "./DocumentationStyle";
+
 
 class CollapseIconClass extends FACollapseIcon {
     extraNodeAttributes(attr) {

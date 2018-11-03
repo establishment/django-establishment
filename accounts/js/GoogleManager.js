@@ -1,8 +1,8 @@
-import {Ajax} from "Ajax";
-import {ErrorHandlers} from "ErrorHandlers";
-import {NOOP_FUNCTION} from "Utils";
+import {Ajax} from "base/Ajax";
+import {NOOP_FUNCTION} from "base/Utils";
+
+import {SocialAppStore} from "state/SocialAppStore";
 import {SocialAccountManager} from "SocialAccountManager";
-import {SocialAppStore} from "SocialAppStore";
 
 class GoogleManager extends SocialAccountManager {
     constructor() {

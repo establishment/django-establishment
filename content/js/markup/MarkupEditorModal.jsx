@@ -1,8 +1,7 @@
-import {UI, Button, Link, Modal, Level, Size, Direction} from "UI";
+import {UI, Button, Link, Modal, Level, Size, Direction} from "ui/UI";
+
 import {MarkupEditor} from "./MarkupEditor";
 import {BasePopup} from "../Popup";
-// import {Emoji as EmojiMini} from "EmojiMini";
-// import "EmojiUI";
 
 UI.Emoji = UI.Emoji || UI.Element;
 

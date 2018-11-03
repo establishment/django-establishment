@@ -1,5 +1,4 @@
-import {StyleSheet, styleRule, styleRuleInherit} from "UI";
-//import {CSAStyle} from "CSAStyle";
+import {StyleSheet, styleRule} from "ui/UI";
 
 const colors = {
     // BLUE: "#20232d",

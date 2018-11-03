@@ -1,4 +1,4 @@
-import {StoreObject, GenericObjectStore} from "Store";
+import {StoreObject, GenericObjectStore} from "state/Store";
 
 import {Language} from "./LanguageStore";
 

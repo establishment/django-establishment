@@ -1,3 +1,4 @@
+import {Ajax} from "base/Ajax";
 import {
     UI,
     StyleSheet,
@@ -8,9 +9,8 @@ import {
     EmailInput,
     TextArea,
     SubmitInput,
-} from "UI";
-import {Ajax} from "Ajax";
-import {enhance} from "Color";
+} from "ui/UI";
+import {enhance} from "ui/Color";
 
 
 export class FeedbackFormStyle extends StyleSheet {

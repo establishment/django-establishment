@@ -1,15 +1,10 @@
-import {UI, Panel, Link, Route, Router, TimePassedSpan, registerStyle, CardPanel} from "ui/UI";
-import {Dispatcher} from "base/Dispatcher";
 import {Ajax} from "base/Ajax";
-import {GlobalState} from "state/State";
-import {PreviewMarkupButton} from "ChatWidget";
+import {slugify} from "base/Utils";
+import {UI, Size, Panel, Link, Route, TimePassedSpan, registerStyle} from "ui/UI";
+import {StateDependentElement} from "ui/StateDependentElement";
+
 import {UserHandle} from "UserHandle";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
-import {MessageThreadStore, MessageInstanceStore} from "state/MessageThreadStore";
-import {StateDependentElement} from "StateDependentElement";
-import {Size, Level} from "ui/Constants";
-import {slugify} from "base/Utils";
-
 import {ForumStore, ForumThreadStore} from "./state/ForumStore";
 import {ForumThreadPanel, CreateForumThreadButton} from "./ForumThread";
 import {ForumThreadHeaderStyle, ForumThreadPreviewStyle, ForumThreadBubbleStyle, ForumPanelStyle} from "./ForumStyle";

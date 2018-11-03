@@ -1,14 +1,12 @@
-import {UI, TimePassedSpan, Switcher, AjaxButton, TextArea, Button, registerStyle} from "UI";
-import {GlobalState} from "State";
-import {GroupChatStore, MessageThreadStore, MessageThread, MessageInstance} from "MessageThreadStore";
+import {UI, Level, TimePassedSpan, Switcher, AjaxButton, TextArea, Button, registerStyle} from "ui/UI";
+import {MarkupRenderer} from "markup/MarkupRenderer";
+
+import {GroupChatStore} from "state/MessageThreadStore";
 import {ChatMessageScrollSection, ChatWidget, EditableMessage} from "ChatWidget";
-import {isDifferentDay, StemDate} from "Time";
 import {UserHandle} from "UserHandle";
 import {LoginModal} from "LoginModal";
 import {CommentVotingWidgetWithThumbs} from "VotingWidget";
 import {BlogStyle} from "BlogStyle";
-import {Level} from "ui/Constants";
-import {MarkupRenderer} from "MarkupRenderer";
 import {CommentWidgetStyle} from "./CommentWidgetStyle";
 
 

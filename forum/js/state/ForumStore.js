@@ -1,9 +1,9 @@
-import {GlobalState} from "State";
-import {StoreObject, GenericObjectStore} from "Store";
-import {MessageThreadStore, MessageInstanceStore} from "MessageThreadStore";
-import {PublicUserStore} from "UserStore";
-import {Ajax} from "Ajax";
-import {NOOP_FUNCTION} from "Utils";
+import {Ajax} from "base/Ajax";
+import {NOOP_FUNCTION} from "base/Utils";
+import {StoreObject, GenericObjectStore} from "state/Store";
+
+import {PublicUserStore} from "state/UserStore";
+import {MessageThreadStore, MessageInstanceStore} from "state/MessageThreadStore";
 
 class Forum extends StoreObject {
     constructor() {

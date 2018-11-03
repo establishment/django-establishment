@@ -1,6 +1,6 @@
-import {composeURL} from "Fetch";
+import {composeURL} from "base/Fetch";
+import {SocialAppStore} from "state/SocialAppStore";
 import {SocialAccountManager} from "SocialAccountManager";
-import {SocialAppStore} from "SocialAppStore";
 
 class GithubManager extends SocialAccountManager {
     constructor() {

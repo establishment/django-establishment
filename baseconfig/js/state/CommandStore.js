@@ -1,5 +1,4 @@
-import {StoreObject, GenericObjectStore} from "Store";
-import {GlobalState} from "State";
+import {StoreObject, GenericObjectStore} from "state/Store";
 
 export class CommandInstance extends StoreObject {
     toString() {

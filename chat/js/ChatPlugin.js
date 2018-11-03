@@ -1,6 +1,6 @@
-import {Plugin} from "Plugin";
+import {Plugin} from "base/Plugin";
 
-class ChatPlugin extends Plugin {
+export class ChatPlugin extends Plugin {
     linkToParent(parent) {
         this.chatWidget = parent;
     }
@@ -9,5 +9,3 @@ class ChatPlugin extends Plugin {
         return this.chatWidget.chatInput;
     }
 }
-
-export {ChatPlugin};

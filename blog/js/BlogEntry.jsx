@@ -1,6 +1,7 @@
-import {UI, Panel} from "UI";
+import {UI, Panel} from "ui/UI";
+
 import {ArticleRenderer} from "ArticleRenderer";
-import {BlogEntryStore} from "BlogStore";
+import {BlogEntryStore} from "state/BlogStore";
 
 // TODO: this should support a summary mode and a full mode
 class BlogEntry extends Panel {

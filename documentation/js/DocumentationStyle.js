@@ -1,6 +1,6 @@
-import {StyleSheet, styleRule} from "UI";
+import {StyleSheet, styleRule} from "ui/UI";
 
-class DocumentationStyle extends StyleSheet {
+export class DocumentationStyle extends StyleSheet {
     constructor() {
         super({updateOnResize: true});
     }
@@ -70,5 +70,3 @@ class DocumentationStyle extends StyleSheet {
         backgroundColor: "#fff",
     };
 }
-
-export {DocumentationStyle};

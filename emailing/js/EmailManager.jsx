@@ -1,10 +1,9 @@
-import {UI, Panel} from "UI";
-import {TabArea} from "TabArea";
-import {GlobalState} from "State";
+import {UI, TabArea, Panel} from "ui/UI";
+import {GlobalStyle} from "ui/GlobalStyle";
+
 import {EmailGatewayWidget} from "EmailGatewayWidget";
 import {EmailCampaignWidget} from "EmailCampaignWidget";
 import {EmailTemplateWidget} from "EmailTemplateWidget";
-import {GlobalStyle} from "GlobalStyle";
 
 class EmailManager extends Panel {
     extraNodeAttributes(attr) {

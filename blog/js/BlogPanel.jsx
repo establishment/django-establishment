@@ -1,24 +1,18 @@
-import {Ajax} from "Ajax";
-import {UI, Button, Link, Modal, Form, FormField, TextInput, FormGroup, CheckboxInput, TemporaryMessageArea} from "UI";
-import {StemDate} from "Time";
-import {GlobalState} from "State";
-import {BlogEntryStore} from "BlogStore";
-import {ArticleStore} from "ArticleStore";
+import {Ajax} from "base/Ajax";
+import {slugify} from "base/Utils";
 import {MarkupEditor} from "markup/MarkupEditor";
+import {StemDate} from "time/Time";
+import {UI, Level, Route, Router, Button, Link, Modal, Form, FormField, TextInput, FormGroup, CheckboxInput, TemporaryMessageArea} from "ui/UI";
+import {StateDependentElement} from "ui/StateDependentElement";
+import {Theme} from "ui/style/Theme";
+
 import {UserHandle} from "UserHandle";
-import {BlogArticleRenderer} from "./BlogArticleRenderer";
 import {ArticleEditor} from "ArticleEditor";
 import {AsyncCommentThread} from "CommentWidget";
-import {ErrorHandlers} from "ErrorHandlers";
-import {slugify} from "Utils";
-import {FAIcon} from "FontAwesome";
+import {BlogEntryStore} from "state/BlogStore";
+import {BlogArticleRenderer} from "./BlogArticleRenderer";
 import {BlogStyle} from "BlogStyle";
-import {StateDependentElement} from "StateDependentElement";
-import {Route, Router} from "Router";
-import {Dispatcher} from "Dispatcher";
 
-import {Theme} from "ui/style/Theme";
-import {Level} from "ui/Constants";
 
 export class BlogEntryEditModal extends Modal {
     getModalWindowStyle() {

@@ -1,6 +1,6 @@
-import {UI} from "ui/UI";
 import {ensure} from "base/Require";
 import {NOOP_FUNCTION} from "base/Utils";
+import {UI} from "ui/UI";
 
 
 const YOUTUBE_API_SRC = "https://www.youtube.com/iframe_api";

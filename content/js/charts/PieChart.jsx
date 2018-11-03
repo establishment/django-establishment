@@ -1,6 +1,6 @@
-import {UI, SVG} from "UI";
 import * as math from "math";
-import {Transition} from "Transition";
+import {Transition} from "ui/Transition";
+import {UI, SVG} from "ui/UI";
 
 class PieChartSector extends SVG.Group {
     getDefaultOptions() {

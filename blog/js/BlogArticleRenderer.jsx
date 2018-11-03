@@ -1,6 +1,7 @@
-import {UI, registerStyle} from "UI";
+import {UI, registerStyle} from "ui/UI";
+import {MarkupClassMap} from "markup/MarkupRenderer";
+
 import {ArticleRenderer} from "ArticleRenderer";
-import {MarkupClassMap} from "MarkupRenderer";
 import {BlogArticleRendererStyle} from "./BlogStyle";
 
 

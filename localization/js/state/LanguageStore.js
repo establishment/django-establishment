@@ -1,5 +1,5 @@
 // A basic store that can be used to keep objects that map to ISO-code backed languages
-import {StoreObject, GenericObjectStore} from "Store";
+import {StoreObject, GenericObjectStore} from "state/Store";
 
 class LanguageObject extends StoreObject {
     constructor(obj) {

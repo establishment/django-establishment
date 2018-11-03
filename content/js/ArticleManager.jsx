@@ -1,3 +1,5 @@
+import {Ajax} from "base/Ajax";
+import {StemDate} from "time/Time";
 import {
     ActionModal,
     AjaxButton,
@@ -7,7 +9,6 @@ import {
     Form,
     FormField,
     Link,
-    Modal,
     Panel,
     Select,
     SortableTable,
@@ -15,14 +16,13 @@ import {
     TextInput,
     Level,
     UI,
-} from "UI";
-import {FAIcon} from "FontAwesome";
-import {Ajax} from "Ajax";
-import {StemDate} from "Time";
-import {PublicUserStore} from "UserStore";
-import {Language} from "LanguageStore";
+} from "ui/UI";
+import {FAIcon} from "ui/FontAwesome";
+import {GlobalStyle} from "ui/GlobalStyle";
+
+import {PublicUserStore} from "state/UserStore";
+import {Language} from "state/LanguageStore";
 import {UserHandle} from "UserHandle";
-import {GlobalStyle} from "GlobalStyle";
 
 import {ArticleStore} from "./state/ArticleStore";
 

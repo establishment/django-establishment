@@ -1,4 +1,4 @@
-import {UI, SVG} from "UI";
+import {UI, SVG} from "ui/UI";
 
 class PointPlotElement extends SVG.Circle {
     getDefaultOptions() {

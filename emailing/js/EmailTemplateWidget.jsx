@@ -1,11 +1,10 @@
-import {UI, SortableTable, Button, SectionDivider, Panel, TableRow, ActionModal, FormField, TextInput, Select, TextArea} from "UI";
-import {EmailGatewayStore} from "EmailGatewayStore";
-import {EmailCampaignStore} from "EmailCampaignStore";
-import {EmailTemplateStore} from "EmailTemplateStore";
-import {Language} from "LanguageStore";
-import {Ajax} from "Ajax";
-import {Orientation} from "ui/Constants";
-import {Level} from "ui/Constants";
+import {Ajax} from "base/Ajax";
+import {UI, Level, Orientation, SortableTable, Button, SectionDivider, Panel, TableRow, ActionModal, FormField, TextInput, Select, TextArea} from "ui/UI";
+
+import {Language} from "state/LanguageStore";
+import {EmailGatewayStore} from "state/EmailGatewayStore";
+import {EmailCampaignStore} from "state/EmailCampaignStore";
+import {EmailTemplateStore} from "state/EmailTemplateStore";
 
 class EmailTemplateModal extends ActionModal {
     constructor(options) {

@@ -1,7 +1,7 @@
-import {StyleSheet, styleRule, styleRuleInherit} from "UI";
+import {StyleSheet, styleRule} from "ui/UI";
 
 
-class ChatStyle extends StyleSheet {
+export class ChatStyle extends StyleSheet {
     navbarHeight = "50px";
     renderMessageHeight = "100px";
 
@@ -184,5 +184,3 @@ class ChatStyle extends StyleSheet {
         margin: "0 10px",
     };
 }
-
-export {ChatStyle};

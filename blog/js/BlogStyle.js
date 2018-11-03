@@ -1,4 +1,4 @@
-import {StyleSheet, styleRule, styleRuleInherit} from "UI";
+import {StyleSheet, styleRule} from "ui/UI";
 
 const color = {
     BLUE: "#20232d",

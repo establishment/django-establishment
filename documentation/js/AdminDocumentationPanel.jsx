@@ -1,16 +1,12 @@
-import {Ajax} from "Ajax";
-import {GlobalState} from "State";
-import {UI, Button, Panel, getOffset, ActionModal, ActionModalButton, Form, FormField, TextInput, Select} from "UI";
-import {Draggable} from "Draggable";
+import {Ajax} from "base/Ajax";
+import {UI, Button, Panel, getOffset, Orientation, Level, Size} from "ui/UI";
 import {ArticleSwitcher} from "ArticleRenderer";
-import {Dispatcher} from "Dispatcher";
 
 import {DocumentationEntryStore} from "./state/DocumentationStore";
+import {CreateEntryButton} from "./CreateEntryModal";
 import {DocumentationPanel} from "./DocumentationPanel";
 import {DraggableDocumentationNavElement, dragAndDropHandler} from "./DocumentationNavElement";
-import {CreateEntryButton} from "./CreateEntryModal";
 
-import {Orientation, Level, Size} from "ui/Constants";
 
 export class AdminDocumentationPanel extends DocumentationPanel {
     getBaseUrl() {

@@ -1,9 +1,8 @@
 // TODO: this whole file needs a refactoring
-import {UI, TabArea, TableRow, Table, TextInput, Button, Select, FileInput, CheckboxInput, TextArea, Panel, Level} from "UI";
-import {Dispatcher} from "Dispatcher";
-import {FileSaver} from "FileSaver";
-import {Ajax} from "Ajax";
-import {NOOP_FUNCTION} from "Utils";
+import {FileSaver} from "base/FileSaver";
+import {Ajax} from "base/Ajax";
+import {NOOP_FUNCTION} from "base/Utils";
+import {UI, TabArea, TableRow, Table, TextInput, Button, Select, FileInput, CheckboxInput, TextArea, Panel, Level} from "ui/UI";
 
 import {TranslationKeyStore, TranslationEntryStore} from "./state/TranslationStore";
 import {Language} from "./state/LanguageStore";

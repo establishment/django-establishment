@@ -1,5 +1,4 @@
-import {StoreObject, GenericObjectStore} from "Store";
-import {GlobalState} from "State";
+import {StoreObject, GenericObjectStore} from "state/Store";
 
 export class SocialApp extends StoreObject {
     getClientId() {
@@ -21,4 +20,4 @@ class SocialAppStoreClass extends GenericObjectStore {
     }
 }
 
-export let SocialAppStore = new SocialAppStoreClass();
+export const SocialAppStore = new SocialAppStoreClass();

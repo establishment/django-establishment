@@ -1,6 +1,6 @@
 import {StoreObject, GenericObjectStore} from "state/Store";
 
-import {UserStore} from "UserStore";
+import {UserStore} from "state/UserStore";
 
 
 export class Follower extends StoreObject {

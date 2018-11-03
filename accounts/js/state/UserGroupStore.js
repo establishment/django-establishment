@@ -1,6 +1,6 @@
 import {PublicUserStore} from "UserStore";
 
-import {StoreObject, GenericObjectStore} from "Store";
+import {StoreObject, GenericObjectStore} from "state/Store";
 
 
 class UserGroup extends StoreObject {

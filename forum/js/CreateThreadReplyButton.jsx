@@ -1,11 +1,10 @@
-import {Ajax} from "Ajax";
-import {UI, Button, registerStyle} from "UI";
-import {GlobalState} from "State";
+import {Ajax} from "base/Ajax";
+import {UI, Button, registerStyle, Level, Size} from "ui/UI";
+
 import {MarkupEditorModal} from "markup/MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {ButtonStyle} from "ForumStyle";
-import {Level, Size} from "ui/Constants";
 
 @registerStyle(ButtonStyle)
 class CreateThreadReplyButton extends Button {

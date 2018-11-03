@@ -1,4 +1,4 @@
-import {UI} from "UI";
+import {UI} from "ui/UI";
 
 class EmailConfirmed extends UI.Element {
     extraNodeAttributes(attr) {

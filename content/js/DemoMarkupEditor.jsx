@@ -1,4 +1,4 @@
-import {UI} from "UI";
+import {UI} from "ui/UI";
 
 import {ArticleStore} from "./state/ArticleStore";
 import {MarkupEditor} from "./markup/MarkupEditor";

@@ -1,5 +1,6 @@
-import {UI} from "UI";
-import {PublicUserStore} from "UserStore";
+import {UI} from "ui/UI";
+
+import {PublicUserStore} from "state/UserStore";
 
 class UserHandle extends UI.Element {
     setOptions(options) {

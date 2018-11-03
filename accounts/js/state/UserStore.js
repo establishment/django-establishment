@@ -1,7 +1,6 @@
-import {Ajax} from "Ajax";
-import {AjaxFetchMixin} from "StoreMixins";
-import {StoreObject, GenericObjectStore} from "Store";
-import {GlobalState} from "State";
+import {Ajax} from "base/Ajax";
+import {AjaxFetchMixin} from "state/StoreMixins";
+import {StoreObject, GenericObjectStore} from "state/Store";
 
 class User extends StoreObject {
     constructor(obj) {

@@ -1,5 +1,6 @@
-import {UI, SVG} from "UI";
 import {line} from "d3";
+
+import {UI, SVG} from "ui/UI";
 
 class LinePlot extends SVG.Path {
     getDefaultOptions() {

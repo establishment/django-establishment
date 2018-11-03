@@ -1,8 +1,8 @@
-import {UI, Button} from "UI";
+import {UI, Button, Level} from "ui/UI";
 import {MarkupEditorModal} from "markup/MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
-import {Level} from "ui/Constants";
+
 
 class EditThreadReplyButton extends Button {
     setOptions(options) {

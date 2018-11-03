@@ -1,5 +1,5 @@
-import {UI, SVG, Router, TabArea, BasicTabTitle} from "UI";
-import {Dispatchable} from "Dispatcher";
+import {Dispatchable} from "base/Dispatcher";
+import {UI, Router, TabArea, BasicTabTitle} from "ui/UI";
 
 import {ArticleSwitcher} from "./ArticleRenderer";
 

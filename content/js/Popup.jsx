@@ -1,5 +1,5 @@
-import {UI, FloatingWindow, Direction, Panel, Button} from "UI";
-import {Device} from "Device";
+import {Device} from "base/Device";
+import {UI, FloatingWindow, Direction, Panel, Button} from "ui/UI";
 
 export class BasePopup extends FloatingWindow {
     static bodyPopups = new Set();

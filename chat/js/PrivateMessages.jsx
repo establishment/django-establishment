@@ -1,18 +1,13 @@
-import {
-    UI, Button, Link, TextInput, VolatileFloatingWindow, registerStyle,
-} from "UI";
+import {Ajax} from "base/Ajax";
+import {StemDate} from "time/Time";
+import {UI, Level, Size, Router, Route, Button, Link, TextInput, VolatileFloatingWindow, registerStyle} from "ui/UI";
+import {FAIcon} from "ui/FontAwesome";
+
+import {PublicUserStore} from "state/UserStore";
 import {MessagesPanelListStyle} from "SocialNotificationsStyle";
 import {PrivateChatWidget} from "ChatWidget";
-import {Router, Route} from "Router";
-import {Ajax} from "Ajax";
-import {FAIcon} from "FontAwesome";
-import {PublicUserStore} from "UserStore";
-import {PrivateChatStore, MessageThreadStore} from "MessageThreadStore";
+import {PrivateChatStore} from "state/MessageThreadStore";
 import {UserHandle} from "UserHandle";
-import {StemDate} from "Time";
-import {Dispatcher} from "Dispatcher";
-import {GlobalState} from "State";
-import {Level, Size} from "ui/Constants";
 
 
 const formatMiniMessageLastTime = (timeStamp) => {

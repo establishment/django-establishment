@@ -1,5 +1,5 @@
-import {Ajax} from "Ajax";
-import {GlobalState} from "State";
+import {Ajax} from "base/Ajax";
+import {NOOP_FUNCTION} from "base/Utils";
 import {
     ActionModal,
     ActionModalButton,
@@ -11,8 +11,11 @@ import {
     TimePassedSpan,
     UI,
     registerStyle,
-} from "UI";
+    Level,
+    Size
+} from "ui/UI";
 import {ConcentricCirclesLoadingScreen} from "ui/ConcentricCirclesLoadingScreen";
+
 import {MarkupEditorModal} from "markup/MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";
@@ -22,13 +25,11 @@ import {DeleteThreadReplyButton} from "DeleteThreadReplyButton";
 import {CreateThreadReplyButton} from "CreateThreadReplyButton";
 import {CommentVotingWidgetWithThumbs} from "VotingWidget";
 import {ErrorHandlers} from "ErrorHandlers";
-import {ForumThreadPanelStyle, ForumThreadReplyStyle} from "ForumStyle";
+import {ForumThreadPanelStyle} from "ForumStyle";
 import {ButtonStyle} from "ForumStyle";
-import {Level, Size} from "ui/Constants";
-import {NOOP_FUNCTION} from "Utils";
 
 let forumThreadPanelStyle = ForumThreadPanelStyle.getInstance();
-let buttonStyle = ButtonStyle.getInstance();
+ButtonStyle.getInstance();
 
 
 class CreateForumThreadModal extends MarkupEditorModal {

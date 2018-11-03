@@ -1,5 +1,4 @@
-import {StyleSheet} from "ui/Style";
-import {styleRule, styleRuleCustom} from "decorators/Style";
+import {StyleSheet, styleRule, styleRuleCustom} from "ui/UI";
 
 export class GlobalStyleSheet extends StyleSheet {
     @styleRuleCustom({selector: "body"})

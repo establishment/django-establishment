@@ -1,3 +1,5 @@
+import {ensure} from "base/Require";
+import {Ajax} from "base/Ajax";
 import {
     UI,
     BasicTabTitle,
@@ -12,19 +14,15 @@ import {
     registerStyle,
     TemporaryMessageArea,
     Theme
-} from "UI";
+} from "ui/UI";
+import {FAIcon} from "ui/FontAwesome";
 
-import {ensure} from "Require";
-import {Ajax} from "Ajax";
+import {CountryStore} from "state/CountryStore";
+import {SocialAppStore} from "state/SocialAppStore";
 import {GoogleManager} from "./GoogleManager";
 import {FacebookManager} from "./FacebookManager";
 import {GithubManager} from "./GithubManager";
-import {CountryStore} from "CountryStore";
-
-import {FAIcon} from "FontAwesome";
 import {LoginStyle} from "./LoginStyle";
-
-import {SocialAppStore} from "SocialAppStore";
 
 const ERROR_TIMEOUT = 6 * 1000;
 

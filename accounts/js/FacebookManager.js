@@ -1,7 +1,6 @@
-import {Ajax} from "Ajax";
-import {Dispatchable} from "Dispatcher";
+import {Ajax} from "base/Ajax";
+import {SocialAppStore} from "state/SocialAppStore";
 import {SocialAccountManager} from "SocialAccountManager";
-import {SocialAppStore} from "SocialAppStore";
 
 class FacebookManager extends SocialAccountManager {
     constructor() {

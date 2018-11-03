@@ -1,14 +1,15 @@
+import {Ajax} from "base/Ajax";
 import {
     UI, TabArea, Form, FormField, TextInput,
     AjaxButton, PasswordInput, EmailInput, Panel,
     Label, Button, Select, CheckboxInput
-} from "UI";
-import {GlobalStyle} from "GlobalStyle";
-import {UserStore} from "UserStore";
+} from "ui/UI";
+import {GlobalStyle} from "ui/GlobalStyle";
+import {Level, Size} from "ui/Constants";
+
+import {UserStore} from "state/UserStore";
 import {FacebookManager} from "FacebookManager";
 import {GoogleManager} from "GoogleManager";
-import {Ajax} from "Ajax";
-import {Level, Size} from "ui/Constants";
 
 
 export class GeneralInformationPanel extends Panel {

@@ -1,7 +1,7 @@
-import {StoreObject, GenericObjectStore} from "Store";
-import {GlobalState} from "State";
+import {StoreObject, GenericObjectStore} from "state/Store";
+import {GlobalState} from "state/State";
 
-class EmailCampaign extends StoreObject {
+export class EmailCampaign extends StoreObject {
     toString() {
         return this.name;
     }
@@ -13,6 +13,4 @@ class EmailCampaignStoreClass extends GenericObjectStore {
     }
 }
 
-const EmailCampaignStore = new EmailCampaignStoreClass("EmailCampaign", EmailCampaign);
-
-export {EmailCampaignStore, EmailCampaign};
+export const EmailCampaignStore = new EmailCampaignStoreClass("EmailCampaign", EmailCampaign);

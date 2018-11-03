@@ -1,4 +1,5 @@
 import {Dispatchable} from "base/Dispatcher";
+
 import {WebsocketSubscriber} from "./WebsocketSubscriber";
 
 class WebsocketCommandProcessor {

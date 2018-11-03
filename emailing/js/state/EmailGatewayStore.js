@@ -1,7 +1,7 @@
-import {StoreObject, GenericObjectStore} from "Store";
-import {GlobalState} from "State";
+import {StoreObject, GenericObjectStore} from "state/Store";
+import {GlobalState} from "state/State";
 
-class EmailGateway extends StoreObject {
+export class EmailGateway extends StoreObject {
     toString() {
         return this.name;
     }
@@ -13,6 +13,4 @@ class EmailGatewayStoreClass extends GenericObjectStore {
     }
 }
 
-const EmailGatewayStore = new EmailGatewayStoreClass("EmailGateway", EmailGateway);
-
-export {EmailGatewayStore, EmailGateway};
+export const EmailGatewayStore = new EmailGatewayStoreClass("EmailGateway", EmailGateway);

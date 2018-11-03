@@ -1,4 +1,4 @@
-import {StyleSheet, styleRule} from "UI";
+import {StyleSheet, styleRule} from "ui/UI";
 
 class CommentWidgetStyle extends StyleSheet {
     loadMoreButton = {

@@ -1,7 +1,7 @@
-import {StoreObject, GenericObjectStore} from "Store";
-import {GlobalState} from "State";
+import {StoreObject, GenericObjectStore} from "state/Store";
+import {GlobalState} from "state/State";
 
-class EmailStatus extends StoreObject {}
+export class EmailStatus extends StoreObject {}
 
 class EmailStatusStoreClass extends GenericObjectStore {
     registerStreams() {
@@ -9,6 +9,4 @@ class EmailStatusStoreClass extends GenericObjectStore {
     }
 }
 
-const EmailStatusStore = new EmailStatusStoreClass("EmailStatus", EmailStatus);
-
-export {EmailStatusStore, EmailStatus};
+export const EmailStatusStore = new EmailStatusStoreClass("EmailStatus", EmailStatus);

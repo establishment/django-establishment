@@ -1,7 +1,7 @@
-import {UI, registerStyle} from "UI";
+import {UI, registerStyle, Orientation, VoteStatus} from "ui/UI";
+
 import {LoginModal} from "LoginModal";
-import {UserReactionCollection} from "UserReactionStore";
-import {Orientation, VoteStatus} from "ui/Constants";
+import {UserReactionCollection} from "state/UserReactionStore";
 import {VotingWidgetStyle} from "./VotingWidgetStyle";
 
 class VotingWidget extends UI.Element {

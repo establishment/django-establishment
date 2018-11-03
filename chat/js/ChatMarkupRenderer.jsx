@@ -1,4 +1,3 @@
-import {UI} from "UI";
 import {MarkupClassMap, MarkupRenderer} from "markup/MarkupRenderer";
 
 class ChatMarkupRenderer extends MarkupRenderer {

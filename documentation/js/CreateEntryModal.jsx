@@ -1,7 +1,7 @@
+import {Ajax} from "base/Ajax";
+import {UI, ActionModal, ActionModalButton, Form, FormField, TextInput, Select} from "ui/UI";
+
 import {DocumentationEntryStore} from "./state/DocumentationStore";
-import {UI, ActionModal, ActionModalButton, Form, FormField, TextInput, Select} from "UI";
-import {Ajax} from "Ajax";
-import {GlobalState} from "State";
 
 export class EditEntryModal extends ActionModal {
     getTitle() {
