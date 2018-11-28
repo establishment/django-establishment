@@ -269,6 +269,13 @@ class WebsocketSubscriber extends Dispatchable {
         streamHandler.addListener(callback);
     }
 
+    removeStreamListener(streamName, callback) {
+        let streamHandler = this.streamHandlers.get(streamName);
+        if (streamHandler) {
+            streamHandler.removeListener(callback);
+        }
+    }
+
     static addListener(streamName, callback) {
         return this.Global.addStreamListener(streamName, callback);
     };
