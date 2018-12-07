@@ -86,17 +86,7 @@ class Daemon:
         if os.path.isfile(self.pidfile):
             os.remove(self.pidfile)
 
-    def start(self):
-        """Start the daemon."""
-
-        # Check for a pidfile to see if the daemon is already running
-        if self.get_pid():
-            self.logger.error("Daemon is already running ...")
-            sys.exit(1)
-
-        # Start the daemon
-        self.daemonize()
-
+    def start_raw(self):
         self.terminate = False
 
         # Register SIGTERM to stop the program gracefully
@@ -109,6 +99,19 @@ class Daemon:
         self.run()
 
         self.after_run()
+
+    def start(self):
+        """Start the daemon."""
+
+        # Check for a pidfile to see if the daemon is already running
+        if self.get_pid():
+            self.logger.error("Daemon is already running ...")
+            sys.exit(1)
+
+        # Start the daemon
+        self.daemonize()
+
+        self.start_raw()
 
     def get_pid(self):
         """Get the daemon pid from file."""
@@ -273,6 +276,9 @@ class Daemon:
         elif cmd == "sync-stop" and not force:
             self.logger.warning("Stopping daemon " + sys.argv[0] + " (sync call)")
             self.stop(sync=True)
+        elif cmd == "start_raw":
+            self.logger.warning("Starting daemon " + sys.argv[0] + " as a simple process...")
+            self.start_raw()
         else:
             print("Invalid arguments, call as python3 " + sys.argv[0] + " start|stop|restart [--force]")
 
