@@ -41,7 +41,7 @@ class WebsocketStreamHandler extends Dispatcher {
         const timeoutDuration = Math.min(subscribeTimeout * this.subscribeTryCount, subscribeTimeoutMax);
 
         this.resendSubscribeTimeout = setTimeout(() => {
-            console.log("WebsocketSubscriber: stream subscribe timeout for #" + streamName + " reached! Trying to resubscribe again!");
+            console.log("WebsocketSubscriber: stream subscribe timeout for #" + this.streamName + " reached! Trying to resubscribe again!");
             this.sendSubscribe();
         }, timeoutDuration);
     }
