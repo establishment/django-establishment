@@ -1,5 +1,5 @@
 import {MarkupRenderer, MarkupClassMap} from "markup/MarkupRenderer";
-import {UI, SVG, Switcher, Button} from "ui/UI";
+import {UI, SVG, Switcher, Button} from "ui/All";
 
 import {Language} from "state/LanguageStore";
 import {Article, ArticleStore} from "./state/ArticleStore";

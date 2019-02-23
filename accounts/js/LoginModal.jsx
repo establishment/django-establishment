@@ -1,4 +1,5 @@
-import {UI, Modal} from "ui/UI";
+import {UI} from "ui/UI";
+import {Modal} from "ui/modal/Modal";
 import {Login} from "Login";
 import {Device} from "base/Device";
 

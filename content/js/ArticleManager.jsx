@@ -16,7 +16,7 @@ import {
     TextInput,
     Level,
     UI,
-} from "ui/UI";
+} from "ui/All";
 import {FAIcon} from "ui/FontAwesome";
 import {GlobalStyle} from "ui/GlobalStyle";
 

@@ -2,7 +2,7 @@ import {Ajax} from "base/Ajax";
 import {slugify} from "base/Utils";
 import {MarkupEditor} from "markup/MarkupEditor";
 import {StemDate} from "time/Time";
-import {UI, Level, Route, Router, Button, Link, Modal, Form, FormField, TextInput, FormGroup, CheckboxInput, TemporaryMessageArea} from "ui/UI";
+import {UI, Level, Route, Router, Button, Link, Modal, Form, FormField, TextInput, FormGroup, CheckboxInput, TemporaryMessageArea} from "ui/All";
 import {StateDependentElement} from "ui/StateDependentElement";
 import {Theme} from "ui/style/Theme";
 

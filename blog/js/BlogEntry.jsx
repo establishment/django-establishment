@@ -1,4 +1,5 @@
-import {UI, Panel} from "ui/UI";
+import {UI} from "ui/UI";
+import {Panel} from "ui/UIPrimitives";
 
 import {ArticleRenderer} from "ArticleRenderer";
 import {BlogEntryStore} from "state/BlogStore";

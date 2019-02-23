@@ -1,5 +1,5 @@
 import {Ajax} from "base/Ajax";
-import {UI, TabArea, Panel, Switcher, Theme, registerStyle, styleRule, Level, RowList, CardPanel, Table, CheckboxInput} from "ui/UI";
+import {UI, TabArea, Panel, Switcher, Theme, registerStyle, styleRule, Level, RowList, CardPanel, Table, CheckboxInput} from "ui/All";
 import {StateDependentElement} from "ui/StateDependentElement";
 import {ColorGenerator} from "ui/Color";
 import {MarkupRenderer} from "markup/MarkupRenderer";

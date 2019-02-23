@@ -2,7 +2,7 @@ import {Ajax} from "base/Ajax";
 import {CallThrottler} from "base/Utils";
 import {MarkupRenderer} from "markup/MarkupRenderer";
 import {UI, Switcher, Level, Button, registerStyle, StyleSheet, styleRule,
-        Form, TextArea, TextInput, RadioInput, CheckboxInput, Modal, ActionModalButton} from "ui/UI";
+        Form, TextArea, TextInput, RadioInput, CheckboxInput, Modal, ActionModalButton} from "ui/All";
 import {StateDependentElement} from "ui/StateDependentElement";
 
 import {QuestionnaireStore, QuestionnaireQuestion, QuestionnaireInstanceStore} from "./state/QuestionnaireStore";

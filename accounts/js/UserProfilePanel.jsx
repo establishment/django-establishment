@@ -1,4 +1,6 @@
-import {UI, TabArea, Panel} from "ui/UI";
+import {UI} from "ui/UI";
+import {Panel} from "ui/UIPrimitives";
+import {TabArea} from "ui/tabs/TabArea";
 
 import {PublicUserStore} from "state/UserStore";
 import {UserHandle} from "UserHandle";

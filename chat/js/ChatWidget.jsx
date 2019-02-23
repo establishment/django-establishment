@@ -2,7 +2,7 @@ import {Ajax} from "base/Ajax";
 import {Pluginable} from "base/Plugin";
 import {GlobalState} from "state/State";
 import {StemDate, isDifferentDay} from "time/Time";
-import {UI, Switcher, AjaxButton, TextArea, Button, ButtonGroup, Panel, InfiniteScrollable, registerStyle, Level, Size} from "ui/UI";
+import {UI, Switcher, AjaxButton, TextArea, Button, ButtonGroup, Panel, InfiniteScrollable, registerStyle, Level, Size} from "ui/All";
 import {ButtonStyle} from "ui/button/ButtonStyle";
 import {InputStyle} from "ui/input/Style";
 

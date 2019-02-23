@@ -14,7 +14,7 @@ import {
     TextInput,
     Level,
     UI,
-} from "ui/UI";
+} from "ui/All";
 import {Language} from "state/LanguageStore";
 
 import {ArticleStore} from "./state/ArticleStore";

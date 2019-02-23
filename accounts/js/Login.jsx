@@ -1,20 +1,11 @@
 import {ensure} from "base/Require";
 import {Ajax} from "base/Ajax";
-import {
-    UI,
-    BasicTabTitle,
-    CheckboxInput,
-    EmailInput,
-    TextInput,
-    Link,
-    PasswordInput,
-    SubmitInput,
-    Switcher,
-    Select,
-    registerStyle,
-    TemporaryMessageArea,
-    Theme
-} from "ui/UI";
+import {UI, registerStyle, Theme} from "ui/UI";
+import {Switcher} from "ui/Switcher";
+import {Link} from "ui/UIPrimitives";
+import {PasswordInput, SubmitInput, CheckboxInput, EmailInput, TextInput, Select} from "ui/input/Input";
+import {BasicTabTitle} from "ui/tabs/TabArea";
+import {TemporaryMessageArea} from "ui/UIPrimitives";
 import {FAIcon} from "ui/FontAwesome";
 
 import {CountryStore} from "state/CountryStore";

@@ -1,6 +1,12 @@
 import {Ajax} from "base/Ajax";
 import {Dispatchable} from "base/Dispatcher";
-import {UI, VolatileFloatingWindow, getOffset, TextInput, TemporaryMessageArea, Button, getComputedStyle, Direction, Level, Size} from "ui/UI";
+import {UI} from "ui/UI";
+import {VolatileFloatingWindow} from "ui/modal/FloatingWindow";
+import {TextInput} from "ui/input/Input";
+import {getOffset, getComputedStyle} from "ui/Utils";
+import {TemporaryMessageArea} from "ui/UIPrimitives";
+import {Button} from "ui/button/Button";
+import {Direction, Level, Size} from "ui/Constants";
 
 import {PublicUserStore} from "state/UserStore";
 import {UserHandle} from "UserHandle";

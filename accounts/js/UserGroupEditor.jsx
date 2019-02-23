@@ -1,4 +1,6 @@
-import {UI, Button, Level, Size} from "ui/UI";
+import {UI} from "ui/UI";
+import {Button} from "ui/button/Button";
+import {Level, Size} from "ui/Constants";
 import {Ajax} from "base/Ajax";
 
 import {UserGroupStore, UserGroupMemberStore} from "./state/UserGroupStore";

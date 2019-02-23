@@ -4,7 +4,7 @@ import * as d3 from "d3";
 
 import {uniqueId} from "base/Utils";
 import {StemDate} from "time/Time";
-import {UI, SVG, Direction} from "ui/UI";
+import {UI, SVG, Direction} from "ui/All";
 
 import {LinePlot} from "./LinePlot";
 import {BasePointPlot} from "./PointPlot";

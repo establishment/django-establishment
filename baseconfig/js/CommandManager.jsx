@@ -1,7 +1,8 @@
 import {Ajax} from "base/Ajax";
 import {GlobalState} from "state/State";
 import {StemDate} from "time/Time";
-import {UI, Select, Button, Table, ProgressBar, Modal, ActionModal, FormField, TextInput, StaticCodeHighlighter, CheckboxInput, NumberInput} from "ui/UI";
+import {UI, Select, Button, Table, ProgressBar, Modal, ActionModal, FormField, TextInput, StaticCodeHighlighter, CheckboxInput, NumberInput} from "ui/All";
+
 import {FAIcon} from "ui/FontAwesome";
 import {Level, Size} from "ui/Constants";
 

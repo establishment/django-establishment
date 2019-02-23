@@ -9,7 +9,7 @@ import {
     EmailInput,
     TextArea,
     SubmitInput,
-} from "ui/UI";
+} from "ui/All";
 import {enhance} from "ui/Color";
 
 
