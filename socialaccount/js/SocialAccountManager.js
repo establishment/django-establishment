@@ -1,5 +1,4 @@
-import {Ajax} from "state/Ajax";
-import {Dispatchable} from "state/Dispatcher";
+import {Dispatchable} from "base/Dispatcher";
 
 class SocialAccountManager extends Dispatchable {
     constructor(socialApp, options) {
