@@ -12,7 +12,7 @@ from establishment.funnel.stream import StreamObjectMixin
 # TODO: should it have read/edit permissions?
 class Forum(StreamObjectMixin):
     name = models.CharField(max_length=256)
-    parent = models.ForeignKey("Forum", related_name="sub_forums", null=True, blank=True)
+    parent = models.ForeignKey("Forum", on_delete=models.PROTECT, related_name="sub_forums", null=True, blank=True)
 
     stream_name_pattern = re.compile(r"forum-(\d+)")
 
@@ -60,7 +60,7 @@ class Forum(StreamObjectMixin):
 
 
 class ForumThread(StreamObjectMixin):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
     title = models.CharField(max_length=160)
     content = models.OneToOneField("chat.MessageInstance", on_delete=models.PROTECT, related_name="+")
     parent = models.ForeignKey(Forum, on_delete=models.CASCADE, related_name="forum_threads")

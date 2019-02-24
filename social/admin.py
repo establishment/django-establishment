@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.core import urlresolvers
 
 from .models import Follower
 

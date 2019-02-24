@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
-from django.core import urlresolvers
+from django import urls
 from django.utils import timezone
 
 from .utils import get_user_search_fields
@@ -81,7 +81,7 @@ class UserReactionAdmin(admin.ModelAdmin):
         return ["user__" + attr for attr in get_user_search_fields()]
 
     def link_to_reaction_collection(self, obj):
-        link = urlresolvers.reverse("admin:accounts_userreactioncollection_change", args=[obj.reaction_collection_id]) #model name has to be lowercase
+        link = urls.reverse("admin:accounts_userreactioncollection_change", args=[obj.reaction_collection_id]) #model name has to be lowercase
         return u'<a href="%s">%s</a>' % (link, "UserReactionCollection-" + str(obj.reaction_collection_id))
     link_to_reaction_collection.allow_tags = True
 
