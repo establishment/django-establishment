@@ -21,9 +21,11 @@ class WebSocket(object):
     OPCODE_PING = 0x09
     OPCODE_PONG = 0x0a
 
-    def __init__(self, wsgi_input):
+    def __init__(self, wsgi_stream):
+        if hasattr(wsgi_stream, "stream"):
+            wsgi_stream = wsgi_stream.stream
         self._closed = False
-        self.stream = Stream(wsgi_input)
+        self.stream = Stream(wsgi_stream)
         self.utf8validator = Utf8Validator()
         self.utf8validate_last = None
 
