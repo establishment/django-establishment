@@ -271,7 +271,7 @@ class SocialLogin(object):
         state = {}
 
         next_url = get_request_param(request, "next")
-        if not is_safe_url(next_url):
+        if not is_safe_url(next_url, None):
             next_url = None
         if next_url:
             state["next"] = next_url
