@@ -116,6 +116,14 @@ class RedisConnection:
         return self._redis_cache[self.connection_key]
 
 
+class UselessByteWrapper(str):
+    def __init__(self, bytes):
+        self.bytes = bytes
+
+    def encode(self, encoding, errors=None):
+        return self.bytes
+
+
 class SessionStore(SessionBase):
     def __init__(self, session_key=None):
         super().__init__(session_key)
@@ -130,8 +138,9 @@ class SessionStore(SessionBase):
         try:
             self._get_or_create_session_key()
             session_data = self.server.get(self.get_redis_key_name())
+            session_data = UselessByteWrapper(session_data)
             return self.decode(session_data)
-        except:
+        except Exception as e:
             self._session_key = None
             return {}
 
