@@ -1,5 +1,7 @@
 import os
 import django
+import faulthandler
+import signal
 
 # The import encodings.idna is never user explicitly, we just need it for networking
 import encodings.idna
@@ -28,6 +30,7 @@ class ServiceDaemon(Daemon):
         module_name = os.environ.get("ESTABLISHMENT_DJANGO_MODULE", None)
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", module_name + ".settings")
         django.setup()
+        faulthandler.register(signal.SIGUSR1)
 
     def log_initial_info(self):
         self.logger.info(str(self.service_name) + " Daemon " + str(self.version))
