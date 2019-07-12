@@ -30,6 +30,9 @@ class ServiceDaemon(Daemon):
         module_name = os.environ.get("ESTABLISHMENT_DJANGO_MODULE", None)
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", module_name + ".settings")
         django.setup()
+
+        # On SIGUSR1, we'll dump to output the stacktrace for all threads
+        # This way you can call kill -USR1 pid to see where it's stuck
         faulthandler.register(signal.SIGUSR1)
 
     def log_initial_info(self):
