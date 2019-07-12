@@ -211,7 +211,7 @@ class RedisPriorityQueue(object):
         Adds the string 'value' in queue with priority 'score'
         :return: true if the element was added and false if it already exists
         """
-        return self.redis_connection.zadd(self.name, score, value) == 1
+        return self.redis_connection.execute_command("ZADD", self.name, score, value) == 1
 
     def pop(self):
         """
