@@ -31,13 +31,27 @@ def get_default_redis_connection_pool():
     return redis_connection_pool
 
 
+class RetryRedis(StrictRedis):
+    def __init__(self, num_retries=5, **kwargs):
+        super().__init__(**kwargs)
+        self.num_retries = num_retries
+
+    def execute_command(self, *args, **options):
+        for num_try in range(self.num_retries):
+            try:
+                return super().execute_command(*args, **options)
+            except (ConnectionError, TimeoutError) as e:
+                if num_try == self.num_retries - 1:
+                    raise e
+
+
 class RedisStreamPublisher(object):
     message_timeout = 60 * 60 * 5   # Default expire time - 5 hours
     global_connection = None
 
     def __init__(self, stream_name, connection=None, persistence=True, raw=False, expire_time=None):
         if not connection:
-            connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
+            connection = RetryRedis(connection_pool=get_default_redis_connection_pool())
         self.connection = connection
         self.name = stream_name
         self.persistence = persistence
@@ -81,7 +95,11 @@ class RedisStreamPublisher(object):
                 message = cls.format_message_with_id(message, message_id)
             else:
                 message = cls.format_message_vanilla(message)
-        connection.publish(stream_name, message)
+        for iters in range(5):
+            try:
+                connection.publish(stream_name, message)
+            except Exception as e:
+                pass
         return original_message
 
     @classmethod
