@@ -1,4 +1,4 @@
-import {TerminalRoute} from "ui/UI";
+import {TerminalRoute} from "ui/Router";
 import {StateDependentElement} from "ui/StateDependentElement";
 
 import {AdminDocumentationPanel} from "./AdminDocumentationPanel";

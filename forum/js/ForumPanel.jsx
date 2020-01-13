@@ -1,6 +1,6 @@
 import {Ajax} from "base/Ajax";
 import {slugify} from "base/Utils";
-import {UI, Size, Panel, Link, Route, TimePassedSpan, registerStyle} from "ui/UI";
+import {UI, Size, Panel, Link, Route, TimePassedSpan, registerStyle} from "UI";
 import {StateDependentElement} from "ui/StateDependentElement";
 
 import {UserHandle} from "UserHandle";

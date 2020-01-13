@@ -1,6 +1,6 @@
 import {ensure} from "base/Require";
 import {Ajax} from "base/Ajax";
-import {UI, registerStyle, Theme} from "ui/UI";
+import {UI, registerStyle, Theme} from "UI";
 import {Switcher} from "ui/Switcher";
 import {Link} from "ui/UIPrimitives";
 import {PasswordInput, SubmitInput, CheckboxInput, EmailInput, TextInput, Select} from "ui/input/Input";

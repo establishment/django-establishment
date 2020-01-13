@@ -1,5 +1,5 @@
 import {Dispatcher} from "base/Dispatcher";
-import {UI, Orientation, Panel, Router, registerStyle} from "ui/UI";
+import {UI, Orientation, Panel, Router, registerStyle} from "UI";
 
 import {ArticleSwitcher} from "ArticleRenderer";
 import {DocumentationEntryStore} from "state/DocumentationStore";

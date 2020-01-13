@@ -1,4 +1,4 @@
-import {UI, Button, Link, Modal, Level, Size, Direction} from "ui/UI";
+import {UI, Button, Link, Modal, Level, Size, Direction} from "UI";
 
 import {MarkupEditor} from "./MarkupEditor";
 import {BasePopup} from "../Popup";

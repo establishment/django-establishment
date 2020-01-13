@@ -1,5 +1,5 @@
 import {MarkupRenderer} from "markup/MarkupRenderer";
-import {UI, Table} from "ui/UI";
+import {UI, Table} from "UI";
 
 export class MarkupTable extends Table {
     setColumns() {

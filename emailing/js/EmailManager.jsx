@@ -1,4 +1,4 @@
-import {UI, TabArea, Panel} from "ui/UI";
+import {UI, TabArea, Panel} from "UI";
 import {GlobalStyle} from "ui/GlobalStyle";
 
 import {EmailGatewayWidget} from "EmailGatewayWidget";

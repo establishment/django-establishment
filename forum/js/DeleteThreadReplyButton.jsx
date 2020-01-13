@@ -1,4 +1,4 @@
-import {UI, ActionModal, ActionModalButton} from "ui/UI";
+import {UI, ActionModal, ActionModalButton} from "UI";
 
 class DeleteThreadReplyModal extends ActionModal {
     getTitle() {

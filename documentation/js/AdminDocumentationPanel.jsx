@@ -1,5 +1,5 @@
 import {Ajax} from "base/Ajax";
-import {UI, Button, Panel, getOffset, Orientation, Level, Size} from "ui/UI";
+import {UI, Button, Panel, getOffset, Orientation, Level, Size} from "UI";
 import {ArticleSwitcher} from "ArticleRenderer";
 
 import {DocumentationEntryStore} from "./state/DocumentationStore";

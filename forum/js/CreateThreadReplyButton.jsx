@@ -1,5 +1,5 @@
 import {Ajax} from "base/Ajax";
-import {UI, Button, registerStyle, Level, Size} from "ui/UI";
+import {UI, Button, registerStyle, Level, Size} from "UI";
 
 import {MarkupEditorModal} from "markup/MarkupEditorModal";
 import {LoginModal} from "LoginModal";

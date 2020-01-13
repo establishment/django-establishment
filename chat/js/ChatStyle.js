@@ -37,8 +37,6 @@ export class ChatStyle extends StyleSheet {
     chatInput = {
         height: "100%",
         width: "calc(100% - 50px)",
-        // "line-height": "30px",
-        paddingTop: "0",
         paddingBottom: "0",
         fontSize: "14px",
         borderRadius: "0",

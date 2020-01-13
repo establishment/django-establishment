@@ -1,5 +1,5 @@
 import {Ajax} from "base/Ajax";
-import {UI, Level, SortableTable, Button, ActionModal, FormField, TextInput, NumberInput, CheckboxInput, Panel, TableRow, PasswordInput} from "ui/UI";
+import {UI, Level, SortableTable, Button, ActionModal, FormField, TextInput, NumberInput, CheckboxInput, Panel, TableRow, PasswordInput} from "UI";
 
 import {EmailGatewayStore} from "state/EmailGatewayStore";
 

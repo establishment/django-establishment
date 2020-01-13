@@ -1,4 +1,4 @@
-import {UI, Button, Level} from "ui/UI";
+import {UI, Button, Level} from "UI";
 import {MarkupEditorModal} from "markup/MarkupEditorModal";
 import {LoginModal} from "LoginModal";
 import {ChatMarkupRenderer} from "ChatMarkupRenderer";

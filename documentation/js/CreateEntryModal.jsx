@@ -1,5 +1,5 @@
 import {Ajax} from "base/Ajax";
-import {UI, ActionModal, ActionModalButton, Form, FormField, TextInput, Select} from "ui/UI";
+import {UI, ActionModal, ActionModalButton, Form, FormField, TextInput, Select} from "UI";
 
 import {DocumentationEntryStore} from "./state/DocumentationStore";
 

@@ -1,4 +1,4 @@
-import {UI, Link} from "ui/UI";
+import {UI, Link} from "UI";
 import {ButtonStyle} from "ui/button/ButtonStyle";
 
 class EmailUnsubscribe extends UI.Element {

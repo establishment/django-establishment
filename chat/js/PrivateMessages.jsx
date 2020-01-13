@@ -1,6 +1,6 @@
 import {Ajax} from "base/Ajax";
 import {StemDate} from "time/Time";
-import {UI, Level, Size, Router, Route, Button, Link, TextInput, VolatileFloatingWindow, registerStyle} from "ui/UI";
+import {UI, Level, Size, Router, Route, Button, Link, TextInput, VolatileFloatingWindow, registerStyle} from "UI";
 import {FAIcon} from "ui/FontAwesome";
 
 import {PublicUserStore} from "state/UserStore";
@@ -129,7 +129,6 @@ class UserSearchInput extends UI.Element {
 
     render() {
         let windowStyle = {
-            marginTop: "0.9px",
             position: "absolute",
             maxWidth: "300px",
             maxHeight: "300px",

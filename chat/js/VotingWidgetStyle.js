@@ -1,4 +1,4 @@
-import {StyleSheet, styleRule, Orientation} from "ui/UI";
+import {StyleSheet, styleRule, Orientation} from "UI";
 
 class VotingWidgetStyle extends StyleSheet {
     height = 40;

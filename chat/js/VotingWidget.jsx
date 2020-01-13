@@ -1,4 +1,4 @@
-import {UI, registerStyle, Orientation, VoteStatus} from "ui/UI";
+import {UI, registerStyle, Orientation, VoteStatus} from "UI";
 
 import {LoginModal} from "LoginModal";
 import {UserReactionCollection} from "state/UserReactionStore";

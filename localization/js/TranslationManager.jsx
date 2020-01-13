@@ -2,7 +2,7 @@
 import {FileSaver} from "base/FileSaver";
 import {Ajax} from "base/Ajax";
 import {NOOP_FUNCTION} from "base/Utils";
-import {UI, TabArea, TableRow, Table, TextInput, Button, Select, FileInput, CheckboxInput, TextArea, Panel, Level} from "ui/UI";
+import {UI, TabArea, TableRow, Table, TextInput, Button, Select, FileInput, CheckboxInput, TextArea, Panel, Level} from "UI";
 
 import {TranslationKeyStore, TranslationEntryStore} from "./state/TranslationStore";
 import {Language} from "./state/LanguageStore";

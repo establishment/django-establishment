@@ -1,4 +1,4 @@
-import {UI, Level, TimePassedSpan, Switcher, AjaxButton, TextArea, Button, registerStyle} from "ui/UI";
+import {UI, Level, TimePassedSpan, Switcher, AjaxButton, TextArea, Button, registerStyle} from "UI";
 import {MarkupRenderer} from "markup/MarkupRenderer";
 
 import {GroupChatStore} from "state/MessageThreadStore";

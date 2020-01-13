@@ -1,6 +1,6 @@
 import {Ajax} from "base/Ajax";
 import {MarkupRenderer} from "markup/MarkupRenderer";
-import {UI, TimePassedSpan} from "ui/UI";
+import {UI, TimePassedSpan} from "UI";
 
 import {UserNotificationStore} from "state/UserStore";
 

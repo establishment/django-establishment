@@ -1,5 +1,5 @@
 import {StoreObject} from "state/Store";
-import {UI, ErrorModal} from "ui/UI";
+import {UI, ErrorModal} from "UI";
 
 import {ErrorMessageStore, ErrorMessage} from "state/ErrorMessageStore";
 

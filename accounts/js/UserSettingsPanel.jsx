@@ -3,7 +3,7 @@ import {
     UI, TabArea, Form, FormField, TextInput,
     AjaxButton, PasswordInput, EmailInput, Panel,
     Label, Button, Select, CheckboxInput
-} from "ui/UI";
+} from "UI";
 import {GlobalStyle} from "ui/GlobalStyle";
 import {Level, Size} from "ui/Constants";
 

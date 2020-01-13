@@ -13,7 +13,7 @@ import {
     registerStyle,
     Level,
     Size
-} from "ui/UI";
+} from "UI";
 import {ConcentricCirclesLoadingScreen} from "ui/ConcentricCirclesLoadingScreen";
 
 import {MarkupEditorModal} from "markup/MarkupEditorModal";

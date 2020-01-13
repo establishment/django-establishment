@@ -3,7 +3,7 @@ import {
     UI, Level, SortableTable, Button, FormField,
     TextInput, ActionModal, Select, CheckboxInput,
     TableRow, Panel
-} from "ui/UI";
+} from "UI";
 import {EmailGatewayStore} from "state/EmailGatewayStore";
 import {EmailCampaignStore} from "state/EmailCampaignStore";
 
