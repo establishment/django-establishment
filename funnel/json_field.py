@@ -261,7 +261,7 @@ class SerializedJsonField(Field):
         return SerializedJsonFieldAdapter(custom_obj=value)
 
     # called everytime an object is retrieved from the db with a query
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection):
         if value is None:
             return value
         if isinstance(value, dict):
