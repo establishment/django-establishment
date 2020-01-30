@@ -171,9 +171,8 @@ class MessageThread extends StoreObject {
     constructor(obj) {
         super(obj);
         this.messages = new Map();
-        // TODO: for now don't register for private chats, you get them as user events
         // TODO: don't change the global here, you fool!
-        if (!this.streamName.startsWith("messagethread-privatechat-")) {
+        if (!this.streamName.startsWith("messagethread-privatechat-") && !this.streamName.startsWith("temp-")) {
             GlobalState.registerStream(this.streamName);
         }
         this.online = new Set(this.online || []);
@@ -274,14 +273,14 @@ class MessageInstanceStoreClass extends VirtualStoreMixin(GenericObjectStore) {
     };
 }
 
-var MessageInstanceStore = new MessageInstanceStoreClass();
+const MessageInstanceStore = new MessageInstanceStoreClass();
 
 MessageInstanceStore.addCreateListener((messageInstance, createEvent) => {
     messageInstance.getMessageThread().addMessageInstance(messageInstance, createEvent);
 });
 
 
-var MessageThreadStore = new GenericObjectStore("messagethread", MessageThread);
+const MessageThreadStore = new GenericObjectStore("messagethread", MessageThread);
 
 class BaseChatObject extends StoreObject {
     getMessageThread() {
@@ -296,9 +295,9 @@ class BaseChatObject extends StoreObject {
 class GroupChat extends BaseChatObject {
 }
 
-var GroupChatStoreClass = AjaxFetchMixin(GenericObjectStore);
+const GroupChatStoreClass = AjaxFetchMixin(GenericObjectStore);
 
-var GroupChatStore = new GroupChatStoreClass("groupChat", GroupChat, {
+const GroupChatStore = new GroupChatStoreClass("groupChat", GroupChat, {
     fetchURL: "/chat/group_chat_state/",
     maxFetchObjectCount: 1,
 });
@@ -315,7 +314,7 @@ class PrivateChat extends BaseChatObject {
     }
 }
 
-var PrivateChatStore = new GenericObjectStore("PrivateChat", PrivateChat, {
+const PrivateChatStore = new GenericObjectStore("PrivateChat", PrivateChat, {
 });
 
 PrivateChatStore.getChatWithUser = function(userId) {
