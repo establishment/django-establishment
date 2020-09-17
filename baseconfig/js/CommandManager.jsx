@@ -66,7 +66,7 @@ class CommandRunDetailsModal extends Modal {
 
     getFormattedMessage(logEntry) {
         let message = "";
-        message += "[" + StemDate(logEntry.timestamp).format("DD/MM/YYYY HH:mm:SS") + "]";
+        message += "[" + StemDate.format(logEntry.timestamp, "DD/MM/YYYY HH:mm:SS") + "]";
         message += " ";
         message += logEntry.message;
         message += "\n";
@@ -164,7 +164,7 @@ class PastCommandsTable extends Table {
                 value: commandRun => <UserHandle userId={commandRun.userId} />,
                 headerName: "User"
             }, {
-                value: commandRun => StemDate(commandRun.dateCreated).format("DD/MM/YYYY HH:mm"),
+                value: commandRun => StemDate.format(commandRun.dateCreated, "DD/MM/YYYY HH:mm"),
                 headerName: "Date"
             }, {
                 value: commandRun => <CommandRunDuration commandRun={commandRun} />,

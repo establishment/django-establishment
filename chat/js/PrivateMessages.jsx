@@ -72,7 +72,7 @@ class MiniMessage extends UI.Element {
         return [
             <UserHandle ref="userHandle" id={this.getUserId()} noPopup color={this.options.active ? "white" : null}/>,
             <div ref="timeAttribute" className="pull-right" style={{color: (this.options.active ? "white" : "#888"),}}>
-                {(this.getLastMessage().timeAdded !== 0 ? formatMiniMessageLastTime(StemDate(this.getLastMessage().timeAdded)) : "")}
+                {(this.getLastMessage().timeAdded !== 0 ? formatMiniMessageLastTime(new StemDate(this.getLastMessage().timeAdded)) : "")}
             </div>,
             <div style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingTop: "8px",}}>
                 {this.getLastMessage().content}
