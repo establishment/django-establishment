@@ -4,7 +4,7 @@ from establishment.errors.models import get_error
 
 class AccountsError(ErrorList):
     # Errors due to unavailability of the requested action
-    ALREADY_LOGGED_IN = get_error(message="You're already logged in")
+    ALREADY_LOGGED_IN = get_error(message="You're already logged in. Try refreshing the page.")
     EMAIL_UNAVAILABLE = get_error(message="Email address is already in")
     USERNAME_UNAVAILABLE = get_error(message="Username is already in use")
     PRIMARY_EMAIL_REMOVAL = get_error(message="Email address is primary, can't remove")
