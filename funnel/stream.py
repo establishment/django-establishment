@@ -23,7 +23,7 @@ def get_stream_handler(stream_name):
 
 
 class StreamObjectMixin(models.Model):
-    EVENT_PERSISTENCE_DURATION = 24 * 60 * 60  # TODO: lower this!
+    EVENT_PERSISTENCE_DURATION = 30 * 60 // 30 minutes
 
     class Meta:
         abstract = True
@@ -34,6 +34,11 @@ class StreamObjectMixin(models.Model):
     @classmethod
     def object_type(cls):
         return cls._meta.db_table
+
+    @classmethod
+    def get_default_event_persistence_duration(cls, value=None):
+        from ..baseconfig.models import private_settings_cache
+        return value or private_settings_cache.get("EVENT_PERSISTENCE_DURATION", cls.EVENT_PERSISTENCE_DURATION)
 
     @classmethod
     def should_include_field(cls, meta_field, include=None, exclude=None, include_many_to_many=False):
@@ -102,7 +107,7 @@ class StreamObjectMixin(models.Model):
             try:
                 # this is actually the only way objects might have been pre-fetched (Django 1.11)
                 self._prefetched_objects_cache[rel_queryset.prefetch_cache_name]
-                # Ok, it's pefetched
+                # Ok, it's prefetched
                 ids = list(map(lambda obj: obj.id, rel_queryset.all()))
             except (AttributeError, KeyError):
                 # Not prefetched
@@ -329,7 +334,8 @@ class StreamObjectMixin(models.Model):
         data = kwargs.pop("data", {})
         return self.make_event("delete", data, *args, **kwargs)
 
-    def publish_event(self, event_type, data, extra=None, stream_names=None, persistence=True, expire_time=EVENT_PERSISTENCE_DURATION):
+    def publish_event(self, event_type, data, extra=None, stream_names=None, persistence=True, expire_time=None):
+        expire_time = self.get_default_event_persistence_duration(expire_time)
         event = self.make_event(event_type, data, extra)
         self.publish_event_raw(event, stream_names, persistence, expire_time)
         return event
@@ -352,10 +358,11 @@ class StreamObjectMixin(models.Model):
         event = self.delete_and_make_event()
         return self.publish_event_raw(event, *args, **kwargs)
 
-    def publish_event_raw(self, event, stream_names=None, persistence=True, expire_time=EVENT_PERSISTENCE_DURATION):
+    def publish_event_raw(self, event, stream_names=None, persistence=True, expire_time=None):
         """
         Method that can be used to publish any event on the objects' stream
         """
+        expire_time = self.get_default_event_persistence_duration(expire_time)
         if not stream_names:
             stream_names = self.get_stream_name()
         if not isinstance(stream_names, list):
