@@ -23,7 +23,7 @@ def get_stream_handler(stream_name):
 
 
 class StreamObjectMixin(models.Model):
-    EVENT_PERSISTENCE_DURATION = 30 * 60 // 30 minutes
+    EVENT_PERSISTENCE_DURATION = 30 * 60 # 30 minutes
 
     class Meta:
         abstract = True
