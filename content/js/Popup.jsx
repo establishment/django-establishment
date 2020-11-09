@@ -22,7 +22,7 @@ export class BasePopup extends FloatingWindow {
             boxShadow: "0px 0px 4px rgba(0,0,0,0.5)",
             borderRadius: "5px",
             display: "table",
-            maxWidth: "350px",
+            width: "300px",
             backgroundColor: this.options.backgroundColor,
             position: "absolute",
             left: (this.options.x) + "px",
