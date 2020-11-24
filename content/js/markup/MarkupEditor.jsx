@@ -7,6 +7,8 @@ import {SectionDivider} from "ui/section-divider/SectionDivider";
 import {Level, Orientation} from "ui/Constants";
 import {Panel} from "ui/UIPrimitives";
 import {Button} from "ui/button/Button";
+import {CheckboxInput} from "../../../../stemjs/src/ui/input/Input";
+import {FormField} from "../../../../stemjs/src/ui/form/Form";
 
 
 class MarkupEditor extends Panel {
@@ -41,10 +43,16 @@ class MarkupEditor extends Panel {
     render() {
         let buttons;
         if (this.options.showButtons) {
-            buttons = <ButtonGroup>
-                <Button ref="toggleLeftButton" label={UI.T("Editor")} level={Level.SUCCESS}/>
-                <Button ref="toggleRightButton" label={UI.T("Article")} level={Level.SUCCESS}/>
-            </ButtonGroup>;
+            buttons = <div style={{margin: 6}}>
+                <span onClick={() => this.toggleEditorPanel()}>
+                    <CheckboxInput checked />
+                    Editor
+                </span>
+                <span onClick={() => this.togglePreviewPanel()}>
+                    <CheckboxInput checked />
+                    Preview
+                </span>
+            </div>;
         }
 
         return [
@@ -92,28 +100,23 @@ class MarkupEditor extends Panel {
         });
     }
 
-    onMount() {
-        if (this.options.showButtons) {
-            this.toggleLeftButton.addClickListener(() => {
-                if (this.editorPanel.getWidth() === 0) {
-                    this.sectionDivider.expandChild(0);
-                    this.toggleLeftButton.setLevel(Level.SUCCESS);
-                } else {
-                    this.sectionDivider.collapseChild(0);
-                    this.toggleLeftButton.setLevel(Level.DANGER);
-                }
-            });
-            this.toggleRightButton.addClickListener(() => {
-                if (this.rendererPanel.getWidth() === 0) {
-                    this.sectionDivider.expandChild(1);
-                    this.toggleRightButton.setLevel(Level.SUCCESS);
-                } else {
-                    this.sectionDivider.collapseChild(1);
-                    this.toggleRightButton.setLevel(Level.DANGER);
-                }
-            });
+    toggleEditorPanel() {
+        if (this.editorPanel.getWidth() === 0) {
+            this.sectionDivider.expandChild(0);
+        } else {
+            this.sectionDivider.collapseChild(0);
         }
+    }
 
+    togglePreviewPanel() {
+        if (this.rendererPanel.getWidth() === 0) {
+            this.sectionDivider.expandChild(1);
+        } else {
+            this.sectionDivider.collapseChild(1);
+        }
+    }
+
+    onMount() {
         this.setEditorOptions();
     }
 
