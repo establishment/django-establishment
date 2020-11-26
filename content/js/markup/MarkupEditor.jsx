@@ -2,13 +2,10 @@ import {MarkupRenderer} from "markup/MarkupRenderer";
 
 import {UI} from "ui/UI";
 import {TextArea} from "ui/input/Input";
-import {ButtonGroup} from "ui/button/ButtonGroup";
 import {SectionDivider} from "ui/section-divider/SectionDivider";
-import {Level, Orientation} from "ui/Constants";
+import {Orientation} from "ui/Constants";
 import {Panel} from "ui/UIPrimitives";
-import {Button} from "ui/button/Button";
 import {CheckboxInput} from "../../../../stemjs/src/ui/input/Input";
-import {FormField} from "../../../../stemjs/src/ui/form/Form";
 
 
 class MarkupEditor extends Panel {
