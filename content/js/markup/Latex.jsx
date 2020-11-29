@@ -1,6 +1,5 @@
 import {UI} from "ui/UI";
 
-
 let katex = null;
 
 export class Latex extends UI.Element {
@@ -17,6 +16,14 @@ export class Latex extends UI.Element {
             options.value = options.value || value;
         }
         super.setOptions(options);
+    }
+
+    updateOptions(options) {
+        const oldValue = this.options.value;
+        this.setOptions(Object.assign(this.options, options));
+        if (oldValue != this.options.value) {
+            this.redraw();
+        }
     }
 
     getNodeType() {
