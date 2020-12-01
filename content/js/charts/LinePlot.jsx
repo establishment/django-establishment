@@ -1,4 +1,4 @@
-import {line} from "d3";
+import {line} from "d3-shape";
 
 import {UI} from "ui/UI";
 import {SVG} from "ui/SVG";

@@ -1,6 +1,8 @@
 // TODO: write own custom Scale
-import {event, zoom, scaleLinear, scaleTime, select} from "d3";
-import * as d3 from "d3";
+// TODO: maybe import as some of these d3 functions
+import {scaleLinear, scaleTime} from "d3-scale";
+import {select} from "d3-selection";
+import {zoom, zoomIdentity} from "d3-zoom";
 
 import {uniqueId} from "base/Utils";
 import {StemDate} from "time/Time";
@@ -283,7 +285,7 @@ export class BasicChart extends SVG.Group {
     initZoom() {
         this.options.applyZoom = true;
         let zoomNode = select(this.interactiveLayer.node);
-        this.zoomListener = () => {
+        this.zoomListener = (event) => {
             if (this.options.applyZoom) {
                 this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale);
                 this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale);
@@ -404,19 +406,19 @@ export class TimeChart extends BasicChart {
 
     initZoom(infinite=false) {
         this.options.applyZoom = true;
-        let zoomNode = d3.select(this.interactiveLayer.node);
-        this.zoomListener = () => {
+        let zoomNode = select(this.interactiveLayer.node);
+        this.zoomListener = (event) => {
             if (this.options.applyZoom) {
-                let x = d3.event.transform.x, y = d3.event.transform.y, k = d3.event.transform.k;
-                d3.event.transform.x = Math.min(0, Math.max(x, this.options.chartOptions.width * (1 - k)));
-                d3.event.transform.y = Math.min(0, Math.max(y, this.options.chartOptions.height * (1 - k)));
-                this.xAxisOptions.scale = d3.event.transform.rescaleX(this._initialXScale);
-                this.yAxisOptions.scale = d3.event.transform.rescaleY(this._initialYScale);
+                let x = event.transform.x, y = event.transform.y, k = event.transform.k;
+                event.transform.x = Math.min(0, Math.max(x, this.options.chartOptions.width * (1 - k)));
+                event.transform.y = Math.min(0, Math.max(y, this.options.chartOptions.height * (1 - k)));
+                this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale);
+                this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale);
                 this.redraw();
-                this.interactiveLayer.node.__zoom = d3.event.transform;
+                this.interactiveLayer.node.__zoom = event.transform;
             }
         };
-        this.zoomBehavior = d3.zoom();
+        this.zoomBehavior = zoom();
         if (!infinite) {
             this.zoomBehavior = this.zoomBehavior.scaleExtent(this.options.zoomScaleExtent);
         }
@@ -430,10 +432,11 @@ export class TimeChart extends BasicChart {
             x: this.options.chartOptions.width / 2 * (1 - factor),
             y: this.options.chartOptions.height / 2 * (1 - factor)
         };
-        centerZoom.__proto__ = d3.zoomIdentity.__proto__;
-        d3.customEvent({
+        centerZoom.__proto__ = zoomIdentity.__proto__;
+
+        zoomNode.dispatch("zoom", {
             transform: centerZoom
-        }, this.zoomListener, zoomNode);
+        });
     }
 }
 
