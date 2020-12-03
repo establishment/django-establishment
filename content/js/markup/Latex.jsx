@@ -47,5 +47,6 @@ export class Latex extends UI.Element {
             katex = _katex;
             this.updateInnerHTML();
         });
+        this.applyRef();
     }
 }
