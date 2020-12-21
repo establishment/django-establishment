@@ -306,7 +306,7 @@ class EmailStatus(StreamObjectMixin):
                 RedisStreamPublisher.publish_to_stream(extra_stream_name, event)
 
     def get_receiver_id(self):
-        if self.get_receiver_type() is "user":
+        if self.get_receiver_type() == "user":
             return self.user_id
         return self.subscription_id
 
