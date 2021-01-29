@@ -1,6 +1,6 @@
 import json
 
-from ..models import Country
+from establishment.localization.models import Country
 
 
 def create_countries():
