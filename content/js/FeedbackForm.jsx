@@ -91,15 +91,15 @@ export class FeedbackFormStyle extends StyleSheet {
 
         outline: "0",
         ":focus": {
-            border: `2px solid ${enhance(this.themeProperties.COLOR_PRIMARY, 0.3)}`,
+            border: `2px solid ${enhance(this.themeProps.COLOR_PRIMARY, 0.3)}`,
             transition: "0.25s",
         },
         ":hover": {
-            border: `2px solid ${enhance(this.themeProperties.COLOR_PRIMARY, 0.3)}`,
+            border: `2px solid ${enhance(this.themeProps.COLOR_PRIMARY, 0.3)}`,
             transition: "0.25s",
         },
         ":active": {
-            border: `2px solid ${enhance(this.themeProperties.COLOR_PRIMARY, 0.3)}`,
+            border: `2px solid ${enhance(this.themeProps.COLOR_PRIMARY, 0.3)}`,
             transition: "0.25s",
         },
     };
@@ -126,11 +126,11 @@ export class FeedbackFormStyle extends StyleSheet {
         transition: "0.25s",
 
         ":hover": {
-            borderColor: enhance(this.themeProperties.COLOR_PRIMARY, 0.3),
+            borderColor: enhance(this.themeProps.COLOR_PRIMARY, 0.3),
             transition: "0.25s",
         },
         ":focus": {
-            borderColor: enhance(this.themeProperties.COLOR_PRIMARY, 0.3),
+            borderColor: enhance(this.themeProps.COLOR_PRIMARY, 0.3),
             transition: "0.25s",
             outline: "0",
         },
@@ -138,25 +138,25 @@ export class FeedbackFormStyle extends StyleSheet {
 
     @styleRule
     submitInputSending = {
-        borderColor: enhance(this.themeProperties.COLOR_WARNING, 0.3),
+        borderColor: enhance(this.themeProps.COLOR_WARNING, 0.3),
         ":hover": {
-            borderColor: enhance(this.themeProperties.COLOR_WARNING, 0.3),
+            borderColor: enhance(this.themeProps.COLOR_WARNING, 0.3),
         },
     };
 
     @styleRule
     submitInputSuccess = {
-        borderColor: enhance(this.themeProperties.COLOR_SUCCESS, 0.3),
+        borderColor: enhance(this.themeProps.COLOR_SUCCESS, 0.3),
         ":hover": {
-            borderColor: enhance(this.themeProperties.COLOR_SUCCESS, 0.3),
+            borderColor: enhance(this.themeProps.COLOR_SUCCESS, 0.3),
         },
     };
 
     @styleRule
     submitInputError = {
-        borderColor: enhance(this.themeProperties.COLOR_DANGER, 0.3),
+        borderColor: enhance(this.themeProps.COLOR_DANGER, 0.3),
         ":hover": {
-            borderColor: enhance(this.themeProperties.COLOR_DANGER, 0.3),
+            borderColor: enhance(this.themeProps.COLOR_DANGER, 0.3),
         },
     };
 }

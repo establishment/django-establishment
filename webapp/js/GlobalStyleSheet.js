@@ -4,8 +4,8 @@ export class GlobalStyleSheet extends StyleSheet {
     @styleRuleCustom({selector: "body"})
     body = {
         margin: 0,
-        fontSize: this.themeProperties.FONT_SIZE_DEFAULT,
-        fontFamily: this.themeProperties.FONT_FAMILY_DEFAULT,
+        fontSize: this.themeProps.FONT_SIZE_DEFAULT,
+        fontFamily: this.themeProps.FONT_FAMILY_DEFAULT,
     };
 
     @styleRuleCustom({selector: ".hidden"})
@@ -21,7 +21,7 @@ export class GlobalStyleSheet extends StyleSheet {
     @styleRuleCustom({selector: "a"})
     a = {
         textDecoration: "none",
-        color: this.themeProperties.COLOR_LINK
+        color: this.themeProps.COLOR_LINK
     };
 
     @styleRuleCustom({selector: "hr"})
@@ -36,7 +36,7 @@ export class GlobalStyleSheet extends StyleSheet {
 
     @styleRuleCustom({selector: "code, pre"})
     codeAndPre = {
-        fontFamily: this.themeProperties.FONT_FAMILY_MONOSPACE,
+        fontFamily: this.themeProps.FONT_FAMILY_MONOSPACE,
     };
 
     @styleRuleCustom({selector: "code"})
@@ -45,14 +45,14 @@ export class GlobalStyleSheet extends StyleSheet {
         fontSize: "90%",
         color: "#345 !important", // TODO: take colors from theme
         backgroundColor: "#f8f2f4 !important",
-        borderRadius: this.themeProperties.BUTTON_BORDER_RADIUS,
+        borderRadius: this.themeProps.BUTTON_BORDER_RADIUS,
     };
 
     @styleRuleCustom({selector: "pre"})
     pre = {
         overflow: "auto",
         display: "block",
-        padding: this.themeProperties.BUTTON_BORDER_RADIUS,
+        padding: this.themeProps.BUTTON_BORDER_RADIUS,
         margin: "0 0 10px",
         fontSize: "13px",
         lineHeight: "1.42857143",

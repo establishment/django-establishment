@@ -191,7 +191,7 @@ class LoginStyle extends StyleSheet {
         height: "30px",
         width: "100%",
         fontSize: "14px",
-        color: this.themeProperties.COLOR_DANGER,
+        color: this.themeProps.COLOR_DANGER,
         textAlign: "center",
     };
 
