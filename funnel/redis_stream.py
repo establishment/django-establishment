@@ -98,7 +98,8 @@ class RedisStreamPublisher(object):
         for iters in range(5):
             try:
                 connection.publish(stream_name, message)
-            except Exception as e:
+                break
+            except Exception:
                 pass
         return original_message
 
