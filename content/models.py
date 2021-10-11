@@ -1,14 +1,12 @@
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db import transaction
 
 from establishment.funnel.stream import StreamObjectMixin
 from establishment.localization.models import Language
-from django.contrib.postgres.fields import JSONField
 
 
-class EditableTextField(JSONField):
+class EditableTextField(models.JSONField):
     """
     Class meant to keep historic versions of a string
     max_length=1<<16 - max length of valid string
@@ -21,7 +19,7 @@ class EditableTextField(JSONField):
 class Tag(StreamObjectMixin):
     name = models.CharField(max_length=256, unique=True)
     parent = models.ForeignKey("Tag", on_delete=models.SET_NULL, related_name="children", null=True, blank=True)
-    meta = JSONField(null=True, blank=True)
+    meta = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return self.name

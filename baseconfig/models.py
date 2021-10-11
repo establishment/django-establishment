@@ -5,7 +5,6 @@ from threading import Lock
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from django.contrib.postgres.fields import JSONField
 
 from establishment.funnel.stream import StreamObjectMixin
 from establishment.funnel.json_helper import to_json_dict, from_json_dict
@@ -14,7 +13,7 @@ from establishment.funnel.json_helper import to_json_dict, from_json_dict
 class BaseGlobalSettings(StreamObjectMixin):
     namespace = models.CharField(max_length=255, null=True, blank=True)
     key = models.CharField(max_length=255)
-    value = JSONField()
+    value = models.JSONField()
     export = models.BooleanField(default=False)
     export_name = models.CharField(max_length=255, null=True, blank=True)
 
@@ -107,12 +106,12 @@ class CommandRun(StreamObjectMixin):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     command_instance = models.ForeignKey(CommandInstance, on_delete=models.PROTECT)
-    arguments = JSONField(null=True, blank=True)
+    arguments = models.JSONField(null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_finished = models.DateTimeField(null=True, blank=True)
     status = models.IntegerField(choices=COMMAND_RUN_STATUS, default=0)
-    result = JSONField(null=True, blank=True)
-    log_entries = JSONField(null=True, blank=True)
+    result = models.JSONField(null=True, blank=True)
+    log_entries = models.JSONField(null=True, blank=True)
 
     class Meta:
         db_table = "CommandRun"

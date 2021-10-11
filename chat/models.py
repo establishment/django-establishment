@@ -2,7 +2,6 @@ import re
 from datetime import datetime
 
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils import timezone
 
@@ -17,7 +16,7 @@ from establishment.webapp.state import State
 class MessageThread(StreamObjectMixin):
     stream_name = models.CharField(max_length=256)
     messages_editable = models.BooleanField(default=False)
-    metadata = JSONField(blank=True)
+    metadata = models.JSONField(blank=True)
     muted = models.BooleanField(default=False)
     markup_enabled = models.BooleanField(default=True) #TODO: should be in metadata
     last_activity = models.DateTimeField(default=datetime.fromtimestamp(0))
@@ -96,7 +95,7 @@ class MessageInstance(ReactionableMixin):
     time_added = models.DateTimeField(auto_now_add=True)
     content = models.TextField(max_length=(1 << 14))
     hidden = models.BooleanField(default=False)
-    metadata = JSONField(blank=True)
+    metadata = models.JSONField(blank=True)
 
     class Meta:
         db_table = "MessageInstance"
@@ -193,7 +192,7 @@ class MessageThreadWrapperMixin(StreamObjectMixin):
 
 # Temp testing class
 class LastReadMessageMixin(StreamObjectMixin):
-    last_read_message = JSONField(default=dict)
+    last_read_message = models.JSONField(default=dict)
 
     class Meta:
         abstract = True
@@ -232,7 +231,7 @@ class PrivateChat(StreamObjectMixin):
     user1 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
     user2 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
     message_thread = models.OneToOneField(MessageThread, on_delete=models.CASCADE, related_name="+")
-    first_unread_message = JSONField(default=dict)
+    first_unread_message = models.JSONField(default=dict)
 
     class Meta:
         db_table = "PrivateChat"

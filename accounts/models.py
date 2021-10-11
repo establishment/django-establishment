@@ -5,7 +5,6 @@ import uuid
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.hashers import make_password
-from django.contrib.postgres.fields import JSONField
 from django.core import validators
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models, transaction
@@ -86,7 +85,7 @@ class TempUser(StreamObjectMixin):
     date_created = models.DateTimeField(auto_now_add=True)
     password = models.CharField("Password", max_length=128)
     ip_address = models.GenericIPAddressField(null=True)
-    extra = JSONField(default=dict)
+    extra = models.JSONField(default=dict)
 
     class Meta:
         db_table = "TempUser"
@@ -279,7 +278,7 @@ MAX_USER_CUSTOM_SETTINGS_SIZE = 1 << 21
 # TODO: rethink this with UserProfile in mind
 class UserCustomSettings(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="custom_settings")
-    settings = JSONField()
+    settings = models.JSONField()
     # TODO: should probably just be the number of unread notifications
     last_read_notification = models.ForeignKey("accounts.UserNotification", on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -332,7 +331,7 @@ class UserNotification(StreamObjectMixin):
     date_created = models.DateTimeField(auto_now=True)
     type = models.CharField(max_length=128)
     read = models.BooleanField(default=False)
-    data = JSONField()
+    data = models.JSONField()
 
     class Meta:
         db_table = "UserNotification"

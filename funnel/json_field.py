@@ -199,6 +199,7 @@ class SerializedJsonFieldAdapter(Json):
 #     json = SerializedJsonField("Serialized struct", local_class=CoolClass)
 
 
+# TODO Deprecate this field ASAP
 class SerializedJsonField(Field):
     description = "Generic JSON-struct field"
     default_error_messages = {

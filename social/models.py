@@ -1,4 +1,3 @@
-from django.contrib.postgres.fields import JSONField
 from django.db import models, transaction
 from django.conf import settings
 
@@ -84,7 +83,7 @@ class SocialGroupMember(StreamObjectMixin):
     group = models.ForeignKey(SocialGroup, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     is_admin = models.BooleanField(default=False)
-    # properties = JSONField(default=dict)
+    # properties = models.JSONField(default=dict)
 
     class Meta:
         unique_together = (("group", "user"), )

@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.contrib.postgres.fields import JSONField
 from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 from django.db import models
@@ -104,7 +103,7 @@ class SocialAccount(models.Model):
     uid = models.CharField(max_length=512, unique=True)
     last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
-    extra_data = JSONField(default=dict)
+    extra_data = models.JSONField(default=dict)
 
     class Meta:
         db_table = "SocialAccount"
