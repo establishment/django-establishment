@@ -417,14 +417,14 @@ class MessagesPanel extends UI.Element {
         this.collapseButton.addClickListener(() => {
             if (!this.collapsed) {
                 this.messagesPanelList.setStyle("marginLeft", "-250px");
-                this.collapseButton.setFaIcon("chevron-right");
+                this.collapseButton.setIcon("chevron-right");
                 this.collapseButton.setStyle("left", "8px");
                 this.collapseButton.setStyle("opacity", ".3");
                 this.chatWidget.setWidth("100%");
                 this.collapsed = true;
             } else {
                 this.messagesPanelList.setStyle("marginLeft", "0");
-                this.collapseButton.setFaIcon("chevron-left");
+                this.collapseButton.setIcon("chevron-left");
                 this.collapseButton.setStyle("left", "208px");
                 this.collapseButton.setStyle("opacity", "1");
                 this.chatWidget.setWidth("calc(100% - 250px)");

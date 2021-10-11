@@ -72,7 +72,7 @@ export class GeneralInformationPanel extends Panel {
     saveProfileChanges() {
         const request = this.getSaveRequestData();
 
-        this.saveProfileButton.setFaIcon("");
+        this.saveProfileButton.setIcon("");
         this.firstNameFormField.removeError();
         this.lastNameFormField.removeError();
         this.userNameFormField.removeError();
