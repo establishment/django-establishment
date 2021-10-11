@@ -91,7 +91,7 @@ class CreateForumThreadButton extends Button {
     }
 
     setOptions(options) {
-        if (!options.faIcon) {
+        if (!options.icon) {
             options.label = options.label || UI.T("Preview");
         }
         options.level = options.level || Level.PRIMARY;
@@ -159,12 +159,12 @@ class ForumThreadReply extends UI.Element {
 
         if (USER.isSuperUser || USER.id === messageInstance.userId) {
             deleteMessage = <DeleteThreadReplyButton
-                faIcon="trash"
+                icon="trash"
                 level={Level.DANGER}
                 className={forumThreadPanelStyle.deleteButton}
                 modalOptions={{messageInstance: messageInstance}} />;
             editMessage = <EditThreadReplyButton
-                faIcon={"pencil"}
+                icon={"pencil"}
                 level={Level.INFO}
                 messageInstance={messageInstance}
                 forumThreadPanel={this}
@@ -331,13 +331,13 @@ class ForumThreadPanel extends Panel {
         let editAndDeleteButtons;
 
         if (USER.isSuperUser || USER.id === this.getForumThread().authorId) {
-            deleteButton = <DeleteForumThreadButton faIcon="trash"
+            deleteButton = <DeleteForumThreadButton icon="trash"
                                                     level={Level.DANGER}
                                                     className={this.styleSheet.deleteButton}
                                                     modalOptions = {{
                                                         forumThread: this.getForumThread()
                                                     }}/>;
-            editButton = <EditThreadReplyButton faIcon="pencil"
+            editButton = <EditThreadReplyButton icon="pencil"
                                                 level={Level.INFO}
                                                 className={this.styleSheet.editButton}
                                                 messageInstance={this.getForumThread().getContentMessage()}/>;

@@ -64,12 +64,12 @@ class VotingWidget extends UI.Element {
 
         return [
             <span className="fa fa-caret-up voteButton" ref="likeButton"
-                       faIcon="caret-up" style={likeButtonStyle} HTMLtitle="Click to like"/>,
+                       icon="caret-up" style={likeButtonStyle} HTMLtitle="Click to like"/>,
             <span ref="counterContainer" style={counterStyle}>
                 <UI.TextElement ref="counter" value={this.getVotesBalance() + ""}/>
             </span>,
             <span className="fa fa-caret-down voteButton" ref="dislikeButton"
-                       faIcon="caret-down" style={dislikeButtonStyle} HTMLtitle="Click to dislike"/>,
+                       icon="caret-down" style={dislikeButtonStyle} HTMLtitle="Click to dislike"/>,
         ];
     }
 
@@ -188,10 +188,10 @@ class CommentVotingWidgetWithThumbs extends CommentVotingWidget {
 
         return [
             <span className={this.styleSheet.displayStyle} style={thumbsUpScoreStyle}>{this.getNumLikes()}</span>,
-            <span className={"fa fa-thumbs-up voteButton " + this.styleSheet.displayStyle + " " + this.styleSheet.thumbsUpHoverStyle} ref="likeButton" faIcon="thumbs-up" style={likeButtonStyle} HTMLtitle="Click to like"/>,
+            <span className={"fa fa-thumbs-up voteButton " + this.styleSheet.displayStyle + " " + this.styleSheet.thumbsUpHoverStyle} ref="likeButton" icon="thumbs-up" style={likeButtonStyle} HTMLtitle="Click to like"/>,
             <div className={this.styleSheet.padding} />,
             <span className={this.styleSheet.displayStyle} style={thumbsDownScoreStyle}>{this.getNumDislikes()}</span>,
-            <span className={"fa fa-thumbs-down voteButton " + this.styleSheet.displayStyle + " " + this.styleSheet.thumbsDownHoverStyle} ref="dislikeButton" faIcon="thumbs-down" style={dislikeButtonStyle} HTMLtitle="Click to dislike"/>,
+            <span className={"fa fa-thumbs-down voteButton " + this.styleSheet.displayStyle + " " + this.styleSheet.thumbsDownHoverStyle} ref="dislikeButton" icon="thumbs-down" style={dislikeButtonStyle} HTMLtitle="Click to dislike"/>,
         ];
     }
 }

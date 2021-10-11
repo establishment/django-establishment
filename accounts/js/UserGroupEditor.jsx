@@ -14,7 +14,7 @@ export class UserGroupMemberUI extends UI.Element {
     }
 
     getDestroyButton() {
-        return <Button level={Level.DANGER} size={Size.EXTRA_SMALL} faIcon="minus"
+        return <Button level={Level.DANGER} size={Size.EXTRA_SMALL} icon="minus"
                     ref="destroyButton" style={{marginRight: "5px"}}/>;
     }
 

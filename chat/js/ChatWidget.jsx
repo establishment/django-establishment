@@ -19,7 +19,7 @@ InputStyle.getInstance().ensureFirstUpdate();
 
 class PreviewMarkupButton extends Button {
     setOptions(options) {
-        if (!options.faIcon) {
+        if (!options.icon) {
             options.label = options.label || UI.T("Preview");
         }
         super.setOptions(options);
@@ -477,7 +477,7 @@ let ChatWidget = (ChatMessageClass) => {
                 loadMoreButton = (
                     <div className="text-center">
                         <AjaxButton ref={this.refLink("loadMoreButton")} level={Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
-                                       style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
+                                       style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {icon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                         />
                     </div>
                 );
@@ -560,7 +560,7 @@ let ChatWidget = (ChatMessageClass) => {
                              className={this.styleSheet.chatInput} />
                 <div style={{display: "flex", flexDirection: "column", height: "100%", position: "absolute", right: "0px", width: "50px"}}>
                     <Button ref="sendMessageButton"
-                               faIcon="paper-plane"
+                               icon="paper-plane"
                                disabled={this.messageThread.muted}
                                onClick={() => this.sendMessage()}
                                className={this.styleSheet.messageBoxButton} />
@@ -568,7 +568,7 @@ let ChatWidget = (ChatMessageClass) => {
                                    getValue={() => {return this.chatInput.getValue();}}
                                    setValue={(value) => {this.chatInput.setValue(value);this.chatInput.node.focus();}}
                                    className={this.styleSheet.messageBoxButton}
-                                   faIcon="eye" />
+                                   icon="eye" />
                 </div>
             </div>;
         }
@@ -670,7 +670,7 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
             loadMoreButton = (
                 <div className="text-center">
                     <AjaxButton ref={this.refLink("loadMoreButton")} level={Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
-                                   style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
+                                   style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {icon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>
             );

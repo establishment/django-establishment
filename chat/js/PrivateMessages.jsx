@@ -405,7 +405,7 @@ class MessagesPanel extends UI.Element {
                                   style={{height: "100%", overflow: "auto", width: "250px",
                                           borderRight: "1px solid #ddd", transition: "margin .7s ease"}} />
             </div>,
-            <Button ref="collapseButton" size={Size.SMALL} faIcon="chevron-left" level={Level.PRIMARY}
+            <Button ref="collapseButton" size={Size.SMALL} icon="chevron-left" level={Level.PRIMARY}
                     style={{position: "absolute", top: "15px", left: "208px", zIndex: "2017", transition: "all .7s ease"}}/>,
             <DelayedPrivateChat style={{display: "inline-block", flex: "1", width: "calc(100% - 250px)", height: "100%",
                                      transition: "width .7s ease", verticalAlign: "top"}} ref="chatWidget"/>

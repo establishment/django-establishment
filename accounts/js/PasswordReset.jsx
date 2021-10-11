@@ -22,7 +22,7 @@ class PasswordReset extends UI.Element {
             <FormField label=" ">
                 <div>
                     <AjaxButton ref="resetPasswordButton" level={Level.PRIMARY} onClick={() => this.sendPasswordReset()}
-                                   statusOptions={["Send password reset email", {faIcon: "spinner fa-spin", label:" Sending..."}, "Email sent", "Email failed"]}/>
+                                   statusOptions={["Send password reset email", {icon: "spinner fa-spin", label:" Sending..."}, "Email sent", "Email failed"]}/>
                 </div>
             </FormField>
         ]

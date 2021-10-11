@@ -202,7 +202,7 @@ export class UserInputField extends UI.Element {
         return [
             <TextInput ref="usernameInput" />,
             <Button ref="submitButton" level={Level.PRIMARY} size={Size.EXTRA_SMALL}
-                    faIcon="check" style={{marginLeft: "5px"}} />,
+                    icon="check" style={{marginLeft: "5px"}} />,
             <TemporaryMessageArea ref="errorArea" />
         ];
     }

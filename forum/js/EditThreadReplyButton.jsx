@@ -6,7 +6,7 @@ import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 
 class EditThreadReplyButton extends Button {
     setOptions(options) {
-        if (!options.faIcon) {
+        if (!options.icon) {
             options.label = options.label || UI.T("Preview");
         }
         options.level = options.level || Level.PRIMARY;

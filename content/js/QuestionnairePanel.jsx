@@ -280,11 +280,11 @@ export class QuestionnairePanel extends UI.Element {
             </OrderedChildrenSwitcher>,
             <div className={this.styleSheet.footer}>
                 <div>
-                    <Button level={Level.PRIMARY} faIcon="arrow-left" ref="backButton" />
+                    <Button level={Level.PRIMARY} icon="arrow-left" ref="backButton" />
                 </div>
                 <div ref="progressArea" />
                 <div>
-                    <Button level={Level.PRIMARY} faIcon="arrow-right" ref="forwardButton" />
+                    <Button level={Level.PRIMARY} icon="arrow-right" ref="forwardButton" />
                 </div>
             </div>
         ];
@@ -306,9 +306,9 @@ export class QuestionnairePanel extends UI.Element {
 
         const currentQuestion = this.getQuestions()[this.questionPageSwitcher.childIndex];
         if (currentQuestion.getCurrentUserResponse()) {
-            this.forwardButton.updateOptions({faIcon: "arrow-right", label: ""});
+            this.forwardButton.updateOptions({icon: "arrow-right", label: ""});
         } else {
-            this.forwardButton.updateOptions({faIcon: "", label: UI.T("Skip")});
+            this.forwardButton.updateOptions({icon: "", label: UI.T("Skip")});
         }
 
         if (isLastPage) {

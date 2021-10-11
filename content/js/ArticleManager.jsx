@@ -57,7 +57,7 @@ class TransferOwnershipModal extends ActionModal {
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
                 <AjaxButton ref="transferOwnershipButton" level={this.getActionLevel()} onClick={() => this.action()}
-                               statusOptions={[this.getActionName(), {faIcon: "spinner fa-spin", label:" transfering ownership ..."},
+                               statusOptions={[this.getActionName(), {icon: "spinner fa-spin", label:" transfering ownership ..."},
                                                this.getActionName(), "Failed"]}/>
             </ButtonGroup>
         ];
@@ -102,7 +102,7 @@ class DeleteArticleModal extends ActionModal {
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
                 <AjaxButton ref="deleteArticleButton" level={Level.DANGER} onClick={() => {this.deleteArticle()}}
-                               statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."},
+                               statusOptions={["Delete article", {icon: "spinner fa-spin", label:" deleting article ..."},
                                                "Delete article", "Failed"]}/>
             </ButtonGroup>
         ];
@@ -153,7 +153,7 @@ class CreateArticleModal extends ActionModal {
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
                 <AjaxButton ref="createArticleButton" level={Level.PRIMARY} onClick={() => {this.createArticle()}}
-                               statusOptions={["Create article", {faIcon: "spinner fa-spin", label:" creating article ..."},
+                               statusOptions={["Create article", {icon: "spinner fa-spin", label:" creating article ..."},
                                                "Create article", "Failed"]}/>
             </ButtonGroup>
         ];
@@ -224,7 +224,7 @@ class AddTranslationModal extends CreateArticleModal {
                                    baseArticleId: baseArticle.id,
                                    markup: baseArticle.markup
                                })}
-                               statusOptions={["Add translation", {faIcon: "spinner fa-spin", label:" creating translation article ..."},
+                               statusOptions={["Add translation", {icon: "spinner fa-spin", label:" creating translation article ..."},
                                                "Success", "Failed"]}/>
             </ButtonGroup>
         ];

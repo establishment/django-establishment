@@ -56,7 +56,7 @@ class DeleteArticleModal extends ActionModal {
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
                 <AjaxButton ref="deleteArticleButton" level={Level.DANGER} onClick={() => {this.deleteArticle()}}
-                               statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."},
+                               statusOptions={["Delete article", {icon: "spinner fa-spin", label:" deleting article ..."},
                                                "Delete article", "Failed"]}/>
             </ButtonGroup>
         ];
@@ -138,7 +138,7 @@ class ArticleEditor extends Panel {
                                 let newOwner = this.ownerFormInput.getValue();
                                 this.setOwner(newOwner);
                                }}
-                               statusOptions={["Transfer ownership", {faIcon: "spinner fa-spin", label:" transfering ownership ..."}, "Transfer ownership", "Failed"]}
+                               statusOptions={["Transfer ownership", {icon: "spinner fa-spin", label:" transfering ownership ..."}, "Transfer ownership", "Failed"]}
                         />
                 <TemporaryMessageArea ref="setOwnerMessageArea"/>
             </Panel>
@@ -166,7 +166,7 @@ class ArticleEditor extends Panel {
                                     let content = this.markupEditor.getValue();
                                     this.saveMarkup(content);
                                    }}
-                               statusOptions={["Save", {faIcon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
+                               statusOptions={["Save", {icon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
                         />
                     <TemporaryMessageArea ref="saveMarkupMessageArea"/>
                     <ArticleMarkupEditor style={{height: "100%", marginTop: "-31px", display: "flex", flexDirection: "column"}}
@@ -203,7 +203,7 @@ class ArticleEditor extends Panel {
                                    };
                                    this.saveOptions(options);
                                    }}
-                               statusOptions={["Save", {faIcon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
+                               statusOptions={["Save", {icon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
                         />
                     <Button ref="deleteArticleButton" level={Level.DANGER} label="Delete article"
                                style={{marginLeft: "3px"}}

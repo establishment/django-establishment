@@ -29,7 +29,7 @@ class PasswordResetFromKey extends UI.Element {
             <FormField label=" ">
                 <div>
                     <AjaxButton ref="setPasswordButton" level={Level.PRIMARY} onClick={() => this.setNewPassword()}
-                                   statusOptions={["Set password", {faIcon: "spinner fa-spin", label:" Setting..."}, "Password set", "Password failed"]}/>
+                                   statusOptions={["Set password", {icon: "spinner fa-spin", label:" Setting..."}, "Password set", "Password failed"]}/>
                 </div>
             </FormField>
         ]

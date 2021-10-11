@@ -370,7 +370,7 @@ class CommandManager extends UI.Element {
                 <h4>Run a command</h4>
                 <Select options={CommandInstanceStore.all()} style={{marginLeft: "10px"}} ref="commandSelect"/>
                 <Button level={Level.PRIMARY} size={Size.SMALL} ref="runCommandButton"
-                        faIcon="cogs" style={{marginLeft: "10px"}}/>
+                        icon="cogs" style={{marginLeft: "10px"}}/>
             </div>,
             <div ref="descriptionArea" style={{margin: "10px"}}>
             </div>,

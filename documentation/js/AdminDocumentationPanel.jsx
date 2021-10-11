@@ -48,10 +48,10 @@ export class AdminDocumentationPanel extends DocumentationPanel {
                         />
                     </div>
                     <div style={{position: "absolute", bottom: "5%"}}>
-                        <Button ref="trash" faIcon="trash" disabled
+                        <Button ref="trash" icon="trash" disabled
                                 level={Level.WARNING} size={Size.EXTRA_LARGE}
                                 style={{marginLeft: "50px", padding: "16px 22px"}} />
-                        <CreateEntryButton faIcon="plus"
+                        <CreateEntryButton icon="plus"
                                         level={Level.PRIMARY} size={Size.EXTRA_LARGE}
                                         style={{marginLeft: "50px", padding: "16px 22px"}} />
                     </div>

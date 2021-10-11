@@ -39,7 +39,7 @@ export class GeneralInformationPanel extends Panel {
                 </Form>
                 <FormField label=" ">
                   <div><AjaxButton ref="saveProfileButton" level={Level.PRIMARY}
-                                   statusOptions={["Save changes", {faIcon: "spinner fa-spin", label:" Saving changes..."}, "Saved changes", "Save failed"]}/></div>
+                                   statusOptions={["Save changes", {icon: "spinner fa-spin", label:" Saving changes..."}, "Saved changes", "Save failed"]}/></div>
                 </FormField>
             </div>
         ];
@@ -115,7 +115,7 @@ export class SecuritySettingsPanel extends Panel {
                 </Form>
                 <FormField label=" ">
                       <div><AjaxButton ref="setPasswordButton" level={Level.PRIMARY}
-                        statusOptions={["Set Password", {faIcon: "spinner fa-spin", label:" Setting Password..."}, "Password set", "Failed"]}/></div>
+                        statusOptions={["Set Password", {icon: "spinner fa-spin", label:" Setting Password..."}, "Password set", "Failed"]}/></div>
                 </FormField>
             </div>
         ];
@@ -249,7 +249,7 @@ export class EmailPanel extends Panel {
                     </FormField>
                     <FormField label=" ">
                       <div><AjaxButton ref="addEmailButton" onClick={() => {this.addEmail()}} level={Level.PRIMARY}
-                        statusOptions={["Add Email", {faIcon: "spinner fa-spin", label:" Adding Email..."}, "Email added", "Failed"]}/></div>
+                        statusOptions={["Add Email", {icon: "spinner fa-spin", label:" Adding Email..."}, "Email added", "Failed"]}/></div>
                     </FormField>
                 </Form>
             </div>,
