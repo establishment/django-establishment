@@ -162,12 +162,17 @@ class ArticleEditor extends Panel {
             <h3>{this.getArticle().name + " Id=" + this.options.articleId}</h3>,
                 <TabArea ref="tabArea" variableHeightPanels style={{flex: "1", height: "100%", display: "flex", flexDirection: "column"}}>
                 <Panel title="Edit" active style={{height: "100%", overflow: "hidden"}}>
-                    <AjaxButton ref="saveMarkupButton" level={Level.INFO} onClick={() => {
-                                    let content = this.markupEditor.getValue();
-                                    this.saveMarkup(content);
-                                   }}
-                               statusOptions={["Save", {icon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
-                        />
+                    <AjaxButton
+                        style={{zIndex: 2, position: "relative"}}
+                        ref="saveMarkupButton" level={Level.INFO} onClick={() => {
+                        let content = this.markupEditor.getValue();
+                        this.saveMarkup(content);
+                    }}
+                                statusOptions={["Save", {
+                                    icon: "spinner fa-spin",
+                                    label: " saving ..."
+                                }, "Save", "Failed"]}
+                    />
                     <TemporaryMessageArea ref="saveMarkupMessageArea"/>
                     <ArticleMarkupEditor style={{height: "100%", marginTop: "-31px", display: "flex", flexDirection: "column"}}
                                          ref="markupEditor" article={this.getArticle()} />
