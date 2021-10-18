@@ -217,7 +217,7 @@ export class LoginWidget extends UI.Element {
     }
 
     setErrorMessage(error, isError=true) {
-        this.loginErrorMessage.showMessage(error.message, isError? Theme.Global.getProperty("COLOR_DANGER") : "#000", ERROR_TIMEOUT);
+        this.loginErrorMessage.showMessage(error.message, isError? Theme.props.COLOR_DANGER : "#000", ERROR_TIMEOUT);
     }
 
     clearErrorMessage() {

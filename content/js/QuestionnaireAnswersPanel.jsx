@@ -304,9 +304,9 @@ class QuestionnaireResponsesWidget extends UI.Element {
         for (const otherInstance of allInstances) {
             const obj = this["miniInstanceDiv" + otherInstance.id];
             if (instance === otherInstance) {
-                obj.setStyle("background-color", Theme.Global.getProperty("COLOR_INFO", "#ddd"));
+                obj.setStyle("background-color", Theme.props.COLOR_INFO);
             } else {
-                obj.setStyle("background-color", Theme.Global.getProperty("COLOR_DEFAULT", "#fff"));
+                obj.setStyle("background-color", Theme.props.COLOR_BACKGROUND);
             }
         }
     }
