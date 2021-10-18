@@ -47,7 +47,7 @@ export class BlogEntryEditModal extends Modal {
                     <TextInput ref="urlInput" value={entry.urlName} />
                 </FormField>
                 <FormField label="Visible">
-                    <CheckboxInput ref="visibleCheckbox" value={entry.visible} />
+                    <CheckboxInput ref="visibleCheckbox" defaultValue={entry.visible} />
                 </FormField>
                 <Button level={Level.PRIMARY} label="Change settings" onClick={() => this.changeSettings()} />
                 {discussionButton}

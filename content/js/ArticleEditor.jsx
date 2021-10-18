@@ -192,7 +192,7 @@ class ArticleEditor extends Panel {
                                        selected={Language.get(this.getArticle().languageId)}/>
                         </FormField>
                         <FormField ref="publicFormField" label="Public">
-                            <CheckboxInput ref="publicCheckbox" checked={this.getArticle().isPublic}/>
+                            <CheckboxInput ref="publicCheckbox" defaultValue={this.getArticle().isPublic}/>
                         </FormField>
                     </Form>
                     <AjaxButton ref="saveOptionsButton" level={Level.INFO} onClick={() => {

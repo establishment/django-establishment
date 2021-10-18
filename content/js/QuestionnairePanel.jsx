@@ -125,7 +125,7 @@ export class QuestionPage extends UI.Element {
             formFields = this.options.question.getOptions().map(
                 option => <div className={this.styleSheet.radioInputContainer}>
                             <InputType ref={"option" + option.id} name={this.options.question.id}
-                                        checked={this.isChecked(option)} disabled={!this.options.editable} />
+                                        defaultValue={this.isChecked(option)} disabled={!this.options.editable} />
                             <MarkupRenderer value={option.answer} className={this.styleSheet.markup}/>
                           </div>
             );
@@ -133,8 +133,8 @@ export class QuestionPage extends UI.Element {
                 formFields.push(
                     <div className={this.styleSheet.radioInputContainer}>
                         <InputType ref="otherChoice" name={this.options.question.id}
-                                    checked={this.isOtherChoice()} disabled={!this.options.editable} />
-                        Other: <TextInput   ref="textArea" value={this.getTextValue()}
+                                    defaultValue={this.isOtherChoice()} disabled={!this.options.editable} />
+                        Other: <TextInput ref="textArea" value={this.getTextValue()}
                                             className={this.styleSheet.otherInput} readOnly={!this.options.editable}/>
                     </div>
                 );

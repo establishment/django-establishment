@@ -159,7 +159,7 @@ export class LoginWidget extends UI.Element {
 
     getRememberMeCheckbox() {
         return [
-            <CheckboxInput checked={true}
+            <CheckboxInput defaultValue={true}
                               ref="rememberInput" className={this.styleSheet.rememberMeCheckbox} />,
             <div className={this.styleSheet.rememberMe}>{UI.T("Remember me")}</div>,
         ];

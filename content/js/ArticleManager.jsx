@@ -143,7 +143,7 @@ class CreateArticleModal extends ActionModal {
                 <Select ref="languageSelect" options={Language.all()}/>
             </FormField>
             <FormField ref="publicFormField" label="Public">
-                <CheckboxInput ref="publicCheckbox" checked={false}/>
+                <CheckboxInput ref="publicCheckbox"/>
             </FormField>
         </Form>;
     }
@@ -209,7 +209,7 @@ class AddTranslationModal extends CreateArticleModal {
                         <Select ref="languageSelect" options={Language.all()}/>
                     </FormField>
                     <FormField ref="publicFormField" label="Public">
-                        <CheckboxInput ref="publicCheckbox" checked={baseArticle.isPublic}/>
+                        <CheckboxInput ref="publicCheckbox" defaultValue={baseArticle.isPublic}/>
                     </FormField>
                 </Form>
     }

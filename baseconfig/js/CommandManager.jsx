@@ -260,7 +260,7 @@ class AutoFormField extends UI.Element {
             formField = <NumberInput ref={this.getInputRef()} value={this.options.defaultValue}/>;
         }
         if (this.options.type === this.fieldType.checkbox) {
-            formField = <CheckboxInput ref={this.getInputRef()} checked={this.options.defaultValue}/>;
+            formField = <CheckboxInput ref={this.getInputRef()} defaultValue={this.options.defaultValue}/>;
         }
         if (this.options.type === this.fieldType.select) {
             let options = [];

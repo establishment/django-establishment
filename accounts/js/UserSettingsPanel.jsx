@@ -255,7 +255,7 @@ export class EmailPanel extends Panel {
             </div>,
             <h5>
               <FormField label={UI.T("Receive email notifications")} inline={false}>
-                <CheckboxInput ref="emailSubscriptionCheckbox" checked={this.options.user.receivesEmailAnnouncements}
+                <CheckboxInput ref="emailSubscriptionCheckbox" defaultValue={this.options.user.receivesEmailAnnouncements}
                                   onClick={() => {this.changeEmailSubscription(this.emailSubscriptionCheckbox.getValue())}}/>
               </FormField>
             </h5>,
