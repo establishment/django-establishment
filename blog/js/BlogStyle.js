@@ -184,13 +184,11 @@ class BlogArticleRendererStyle extends StyleSheet {
 
     @styleRule
     quote = {
-        "font-style": "italic",
-        "margin-top": "20px",
-        "margin-bottom": "20px",
-        "color": "#707070",
-        "float": "right",
-        "display": "flex",
-        "width": "100%",
+        fontStyle: "italic",
+        color: "#707070",
+        float: "right",
+        display: "flex",
+        width: "100%",
     };
 }
 
