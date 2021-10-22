@@ -1,5 +1,7 @@
 import os
 import stat
+from functools import cached_property
+
 import paramiko
 import time
 
@@ -51,7 +53,7 @@ class SSHWorker:
     def __init__(self, machine_handler, user="root", auto_add=False):
         # TODO: This class should not use a machine handler, but rather just an ip and a logger class
         self.machine_handler = machine_handler
-        self.address = machine_handler.private_ip_address
+        self.address = machine_handler.linode_machine_instance.private_ip_address
         self.user = user
         self.client = paramiko.SSHClient()
         self.client.load_system_host_keys()
@@ -62,8 +64,9 @@ class SSHWorker:
 
         self.client.connect(self.address, username=user)
 
-        #TODO: mciucu - make a global lazyprop decorator, and then use that to wrap ftp_client
-        self.ftp_client = self.client.open_sftp()
+    @cached_property
+    def ftp_client(self):
+        return self.client.open_sftp()
 
     def log(self, *arguments, **keywords):
         self.machine_handler.log(*arguments, **keywords)
