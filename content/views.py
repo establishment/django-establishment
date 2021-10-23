@@ -14,6 +14,21 @@ from .models import TermDefinition, ArticleEdit, UserFeedback, Article, Question
                     QuestionnaireInstance, QuestionnaireQuestionResponse, QuestionnaireQuestionOption
 
 
+# from establishment.content.views import *
+# q = create_quiz("Demo quiz", "This is a sample question. It does not count for the quiz. What is this competition called?", ["IEEEXtreme", "Xtreme IEEE", "Xtreme day", "Chess"])
+def create_quiz(name, question_text, choices):
+    quiz = Questionnaire.objects.create(owner_id=1, name=name)
+    print("Created quiz", quiz.id)
+    question = QuestionnaireQuestion.objects.create(questionnaire=quiz, type=3, text=question_text)
+    for choice in choices:
+        option = QuestionnaireQuestionOption.objects.create(question=question, answer=choice)
+    return quiz
+
+
+def set_quiz_visibility(quiz, visible):
+    quiz.visible = visible
+    quiz.save()
+
 
 @superuser_required
 @single_page_app
