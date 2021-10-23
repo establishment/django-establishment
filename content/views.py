@@ -19,7 +19,7 @@ from .models import TermDefinition, ArticleEdit, UserFeedback, Article, Question
 def create_quiz(name, question_text, choices):
     quiz = Questionnaire.objects.create(owner_id=1, name=name)
     print("Created quiz", quiz.id)
-    question = QuestionnaireQuestion.objects.create(questionnaire=quiz, type=3, text=question_text)
+    question = QuestionnaireQuestion.objects.create(questionnaire=quiz, type=2, text=question_text)
     for choice in choices:
         option = QuestionnaireQuestionOption.objects.create(question=question, answer=choice)
     return quiz
