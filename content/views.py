@@ -14,22 +14,6 @@ from .models import TermDefinition, ArticleEdit, UserFeedback, Article, Question
                     QuestionnaireInstance, QuestionnaireQuestionResponse, QuestionnaireQuestionOption
 
 
-# from establishment.content.views import *
-# q = create_quiz("Demo quiz", "This is a sample question. It does not count for the quiz. What is this competition called?", ["IEEEXtreme", "Xtreme IEEE", "Xtreme day", "Chess"])
-def create_quiz(name, question_text, choices):
-    quiz = Questionnaire.objects.create(owner_id=1, name=name)
-    print("Created quiz", quiz.id)
-    question = QuestionnaireQuestion.objects.create(questionnaire=quiz, type=2, text=question_text)
-    for choice in choices:
-        option = QuestionnaireQuestionOption.objects.create(question=question, answer=choice)
-    return quiz
-
-
-def set_quiz_visibility(quiz, visible):
-    quiz.visible = visible
-    quiz.save()
-
-
 @superuser_required
 @single_page_app
 def article_manager_view(request):
@@ -244,7 +228,7 @@ def questionnaire_state(request):
     questionnaire = Questionnaire.objects.get(id=questionnaire_id)
 
     if not request.user.is_superuser and not questionnaire.visible and questionnaire.owner_id != request.user.id:
-        return BaseError.NOT_ALLOWED
+        return ContentError.QUESTIONNAIRE_NOT_AVAILABLE
 
     state = State()
     questionnaire.add_to_state(state, request.user)
@@ -275,7 +259,7 @@ def questionnaire_answer(request):
 
     questionnaire = Questionnaire.objects.get(id=questionnaire_id)
     if not request.user.is_superuser and not questionnaire.visible:
-        return BaseError.NOT_ALLOWED
+        return ContentError.QUESTIONNAIRE_NOT_AVAILABLE
 
     question = QuestionnaireQuestion.objects.get(id=int(request.POST["questionId"]))
     if question.questionnaire_id != questionnaire.id:
@@ -319,7 +303,7 @@ def questionnaire_submit(request):
 
     questionnaire = Questionnaire.objects.get(id=questionnaire_id)
     if not request.user.is_superuser and not questionnaire.visible:
-        return BaseError.NOT_ALLOWED
+        return ContentError.QUESTIONNAIRE_NOT_AVAILABLE
 
     instance = QuestionnaireInstance.objects.get(user=request.user, questionnaire=questionnaire)
     # if instance.date_submitted:
