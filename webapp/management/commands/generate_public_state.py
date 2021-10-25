@@ -5,6 +5,7 @@ from django.core.management import BaseCommand
 from django.template import Context, Template
 from django.utils.safestring import mark_safe
 
+from establishment.baseconfig.models import public_settings_cache, PublicGlobalSettings
 from establishment.funnel.encoder import StreamJSONEncoder
 from establishment.misc.util import import_module_attribute
 from establishment.webapp.state import State
@@ -50,3 +51,8 @@ class Command(BaseCommand):
         for template_path, output_path in settings.PUBLIC_STATE_PATHS:
             self.generate_template(template_path, output_path, context_dict)
             # TODO: also copy to static path in production
+
+        # Bump JS version
+        public_settings_cache.rebuild()
+        js_version = int(public_settings_cache.get("JS_VERSION", 1))
+        PublicGlobalSettings.set("JS_VERSION", js_version + 1)
