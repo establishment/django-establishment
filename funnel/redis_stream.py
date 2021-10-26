@@ -332,7 +332,7 @@ class RedisMutex(object):
         if not connection:
             connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
         self.redis_connection = connection
-        self.redis_mutex_key = "redis-mutex." + self.mutex_name
+        self.redis_mutex_key = "mutex." + self.mutex_name
         self.acquired = False
         self.expire = expire
 
