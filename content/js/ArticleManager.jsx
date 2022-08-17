@@ -284,8 +284,8 @@ class ArticleTable extends SortableTable {
     }
 
     resetColumnSortingOrder() {
-        this.columnSortingOrder = [this.columns[4], this.columns[5], this.columns[0],
-            this.columns[3], this.columns[2], this.columns[1]];
+        const {columns} = this.options;
+        this.columnSortingOrder = [columns[4], columns[5], columns[0], columns[3], columns[2], columns[1]];
     }
 
     getArticleIndex(articleId) {
