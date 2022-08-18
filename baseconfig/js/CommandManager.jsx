@@ -155,8 +155,8 @@ class PastCommandsTable extends Table {
         });
     }
 
-    setColumns() {
-        super.setColumns([
+    getDefaultColumns() {
+        return [
             {
                 value: commandRun => CommandInstanceStore.get(commandRun.commandInstanceId).name,
                 headerName: "Command",
@@ -184,7 +184,7 @@ class PastCommandsTable extends Table {
                 value: commandRun => <CommandRunDetails commandRun={commandRun} />,
                 headerName: "Details"
             }
-        ])
+        ];
     }
 }
 
