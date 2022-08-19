@@ -2,13 +2,13 @@ import {MarkupRenderer} from "markup/MarkupRenderer";
 import {UI, Table} from "UI";
 
 export class MarkupTable extends Table {
-    getDefaultColumns(options) {
-        const columns = options.columns || this.options.columns || [];
-
-        return columns.map((column) => ({
+    setOptions(options) {
+        options.columns = (options.columns || []).map((column) => ({
             ...column,
             value: entry => <MarkupRenderer value={entry[column.fieldName] || entry[column.field] || ""} />,
-        }));
+        }))
+
+        super.setOptions(options);
     }
 
     getEntries() {
