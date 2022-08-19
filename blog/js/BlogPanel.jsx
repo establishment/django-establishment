@@ -118,7 +118,7 @@ export class NewBlogEntryModal extends Modal {
     onMount() {
         super.onMount();
 
-        this.titleInput.onKeyUp(() => {
+        this.titleInput.addInputListener(() => {
             this.urlInput.setValue(slugify(this.titleInput.getValue()));
         });
     }
