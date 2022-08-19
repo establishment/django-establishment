@@ -1,8 +1,8 @@
-import {Ajax} from "base/Ajax";
-import {StemDate} from "time/Time";
+import {Ajax} from "../../../stemjs/src/base/Ajax";
+import {StemDate} from "../../../stemjs/src/time/Date";
+import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
 import {
     ActionModal,
-    AjaxButton,
     Button,
     ButtonGroup,
     CheckboxInput,

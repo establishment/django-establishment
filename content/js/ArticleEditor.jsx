@@ -1,6 +1,6 @@
+import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
 import {
     ActionModal,
-    AjaxButton,
     Button,
     ButtonGroup,
     CheckboxInput,

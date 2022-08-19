@@ -1,4 +1,4 @@
-import {UI, Level, TimePassedSpan, Switcher, AjaxButton, TextArea, Button, registerStyle} from "UI";
+import {UI, Level, TimePassedSpan, Switcher, TextArea, Button, registerStyle} from "UI";
 import {MarkupRenderer} from "markup/MarkupRenderer";
 
 import {GroupChatStore} from "state/MessageThreadStore";
@@ -8,6 +8,7 @@ import {LoginModal} from "LoginModal";
 import {CommentVotingWidgetWithThumbs} from "VotingWidget";
 import {BlogStyle} from "BlogStyle";
 import {CommentWidgetStyle} from "./CommentWidgetStyle";
+import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
 
 
 class ThreadMessage extends EditableMessage {

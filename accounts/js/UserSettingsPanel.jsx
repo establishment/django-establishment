@@ -1,7 +1,8 @@
-import {Ajax} from "base/Ajax";
+import {Ajax} from "../../../stemjs/src/base/Ajax";
+import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
 import {
     UI, TabArea, Form, FormField, TextInput,
-    AjaxButton, PasswordInput, EmailInput, Panel,
+    PasswordInput, EmailInput, Panel,
     Label, Button, Select, CheckboxInput
 } from "UI";
 import {GlobalStyle} from "ui/GlobalStyle";
