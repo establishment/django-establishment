@@ -254,13 +254,13 @@ class AutoFormField extends UI.Element {
         let formField = null;
 
         if (this.options.type === this.fieldType.text) {
-            formField = <TextInput ref={this.getInputRef()} value={this.options.defaultValue}/>;
+            formField = <TextInput ref={this.getInputRef()} initialValue={this.options.initialValue}/>;
         }
         if (this.options.type === this.fieldType.number) {
-            formField = <NumberInput ref={this.getInputRef()} value={this.options.defaultValue}/>;
+            formField = <NumberInput ref={this.getInputRef()} initialValue={this.options.initialValue}/>;
         }
         if (this.options.type === this.fieldType.checkbox) {
-            formField = <CheckboxInput ref={this.getInputRef()} defaultValue={this.options.defaultValue}/>;
+            formField = <CheckboxInput ref={this.getInputRef()} initialValue={this.options.initialValue}/>;
         }
         if (this.options.type === this.fieldType.select) {
             let options = [];

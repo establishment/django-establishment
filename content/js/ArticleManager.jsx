@@ -209,7 +209,7 @@ class AddTranslationModal extends CreateArticleModal {
                         <Select ref="languageSelect" options={Language.all()}/>
                     </FormField>
                     <FormField ref="publicFormField" label="Public">
-                        <CheckboxInput ref="publicCheckbox" defaultValue={baseArticle.isPublic}/>
+                        <CheckboxInput ref="publicCheckbox" initialValue={baseArticle.isPublic}/>
                     </FormField>
                 </Form>
     }
