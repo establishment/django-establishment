@@ -2,6 +2,7 @@ import {Ajax} from "base/Ajax";
 import {UI, Level, SortableTable, Button, ActionModal, FormField, TextInput, NumberInput, CheckboxInput, Panel, TableRow, PasswordInput} from "UI";
 
 import {EmailGatewayStore} from "state/EmailGatewayStore";
+import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw";
 
 class EmailGatewayModal extends ActionModal {
     constructor(options) {
@@ -162,6 +163,7 @@ class EmailGatewayTableRow extends TableRow {
 }
 
 
+@autoredraw(EmailGatewayStore)
 class EmailGatewayTable extends SortableTable {
     getRowClass() {
         return EmailGatewayTableRow;
@@ -171,78 +173,57 @@ class EmailGatewayTable extends SortableTable {
         return EmailGatewayStore.all();
     }
 
-    setColumns(columns) {
-        if (!columns || columns.length === 0) {
-            const cellStyle = {
-                textAlign: "center",
-            };
-            const headerStyle = {
-                textAlign: "center",
-                width: "16%",
-            };
+    getDefaultColumns() {
+        const cellStyle = {
+            textAlign: "center",
+        };
+        const headerStyle = {
+            textAlign: "center",
+            width: "16%",
+        };
 
-            const deleteButton = (gateway) => {
-                return <Button level={Level.DANGER} ref="deleteGatewayButton">Delete</Button>;
-            };
+        const deleteButton = (gateway) => {
+            return <Button level={Level.DANGER} ref="deleteGatewayButton">Delete</Button>;
+        };
 
-            const editButton = (gateway) => {
-                return <Button level={Level.INFO} ref="editGatewayButton">Edit</Button>;
-            };
+        const editButton = (gateway) => {
+            return <Button level={Level.INFO} ref="editGatewayButton">Edit</Button>;
+        };
 
-            columns.push({
-                value: gateway => gateway.name,
-                headerName: UI.T("Name"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: gateway => gateway.host,
-                headerName: UI.T("Host"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: gateway => gateway.port,
-                headerName: UI.T("Port"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: gateway => gateway.useTLS,
-                headerName: UI.T("Use TLS"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: gateway => gateway.username,
-                headerName: UI.T("Username"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: deleteButton,
-                headerName: "Delete",
-                headerStyle: {width: "10%"},
-            });
-            columns.push({
-                value: editButton,
-                headerName: "Edit",
-                headerStyle: {width: "10%"},
-            });
-        }
-        super.setColumns(columns);
-    }
-
-    onMount() {
-        EmailGatewayStore.addUpdateListener(() => {
-            this.redraw();
-        });
-        EmailGatewayStore.addDeleteListener(() => {
-            this.redraw();
-        });
-        EmailGatewayStore.addCreateListener(() => {
-            this.redraw();
-        });
+        return [{
+            value: gateway => gateway.name,
+            headerName: UI.T("Name"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: gateway => gateway.host,
+            headerName: UI.T("Host"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: gateway => gateway.port,
+            headerName: UI.T("Port"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: gateway => gateway.useTLS,
+            headerName: UI.T("Use TLS"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: gateway => gateway.username,
+            headerName: UI.T("Username"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: deleteButton,
+            headerName: "Delete",
+            headerStyle: {width: "10%"},
+        }, {
+            value: editButton,
+            headerName: "Edit",
+            headerStyle: {width: "10%"},
+        }];
     }
 }
 

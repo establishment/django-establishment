@@ -301,7 +301,7 @@ class ArticleTable extends SortableTable {
         this.redraw();
     }
 
-    setColumns() {
+    getDefaultColumns() {
         let cellStyle = {
             textAlign: "left",
             verticalAlign: "middle"
@@ -372,7 +372,8 @@ class ArticleTable extends SortableTable {
                 cellStyle: cellStyle
             });
         }
-        super.setColumns(columns);
+
+        return columns;
     }
 
     getEntries() {

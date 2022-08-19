@@ -54,7 +54,7 @@ class TranslationEntryTableRow extends TableRow {
         };
         ajaxCall(request, () => {
             this.markUnchanged();
-        });
+        });n
     }
 
     getEntryInput() {
@@ -63,61 +63,56 @@ class TranslationEntryTableRow extends TableRow {
 }
 
 class TranslationEntryTable extends Table {
-    setOptions(options) {
-        super.setOptions(options);
-        this.language = options.language;
-    }
-
     getRowClass() {
         return TranslationEntryTableRow;
     }
 
-    setColumns() {
-        var numberStyle = {
+    getDefaultColumns() {
+        const numberStyle = {
             textAlign: "right"
         };
 
-        super.setColumns([
-            {
-                value: entry => entry.key.id,
-                headerName: "Key ID",
-                sortDescending: true,
-                cellStyle: numberStyle,
-                headerStyle: numberStyle,
-            }, {
-                value: entry => entry.key.value,
-                headerName: "Entry value",
-                sortDescending: true,
-                cellStyle: numberStyle,
-                headerStyle: numberStyle,
-            }, {
-                value: entry => {
-                    return <div className="form-group">
-                        <TextInput ref="entryInput" value={entry.entry ? entry.entry.value: ""} />
-                        </div>;
-                },
-                headerName: "Key value",
-                sortDescending: true,
-                cellStyle: numberStyle,
-                headerStyle: numberStyle,
-            }, {
-                value: entry => {
-                    return <div className="form-group">
-                        <Button ref="saveButton" label="Save" level={Level.INFO} />
-                    </div>;
-                },
-                headerName: "Actions",
-                sortDescending: true,
-            }
-        ]);
+        return [{
+            value: entry => entry.key.id,
+            headerName: "Key ID",
+            sortDescending: true,
+            cellStyle: numberStyle,
+            headerStyle: numberStyle,
+        }, {
+            value: entry => entry.key.value,
+            headerName: "Entry value",
+            sortDescending: true,
+            cellStyle: numberStyle,
+            headerStyle: numberStyle,
+        }, {
+            value: entry => {
+                return <div className="form-group">
+                    <TextInput ref="entryInput" value={entry.entry ? entry.entry.value : ""}/>
+                </div>;
+            },
+            headerName: "Key value",
+            sortDescending: true,
+            cellStyle: numberStyle,
+            headerStyle: numberStyle,
+        }, {
+            value: entry => {
+                return <div className="form-group">
+                    <Button ref="saveButton" label="Save" level={Level.INFO}/>
+                </div>;
+            },
+            headerName: "Actions",
+            sortDescending: true,
+        }];
     }
 
+    // TODO @cleanup shouldn't we just delete all these?
     getEntryKey(entry, index) {
         return index;
     }
 
     getEntries() {
-        let language = this.language;
+        const {language} = this.options;
+
         let keyEntryMap = new Map();
         for (let entry of TranslationEntryStore.all()) {
             if (entry.getLanguage().id === language.id) {
@@ -125,11 +120,15 @@ class TranslationEntryTable extends Table {
             }
         }
 
-        let ret = [];
+        let result = [];
         for (let key of TranslationKeyStore.all()) {
-            ret.push({key: key, entry: keyEntryMap.get(key.id), language: language});
+            result.push({
+                key,
+                entry: keyEntryMap.get(key.id),
+                language,
+            });
         }
-        return ret;
+        return result;
     }
 }
 
@@ -454,41 +453,38 @@ class TranslationKeyTable extends Table {
         return TranslationKeyTableRow;
     }
 
-    setColumns() {
-        var numberStyle = {
+    getDefaultColumns() {
+        const numberStyle = {
             textAlign: "right"
         };
 
-        super.setColumns([
-            {
-                value: entry => entry.key.id,
-                headerName: "Key ID",
-                sortDescending: true,
-                cellStyle: numberStyle,
-                headerStyle: numberStyle,
-            }, {
-                value: entry => {
-                    return [<UI.TextElement ref="textElement" value={entry.key.value}/>,
-                        <TextInput ref="textInput" />
-                        ]
-                },
-                headerName: "Entry value",
-                sortDescending: true,
-                cellStyle: numberStyle,
-                headerStyle: numberStyle,
-            },  {
-                value: entry => {
-                    return [
-                        <div className="btn-group">
-                            <Button ref="renameButton" label="Rename" level={Level.INFO}/>
-                            <Button ref="deleteButton" label="Delete" level={Level.DANGER}/>
-                        </div>
-                    ];
-                },
-                headerName: "Actions",
-                sortDescending: true,
-            }
-        ]);
+        return [{
+            value: entry => entry.key.id,
+            headerName: "Key ID",
+            sortDescending: true,
+            cellStyle: numberStyle,
+            headerStyle: numberStyle,
+        }, {
+            value: entry => [
+                <UI.TextElement ref="textElement" value={entry.key.value}/>,
+                <TextInput ref="textInput"/>
+            ],
+            headerName: "Entry value",
+            sortDescending: true,
+            cellStyle: numberStyle,
+            headerStyle: numberStyle,
+        }, {
+            value: entry => {
+                return [
+                    <div className="btn-group">
+                        <Button ref="renameButton" label="Rename" level={Level.INFO}/>
+                        <Button ref="deleteButton" label="Delete" level={Level.DANGER}/>
+                    </div>
+                ];
+            },
+            headerName: "Actions",
+            sortDescending: true,
+        }];
     }
 
     onMount() {

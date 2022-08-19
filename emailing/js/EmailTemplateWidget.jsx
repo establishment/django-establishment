@@ -5,6 +5,7 @@ import {Language} from "state/LanguageStore";
 import {EmailGatewayStore} from "state/EmailGatewayStore";
 import {EmailCampaignStore} from "state/EmailCampaignStore";
 import {EmailTemplateStore} from "state/EmailTemplateStore";
+import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw";
 
 class EmailTemplateModal extends ActionModal {
     constructor(options) {
@@ -207,6 +208,7 @@ class EmailTemplateTableRow extends TableRow {
 }
 
 
+@autoredraw(EmailTemplateStore)
 class EmailTemplateTable extends SortableTable {
     getRowClass() {
         return EmailTemplateTableRow;
@@ -216,72 +218,52 @@ class EmailTemplateTable extends SortableTable {
         return EmailTemplateStore.all();
     }
 
-    setColumns(columns) {
-        if (!columns || columns.length === 0) {
-            const cellStyle = {
-                textAlign: "center",
-            };
-            const headerStyle = {
-                textAlign: "center",
-                width: "20%",
-            };
+    getDefaultColumns() {
+        const cellStyle = {
+            textAlign: "center",
+        };
+        const headerStyle = {
+            textAlign: "center",
+            width: "20%",
+        };
 
-            const deleteButton = (template) => {
-                return <Button level={Level.DANGER} ref="deleteTemplateButton">Delete</Button>;
-            };
+        const deleteButton = (template) => {
+            return <Button level={Level.DANGER} ref="deleteTemplateButton">Delete</Button>;
+        };
 
-            const editButton = (template) => {
-                return <Button level={Level.INFO} ref="editTemplateButton">Edit</Button>;
-            };
+        const editButton = (template) => {
+            return <Button level={Level.INFO} ref="editTemplateButton">Edit</Button>;
+        };
 
-            columns.push({
-                value: template => template.subject,
-                headerName: UI.T("Subject"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: template => EmailCampaignStore.get(template.campaignId).name,
-                headerName: UI.T("Campaign"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: template => Language.get(template.languageId).name,
-                headerName: UI.T("Language"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: template => EmailGatewayStore.get(template.gatewayId).name,
-                headerName: UI.T("Gateway"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: deleteButton,
-                headerName: "Delete",
-                headerStyle: {width: "10%"},
-            });
-            columns.push({
-                value: editButton,
-                headerName: "Edit",
-                headerStyle: {width: "10%"},
-            });
-        }
-        super.setColumns(columns);
-    }
-
-    onMount() {
-        EmailTemplateStore.addUpdateListener(() => {
-            this.redraw();
-        });
-        EmailTemplateStore.addCreateListener(() => {
-            this.redraw();
-        });
-        EmailTemplateStore.addDeleteListener(() => {
-            this.redraw();
-        });
+        return [{
+            value: template => template.subject,
+            headerName: UI.T("Subject"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: template => EmailCampaignStore.get(template.campaignId).name,
+            headerName: UI.T("Campaign"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: template => Language.get(template.languageId).name,
+            headerName: UI.T("Language"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: template => EmailGatewayStore.get(template.gatewayId).name,
+            headerName: UI.T("Gateway"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: deleteButton,
+            headerName: "Delete",
+            headerStyle: {width: "10%"},
+        }, {
+            value: editButton,
+            headerName: "Edit",
+            headerStyle: {width: "10%"},
+        }];
     }
 }
 
@@ -299,8 +281,6 @@ class EmailTemplateWidget extends Panel {
         EmailGatewayStore.registerStreams();
         EmailCampaignStore.registerStreams();
         EmailTemplateStore.registerStreams();
-
-        console.log(EmailTemplateStore.all());
 
         this.addTemplateButton.addClickListener(() => {
             const addTemplateModal = <AddEmailTemplateModal template={this.options.entry} />;

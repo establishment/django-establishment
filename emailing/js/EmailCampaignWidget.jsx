@@ -6,6 +6,7 @@ import {
 } from "UI";
 import {EmailGatewayStore} from "state/EmailGatewayStore";
 import {EmailCampaignStore} from "state/EmailCampaignStore";
+import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw";
 
 class GenericConfirmModal extends ActionModal {
     constructor(options) {
@@ -241,6 +242,7 @@ class EmailCampaignTableRow extends TableRow {
 }
 
 
+@autoredraw(EmailCampaignStore)
 class EmailCampaignTable extends SortableTable {
     getRowClass() {
         return EmailCampaignTableRow;
@@ -250,111 +252,86 @@ class EmailCampaignTable extends SortableTable {
         return EmailCampaignStore.all();
     }
 
-    setColumns(columns) {
-        if (!columns || columns.length === 0) {
-            const cellStyle = {
-                textAlign: "center",
-            };
-            const headerStyle = {
-                textAlign: "center",
-                width: "20%",
-            };
+    getDefaultColumns() {
+        const cellStyle = {
+            textAlign: "center",
+        };
+        const headerStyle = {
+            textAlign: "center",
+            width: "20%",
+        };
 
-            const deleteButton = (campaign) => {
-                return <Button level={Level.DANGER} ref="deleteCampaignButton">Delete</Button>;
-            };
+        const deleteButton = (campaign) => {
+            return <Button level={Level.DANGER} ref="deleteCampaignButton">Delete</Button>;
+        };
 
-            const editButton = (campaign) => {
-                return <Button level={Level.INFO} ref="editCampaignButton">Edit</Button>;
-            };
+        const editButton = (campaign) => {
+            return <Button level={Level.INFO} ref="editCampaignButton">Edit</Button>;
+        };
 
-            const testSendButton = (campaign) => {
-                return <Button level={Level.INFO} ref="testSendCampaignButton">Test Send</Button>
-            };
+        const testSendButton = (campaign) => {
+            return <Button level={Level.INFO} ref="testSendCampaignButton">Test Send</Button>
+        };
 
-            const sendButton = (campaign) => {
-                return <Button level={Level.INFO} ref="sendCampaignButton">Send</Button>
-            };
+        const sendButton = (campaign) => {
+            return <Button level={Level.INFO} ref="sendCampaignButton">Send</Button>
+        };
 
-            const clearStatusButton = (campaign) => {
-                return <Button level={Level.DANGER} ref="clearStatusCampaignButton">Clear Status</Button>
-            };
+        const clearStatusButton = (campaign) => {
+            return <Button level={Level.DANGER} ref="clearStatusCampaignButton">Clear Status</Button>
+        };
 
-            columns.push({
-                value: campaign => campaign.name,
-                headerName: UI.T("Name"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: campaign => campaign.fromAddress,
-                headerName: UI.T("From Address"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: campaign => campaign.isNewsletter,
-                headerName: UI.T("Is Newsletter"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: campaign => (campaign.gatewayId && EmailGatewayStore.get(campaign.gatewayId).name) || "default",
-                headerName: UI.T("Gateway"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle,
-            });
-            columns.push({
-                value: campaign => campaign.emailsRead,
-                headerName: UI.T("Emails Read"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle
-            });
-            columns.push({
-                value: campaign => campaign.emailsSent,
-                headerName: UI.T("Emails Sent"),
-                cellStyle: cellStyle,
-                headerStyle: headerStyle
-            });
-            columns.push({
-                value: deleteButton,
-                headerName: "Delete",
-                headerStyle: {width: "10%"},
-            });
-            columns.push({
-                value: editButton,
-                headerName: "Edit",
-                headerStyle: {width: "10%"},
-            });
-            columns.push({
-                value: testSendButton,
-                headerName: "Test Send",
-                headerStyle: {width: "10%"}
-            });
-            columns.push({
-                value: sendButton,
-                headerName: "Send",
-                headerStyle: {width: "10%"}
-            });
-            columns.push({
-                value: clearStatusButton,
-                headerName: "Clear Status",
-                headerStyle: {width: "10%"}
-            });
-        }
-        super.setColumns(columns);
-    }
-
-    onMount() {
-        EmailCampaignStore.addUpdateListener(() => {
-            this.redraw();
-        });
-        EmailCampaignStore.addCreateListener(() => {
-            this.redraw();
-        });
-        EmailCampaignStore.addDeleteListener(() => {
-            this.redraw();
-        });
+        return [{
+            value: campaign => campaign.name,
+            headerName: UI.T("Name"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: campaign => campaign.fromAddress,
+            headerName: UI.T("From Address"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: campaign => campaign.isNewsletter,
+            headerName: UI.T("Is Newsletter"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: campaign => (campaign.gatewayId && EmailGatewayStore.get(campaign.gatewayId).name) || "default",
+            headerName: UI.T("Gateway"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle,
+        }, {
+            value: campaign => campaign.emailsRead,
+            headerName: UI.T("Emails Read"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle
+        }, {
+            value: campaign => campaign.emailsSent,
+            headerName: UI.T("Emails Sent"),
+            cellStyle: cellStyle,
+            headerStyle: headerStyle
+        }, {
+            value: deleteButton,
+            headerName: "Delete",
+            headerStyle: {width: "10%"},
+        }, {
+            value: editButton,
+            headerName: "Edit",
+            headerStyle: {width: "10%"},
+        }, {
+            value: testSendButton,
+            headerName: "Test Send",
+            headerStyle: {width: "10%"}
+        }, {
+            value: sendButton,
+            headerName: "Send",
+            headerStyle: {width: "10%"}
+        }, {
+            value: clearStatusButton,
+            headerName: "Clear Status",
+            headerStyle: {width: "10%"}
+        }];
     }
 }
 
