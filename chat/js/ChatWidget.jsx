@@ -80,7 +80,7 @@ class EditableMessage extends UI.Element {
                 <TextArea ref={this.refLink("messageInput")} style={chatInputStyle} className="form-control"
                              value={this.message.getContent()}/>
                 <ButtonGroup>
-                    <Button label={UI.T("Cancel")} level={Level.DEFAULT} size={Size.SMALL}
+                    <Button label={UI.T("Cancel")} size={Size.SMALL}
                                onClick={() => {this.hideEditMode()}} />
                     <PreviewMarkupButton size={Size.SMALL}
                                          getValue={() => {return this.messageInput.getValue();}}
@@ -477,7 +477,7 @@ let ChatWidget = (ChatMessageClass) => {
             if (this.showLoadMoreButton) {
                 loadMoreButton = (
                     <div className="text-center">
-                        <AjaxButton ref={this.refLink("loadMoreButton")} level={Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
+                        <AjaxButton ref={this.refLink("loadMoreButton")} onClick={() => {this.loadMoreMessages()}}
                                        style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {icon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                         />
                     </div>
@@ -670,7 +670,7 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
         if (this.showLoadMoreButton) {
             loadMoreButton = (
                 <div className="text-center">
-                    <AjaxButton ref={this.refLink("loadMoreButton")} level={Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
+                    <AjaxButton ref={this.refLink("loadMoreButton")} onClick={() => {this.loadMoreMessages()}}
                                    style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {icon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>

@@ -116,19 +116,19 @@ class MarkupEditorModal extends Modal {
                            onClick={() => {this.appendGraphExample()}} style={this.getButtonStyle()} className="pull-left"/>
                 <Button ref="submissionExample" label="Submission"
                            onClick={() => {this.appendSubmissionExample()}} style={this.getButtonStyle()} className="pull-left"/>
-                <Button ref="codeSnippetExample" level={Level.DEFAULT} size={Size.DEFAULT} label="Code"
+                <Button ref="codeSnippetExample" label="Code"
                            onClick={() => {this.appendCodeExample()}} style={this.getButtonStyle()} className="pull-left"/>
-                <Button ref="linkExample" level={Level.DEFAULT} size={Size.DEFAULT} label="Link"
+                <Button ref="linkExample" label="Link"
                            onClick={() => {this.appendLinkExample()}} style={this.getButtonStyle()} className="pull-left"/>
-                <Button ref="latexExample" level={Level.DEFAULT} size={Size.DEFAULT} label="LaTeX"
+                <Button ref="latexExample" label="LaTeX"
                            onClick={() => {this.appendLatexExample()}} style={this.getButtonStyle()} className="pull-left"/>
                 <Button ref={this.refLink("doneButton")} level={Level.PRIMARY} label="Done"
                            className="pull-right" style={this.getButtonStyle()}/>
             </div>,
             //<span ref={this.refLink("emotesContainer")} style={{float: "left", position: "relative", margin: "5px"}}>
-            //    <EmojiButton ref="emotes" level={Level.DEFAULT} size={Size.DEFAULT} label="Emoticons" getTextBox={() => this.markupEditor}/>
+            //    <EmojiButton ref="emotes" label="Emoticons" getTextBox={() => this.markupEditor}/>
             //</span>
-            //<Button ref="userExample" level={Level.DEFAULT} size={Size.DEFAULT} label="User"
+            //<Button ref="userExample" label="User"
             //           onClick={() => {this.appendUserExample()}} style={this.getButtonStyle()} className="pull-left"/>
             <div className="" style={{"position":"absolute", "width":"90%", "margin-top":"45px"}}>
                 <Link href="/about/#markup" value="More details here" />

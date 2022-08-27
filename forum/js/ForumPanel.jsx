@@ -266,7 +266,6 @@ export class ForumPanel extends Panel {
             <CreateForumThreadButton
                 label="NEW POST"
                 className={this.styleSheet.button}
-                size={Size.DEFAULT}
                 forumId={this.options.forum.id}
             />
         </div>;

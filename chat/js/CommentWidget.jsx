@@ -107,7 +107,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
         if (this.showLoadMoreButton) {
             loadMoreButton = (
                 <div className="text-center">
-                    <AjaxButton ref={this.refLink("loadMoreButton")} level={Level.DEFAULT} onClick={() => {this.loadMoreMessages()}}
+                    <AjaxButton ref={this.refLink("loadMoreButton")} onClick={() => {this.loadMoreMessages()}}
                                 style={this.commentWidgetStyle.loadMoreButton} statusOptions={["Load more messages", {icon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>

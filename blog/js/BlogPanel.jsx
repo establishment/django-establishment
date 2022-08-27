@@ -277,7 +277,7 @@ class BlogEntryView extends UI.Element {
         let blogEntryEditButton;
         // TODO: should use proper rights
         if (USER.isSuperUser) {
-            blogEntryEditButton = <Button level={Level.DEFAULT} label="Edit" onClick={() => {
+            blogEntryEditButton = <Button label="Edit" onClick={() => {
                 BlogEntryEditModal.show({entryId: this.getBlogEntry().id, fillScreen: true});
             }}/>
         }
@@ -335,7 +335,6 @@ class BlogEntryList extends UI.Element {
         return [
             USER.isSuperUser ?
                 <Button label="New Entry"
-                        level={Level.DEFAULT}
                         onClick={() => this.showNewBlogPostModal()}
                 />
                 : null,

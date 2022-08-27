@@ -356,7 +356,6 @@ class ForumThreadPanel extends Panel {
                         <CreateThreadReplyButton
                             label={UI.T("REPLY")}
                             className={this.styleSheet.replyButton}
-                            size={Size.DEFAULT}
                             forumThreadId={forumThread.id}
                             forumThread={this.getForumThread()}
                             classMap={ChatMarkupRenderer.classMap}
