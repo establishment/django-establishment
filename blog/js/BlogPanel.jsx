@@ -180,7 +180,7 @@ class BlogEntryPreview extends UI.Element {
     }
 
     render() {
-        const blogStyle = this.getStyleSheet();
+        const {styleSheet} = this;
         const article = this.getBlogArticle();
 
         // TODO: not actually the published date
@@ -210,17 +210,17 @@ class BlogEntryPreview extends UI.Element {
                     "max-width": "100%",
                     position: "relative"
                 }}>
-                    <div style={blogStyle.writtenBy}>
+                    <div style={styleSheet.writtenBy}>
                         {UI.T("Written by")} <UserHandle
                         userId={article.userCreatedId}/>, {publishedFormat}.{modifiedFormat}
                     </div>
-                    <div style={blogStyle.title}>
+                    <div style={styleSheet.title}>
                         <Link href={this.getEntryURL()} value={article.name}
                               style={{"text-decoration": "none", "color": "inherit"}}/>
                     </div>
-                    <BlogArticleRenderer article={article} style={blogStyle.blogArticleRenderer}/>
-                    <div className={blogStyle.whiteOverlay}></div>
-                    <Link href={this.getEntryURL()} style={blogStyle.link} value={UI.T("Continue reading")}/>
+                    <BlogArticleRenderer article={article} style={styleSheet.blogArticleRenderer}/>
+                    <div className={styleSheet.whiteOverlay}></div>
+                    <Link href={this.getEntryURL()} style={styleSheet.link} value={UI.T("Continue reading")}/>
                 </div>
             </div>
         ];
@@ -241,7 +241,7 @@ class BlogEntryView extends UI.Element {
     }
 
     extraNodeAttributes(attr) {
-        attr.addClass(this.getStyleSheet().blogEntryView);
+        attr.addClass(this.styleSheet.blogEntryView);
     }
 
     getComments() {
@@ -256,7 +256,7 @@ class BlogEntryView extends UI.Element {
 
     render() {
         const article = this.getBlogArticle();
-        const blogStyle = this.getStyleSheet();
+        const {styleSheet} = this;
 
         // TODO: not actually the published date
         let publishedDate = article.dateCreated;
@@ -289,21 +289,21 @@ class BlogEntryView extends UI.Element {
                 "box-shadow": "rgb(160, 160, 160) 0px 3px 15px",
             }}>
                 {blogEntryEditButton}
-                <div style={blogStyle.writtenBy}>
+                <div style={styleSheet.writtenBy}>
                     Written by <UserHandle userId={article.userCreatedId}/> on {publishedFormat}.
                     {modifiedFormat}
                 </div>
-                <div style={blogStyle.title}>{article.name}</div>
-                <BlogArticleRenderer style={blogStyle.article} article={article}/>
+                <div style={styleSheet.title}>{article.name}</div>
+                <BlogArticleRenderer style={styleSheet.article} article={article}/>
                 <div style={{
                     "margin-top": "30px",
                     "margin-bottom": "10px",
                 }}>
-                    <Link href="/blog/" style={blogStyle.link} value="Back to the Main Blog"/>
+                    <Link href="/blog/" style={styleSheet.link} value="Back to the Main Blog"/>
                 </div>
                 {this.getComments()}
             </div>,
-            <div className={blogStyle.bottomSection}>
+            <div className={styleSheet.bottomSection}>
             </div>
         ];
     }
@@ -320,7 +320,7 @@ class BlogEntryList extends UI.Element {
     }
 
     render() {
-        const blogStyle = this.getStyleSheet();
+        const {styleSheet} = this;
 
         let entries = [];
 
@@ -344,7 +344,7 @@ class BlogEntryList extends UI.Element {
             <Button label={this.options.finishedLoading ? UI.T("End of blog") : UI.T("Load More")}
                     ref="loadMoreButton"
                     style={{margin: "0px auto", display: "block"}}
-                    className={blogStyle.loadMoreButton}
+                    className={styleSheet.loadMoreButton}
                     disabled={this.options.finishedLoading} />,
             <div style={{
                 height: "45px",
