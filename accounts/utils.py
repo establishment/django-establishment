@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
 from django.core.mail import EmailMultiAlternatives, EmailMessage, get_connection
 
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from establishment.misc.util import import_module_attribute
 
@@ -13,7 +13,7 @@ from establishment.misc.util import import_module_attribute
 def format_email_subject(subject, add_prefix=True):
     site = Site.objects.get_current()
     prefix = "[{name}] ".format(name=site.name)
-    result = force_text(subject)
+    result = force_str(subject)
     if add_prefix:
         result = prefix + result
     return result

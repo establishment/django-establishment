@@ -1,7 +1,7 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from . import views
 
 urlpatterns = [
-    url(r"^edit_translation/$", views.edit_translation),
+    re_path(r"^edit_translation/$", views.edit_translation),
 ]

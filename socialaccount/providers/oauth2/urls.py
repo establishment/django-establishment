@@ -1,4 +1,4 @@
-from django.conf.urls import url, include
+from django.urls import re_path, include
 
 
 def import_attribute(path):
@@ -13,8 +13,8 @@ def default_urlpatterns(provider):
     callback_view = import_attribute(provider.package + '.views.oauth2_callback')
 
     urlpatterns = [
-        url('^login/$', login_view, name=provider.id + "_login"),
-        url('^login/callback/$', callback_view, name=provider.id + "_callback"),
+        re_path('^login/$', login_view, name=provider.id + "_login"),
+        re_path('^login/callback/$', callback_view, name=provider.id + "_callback"),
     ]
 
-    return [url('^' + provider.id + '/', include(urlpatterns))]
+    return [re_path('^' + provider.id + '/', include(urlpatterns))]

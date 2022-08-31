@@ -1,8 +1,8 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from . import views
 
 urlpatterns = [
-    url('^facebook/login/token/$', views.login_by_token, name="facebook_login_by_token")
+    re_path('^facebook/login/token/$', views.login_by_token, name="facebook_login_by_token")
 ]
 

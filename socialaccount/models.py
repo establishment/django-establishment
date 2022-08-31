@@ -4,8 +4,8 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.utils.crypto import get_random_string
-from django.utils.encoding import force_text
-from django.utils.http import is_safe_url
+from django.utils.encoding import force_str
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from establishment.accounts.models import EmailAddress, UnverifiedEmail
 from establishment.accounts.utils import get_request_param
@@ -110,7 +110,7 @@ class SocialAccount(models.Model):
         unique_together = (("provider_instance", "uid"))
 
     def __str__(self):
-        return force_text(self.user)
+        return force_str(self.user)
 
     def authenticate(self):
         return authenticate(account=self)
@@ -270,7 +270,7 @@ class SocialLogin(object):
         state = {}
 
         next_url = get_request_param(request, "next")
-        if not is_safe_url(next_url, None):
+        if not url_has_allowed_host_and_scheme(next_url, None):
             next_url = None
         if next_url:
             state["next"] = next_url
