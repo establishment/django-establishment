@@ -138,8 +138,7 @@ class SessionStore(SessionBase):
         try:
             self._get_or_create_session_key()
             session_data = self.server.get(self.get_redis_key_name())
-            session_data = UselessByteWrapper(session_data)
-            return self.decode(session_data)
+            return self.decode(session_data.decode("utf-8"))
         except Exception as e:
             self._session_key = None
             return {}
