@@ -1,11 +1,11 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from establishment.documentation import views
 
 urlpatterns = [
-    url(r"^edit_entry/$", views.edit_entry),
-    url(r"^create/$", views.create_entry),
-    url(r"^change_parents/$", views.change_parents),
-    url(r"^edit/", views.edit_documentation),
-    url(r"^", views.documentation)
+    re_path(r"^edit_entry/$", views.edit_entry),
+    re_path(r"^create/$", views.create_entry),
+    re_path(r"^change_parents/$", views.change_parents),
+    re_path(r"^edit/", views.edit_documentation),
+    re_path(r"^", views.documentation)
 ]

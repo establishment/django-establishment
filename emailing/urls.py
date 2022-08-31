@@ -1,9 +1,9 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from . import views
 
 urlpatterns = [
-    url(r"^manager/", views.email_manager),
-    url(r"^control/$", views.control),
-    url(r"^signature.png$", views.track_email)
+    re_path(r"^manager/", views.email_manager),
+    re_path(r"^control/$", views.control),
+    re_path(r"^signature.png$", views.track_email)
 ]

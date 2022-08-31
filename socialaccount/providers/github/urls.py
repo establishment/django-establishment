@@ -1,8 +1,8 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from . import views
 
 urlpatterns = [
-    url('^github/login/token/$', views.login_by_token, name="github_login_by_token")
+    re_path('^github/login/token/$', views.login_by_token, name="github_login_by_token")
 ]
 

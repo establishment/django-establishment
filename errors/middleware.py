@@ -10,6 +10,9 @@ class ErrorMessageProcessingMiddleware(object):
         self.get_response = get_response
 
     def __call__(self, request):
+        # A bit ugly - backfill if this is an ajax request
+        request.is_ajax = lambda: request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
+
         return self.get_response(request)
 
     @staticmethod
