@@ -442,7 +442,9 @@ def public_user_profiles(request):
 
 @login_required_ajax
 def get_user_notifications(request):
-    return State.from_objects(request.user.notifications.all(), UserSummary(request.user))
+    user_summary = UserSummary(request.user)
+    notifications = request.user.notifications.all().order_by("-id")[0:100]
+    return State.from_objects(user_summary, notifications)
 
 
 @login_required_ajax
