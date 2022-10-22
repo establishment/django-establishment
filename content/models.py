@@ -207,8 +207,6 @@ class Questionnaire(StreamObjectMixin):
         type = 2
         if choices is None:
             type = 1
-        elif len(choices) == 0:
-            type = 3
         question = QuestionnaireQuestion.objects.create(questionnaire=self, type=type, text=question_text)
         for choice in (choices or []):
             QuestionnaireQuestionOption.objects.create(question=question, answer=choice)
