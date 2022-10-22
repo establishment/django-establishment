@@ -203,6 +203,17 @@ class Questionnaire(StreamObjectMixin):
     def __str__(self):
         return self.name
 
+    def add_question(self, question_text, choices):
+        type = 2
+        if choices is None:
+            type = 1
+        elif len(choices) == 0:
+            type = 3
+        question = QuestionnaireQuestion.objects.create(questionnaire=self, type=type, text=question_text)
+        for choice in (choices or []):
+            QuestionnaireQuestionOption.objects.create(question=question, answer=choice)
+        return question
+
     def add_to_state(self, state, user=None):
         # Questionnaire itself
         state.add(self)
