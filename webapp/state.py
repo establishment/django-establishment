@@ -1,5 +1,6 @@
 import json
 import time
+from typing import Any
 
 from establishment.funnel.encoder import StreamJSONEncoder
 from establishment.webapp.base_views import JSONResponse
@@ -68,7 +69,7 @@ class DBObjectStoreWithNull(DBObjectStore):
 
 
 class State(object):
-    def __init__(self, request=None, parent_cache=None, user=None):
+    def __init__(self, request=None, parent_cache=None, user=None) -> None:
         self.request = request
         self.object_caches = {}
         self.parent_cache = parent_cache
@@ -106,14 +107,14 @@ class State(object):
             object_store.add(self.parent_cache.get(ObjectClass, id))
         return object_store.get(id)
 
-    def add(self, obj, timestamp=time.time()):
+    def add(self, obj: Any, timestamp: float = time.time()) -> None:
         if not obj:
             return
         self.get_store(obj.__class__).add(obj)
         if self.parent_cache:
             self.parent_cache.add(obj, timestamp)
 
-    def add_all(self, objects, timestamp=time.time()):
+    def add_all(self, objects: Any, timestamp: float = time.time()) -> None:
         for obj in objects:
             self.add(obj, timestamp)
 
@@ -145,7 +146,7 @@ class State(object):
             "state": self,
         }
 
-    def to_response(self, extra=None):
+    def to_response(self, extra: dict = None) -> JSONResponse:
         result = self.wrapped()
         if extra:
             result.update(extra)
@@ -153,7 +154,7 @@ class State(object):
 
     # TODO: rename to from
     @classmethod
-    def from_objects(cls, *args):
+    def from_objects(cls, *args: Any) -> "State":
         state = cls()
         for arg in args:
             if hasattr(arg, '__iter__'):

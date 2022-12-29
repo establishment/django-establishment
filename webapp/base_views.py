@@ -25,7 +25,6 @@ global_renderer.render_error_message = default_render_error_message
 global_renderer.render_single_page_app = default_single_page_app
 
 
-
 def get_remote_ip(request):
     """
     Method that can be used to get the ip (filled in by apache/nginx) from a request object
