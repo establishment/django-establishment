@@ -33,7 +33,9 @@ class StrEnum(str, Enum):
             return Q(**{field_name: value})
 
     @classmethod
-    def cast(cls: type[StrEnumType], value: str) -> StrEnumType:
+    def cast(cls: type[StrEnumType], value: Union[str, bytes]) -> StrEnumType:
+        if isinstance(value, bytes):
+            value = value.decode()
         for entry in cls:
             if entry.value == value:
                 return entry
