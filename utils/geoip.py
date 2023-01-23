@@ -37,9 +37,9 @@ class IPGeoLocation(BaseModel):
             return IPGeoLocation(ip=ip)
         region = info.subdivisions[0].iso_code if info.subdivisions else None  # type: ignore
         return IPGeoLocation(ip=ip,
-                             city=info.city.name,
-                             region=region,
-                             country_code=info.country.iso_code,
+                             city=info.city.name or "-",
+                             region=region or "-",
+                             country_code=info.country.iso_code or "-",
                              longitude=info.location.longitude,
                              latitude=info.location.latitude)
 
