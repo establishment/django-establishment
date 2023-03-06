@@ -5,7 +5,7 @@ import {Switcher} from "ui/Switcher";
 import {Link} from "ui/UIPrimitives";
 import {PasswordInput, SubmitInput, CheckboxInput, EmailInput, TextInput, Select} from "ui/input/Input";
 import {BasicTabTitle} from "ui/tabs/TabArea";
-import {TemporaryMessageArea} from "ui/UIPrimitives";
+import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea.jsx";
 import {FAIcon} from "ui/FontAwesome";
 
 import {CountryStore} from "state/CountryStore";

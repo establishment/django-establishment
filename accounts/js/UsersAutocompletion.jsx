@@ -4,7 +4,7 @@ import {UI} from "ui/UI";
 import {VolatileFloatingWindow} from "ui/modal/FloatingWindow";
 import {TextInput} from "ui/input/Input";
 import {getOffset, getComputedStyle} from "ui/Utils";
-import {TemporaryMessageArea} from "ui/UIPrimitives";
+import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea.jsx";
 import {Button} from "ui/button/Button";
 import {Direction, Level, Size} from "ui/Constants";
 

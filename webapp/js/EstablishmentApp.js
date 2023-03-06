@@ -3,7 +3,7 @@ import {Ajax} from "base/Ajax";
 import {getCookie} from "base/Utils";
 import {GlobalState} from "state/State";
 import {StemDate, ServerTime} from "time/Time";
-import {ViewportMeta} from "ui/UIPrimitives";
+import {ViewportMeta} from "../../../stemjs/src/ui/ViewportMeta.jsx";
 
 import {WebsocketSubscriber} from "websocket/WebsocketSubscriber";
 import {ErrorHandlers} from "ErrorHandlers";
