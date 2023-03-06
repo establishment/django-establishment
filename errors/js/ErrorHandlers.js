@@ -11,7 +11,7 @@ ErrorHandlers.wrapError = (error) => {
     }
 
     if (error.id) {
-        return ErrorMessageStore.fakeCreate(error);
+        return ErrorMessageStore.create(error);
     } else {
         if (typeof error === "string" || error instanceof String) {
             error = {message: error};

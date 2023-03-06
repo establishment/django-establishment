@@ -379,7 +379,9 @@ let ChatWidget = (ChatMessageClass) => {
                 LoginModal.show();
                 return;
             }
-            let request = Object.assign({}, this.options.baseRequest || {});
+            const request = {
+                ...this.options.baseRequest,
+            };
 
             message = message || this.chatInput.getValue();
             message = message.trim();
@@ -390,7 +392,7 @@ let ChatWidget = (ChatMessageClass) => {
             request.message = message;
 
             // Create a virtual message to be drawn temporarily
-            let virtualMessageInstance = this.createVirtualMessage(request, message);
+            const virtualMessageInstance = this.createVirtualMessage(request, message);
 
             let onSuccess = (data) => {
                 if (data.error) {

@@ -12,7 +12,7 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
     constructor(obj, event) {
         super(obj, event);
 
-        PublicUserStore.fakeCreate(event.user);
+        PublicUserStore.create(event.user);
     }
 
     getNormalizedId() {
@@ -269,7 +269,7 @@ class MessageInstanceStoreClass extends VirtualStoreMixin(GenericObjectStore) {
             meta: {},
         };
 
-        return this.fakeCreate(virtualMessageInstance, "virtualMessage");
+        return this.create(virtualMessageInstance, {isVirtual: true});
     };
 }
 
