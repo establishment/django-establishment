@@ -186,7 +186,7 @@ class UserSearchInput extends UI.Element {
         this.input.addNodeListener("keyup", () => {
             this.window.show();
             if (this.input.getValue()) {
-                Ajax.getJSON(PublicUserStore.options.fetchURL, {
+                Ajax.getJSON(PublicUserStore.fetchURL, {
                     usernamePrefix: this.input.getValue(),
                 }).then(
                     (data) => this.updateList(data.state.publicuser),

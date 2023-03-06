@@ -4,13 +4,14 @@ import {StoreObject, GenericObjectStore} from "state/Store";
 
 import {PublicUserStore} from "state/UserStore";
 import {MessageThreadStore, MessageInstanceStore} from "state/MessageThreadStore";
+import {GlobalState} from "../../../../stemjs/src/state/State.js";
 
 class Forum extends StoreObject {
     constructor() {
         super(...arguments);
         this.forumThreads = new Map();
         // TODO: not appropriate to register to streams here
-        this.registerToStream();
+        GlobalState.registerStream(this.getStreamName());
         ForumThreadStore.addDeleteListener((forumThread) => {
             if (forumThread.parentId === this.id && this.forumThreads.has(forumThread.id)) {
                 this.deleteForumThread(forumThread);

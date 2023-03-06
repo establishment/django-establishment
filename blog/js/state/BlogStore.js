@@ -9,8 +9,8 @@ class BlogEntry extends StoreObject {
 }
 
 class BlogEntryStoreClass extends GenericObjectStore {
-    constructor(objectType="BlogEntry", ObjectWrapper=BlogEntry) {
-        super(objectType, ObjectWrapper, {
+    constructor(objectType="BlogEntry", ObjectClass=BlogEntry) {
+        super(objectType, ObjectClass, {
             dependencies: ["Article"],
         });
     }

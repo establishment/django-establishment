@@ -14,7 +14,7 @@ import {UserHandle} from "UserHandle";
 
 export class AbstractUsernameAutocomplete extends Dispatchable {
     static requestNewUsers(prefix, callback) {
-        Ajax.getJSON(PublicUserStore.options.fetchURL, {
+        Ajax.getJSON(PublicUserStore.fetchURL, {
             usernamePrefix: prefix
         }).then(
             (data) => {
