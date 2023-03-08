@@ -612,7 +612,7 @@ let ChatWidget = (ChatMessageClass) => {
                 this.registerPlugin(plugin);
             }
 
-            this.attachUpdateListener(this.messageThread, (event) => {
+            this.attachChangeListener(this.messageThread, (event) => {
                 if (event.type === "muted") {
                     this.redraw();
                 }

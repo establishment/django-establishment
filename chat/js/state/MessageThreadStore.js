@@ -327,7 +327,7 @@ PrivateChatStore.getChatWithUser = function(userId) {
         }
         return null;
     }
-    for (let privateChat of this.all()) {
+    for (const privateChat of this.all()) {
         if (privateChat.user1Id === userId || privateChat.user2Id === userId) {
             return privateChat;
         }
@@ -343,7 +343,7 @@ PrivateChatStore.fetchForUser = function (userId, onSuccess, onError) {
     );
 };
 
-PrivateChatStore.addListener("update", (obj, event) => {
+PrivateChatStore.addChangeListener((obj, event) => {
     if (event.type === "privateMessage") {
         GlobalState.importState(event.state);
     }

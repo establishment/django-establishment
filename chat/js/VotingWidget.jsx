@@ -116,7 +116,7 @@ class CommentVotingWidget extends VotingWidget {
     setupListener() {
         let target = this.options.target;
         if (target) {
-            this.attachUpdateListener(target, () => {
+            this.attachChangeListener(target, () => {
                 this.redraw();
             })
         }

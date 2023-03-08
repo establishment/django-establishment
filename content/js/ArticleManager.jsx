@@ -241,7 +241,7 @@ class ArticleOwnerSpan extends UI.Primitive("span") {
     }
 
     onMount() {
-        this.attachUpdateListener(this.getArticle(), () => this.redraw());
+        this.attachChangeListener(this.getArticle(), () => this.redraw());
     }
 }
 
@@ -271,7 +271,7 @@ class ArticlePublicSpan extends FAIcon {
     }
 
     onMount() {
-        this.attachUpdateListener(this.getArticle(),
+        this.attachChangeListener(this.getArticle(),
             () => this.updateOptions({icon: this.isPublic() ? "check" : "times"})
         );
     }

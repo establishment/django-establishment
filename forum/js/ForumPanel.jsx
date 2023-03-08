@@ -8,6 +8,7 @@ import {ChatMarkupRenderer} from "ChatMarkupRenderer";
 import {ForumStore, ForumThreadStore} from "./state/ForumStore";
 import {ForumThreadPanel, CreateForumThreadButton} from "./ForumThread";
 import {ForumThreadHeaderStyle, ForumThreadPreviewStyle, ForumThreadBubbleStyle, ForumPanelStyle} from "./ForumStyle";
+import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
 
 
 @registerStyle(ForumThreadHeaderStyle)
@@ -71,6 +72,7 @@ export class ForumThreadPreview extends ChatMarkupRenderer {
     }
 }
 
+@autoredraw
 @registerStyle(ForumThreadBubbleStyle)
 export class ForumThreadBubble extends UI.Element {
     getNodeAttributes() {
@@ -182,16 +184,6 @@ export class ForumThreadBubble extends UI.Element {
             this.getThreadVotes(),
             this.getThreadActivity(),
         ];
-    }
-
-    onMount() {
-        super.onMount();
-        this.getForumThread().addUpdateListener(() => {
-            this.redraw();
-        });
-        this.getForumThread().addDeleteListener(() => {
-            this.hide();
-        });
     }
 }
 

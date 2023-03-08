@@ -1,4 +1,5 @@
-import {StyleSheet, styleRule} from "ui/UI";
+import {styleRule} from "../../../stemjs/src/decorators/Style.js";
+import {StyleSheet} from "../../../stemjs/src/ui/Style.js";
 
 const colors = {
     // BLUE: "#20232d",
@@ -13,7 +14,6 @@ const colors = {
 
 
 class ForumThreadReplyStyle extends StyleSheet {
-
     @styleRule
     mainClass = {
         width: "90%",
@@ -261,7 +261,6 @@ class ButtonStyle extends StyleSheet {
         color: "#fff",
         height: "30px",
         marginTop: "10px",
-        marginBottom: "20px",
         width: "auto",
         borderRadius: "0px",
         backgroundColor: colors.BLUE,
@@ -321,7 +320,6 @@ class ForumThreadHeaderStyle extends StyleSheet {
     
     @styleRule
     mainClass = {
-        height: "40px",
         width: "100%",
         maxWidth: "1200px",
         marginLeft: "auto",
@@ -333,7 +331,7 @@ class ForumThreadHeaderStyle extends StyleSheet {
 
         boxSizing: "content-box",
         backgroundColor: "#eaeaea",
-        height: this.tagsHeight + "px",
+        height: this.tagsHeight,
         borderTop: "3px solid " + this.borderTopColor,
     };
 
@@ -591,7 +589,6 @@ class ForumThreadBubbleStyle extends StyleSheet {
         flex: ".5",
         textAlign: "center",
         color: "#767676",
-        display: "flex",
         justifyContent: "center",
         alignItems: "center",
         paddingLeft: "4px",

@@ -232,7 +232,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
     onMount() {
         super.onMount();
         this.attachCreateListener(DocumentationEntryStore, (entry) => {
-            this.attachUpdateListener(entry, () => {
+            this.attachChangeListener(entry, () => {
                 this.focusToDocumentationEntry(entry);
             });
         }, true);
