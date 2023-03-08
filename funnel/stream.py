@@ -344,7 +344,7 @@ class StreamObjectMixin(models.Model):
         self.publish_event("create", self, *args, **kwargs)
 
     def publish_update_event(self, *args, **kwargs):
-        self.publish_event("updateOrCreate", self, *args, **kwargs)
+        self.publish_event("createOrUpdate", self, *args, **kwargs)
 
     def publish_delete_event(self, *args, **kwargs):
         self.publish_event("delete", {}, *args, **kwargs)

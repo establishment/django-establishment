@@ -12,8 +12,10 @@ import {UserHandle} from "UserHandle";
 
 // TODO: This is CSAcademy dependency. Fix this!!
 import {Formatter} from "util";
+import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
 
 
+@autoredraw
 class CommandRunStatus extends UI.Element {
     render() {
         switch(this.options.commandRun.status) {
@@ -30,19 +32,6 @@ class CommandRunStatus extends UI.Element {
                 return <FAIcon icon="check" style={{color: "green"}}/>;
             }
         }
-    }
-
-    onMount() {
-        this.attachEventListener(this.options.commandRun, "logProgress", (event) => {
-            if (this.progressBar) {
-                this.progressBar.set(event.data.percent || 0);
-            } else {
-                this.redraw();
-            }
-        });
-        this.attachEventListener(this.options.commandRun, "updateOrCreate", (event) => {
-            this.redraw();
-        });
     }
 }
 
@@ -90,7 +79,7 @@ class CommandRunDetailsModal extends Modal {
         this.attachEventListener(this.options.commandRun, "logMessage", (event) => {
             this.logger.append(this.getFormattedMessage(event.data));
         });
-        this.attachEventListener(this.options.commandRun, "updateOrCreate", () => {
+        this.attachEventListener(this.options.commandRun, "createOrUpdate", () => {
             this.redraw();
             if (this.options.commandRun.status >= 2) {
                 this.resultField.append(this.getFormattedResult(this.options.commandRun.result));
@@ -119,6 +108,7 @@ class CommandRunDetails extends UI.Element {
     }
 }
 
+@autoredraw
 class CommandRunDuration extends UI.Primitive("span") {
     render() {
         if (this.options.commandRun.status === 0) {
@@ -142,9 +132,6 @@ class CommandRunDuration extends UI.Primitive("span") {
                 this.redraw();
             }
         }, 700);
-        this.attachEventListener(this.options.commandRun, "updateOrCreate", (event) => {
-            this.redraw();
-        });
     }
 }
 

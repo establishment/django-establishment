@@ -62,7 +62,7 @@ class EmailGateway(StreamObjectMixin):
             "data": self,
         }
 
-    def publish_update_event(self, event_type="updateOrCreate", extra=None, extra_stream_names=None):
+    def publish_update_event(self, event_type="createOrUpdate", extra=None, extra_stream_names=None):
         event = self.get_event(event_type=event_type)
         if extra:
             event.update(extra)
@@ -116,7 +116,7 @@ class EmailCampaign(StreamObjectMixin):
     def get_emails_read_count(self, min_count=1):
         return EmailStatus.objects.all().filter(campaign_id=self.id, read_count__gte=min_count).count()
 
-    def publish_update_event(self, event_type="updateOrCreate", extra=None, extra_stream_names=None):
+    def publish_update_event(self, event_type="createOrUpdate", extra=None, extra_stream_names=None):
         event = self.get_event(event_type=event_type)
         if extra:
             event.update(extra)
@@ -180,7 +180,7 @@ class EmailTemplate(StreamObjectMixin):
             "data": self,
         }
 
-    def publish_update_event(self, event_type="updateOrCreate", extra=None, extra_stream_names=None):
+    def publish_update_event(self, event_type="createOrUpdate", extra=None, extra_stream_names=None):
         event = self.get_event(event_type=event_type)
         if extra:
             event.update(extra)
@@ -295,7 +295,7 @@ class EmailStatus(StreamObjectMixin):
             "data": self,
         }
 
-    def publish_update_event(self, event_type="updateOrCreate", extra=None, extra_stream_names=None):
+    def publish_update_event(self, event_type="createOrUpdate", extra=None, extra_stream_names=None):
         event = self.get_event(event_type=event_type)
         if extra:
             event.update(extra)
