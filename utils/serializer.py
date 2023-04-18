@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import Model as DjangoModel
 from pydantic import BaseModel as PydanticModel
 
-from .convert import bytes_to_hex
+from .convert import bytes_to_hex, to_camel_case
 from .proxy import ProxyObject
 from .db.typed_json_field import TypedJSONField
 
@@ -196,6 +196,8 @@ class DefaultSerializer:
         serializer_exclude = cls.get_model_class_special_member(model_class, "serializer_exclude")
         include_set = cls.make_include_set(model_class, serializer_include, serializer_exclude)
 
+        for field in include_set:
+            field.name = to_camel_case(field.name)
         cls.cached_values[model_class] = include_set
 
         return include_set
