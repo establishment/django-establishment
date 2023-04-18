@@ -15,7 +15,10 @@ class StreamJSONEncoder(json.JSONEncoder):
         elif hasattr(obj, "to_json"):
             return obj.to_json()
         elif isinstance(obj, datetime.datetime):
-            return obj.timestamp()  # TODO make this iso time string
+            result = obj.isoformat()
+            if result.endswith("+00:00"):
+                result = result[:-6] + "Z"
+            return result
         elif isinstance(obj, bytes):
             return self.encode_bytes_as_hex(obj)
         elif isinstance(obj, memoryview):
