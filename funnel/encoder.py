@@ -2,16 +2,20 @@ import datetime
 import json
 import string
 
+from establishment.utils.serializer import DefaultSerializer
+
 
 class StreamJSONEncoder(json.JSONEncoder):
     """
     Class to serialized json objects that go to the redis stream
     """
     def default(self, obj):
-        if hasattr(obj, "to_json"):
+        if DefaultSerializer.can_serialize(obj):
+            return DefaultSerializer.serialize(obj)
+        elif hasattr(obj, "to_json"):
             return obj.to_json()
         elif isinstance(obj, datetime.datetime):
-            return obj.timestamp()
+            return obj.timestamp()  # TODO make this iso time string
         elif isinstance(obj, bytes):
             return self.encode_bytes_as_hex(obj)
         elif isinstance(obj, memoryview):

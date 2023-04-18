@@ -2,6 +2,8 @@ import json
 import time
 from typing import Any
 
+from django.db.models import QuerySet
+
 from establishment.funnel.encoder import StreamJSONEncoder
 from establishment.webapp.base_views import JSONResponse
 
@@ -69,9 +71,10 @@ class DBObjectStoreWithNull(DBObjectStore):
 
 
 class State(object):
-    def __init__(self, request=None, parent_cache=None, user=None) -> None:
+    def __init__(self, request=None, parent_cache=None, user=None, extra={}) -> None:
         self.request = request
         self.object_caches = {}
+        self.extra = extra
         self.parent_cache = parent_cache
         # The user that's intended to receive this state
         self.user = (request and request.user) or user
@@ -82,9 +85,7 @@ class State(object):
     def get_store_key(self, ObjectClass):
         if hasattr(ObjectClass, "object_type"):
             return ObjectClass.object_type()
-        if hasattr(ObjectClass, "_meta") and hasattr(ObjectClass._meta, "db_table"):
-            return ObjectClass._meta.db_table
-        return ObjectClass
+        return ObjectClass.__name__
 
     def has_store(self, ObjectClass):
         return self.get_store_key(ObjectClass) in self.object_caches
@@ -110,6 +111,10 @@ class State(object):
     def add(self, obj: Any, timestamp: float = time.time()) -> None:
         if not obj:
             return
+        if isinstance(obj, list) or isinstance(obj, QuerySet):
+            for o in obj:
+                self.add(o, timestamp)
+            return
         self.get_store(obj.__class__).add(obj)
         if self.parent_cache:
             self.parent_cache.add(obj, timestamp)
@@ -129,27 +134,20 @@ class State(object):
         for processor in STATE_FILTERS:
             processor(self)
 
-        empty_keys = []
-        for key in self.object_caches:
+        for key in list(self.object_caches):
             if self.object_caches[key].is_empty():
-                empty_keys.append(key)
-        for key in empty_keys:
-            self.object_caches.pop(key)
+                self.object_caches.pop(key)
 
         return self.object_caches
 
     def dumps(self):
         return json.dumps(self, cls=StreamJSONEncoder, check_circular=False, separators=(',', ':'))
 
-    def wrapped(self):
-        return {
+    def to_response(self, extra: dict = {}) -> JSONResponse:
+        result = {
             "state": self,
+            **extra,
         }
-
-    def to_response(self, extra: dict = None) -> JSONResponse:
-        result = self.wrapped()
-        if extra:
-            result.update(extra)
         return JSONResponse(result)
 
     # TODO: rename to from
