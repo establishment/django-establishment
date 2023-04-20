@@ -1,9 +1,9 @@
 import json
 import time
 import threading
+from typing import Union
 
 from django.conf import settings
-from psycopg2.extensions import JSON
 from redis import StrictRedis, ConnectionPool
 
 from establishment.misc.util import jsonify, same_dict
@@ -43,6 +43,15 @@ class RetryRedis(StrictRedis):
             except (ConnectionError, TimeoutError) as e:
                 if num_try == self.num_retries - 1:
                     raise e
+
+
+def simple_stream_publish(stream_name: str, message: Union[str, dict]):
+    connection = RetryRedis(connection_pool=get_default_redis_connection_pool())
+    
+    if isinstance(message, dict):
+        message = StreamJSONEncoder.dumps(message)
+
+    connection.publish(stream_name, message)
 
 
 class RedisStreamPublisher(object):
