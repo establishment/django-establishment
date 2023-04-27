@@ -3,7 +3,7 @@ from django.contrib.sessions.backends.base import SessionBase, CreateError
 
 from establishment.misc.settings_with_default import SettingsWithDefault
 
-settings = SettingsWithDefault("SESSION_REDIS",
+settings = SettingsWithDefault("REDIS_CONNECTION_SESSION",
                                HOST="localhost",
                                PORT=6379,
                                SOCKET_TIMEOUT=0.2,
