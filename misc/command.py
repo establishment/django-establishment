@@ -134,4 +134,5 @@ class PrintLogger:
 
     def set_progress(self, percent, progress_dict=None):
         print("\r", int(100 * percent), "%", progress_dict, end="")
+
 print_logger = PrintLogger()

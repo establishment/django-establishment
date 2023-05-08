@@ -374,7 +374,7 @@ let ChatWidget = (ChatMessageClass) => {
             return virtualMessageInstance;
         }
 
-        sendMessage(message) {
+        async sendMessage(message) {
             if (!USER.isAuthenticated) {
                 LoginModal.show();
                 return;
@@ -393,32 +393,28 @@ let ChatWidget = (ChatMessageClass) => {
 
             // Create a virtual message to be drawn temporarily
             const virtualMessageInstance = this.createVirtualMessage(request, message);
-
-            let onSuccess = (data) => {
-                if (data.error) {
-                    virtualMessageInstance.setPostError(data.error);
-                    return;
-                }
-                if (virtualMessageInstance && virtualMessageInstance.hasTemporaryId()) {
-                    MessageInstanceStore.applyUpdateObjectId(virtualMessageInstance, data.messageId);
-                    GlobalState.importState(data.state);
-                }
-            };
-
-            let onError = (error) => {
-                if (virtualMessageInstance) {
-                    virtualMessageInstance.setPostError(42);
-                }
-                console.log("Error in sending chat message:\n" + error.message);
-                console.log(error.stack);
-            };
-
             this.messageWindow.scrollToBottom();
 
             this.chatInput.setValue("");
             this.chatInput.dispatch("messageSent");
 
-            Ajax.postJSON(this.getPostURL(), request, {disableStateImport: true}).then(onSuccess, onError);
+            try {
+                const response = await Ajax.postJSON(this.getPostURL(), request, {disableStateImport: true});
+                if (response.error) {
+                    virtualMessageInstance.setPostError(response.error);
+                    return;
+                }
+                if (virtualMessageInstance?.hasTemporaryId()) {
+                    MessageInstanceStore.applyUpdateObjectId(virtualMessageInstance, response.messageId);
+                    GlobalState.importState(response.state);
+                }
+            } catch (error) {
+                if (virtualMessageInstance) {
+                    virtualMessageInstance.setPostError(42);
+                }
+                console.log("Error in sending chat message:\n" + error.message);
+                console.log(error.stack);
+            }
         }
 
         saveScrollPosition() {

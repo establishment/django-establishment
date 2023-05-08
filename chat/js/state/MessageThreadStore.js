@@ -1,8 +1,8 @@
 import {Ajax} from "base/Ajax";
 import {GlobalState} from "state/State";
 import {NOOP_FUNCTION} from "base/Utils";
-import {StoreObject, GenericObjectStore} from "state/Store";
-import {AjaxFetchMixin, VirtualStoreObjectMixin, VirtualStoreMixin} from "state/StoreMixins";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
+import {AjaxFetchMixin, VirtualStoreObjectMixin, VirtualStoreMixin} from "../../../../stemjs/src/state/StoreMixins.js";
 import {ServerTime, StemDate} from "time/Time";
 
 import {PublicUserStore} from "state/UserStore";
