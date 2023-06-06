@@ -1,18 +1,19 @@
-import {Ajax} from "base/Ajax";
-import {GlobalState} from "state/State";
-import {StemDate} from "time/Time";
+import {UserHandle} from "UserHandle";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {GlobalState} from "../../../stemjs/src/state/State.js";
+import {StemDate} from "../../../stemjs/src/time/Date.js";
 import {UI, Select, Button, Table, ProgressBar, Modal, ActionModal, FormField, TextInput, StaticCodeHighlighter, CheckboxInput, NumberInput} from "ui/All";
 
-import {FAIcon} from "ui/FontAwesome";
-import {Level, Size} from "ui/Constants";
+import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
+import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
 
-import {CommandInstanceStore, CommandRunStore} from "state/CommandStore";
-import {Popup} from "Popup";
-import {UserHandle} from "UserHandle";
+import {CommandInstanceStore, CommandRunStore} from "./state/CommandStore.js";
+import {Popup} from "../../content/js/Popup.jsx";
+
+import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
 
 // TODO: This is CSAcademy dependency. Fix this!!
-import {Formatter} from "util";
-import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
+import {Formatter} from "../../../csabase/js/util.js";
 
 
 @autoredraw

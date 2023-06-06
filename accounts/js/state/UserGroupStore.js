@@ -1,6 +1,5 @@
-import {PublicUserStore} from "UserStore";
-
-import {StoreObject, GenericObjectStore} from "state/Store";
+import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore.js";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
 
 
 class UserGroup extends StoreObject {

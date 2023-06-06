@@ -1,5 +1,5 @@
-import {StoreObject, GenericObjectStore} from "state/Store";
-import {GlobalState} from "state/State";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
+import {GlobalState} from "../../../../stemjs/src/state/State.js";
 
 export class EmailTemplate extends StoreObject {}
 

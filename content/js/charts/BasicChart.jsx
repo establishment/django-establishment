@@ -1,15 +1,17 @@
+import {UI} from "../../../../stemjs/src/ui/UIBase.js";
+import {SVG} from "../../../../stemjs/src/ui/svg/SVGBase.js";
+import {Direction} from "../../../../stemjs/src/ui/Constants.js";
+import {uniqueId} from "../../../../stemjs/src/base/Utils.js";
+import {StemDate} from "../../../../stemjs/src/time/Date.js";
+import {LinePlot} from "./LinePlot.jsx";
+import {BasePointPlot} from "./PointPlot.jsx";
+
 // TODO: write own custom Scale
 // TODO: maybe import as some of these d3 functions
 import {scaleLinear, scaleTime} from "d3-scale";
 import {select} from "d3-selection";
 import {zoom, zoomIdentity} from "d3-zoom";
 
-import {uniqueId} from "base/Utils";
-import {StemDate} from "time/Time";
-import {UI, SVG, Direction} from "ui/All";
-
-import {LinePlot} from "./LinePlot";
-import {BasePointPlot} from "./PointPlot";
 
 // TODO: This file desperately needs a refactoring.
 

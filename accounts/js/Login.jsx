@@ -1,15 +1,16 @@
-import {ensure} from "base/Require";
-import {Ajax} from "base/Ajax";
-import {UI, registerStyle, Theme} from "UI";
-import {Switcher} from "ui/Switcher";
-import {Link} from "ui/UIPrimitives";
-import {PasswordInput, SubmitInput, CheckboxInput, EmailInput, TextInput, Select} from "ui/input/Input";
-import {BasicTabTitle} from "ui/tabs/TabArea";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {Theme, registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
+import {ensure} from "../../../stemjs/src/base/Require.js";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {Switcher} from "../../../stemjs/src/ui/Switcher.jsx";
+import {Link} from "../../../stemjs/src/ui/primitives/Link.jsx";
+import {PasswordInput, SubmitInput, CheckboxInput, EmailInput, TextInput, Select} from "../../../stemjs/src/ui/input/Input.jsx";
+import {BasicTabTitle} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
 import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea.jsx";
-import {FAIcon} from "ui/FontAwesome";
+import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
 
-import {CountryStore} from "state/CountryStore";
-import {SocialAppStore} from "state/SocialAppStore";
+import {CountryStore} from "../../localization/js/state/CountryStore.js";
+import {SocialAppStore} from "../../socialaccount/js/state/SocialAppStore.js";
 import {GoogleManager} from "./GoogleManager";
 import {FacebookManager} from "./FacebookManager";
 import {GithubManager} from "./GithubManager";

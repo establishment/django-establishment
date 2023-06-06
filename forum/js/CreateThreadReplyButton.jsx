@@ -1,12 +1,12 @@
-import {Ajax} from "base/Ajax";
 import {UI, Button, registerStyle, Level, Size} from "UI";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 
-import {MarkupEditorModal} from "markup/MarkupEditorModal";
-import {LoginModal} from "LoginModal";
-import {ChatMarkupRenderer} from "ChatMarkupRenderer";
-import {ButtonStyle} from "ForumStyle";
+import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";
+import {LoginModal} from "../../accounts/js/LoginModal.jsx";
+import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer.jsx";
+import {ForumButtonStyle} from "./ForumStyle.js";
 
-@registerStyle(ButtonStyle)
+@registerStyle(ForumButtonStyle)
 class CreateThreadReplyButton extends Button {
     getDefaultOptions() {
         return {

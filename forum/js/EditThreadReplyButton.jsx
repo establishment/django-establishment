@@ -1,7 +1,7 @@
 import {UI, Button, Level} from "UI";
-import {MarkupEditorModal} from "markup/MarkupEditorModal";
-import {LoginModal} from "LoginModal";
-import {ChatMarkupRenderer} from "ChatMarkupRenderer";
+import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";
+import {LoginModal} from "../../accounts/js/LoginModal.jsx";
+import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer.jsx";
 
 
 class EditThreadReplyButton extends Button {

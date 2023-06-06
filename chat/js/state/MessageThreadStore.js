@@ -1,12 +1,13 @@
-import {Ajax} from "base/Ajax";
-import {GlobalState} from "state/State";
-import {NOOP_FUNCTION} from "base/Utils";
+import {Ajax} from "../../../../stemjs/src/base/Ajax.js";
+import {GlobalState} from "../../../../stemjs/src/state/State.js";
+import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils.js";
 import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
 import {AjaxFetchMixin, VirtualStoreObjectMixin, VirtualStoreMixin} from "../../../../stemjs/src/state/StoreMixins.js";
-import {ServerTime, StemDate} from "time/Time";
+import {StemDate} from "../../../../stemjs/src/time/Date.js";
+import {ServerTime} from "../../../../stemjs/src/time/Time.js";
 
-import {PublicUserStore} from "state/UserStore";
-import {UserReactionCollectionStore} from "state/UserReactionStore";
+import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore.js";
+import {UserReactionCollectionStore} from "../../../accounts/js/state/UserReactionStore.js";
 
 class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
     constructor(obj, event) {

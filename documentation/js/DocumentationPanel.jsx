@@ -1,10 +1,10 @@
-import {Dispatcher} from "base/Dispatcher";
 import {UI, Orientation, Panel, Router, registerStyle} from "UI";
+import {Dispatcher} from "../../../stemjs/src/base/Dispatcher.js";
 
-import {ArticleSwitcher} from "ArticleRenderer";
-import {DocumentationEntryStore} from "state/DocumentationStore";
-import {SimpleDocumentationNavElement} from "./DocumentationNavElement";
-import {DocumentationStyle} from "./DocumentationStyle";
+import {ArticleSwitcher} from "../../content/js/ArticleRenderer.jsx";
+import {DocumentationEntryStore} from "./state/DocumentationStore.js";
+import {SimpleDocumentationNavElement} from "./DocumentationNavElement.jsx";
+import {DocumentationStyle} from "./DocumentationStyle.js";
 
 @registerStyle(DocumentationStyle)
 class DocumentationPanel extends UI.Element {

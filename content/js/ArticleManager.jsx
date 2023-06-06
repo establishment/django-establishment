@@ -1,6 +1,3 @@
-import {Ajax} from "../../../stemjs/src/base/Ajax";
-import {StemDate} from "../../../stemjs/src/time/Date";
-import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
 import {
     ActionModal,
     Button,
@@ -17,14 +14,17 @@ import {
     Level,
     UI,
 } from "ui/All";
-import {FAIcon} from "ui/FontAwesome";
-import {GlobalStyle} from "ui/GlobalStyle";
+import {Ajax} from "../../../stemjs/src/base/Ajax";
+import {StemDate} from "../../../stemjs/src/time/Date";
+import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
+import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
+import {GlobalStyle} from "../../../stemjs/src/ui/GlobalStyle.js";
 
-import {PublicUserStore} from "state/UserStore";
-import {Language} from "state/LanguageStore";
-import {UserHandle} from "UserHandle";
-
+import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {Language} from "../../localization/js/state/LanguageStore.js";
 import {ArticleStore} from "./state/ArticleStore";
+
+import {UserHandle} from "UserHandle";
 
 
 class TransferOwnershipModal extends ActionModal {
