@@ -24,7 +24,7 @@ import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
 import {Language} from "../../localization/js/state/LanguageStore.js";
 import {ArticleStore} from "./state/ArticleStore";
 
-import {UserHandle} from "UserHandle";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
 
 class TransferOwnershipModal extends ActionModal {

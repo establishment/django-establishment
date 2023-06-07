@@ -1,15 +1,15 @@
-import {Ajax} from "base/Ajax";
-import {Dispatchable} from "base/Dispatcher";
-import {UI} from "ui/UI";
-import {VolatileFloatingWindow} from "ui/modal/FloatingWindow";
-import {TextInput} from "ui/input/Input";
-import {getOffset, getComputedStyle} from "ui/Utils";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {Dispatchable} from "../../../stemjs/src/base/Dispatcher.js";
+import {VolatileFloatingWindow} from "../../../stemjs/src/ui/modal/FloatingWindow.jsx";
+import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {getOffset, getComputedStyle} from "../../../stemjs/src/ui/Utils.js";
 import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea.jsx";
-import {Button} from "ui/button/Button";
-import {Direction, Level, Size} from "ui/Constants";
+import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
+import {Direction, Level, Size} from "../../../stemjs/src/ui/Constants.js";
 
-import {PublicUserStore} from "state/UserStore";
-import {UserHandle} from "UserHandle";
+import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
 
 export class AbstractUsernameAutocomplete extends Dispatchable {

@@ -1,8 +1,9 @@
-import {Ajax} from "base/Ajax";
-import {MarkupRenderer} from "markup/MarkupRenderer";
-import {UI, TimePassedSpan} from "UI";
-
-import {UserNotificationStore} from "state/UserStore";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {TimePassedSpan} from "../../../stemjs/src/ui/misc/TimePassedSpan.jsx";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer.js";
+import {UserNotificationStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {Emoji} from "../../../csabase/js/ui/EmojiUI.jsx";
 
 class Notification extends UI.Element {
     getNodeType() {
@@ -40,10 +41,10 @@ class RatingNotification extends Notification {
         let newRating = this.options.notification.data.newRating;
         if (oldRating < newRating) {
             return  ["Congratulations! Your rating has increased by ", <span style={{color: "green"}}>
-                            {newRating - oldRating}</span> , " points ", <UI.Emoji value="smile" />, ". Keep it up!"];
+                            {newRating - oldRating}</span> , " points ", <Emoji value="smile" />, ". Keep it up!"];
         } else {
             return ["Your rating has decreased by ", <span style={{color: "red"}}>{oldRating - newRating}</span> , " points ",
-                        <UI.Emoji value="disappointed" />, ". Better luck next time!", <UI.Emoji value="smiley" />];
+                        <Emoji value="disappointed" />, ". Better luck next time!", <Emoji value="smiley" />];
         }
     }
 }

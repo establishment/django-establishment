@@ -1,16 +1,16 @@
-import {Ajax} from "../../../stemjs/src/base/Ajax";
-import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
 import {
     UI, TabArea, Form, FormField, TextInput,
     PasswordInput, EmailInput, Panel,
     Label, Button, Select, CheckboxInput
 } from "UI";
-import {GlobalStyle} from "ui/GlobalStyle";
-import {Level, Size} from "ui/Constants";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton.jsx";
+import {GlobalStyle} from "../../../stemjs/src/ui/GlobalStyle.js";
+import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
 
-import {UserStore} from "state/UserStore";
-import {FacebookManager} from "FacebookManager";
-import {GoogleManager} from "GoogleManager";
+import {UserStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {FacebookManager} from "./FacebookManager.js";
+import {GoogleManager} from "./GoogleManager.js";
 
 
 export class GeneralInformationPanel extends Panel {

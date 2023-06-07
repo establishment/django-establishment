@@ -1,10 +1,11 @@
 import {UI} from "ui/UI";
+import {ensure} from "../../../../stemjs/src/base/Require.js";
 
 let katex = null;
 
 export class Latex extends UI.Element {
     setOptions(options) {
-        if (options.children && options.children.length) {
+        if (options.children?.length) {
             let value = "";
             for (let child of options.children) {
                 if (child instanceof UI.TextElement) {
@@ -21,7 +22,7 @@ export class Latex extends UI.Element {
     updateOptions(options) {
         const oldValue = this.options.value;
         this.setOptions(Object.assign(this.options, options));
-        if (oldValue != this.options.value) {
+        if (oldValue !== this.options.value) {
             this.redraw();
         }
     }
@@ -43,8 +44,9 @@ export class Latex extends UI.Element {
             this.updateInnerHTML();
             return;
         }
-        require(["katex"], (_katex) => {
-            katex = _katex;
+        // TODO use normalized paths, fix out require hell
+        ensure("/static/katex/katex.min.js", () => {
+            katex = require("/static/katex/katex.min.js");
             this.updateInnerHTML();
         });
         this.applyRef();

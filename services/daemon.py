@@ -19,7 +19,7 @@ class Daemon:
     Usage: subclass the daemon class and override the run() method.
     """
 
-    def __init__(self, service_name, pidfile):
+    def __init__(self, service_name: str, pidfile: str):
         tokens = sys.argv[0].split("/")
         if tokens[-1] == "":
             self.daemon_process_name = tokens[-2]

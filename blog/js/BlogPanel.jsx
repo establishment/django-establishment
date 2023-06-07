@@ -10,7 +10,7 @@ import {AsyncCommentThread} from "../../chat/js/CommentWidget.jsx";
 import {BlogEntryStore} from "./state/BlogStore.js";
 import {BlogArticleRenderer} from "./BlogArticleRenderer.jsx";
 import {BlogStyle} from "./BlogStyle.js";
-import {UserHandle} from "UserHandle";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
 
 export class BlogEntryEditModal extends Modal {

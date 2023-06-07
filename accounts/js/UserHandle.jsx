@@ -1,6 +1,5 @@
-import {UI} from "ui/UI";
-
-import {PublicUserStore} from "state/UserStore";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
 
 class UserHandle extends UI.Element {
     setOptions(options) {

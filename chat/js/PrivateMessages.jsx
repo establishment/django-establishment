@@ -1,13 +1,13 @@
-import {Ajax} from "base/Ajax";
-import {StemDate} from "time/Time";
 import {UI, Level, Size, Router, Route, Button, Link, TextInput, VolatileFloatingWindow, registerStyle} from "UI";
-import {FAIcon} from "ui/FontAwesome";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {StemDate} from "../../../stemjs/src/time/Date.js";
+import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
 
-import {PublicUserStore} from "state/UserStore";
-import {MessagesPanelListStyle} from "SocialNotificationsStyle";
-import {PrivateChatWidget} from "ChatWidget";
-import {PrivateChatStore} from "state/MessageThreadStore";
-import {UserHandle} from "UserHandle";
+import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {MessagesPanelListStyle} from "./SocialNotificationsStyle.js";
+import {PrivateChatWidget} from "./ChatWidget.jsx";
+import {PrivateChatStore} from "./state/MessageThreadStore.js";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
 
 const formatMiniMessageLastTime = (timeStamp) => {
