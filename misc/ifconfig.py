@@ -1,3 +1,5 @@
+from typing import Optional
+
 import netifaces
 
 cached_network_interface_dict = None
@@ -34,9 +36,12 @@ def get_ifconfig(from_cache=False) -> dict[str, dict]:
     return network_interface_dict
 
 
-def get_private_ip() -> str:
+def get_private_ip() -> Optional[str]:
     network_info = get_ifconfig()
-
+    for network_name, info in network_info.items():
+        if info["ip"].startswith("10."):
+            return info["ip"]
+    return None
 
 
 def get_default_network_interface(from_cache=False, preffered_order=None):
