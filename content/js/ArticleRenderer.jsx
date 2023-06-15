@@ -44,7 +44,7 @@ class ArticleRenderer extends MarkupRenderer {
 
     getArticleDependencies() {
         const dependencies = this.options.article.dependency;
-        return dependencies?.split(",").map(dep => dep.trim());
+        return dependencies?.split(",").map(dep => dep.trim()).filter(dep => !!dep);
     }
 
     redraw() {
