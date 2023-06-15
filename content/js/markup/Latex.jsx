@@ -1,7 +1,5 @@
-import {UI} from "ui/UI";
-import {ensure} from "../../../../stemjs/src/base/Require.js";
-
-let katex = null;
+import {UI} from "../../../../stemjs/src/ui/UIBase.js";
+import katex from "../../static/katex/katex.mjs"; // TODO upgrade Katex dependency
 
 export class Latex extends UI.Element {
     setOptions(options) {
@@ -30,25 +28,11 @@ export class Latex extends UI.Element {
     getNodeType() {
         return "span";
     }
-
-    updateInnerHTML() {
-        try {
-            this.node.innerHTML = katex.renderToString(this.options.value);
-        } catch(e) {
-            this.node.innerHTML = "Latex parse error...";
-        }
-    }
     
     redraw() {
-        if (katex) {
-            this.updateInnerHTML();
-            return;
-        }
-        // TODO use normalized paths, fix out require hell
-        ensure("/static/katex/katex.min.js", () => {
-            katex = require("/static/katex/katex.min.js");
-            this.updateInnerHTML();
+        super.redraw();
+        this.node.innerHTML = katex.renderToString(this.options.value, {
+            throwOnError: false
         });
-        this.applyRef();
     }
 }

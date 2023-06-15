@@ -49,7 +49,7 @@ class ArticleRenderer extends MarkupRenderer {
 
     redraw() {
         const dependencies = this.getArticleDependencies();
-        if (!dependencies) {
+        if (!dependencies || dependencies.length === 0) {
             super.redraw();
             return;
         }
@@ -57,9 +57,7 @@ class ArticleRenderer extends MarkupRenderer {
         const depPaths = dependencies.map(dep => `/static/js/${dep}.js`);
 
         ensure(depPaths, (...args) => {
-            debugger;
             const reqDep = dependencies.map(dep => require(dep));
-            console.log("Got", reqDep);
             this.registerDependencies(reqDep);
             super.redraw();
         });
