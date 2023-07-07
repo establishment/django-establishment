@@ -1,8 +1,10 @@
 from __future__ import annotations
+
+import json
 import os
 import stat
 from functools import cached_property
-from typing import Any
+from typing import Any, Optional
 
 import paramiko
 import time
@@ -12,10 +14,12 @@ class SSHRun:
     """
     Class to wrap a single remote run call
     """
-    def __init__(self, worker: SSHWorker, command, max_output = 1 << 20, timeout = 0):
+    def __init__(self, worker: SSHWorker, command, max_output_size: int = 1 << 20, timeout = 0):
         self.worker = worker
         self.command = command
         self.failed = False
+        self.output = ""
+        self.max_output_size = max_output_size
 
         worker.log("Running command ", command)
 
@@ -30,8 +34,11 @@ class SSHRun:
     def log_output(self):
         #TODO: there should be separate threads to handle I/O routines
         while self.channel.recv_ready():
-            data = self.channel.recv(4096)
-            self.worker.log(str(data, "utf-8"), end="")
+            data = self.channel.recv(8192)
+            data_str = str(data, "utf-8")
+            if len(self.output) < self.max_output_size:
+                self.output += data_str
+                self.worker.log(data_str, end="")
 
     def execute(self):
         while not self.channel.exit_status_ready():
@@ -94,7 +101,7 @@ class SSHWorker:
         return True
 
     # Returns the whole content of the given file path
-    def get_content(self, path):
+    def get_content(self, path: str) -> str:
         try:
             with self.ftp_client.open(path, "rb") as file:
                 buffer = file.read()
@@ -102,15 +109,21 @@ class SSHWorker:
         except IOError:
             return None
 
+    def load_json(self, json_path: str) -> Optional[dict]:
+        content = self.get_content(json_path)
+        if content is None:
+            return content
+        return json.loads(content)
+
     # Run a shell command on the remote host
-    def run(self, command, stop_at_error=True):
-        self.current_run = SSHRun(self, command)
-        if self.current_run.failed and stop_at_error:
+    def run(self, command, stop_at_error=True) -> SSHRun:
+        current_run = SSHRun(self, command)
+        if current_run.failed and stop_at_error:
             raise Exception("SSH command failed: " + command)
+        return current_run
 
     def apt_upgrade(self):
-        self.run("sudo apt update")
-        self.run("sudo apt -y dist-upgrade")
+        self.run("sudo apt update && sudo apt dist-upgrade -y && sudo apt autoremove -y")
 
     def apt_install(self, package):
         self.run("sudo apt -y install " + package)
