@@ -2,7 +2,7 @@ import os
 import resource
 import threading
 import time
-from typing import Optional
+from typing import Optional, Any
 
 from establishment.misc.ifconfig import get_default_network_interface
 from establishment.misc.threading_helper import ThreadHandler
@@ -25,7 +25,7 @@ class ServiceStatus(object):
     machine_id = None
 
     @classmethod
-    def init(cls, name, status={}, update_interval=2.0):
+    def init(cls, name: str, update_interval: float = 2.0):
         if hasattr(cls, "init_time") and cls.init_time is not None:
             raise Exception("Service status is already started, manually change the settings if you want")
 
@@ -36,7 +36,7 @@ class ServiceStatus(object):
 
         cls.service_name = name
         cls.lock = threading.Lock()
-        cls.status = status
+        cls.status = {}
         cls.update_interval = min(max(update_interval, 1.0), 30.0)
 
         cls.pid = os.getpid()
@@ -54,7 +54,6 @@ class ServiceStatus(object):
 
         cls.machine_id = cls.get_machine_id()
 
-        # TODO: this should be configurable
         cls.status_stream = RedisStreamPublisher("service_status", persistence=False)
 
         cls.background_thread_handler = ThreadHandler("service_status_update", cls.background_thread)

@@ -22,8 +22,6 @@ class ServiceDaemon(Daemon):
         super().__init__(service_name, pidfile)
 
     def setup(self):
-        module_name = os.environ.get("ESTABLISHMENT_DJANGO_MODULE", None)
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", module_name + ".settings")
         django.setup()
 
         # On SIGUSR1, we'll dump to output the stacktrace for all threads

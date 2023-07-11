@@ -1,31 +1,35 @@
+from __future__ import annotations
 import json
 import time
-from typing import Any
+from typing import Any, Union, Optional
 
+from django.http.request import HttpRequest
 from establishment.funnel.encoder import StreamJSONEncoder
 from establishment.webapp.base_views import JSONResponse
 
 STATE_FILTERS = []
 
+IdType = Union[int, str]
+
 
 # TODO: This should be made thread safe even without relying on the GIL
 class DBObjectStore(object):
-    def __init__(self, object_class, objects=None, default_max_age=None):
+    def __init__(self, object_class, objects=None, default_max_age: Optional[int] = None):
         if not objects:
             objects = []
         self.object_class = object_class
-        self.cache = {}
+        self.cache: dict[IdType, Any] = {}
         self.default_max_age = default_max_age
         for obj in objects:
             self.add(obj)
 
     # TODO: add method for object removal
-    def get_raw(self, id):
+    def get_raw(self, id: IdType):
         if not self.has(id):
             self.add(self.object_class.objects.get(id=id))
         return self.cache[id]
 
-    def get(self, id, max_age=None):
+    def get(self, id: IdType, max_age: int=None):
         if not max_age:
             max_age = self.default_max_age
         obj, timestamp = self.get_raw(id)
@@ -34,42 +38,32 @@ class DBObjectStore(object):
             obj, timestamp = self.get_raw(id)
         return obj
 
-    def has(self, id):
+    def has(self, id: IdType) -> bool:
         return id in self.cache
 
-    def add(self, obj, timestamp=time.time()):
+    def add(self, obj, timestamp: int=time.time()):
         self.cache[obj.id] = (obj, timestamp)
 
-    def size(self):
+    def size(self) -> int:
         return len(self.cache)
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return self.size() == 0
+
+    def add_null(self, id: IdType, timestamp: int=time.time()):
+        self.cache[id] = (None, timestamp)
 
     def all(self):
         rez = [o[0] for o in self.cache.values()]
         rez.sort(key=lambda o: o.id)
         return rez
 
-    def to_json(self):
+    def to_json(self) -> Any:
         return self.all()
 
 
-class DBObjectStoreWithNull(DBObjectStore):
-    def get_raw(self, id):
-        if not self.has(id):
-            try:
-                self.add(self.object_class.objects.get(id=id))
-            except self.object_class.DoesNotExist:
-                self.add_null(id)
-        return self.cache[id]
-
-    def add_null(self, id, timestamp=time.time()):
-        self.cache[id] = (None, timestamp)
-
-
 class State(object):
-    def __init__(self, request=None, parent_cache=None, user=None) -> None:
+    def __init__(self, request: HttpRequest = None, parent_cache: State = None, user=None) -> None:
         self.request = request
         self.object_caches = {}
         self.parent_cache = parent_cache
@@ -89,13 +83,13 @@ class State(object):
     def has_store(self, ObjectClass):
         return self.get_store_key(ObjectClass) in self.object_caches
 
-    def get_store(self, ObjectClass):
+    def get_store(self, ObjectClass) -> DBObjectStore:
         class_key = self.get_store_key(ObjectClass)
         if class_key not in self.object_caches:
             self.object_caches[class_key] = DBObjectStore(ObjectClass)
         return self.object_caches[class_key]
 
-    def has(self, ObjectClass, id):
+    def has(self, ObjectClass, id: Union[str, int]):
         object_store = self.get_store(ObjectClass)
         if self.parent_cache and not object_store.has(id):
             return False
@@ -109,6 +103,10 @@ class State(object):
 
     def add(self, obj: Any, timestamp: float = time.time()) -> None:
         if not obj:
+            return
+        if hasattr(obj, "__iter__"):
+            for subobj in obj:
+                self.add(subobj)
             return
         self.get_store(obj.__class__).add(obj)
         if self.parent_cache:
@@ -154,7 +152,7 @@ class State(object):
 
     # TODO: rename to from
     @classmethod
-    def from_objects(cls, *args: Any) -> "State":
+    def from_objects(cls, *args: Any) -> State:
         state = cls()
         for arg in args:
             if hasattr(arg, '__iter__'):
