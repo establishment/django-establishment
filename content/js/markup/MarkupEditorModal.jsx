@@ -33,12 +33,6 @@ class ClickableEmoji extends ClickableEmote {
     }
 }
 
-class ClickableTwitchEmote extends ClickableEmote {
-    getValueText() {
-        return this.options.value;
-    }
-}
-
 class EmojiButton extends Button {
     getPopup() {
         const textBox = this.options.getTextBox();
@@ -46,9 +40,6 @@ class EmojiButton extends Button {
         let emotesList = [];
         for (let emoji in EmojiMini.EMOJI) {
             emotesList.push(<ClickableEmoji textBox={textBox} afterClick={afterClick} value={emoji}/>);
-        }
-        for (let twitchEmoji in EmojiMini.TWITCH_EMOTICONS) {
-            emotesList.push(<ClickableTwitchEmote textBox={textBox} afterClick={afterClick} value={twitchEmoji}/>);
         }
         return BasePopup.create(this.parent, {
                 target: this,

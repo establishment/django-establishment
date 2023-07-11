@@ -362,7 +362,7 @@ class GroupChat(StreamObjectMixin):
         return self.message_thread.stream_name
 
     def get_desired_stream_name(self):
-        return "messagethread-groupchat-" + str(self.id) + "-m=" + str(self.message_thread_id)
+        return "messagethread-groupchat-" + str(self.id) + "-m-" + str(self.message_thread_id)
 
     @classmethod
     def create(cls, title, group, messages_editable=True):
