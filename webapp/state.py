@@ -4,6 +4,7 @@ import time
 from typing import Any, Union, Optional
 
 from django.http.request import HttpRequest
+from django.contrib.auth.base_user import AbstractBaseUser
 from establishment.funnel.encoder import StreamJSONEncoder
 from establishment.webapp.base_views import JSONResponse
 
@@ -14,7 +15,7 @@ IdType = Union[int, str]
 
 # TODO: This should be made thread safe even without relying on the GIL
 class DBObjectStore(object):
-    def __init__(self, object_class, objects=None, default_max_age: Optional[int] = None):
+    def __init__(self, object_class, objects: Any = None, default_max_age: Optional[int] = None):
         if not objects:
             objects = []
         self.object_class = object_class
@@ -29,7 +30,7 @@ class DBObjectStore(object):
             self.add(self.object_class.objects.get(id=id))
         return self.cache[id]
 
-    def get(self, id: IdType, max_age: int=None):
+    def get(self, id: IdType, max_age: int = None):
         if not max_age:
             max_age = self.default_max_age
         obj, timestamp = self.get_raw(id)
@@ -53,22 +54,30 @@ class DBObjectStore(object):
     def add_null(self, id: IdType, timestamp: int=time.time()):
         self.cache[id] = (None, timestamp)
 
-    def all(self):
-        rez = [o[0] for o in self.cache.values()]
-        rez.sort(key=lambda o: o.id)
-        return rez
+    def all(self) -> list:
+        return sorted([o[0] for o in self.cache.values()], key=lambda o: o.id)
 
     def to_json(self) -> Any:
         return self.all()
 
 
 class State(object):
-    def __init__(self, request: HttpRequest = None, parent_cache: State = None, user=None) -> None:
-        self.request = request
+    def __init__(self, *objects: Any, request: HttpRequest = None, parent_cache: State = None, user: AbstractBaseUser = None) -> None:
         self.object_caches = {}
+        self.extra = {}
+        state_objects = []
+        for obj in objects:
+            # TODO There should be a middleware that does this sort of stuff
+            if isinstance(obj, HttpRequest):
+                request = obj
+            else:
+                state_objects.append(obj)
+        self.request = request
         self.parent_cache = parent_cache
         # The user that's intended to receive this state
-        self.user = (request and request.user) or user
+        self.user = user or (request and request.user)
+        if len(state_objects) > 0:
+            self.add(state_objects)
 
     def __str__(self):
         return self.dumps()
@@ -155,12 +164,10 @@ class State(object):
             result.update(extra)
         return JSONResponse(result)
 
-    # TODO: rename to from
+    # TODO: refactor into just calling the constructor
     @classmethod
     def from_objects(cls, *args: Any) -> State:
-        state = cls()
-        state.add(*args)
-        return state
+        return cls(*args)
 
 
 # TODO: this doesn't belong here
