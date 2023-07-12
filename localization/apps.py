@@ -16,10 +16,10 @@ def ensure_default_language():
 def collect_public_state(state, global_constants, context_dict):
     from .models import Language, Country, TranslationKey, TranslationEntry
 
-    state.add_all(Language.objects.all())
-    state.add_all(TranslationEntry.objects.all())
-    state.add_all(TranslationKey.objects.all())
-    state.add_all(Country.objects.all())
+    state.add(Language.objects.all())
+    state.add(TranslationEntry.objects.all())
+    state.add(TranslationKey.objects.all())
+    state.add(Country.objects.all())
 
 
 class LocalizationAppConfig(AppConfig):

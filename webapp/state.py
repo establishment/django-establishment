@@ -101,29 +101,34 @@ class State(object):
             object_store.add(self.parent_cache.get(ObjectClass, id))
         return object_store.get(id)
 
-    def add(self, obj: Any, timestamp: float = time.time()) -> None:
-        if not obj:
+    # Add one or more objects to store. The last argument can be a float timestamp
+    def add(self, *objects: Any) -> None:
+        timestamp: float = time.time()
+        if len(objects) > 1 and isinstance(objects[-1], float):
+            objects = list(objects)
+            timestamp = objects.pop()
+        if len(objects) > 1:
+            for obj in objects:
+                self.add(obj, timestamp)
             return
+        obj = objects[0]
         if hasattr(obj, "__iter__"):
-            for subobj in obj:
-                self.add(subobj)
+            objects = list(obj)
+            if len(objects) > 0:
+                self.add(*objects, timestamp)
             return
         self.get_store(obj.__class__).add(obj)
         if self.parent_cache:
             self.parent_cache.add(obj, timestamp)
 
-    def add_all(self, objects: Any, timestamp: float = time.time()) -> None:
-        for obj in objects:
-            self.add(obj, timestamp)
-
-    def all(self, ObjectClass):
+    def all(self, ObjectClass: Union[str, type]) -> list[Any]:
         return self.get_store(ObjectClass).all()
 
     def remove_store(self, ObjectClass):
         class_key = self.get_store_key(ObjectClass)
         return self.object_caches.pop(class_key, True)
 
-    def to_json(self):
+    def to_json(self) -> dict[str, Any]:
         for processor in STATE_FILTERS:
             processor(self)
 
@@ -154,11 +159,7 @@ class State(object):
     @classmethod
     def from_objects(cls, *args: Any) -> State:
         state = cls()
-        for arg in args:
-            if hasattr(arg, '__iter__'):
-                state.add_all(arg)
-            else:
-                state.add(arg)
+        state.add(*args)
         return state
 
 
