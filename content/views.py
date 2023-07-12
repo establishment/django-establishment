@@ -133,11 +133,11 @@ def get_article_state(article):
 
     state = State()
     state.add(article)
-    state.add_all(article_edits)
+    state.add(article_edits)
 
     # TODO: Language should be loaded in PublicState
     from establishment.content.models import Language
-    state.add_all(Language.objects.all())
+    state.add(Language.objects.all())
     return state
 
 

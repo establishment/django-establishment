@@ -557,7 +557,7 @@ def add_own_user_reactions_to_state(state):
     if len(reaction_collection_ids) == 0:
         return
 
-    state.add_all(UserReaction.objects.filter(user=state.user, reaction_collection_id__in=reaction_collection_ids))
+    state.add(UserReaction.objects.filter(user=state.user, reaction_collection_id__in=reaction_collection_ids))
 
 
 class OwnerUserMixin(StreamObjectMixin):
@@ -616,7 +616,7 @@ class UserGroup(OwnerUserMixin):
 
     def add_to_state(self, state, user=None):
         state.add(self)
-        state.add_all(self.members.all())
+        state.add(self.members.all())
 
 
 class UserGroupMember(StreamObjectMixin):
