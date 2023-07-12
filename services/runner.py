@@ -14,6 +14,7 @@ def die(error_message: str) -> None:
 
 
 # Load from a file the lines that don't start with a `#` and aren't void
+# If file_required_error is None then an empty list is returned
 def simple_line_loader(file_name: str, file_required_error: Optional[str] = DEFAULT_MISSING_FILE_ERROR) -> list[str]:
     try:
         with open(file_name) as f:
@@ -43,7 +44,8 @@ class ServiceRunner:
         return simple_line_loader(self.path("local.services"))
 
     def load_env(self, env_file: str, file_required_error: Optional[str] = DEFAULT_MISSING_FILE_ERROR) -> None:
-        lines = simple_line_loader(self.path(env_file), file_required_error)
+        env_file = self.path(env_file)
+        lines = simple_line_loader(env_file, file_required_error)
         for line in lines:
             try:
                 key, value = line.split("=", 1)
@@ -74,8 +76,8 @@ class ServiceRunner:
         if command not in allowed_commands:
             die(f"Invalid service command {command}, allow commands {allowed_commands}")
 
-        self.load_env("services/prod.env")
-        self.load_env("services/local.env", None)
+        self.load_env("prod.env")
+        self.load_env("local.env", None)
 
         active_services = self.load_active_services()
         available_services = self.load_available_services()
