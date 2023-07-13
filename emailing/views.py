@@ -12,7 +12,7 @@ from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway
 @superuser_required
 @single_page_app
 def email_manager(request):
-    return State.from_objects(EmailCampaign.objects.all(), EmailTemplate.objects.all(), EmailGateway.objects.all())
+    return State(EmailCampaign.objects.all(), EmailTemplate.objects.all(), EmailGateway.objects.all())
 
 
 @superuser_required

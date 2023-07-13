@@ -62,9 +62,11 @@ class DBObjectStore(object):
 
 
 class State(object):
-    def __init__(self, *objects: Any, request: HttpRequest = None, parent_cache: State = None, user: AbstractBaseUser = None) -> None:
+    def __init__(self, *objects: Any, request: HttpRequest = None, parent_cache: State = None, user: AbstractBaseUser = None, extra: Optional[dict] = None) -> None:
         self.object_caches = {}
         self.extra = {}
+        if extra:
+            self.extra.update(extra)
         state_objects = []
         for obj in objects:
             # TODO There should be a middleware that does this sort of stuff
@@ -155,6 +157,7 @@ class State(object):
 
     def wrapped(self):
         return {
+            **self.extra,
             "state": self,
         }
 
@@ -163,11 +166,6 @@ class State(object):
         if extra:
             result.update(extra)
         return JSONResponse(result)
-
-    # TODO: refactor into just calling the constructor
-    @classmethod
-    def from_objects(cls, *args: Any) -> State:
-        return cls(*args)
 
 
 # TODO: this doesn't belong here

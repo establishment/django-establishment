@@ -18,7 +18,7 @@ from .models import TermDefinition, ArticleEdit, UserFeedback, Article, Question
 @single_page_app
 def article_manager_view(request):
     articles = Article.get_editable_articles(request.user)
-    return State.from_objects(articles)
+    return State(articles)
 
 
 @login_required_ajax
@@ -50,7 +50,7 @@ def create_article(request):
     if "markup" in request.POST:
         article.edit(request.user, request.POST["markup"], )
 
-    state = State.from_objects(article)
+    state = State(article)
 
     return state.to_response({"article": article})
 
@@ -75,7 +75,7 @@ def fetch_article(request):
 @login_required_ajax
 def get_available_articles(request):
     articles = Article.get_editable_articles(request.user)
-    return State.from_objects(articles)
+    return State(articles)
 
 
 # TODO: should be renamed to get_article_translations
@@ -86,7 +86,7 @@ def get_translations(request, article_id):
         return BaseError.NOT_ALLOWED
 
     translations = Article.objects.filter(base_article_id=article.id)
-    return State.from_objects(translations, TermDefinition.objects.all())
+    return State(translations, TermDefinition.objects.all())
 
 
 @login_required
@@ -177,7 +177,7 @@ def set_article_owner(request, article_id):
     article.author_created_id = new_owner_id
     article.save()
 
-    return State.from_objects(article)
+    return State(article)
 
 
 @login_required_ajax
@@ -294,7 +294,7 @@ def questionnaire_answer(request):
                 return BaseError.NOT_ALLOWED
         question_response.choices.set(list(question_choices))
     question_response.save()
-    return State.from_objects(question_response)
+    return State(question_response)
 
 
 @login_required_ajax
@@ -312,4 +312,4 @@ def questionnaire_submit(request):
     instance.date_submitted = timezone.now()
     instance.save()
 
-    return State.from_objects(instance)
+    return State(instance)

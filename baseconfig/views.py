@@ -27,4 +27,4 @@ def run_command(request):
 @superuser_required
 @single_page_app
 def command_manager(request):
-    return State.from_objects(CommandInstance.objects.all(), CommandRun.objects.all())
+    return State(CommandInstance.objects.all(), CommandRun.objects.all())

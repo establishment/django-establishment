@@ -69,7 +69,7 @@ def edit_translation(request):
             key.value = new_value
             key.save()
 
-    return State.from_objects(TranslationEntry.objects.all(), TranslationKey.objects.all()).to_response({
+    return State(TranslationEntry.objects.all(), TranslationKey.objects.all()).to_response({
         "succes": True,
         "keyInfo": key_info
     })

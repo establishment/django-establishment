@@ -20,7 +20,7 @@ def create_entry(request):
                                               parent_index=int(request.POST["parentIndex"]),
                                               article=article)
     entry.save()
-    return State.from_objects(entry, entry.article)
+    return State(entry, entry.article)
 
 
 @ajax_required
@@ -39,7 +39,7 @@ def edit_entry(request):
     entry.parent_index = int(request.POST["parentIndex"])
     entry.article = article
     entry.save()
-    return State.from_objects(entry, entry.article)
+    return State(entry, entry.article)
 
 
 @ajax_required

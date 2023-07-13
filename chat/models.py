@@ -52,7 +52,7 @@ class MessageThread(StreamObjectMixin):
             return None, ChatError.INVALID_MESSAGE_CONTENT
 
         message = self.create_message(user, content, virtual_id=virtual_id, stream_names=stream_names)
-        return message, State.from_objects(message).to_response(extra={"messageId": message.id})
+        return message, State(message).to_response(extra={"messageId": message.id})
 
     def create_message(self, user, content, metadata={}, virtual_id=None, stream_names=None):
         message = MessageInstance(message_thread=self, user=user, content=content, metadata=metadata)
