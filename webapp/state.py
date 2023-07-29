@@ -123,6 +123,8 @@ class State(object):
                 self.add(obj, timestamp)
             return
         obj = objects[0]
+        if obj is None:
+            return
         if hasattr(obj, "__iter__"):
             objects = list(obj)
             if len(objects) > 0:
