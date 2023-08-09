@@ -108,7 +108,7 @@ def create_entry_discussion(request):
     entry = BlogEntry.objects.get(id=entry_id)
     entry.create_discussion()
     entry.save()
-    return State.from_objects(entry)
+    return State(entry)
 
 
 def latest_blog_state():

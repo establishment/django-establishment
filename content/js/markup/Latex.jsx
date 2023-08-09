@@ -1,10 +1,9 @@
-import {UI} from "ui/UI";
-
-let katex = null;
+import {UI} from "../../../../stemjs/src/ui/UIBase.js";
+import katex from "../../static/katex/katex.mjs"; // TODO upgrade Katex dependency
 
 export class Latex extends UI.Element {
     setOptions(options) {
-        if (options.children && options.children.length) {
+        if (options.children?.length) {
             let value = "";
             for (let child of options.children) {
                 if (child instanceof UI.TextElement) {
@@ -21,7 +20,7 @@ export class Latex extends UI.Element {
     updateOptions(options) {
         const oldValue = this.options.value;
         this.setOptions(Object.assign(this.options, options));
-        if (oldValue != this.options.value) {
+        if (oldValue !== this.options.value) {
             this.redraw();
         }
     }
@@ -29,24 +28,11 @@ export class Latex extends UI.Element {
     getNodeType() {
         return "span";
     }
-
-    updateInnerHTML() {
-        try {
-            this.node.innerHTML = katex.renderToString(this.options.value);
-        } catch(e) {
-            this.node.innerHTML = "Latex parse error...";
-        }
-    }
     
     redraw() {
-        if (katex) {
-            this.updateInnerHTML();
-            return;
-        }
-        require(["katex"], (_katex) => {
-            katex = _katex;
-            this.updateInnerHTML();
+        super.redraw();
+        this.node.innerHTML = katex.renderToString(this.options.value, {
+            throwOnError: false
         });
-        this.applyRef();
     }
 }

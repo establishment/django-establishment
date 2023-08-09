@@ -1,11 +1,13 @@
-import {UI, Button, Link, Modal, Level, Size, Direction} from "UI";
-
+import {UI} from "../../../../stemjs/src/ui/UIBase.js";
+import {Link} from "../../../../stemjs/src/ui/primitives/Link.jsx";
+import {Modal} from "../../../../stemjs/src/ui/modal/Modal.jsx";
+import {Button} from "../../../../stemjs/src/ui/button/Button.jsx";
+import {Level, Direction} from "../../../../stemjs/src/ui/Constants.js";
 import {MarkupEditor} from "./MarkupEditor";
 import {BasePopup} from "../Popup";
+import {Emoji} from "../../../../csabase/js/ui/EmojiUI.jsx";
 
-UI.Emoji = UI.Emoji || UI.Element;
-
-class ClickableEmote extends UI.Emoji {
+class ClickableEmote extends Emoji {
     redraw() {
         this.redrawTimeout = setTimeout(()=> super.redraw());
     }
@@ -38,7 +40,7 @@ class EmojiButton extends Button {
         const textBox = this.options.getTextBox();
         const afterClick = () => this.closePopup();
         let emotesList = [];
-        for (let emoji in EmojiMini.EMOJI) {
+        for (let emoji in self.EmojiData.EMOJI) {
             emotesList.push(<ClickableEmoji textBox={textBox} afterClick={afterClick} value={emoji}/>);
         }
         return BasePopup.create(this.parent, {

@@ -1,13 +1,13 @@
-import {Ajax} from "base/Ajax";
 import {UI, TabArea, Panel, Switcher, Theme, registerStyle, styleRule, Level, RowList, CardPanel, Table, CheckboxInput} from "ui/All";
-import {StateDependentElement} from "ui/StateDependentElement";
-import {ColorGenerator} from "ui/Color";
-import {MarkupRenderer} from "markup/MarkupRenderer";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
+import {ColorGenerator} from "../../../stemjs/src/ui/Color.js";
+import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer.js";
 
-import {UserHandle} from "UserHandle";
-import {QuestionnaireStore, QuestionnaireQuestion} from "./state/QuestionnaireStore";
-import {PieChartSVG} from "./charts/PieChart";
-import {QuestionPage, QuestionnaireStyle} from "./QuestionnairePanel";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
+import {QuestionnaireStore, QuestionnaireQuestion} from "./state/QuestionnaireStore.js";
+import {PieChartSVG} from "./charts/PieChart.jsx";
+import {QuestionPage, QuestionnaireStyle} from "./QuestionnairePanel.jsx";
 
 
 class QuestionnaireAnswersStyle extends QuestionnaireStyle {

@@ -1,4 +1,3 @@
-import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
 import {
     ActionModal,
     Button,
@@ -15,7 +14,8 @@ import {
     Level,
     UI,
 } from "ui/All";
-import {Language} from "state/LanguageStore";
+import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
+import {Language} from "../../localization/js/state/LanguageStore.js";
 
 import {ArticleStore} from "./state/ArticleStore";
 import {ArticleTranslationManager} from "./ArticleManager";

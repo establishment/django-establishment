@@ -6,6 +6,8 @@ import time
 import atexit
 import signal
 
+import psutil
+
 KILL_NOT_GRACEFULLY = -1
 KILL_TIMEOUT = 0
 KILL_GRACEFULLY = 1
@@ -17,7 +19,7 @@ class Daemon:
     Usage: subclass the daemon class and override the run() method.
     """
 
-    def __init__(self, service_name, pidfile):
+    def __init__(self, service_name: str, pidfile: str):
         tokens = sys.argv[0].split("/")
         if tokens[-1] == "":
             self.daemon_process_name = tokens[-2]
@@ -115,53 +117,23 @@ class Daemon:
 
     def get_pid(self):
         """Get the daemon pid from file."""
-
         try:
             with open(self.pidfile, "r") as pidfile:
                 file_pid = int(pidfile.read().strip())
         except IOError:
-            file_pid = None
+            self.delpid()
+            return None
 
-        running_pids = self.get_running_daemon_pid()
-        if len(running_pids) > 1:
-            self.logger.critical("There are multiple Daemons running! This should NEVER happen!")
-        elif len(running_pids) == 0:
+        try:
+            existing_proc = psutil.Process(file_pid)
+            if not ("python" in existing_proc.name()):
+                self.logger.error(f"Strange, the existing process doesn't seem to be python, but {str(existing_proc)}")
+        except psutil.NoSuchProcess:
             self.logger.critical("There is no daemon running but pid file is present! Deleting ...")
             self.delpid()
-        if file_pid in running_pids:
-            return file_pid
-        self.logger.error("Pid file does not correspond with the running processes! Deleting ...")
-        self.delpid()
-        return None
+            return None
 
-    def get_running_daemon_pid(self):
-        pids = []
-        if not os.access("/proc", os.R_OK):
-            return pids
-        for dirname in os.listdir("/proc"):
-            try:
-                with open("/proc/{}/cmdline".format(dirname), mode="rb") as fd:
-                    content = fd.read().decode().split("\x00")
-            except Exception:
-                continue
-
-            command_line = " ".join(content)
-            split_python = command_line.split("python3", 1)
-            if len(split_python) != 2:
-                continue
-            split_daemon_name = split_python[1].split(self.daemon_process_name, 1)
-            if len(split_daemon_name) != 2:
-                continue
-            if "restart" not in split_daemon_name[1] and "start" not in split_daemon_name[1]:
-                continue
-            try:
-                pid = int(dirname)
-            except Exception:
-                continue
-            if pid == os.getpid():
-                continue
-            pids.append(pid)
-        return pids
+        return file_pid
 
     def kill(self, signal_number, pid=None, timeout=None):
         if not pid:

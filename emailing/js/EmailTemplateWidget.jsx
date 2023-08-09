@@ -1,7 +1,6 @@
-import {Ajax} from "base/Ajax";
 import {UI, Level, Orientation, SortableTable, Button, SectionDivider, Panel, TableRow, ActionModal, FormField, TextInput, Select, TextArea} from "UI";
-
-import {Language} from "state/LanguageStore";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {Language} from "../../localization/js/state/LanguageStore.js";
 import {EmailGatewayStore} from "state/EmailGatewayStore";
 import {EmailCampaignStore} from "state/EmailCampaignStore";
 import {EmailTemplateStore} from "state/EmailTemplateStore";
@@ -268,7 +267,7 @@ class EmailTemplateTable extends SortableTable {
 }
 
 
-class EmailTemplateWidget extends Panel {
+export class EmailTemplateWidget extends Panel {
     render() {
         return [<EmailTemplateTable />,
             <Button level={Level.SUCCESS} ref="addTemplateButton">Add Template</Button>
@@ -288,5 +287,3 @@ class EmailTemplateWidget extends Panel {
         });
     }
 }
-
-export {EmailTemplateWidget};

@@ -1,12 +1,13 @@
-import {StemApp} from "app/StemApp";
-import {Ajax} from "base/Ajax";
-import {getCookie} from "base/Utils";
-import {GlobalState} from "state/State";
-import {StemDate, ServerTime} from "time/Time";
+import {StemApp} from "../../../stemjs/src/app/StemApp.jsx";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {getCookie} from "../../../stemjs/src/base/Utils.js";
+import {GlobalState} from "../../../stemjs/src/state/State.js";
+import {StemDate} from "../../../stemjs/src/time/Date.js";
+import {ServerTime} from "../../../stemjs/src/time/Time.js";
 import {ViewportMeta} from "../../../stemjs/src/ui/ViewportMeta.jsx";
 
-import {WebsocketSubscriber} from "websocket/WebsocketSubscriber";
-import {ErrorHandlers} from "ErrorHandlers";
+import {WebsocketSubscriber} from "../../../stemjs/src/websocket/client/WebsocketSubscriber.js";
+import {ErrorHandlers} from "../../errors/js/ErrorHandlers.js";
 import {GlobalStyleSheet} from "./GlobalStyleSheet";
 
 export class EstablishmentApp extends StemApp {

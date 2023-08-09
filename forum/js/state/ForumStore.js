@@ -1,9 +1,9 @@
-import {Ajax} from "base/Ajax";
-import {NOOP_FUNCTION} from "base/Utils";
-import {StoreObject, GenericObjectStore} from "state/Store";
+import {Ajax} from "../../../../stemjs/src/base/Ajax.js";
+import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils.js";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
 
-import {PublicUserStore} from "state/UserStore";
-import {MessageThreadStore, MessageInstanceStore} from "state/MessageThreadStore";
+import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore.js";
+import {MessageThreadStore, MessageInstanceStore} from "../../../chat/js/state/MessageThreadStore.js";
 import {GlobalState} from "../../../../stemjs/src/state/State.js";
 
 class Forum extends StoreObject {

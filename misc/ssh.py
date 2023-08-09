@@ -1,6 +1,10 @@
+from __future__ import annotations
+
+import json
 import os
 import stat
 from functools import cached_property
+from typing import Any, Optional
 
 import paramiko
 import time
@@ -10,10 +14,12 @@ class SSHRun:
     """
     Class to wrap a single remote run call
     """
-    def __init__(self, worker, command, max_output = 1 << 20, timeout = 0):
+    def __init__(self, worker: SSHWorker, command, max_output_size: int = 1 << 20, timeout = 0):
         self.worker = worker
         self.command = command
         self.failed = False
+        self.output = ""
+        self.max_output_size = max_output_size
 
         worker.log("Running command ", command)
 
@@ -28,8 +34,11 @@ class SSHRun:
     def log_output(self):
         #TODO: there should be separate threads to handle I/O routines
         while self.channel.recv_ready():
-            data = self.channel.recv(4096)
-            self.worker.log(str(data, "utf-8"), end="")
+            data = self.channel.recv(8192)
+            data_str = str(data, "utf-8")
+            if len(self.output) < self.max_output_size:
+                self.output += data_str
+                self.worker.log(data_str, end="")
 
     def execute(self):
         while not self.channel.exit_status_ready():
@@ -46,14 +55,11 @@ class SSHRun:
         self.channel.close()
 
 
+# Class that handles running commands on a remote machine
 class SSHWorker:
-    """
-    Class that handles running commands on a remote machine
-    """
-    def __init__(self, machine_handler, user="root", auto_add=False):
-        # TODO: This class should not use a machine handler, but rather just an ip and a logger class
-        self.machine_handler = machine_handler
-        self.address = machine_handler.linode_machine_instance.private_ip_address
+    def __init__(self, logger: Any, address: str, user: str = "root", auto_add: bool = False):
+        self.logger = logger
+        self.address = address
         self.user = user
         self.client = paramiko.SSHClient()
         self.client.load_system_host_keys()
@@ -64,45 +70,38 @@ class SSHWorker:
 
         self.client.connect(self.address, username=user)
 
+    def log(self, *arguments, **keywords):
+        self.logger.log(*arguments, **keywords)
+
     @cached_property
     def ftp_client(self):
         return self.client.open_sftp()
 
-    def log(self, *arguments, **keywords):
-        self.machine_handler.log(*arguments, **keywords)
-
+    # Returns True if the give path is a folder on the remote machine
     def is_folder(self, path):
-        """
-        Returns True if the give path is a folder on the remote machine
-        """
         try:
-            return stat.S_ISDIR(self.ftp_client.stat(path).st_mode)
+            file_stat = self.ftp_client.stat(path)
+            return stat.S_ISDIR(file_stat.st_mode)
         except IOError:
             return False
 
+    # Returns True if the given path is a link on the remote machine
     def is_link(self, path):
-        """
-        Returns True if the given path is a link on the remote machine
-        """
         try:
             return stat.S_ISLNK(self.ftp_client.lstat(path).st_mode)
         except IOError:
             return False
 
+    # Returns True if the given resource exists on the remote machine
     def file_exists(self, path):
-        """
-        Returns True if the given resource exists on the remote machine
-        """
         try:
             self.ftp.ftp_client.lstat(path).st_mode
         except IOError:
             return False
         return True
 
-    def get_content(self, path):
-        """
-        Returns the whole content of the given file path
-        """
+    # Returns the whole content of the given file path
+    def get_content(self, path: str) -> str:
         try:
             with self.ftp_client.open(path, "rb") as file:
                 buffer = file.read()
@@ -110,21 +109,24 @@ class SSHWorker:
         except IOError:
             return None
 
-    """
-    Run a shell command on the remote host
-    """
-    #TODO: the lowest functions (run and file copy) need to be wrapped in try catch, to retry in case of error
-    def run(self, command, stop_at_error=True):
-        self.current_run = SSHRun(self, command)
-        if self.current_run.failed and stop_at_error:
+    def load_json(self, json_path: str) -> Optional[dict]:
+        content = self.get_content(json_path)
+        if content is None:
+            return content
+        return json.loads(content)
+
+    # Run a shell command on the remote host
+    def run(self, command, stop_at_error=True) -> SSHRun:
+        current_run = SSHRun(self, command)
+        if current_run.failed and stop_at_error:
             raise Exception("SSH command failed: " + command)
+        return current_run
 
     def apt_upgrade(self):
-        self.run("apt-get update")
-        self.run("apt-get -y dist-upgrade")
+        self.run("sudo apt update && sudo apt dist-upgrade -y && sudo apt autoremove -y")
 
     def apt_install(self, package):
-        self.run("apt-get -y install " + package)
+        self.run("sudo apt -y install " + package)
 
     def deploy_zip_to_folder(self, zip_file, remote_folder, overwrite=True, remove_existing=True):
         # TODO: remove the hardcoded path
@@ -141,7 +143,7 @@ class SSHWorker:
             self.run("unzip /tmp/deploy.zip -d " + remote_folder)
         else:
             self.ftp_client.put(zip_file, "/tmp/deploy.tar.gz")
-            self.run('tar -xvf /tmp/deploy.tar.gz --directory ' + remote_folder)
+            self.run(f"tar -xvf /tmp/deploy.tar.gz --directory {remote_folder}")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.client.close()

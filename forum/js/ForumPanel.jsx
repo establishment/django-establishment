@@ -1,13 +1,13 @@
-import {Ajax} from "base/Ajax";
-import {slugify} from "base/Utils";
-import {UI, Size, Panel, Link, Route, TimePassedSpan, registerStyle} from "UI";
-import {StateDependentElement} from "ui/StateDependentElement";
+import {UI, Panel, Link, Route, TimePassedSpan, registerStyle} from "UI";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {slugify} from "../../../stemjs/src/base/Utils.js";
+import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
 
-import {UserHandle} from "UserHandle";
-import {ChatMarkupRenderer} from "ChatMarkupRenderer";
-import {ForumStore, ForumThreadStore} from "./state/ForumStore";
-import {ForumThreadPanel, CreateForumThreadButton} from "./ForumThread";
-import {ForumThreadHeaderStyle, ForumThreadPreviewStyle, ForumThreadBubbleStyle, ForumPanelStyle} from "./ForumStyle";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
+import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer.jsx";
+import {ForumStore, ForumThreadStore} from "./state/ForumStore.js";
+import {ForumThreadPanel, CreateForumThreadButton} from "./ForumThread.jsx";
+import {ForumThreadHeaderStyle, ForumThreadPreviewStyle, ForumThreadBubbleStyle, ForumPanelStyle} from "./ForumStyle.js";
 import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
 
 

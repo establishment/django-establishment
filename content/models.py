@@ -151,7 +151,7 @@ class Article(models.Model):
         state.add(self)
         if with_edits:
             article_edits = ArticleEdit.objects.filter(article=self)
-            state.add_all(article_edits)
+            state.add(article_edits)
 
     def to_json(self):
         return {
@@ -244,7 +244,7 @@ class QuestionnaireQuestion(StreamObjectMixin):
 
     def add_to_state(self, state, user=None):
         state.add(self)
-        state.add_all(self.options.all())
+        state.add(self.options.all())
 
 
 class QuestionnaireQuestionOption(StreamObjectMixin):
@@ -274,7 +274,7 @@ class QuestionnaireInstance(StreamObjectMixin):
 
     def add_to_state(self, state, user=None):
         state.add(self)
-        state.add_all(self.question_answers.all())
+        state.add(self.question_answers.all())
 
 
 class QuestionnaireQuestionResponse(StreamObjectMixin):

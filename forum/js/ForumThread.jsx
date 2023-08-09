@@ -1,5 +1,3 @@
-import {Ajax} from "base/Ajax";
-import {NOOP_FUNCTION} from "base/Utils";
 import {
     ActionModal,
     ActionModalButton,
@@ -14,22 +12,23 @@ import {
     Level,
     Size
 } from "UI";
-import {ConcentricCirclesLoadingScreen} from "ui/ConcentricCirclesLoadingScreen";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {NOOP_FUNCTION} from "../../../stemjs/src/base/Utils.js";
+import {ConcentricCirclesLoadingScreen} from "../../../stemjs/src/ui/ConcentricCirclesLoadingScreen.jsx";
 
-import {MarkupEditorModal} from "markup/MarkupEditorModal";
-import {LoginModal} from "LoginModal";
-import {ChatMarkupRenderer} from "ChatMarkupRenderer";
-import {UserHandle} from "UserHandle";
-import {EditThreadReplyButton} from "EditThreadReplyButton";
-import {DeleteThreadReplyButton} from "DeleteThreadReplyButton";
-import {CreateThreadReplyButton} from "CreateThreadReplyButton";
-import {CommentVotingWidgetWithThumbs} from "VotingWidget";
-import {ErrorHandlers} from "ErrorHandlers";
-import {ForumThreadPanelStyle} from "ForumStyle";
-import {ButtonStyle} from "ForumStyle";
+import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";
+import {LoginModal} from "../../accounts/js/LoginModal.jsx";
+import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer.jsx";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
+import {EditThreadReplyButton} from "./EditThreadReplyButton.jsx";
+import {DeleteThreadReplyButton} from "./DeleteThreadReplyButton.jsx";
+import {CreateThreadReplyButton} from "./CreateThreadReplyButton.jsx";
+import {CommentVotingWidgetWithThumbs} from "../../chat/js/VotingWidget.jsx";
+import {ErrorHandlers} from "../../errors/js/ErrorHandlers.js";
+import {ForumThreadPanelStyle, ForumButtonStyle} from "./ForumStyle.js";
 
 let forumThreadPanelStyle = ForumThreadPanelStyle.getInstance();
-ButtonStyle.getInstance();
+ForumButtonStyle.getInstance(); // To ensure css importance order
 
 
 class CreateForumThreadModal extends MarkupEditorModal {
@@ -84,7 +83,7 @@ class CreateForumThreadModal extends MarkupEditorModal {
     }
 }
 
-@registerStyle(ButtonStyle)
+@registerStyle(ForumButtonStyle)
 class CreateForumThreadButton extends Button {
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.button);

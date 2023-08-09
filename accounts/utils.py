@@ -82,7 +82,7 @@ def send_verification_mail(request, unverified_email, signup):
 
 def get_user_manager():
     from django.contrib.auth import get_user_model
-    return get_user_model().objects
+    return get_user_model().objects  # type: ignore
 
 
 def get_public_user_class():

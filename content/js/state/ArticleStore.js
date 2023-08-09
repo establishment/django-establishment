@@ -1,7 +1,7 @@
-import {StoreObject, GenericObjectStore} from "state/Store";
-import {AjaxFetchMixin} from "state/StoreMixins";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
+import {AjaxFetchMixin} from "../../../../stemjs/src/state/StoreMixins.js";
 
-import {Language} from "state/LanguageStore";
+import {Language} from "../../../localization/js/state/LanguageStore.js";
 
 class Article extends StoreObject {
     constructor(obj) {

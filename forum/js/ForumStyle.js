@@ -254,7 +254,7 @@ class ForumThreadPanelStyle extends StyleSheet {
 }
 
 
-class ButtonStyle extends StyleSheet {
+export class ForumButtonStyle extends StyleSheet {
     @styleRule
     button = {
         marginLeft: "16px",
@@ -362,8 +362,6 @@ class ForumThreadHeaderStyle extends StyleSheet {
 
     @styleRule
     tagsReplies = [this.baseStyleObject, {
-        paddingLeft: "4px",
-        paddingRight: "4px",
         // width: "8%",
         paddingLeft: "4px",
         paddingRight: "4px",
@@ -607,7 +605,6 @@ class ForumThreadBubbleStyle extends StyleSheet {
         flex: ".5",
         textAlign: "center",
         color: "#767676",
-        display: "flex",
         justifyContent: "center",
         alignItems: "center",
         paddingLeft: "4px",
@@ -683,8 +680,7 @@ class ForumPanelStyle extends StyleSheet {
 
 export {
     ForumThreadReplyStyle, 
-    ForumThreadPanelStyle, 
-    ButtonStyle, 
+    ForumThreadPanelStyle,
     ForumThreadHeaderStyle, 
     ForumThreadPreviewStyle,
     ForumThreadBubbleStyle, 

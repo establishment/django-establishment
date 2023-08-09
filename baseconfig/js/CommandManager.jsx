@@ -1,24 +1,40 @@
-import {Ajax} from "base/Ajax";
-import {GlobalState} from "state/State";
-import {StemDate} from "time/Time";
-import {UI, Select, Button, Table, ProgressBar, Modal, ActionModal, FormField, TextInput, StaticCodeHighlighter, CheckboxInput, NumberInput} from "ui/All";
+import {
+    UI,
+    Select,
+    Button,
+    Table,
+    ProgressBar,
+    Modal,
+    ActionModal,
+    FormField,
+    TextInput,
+    StaticCodeHighlighter,
+    CheckboxInput,
+    NumberInput
+} from "ui/All";
 
-import {FAIcon} from "ui/FontAwesome";
-import {Level, Size} from "ui/Constants";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {GlobalState} from "../../../stemjs/src/state/State.js";
+import {StemDate} from "../../../stemjs/src/time/Date.js";
 
-import {CommandInstanceStore, CommandRunStore} from "state/CommandStore";
-import {Popup} from "Popup";
-import {UserHandle} from "UserHandle";
+
+import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
+import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
+
+import {CommandInstanceStore, CommandRunStore} from "./state/CommandStore.js";
+import {Popup} from "../../content/js/Popup.jsx";
+
+import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
 
 // TODO: This is CSAcademy dependency. Fix this!!
-import {Formatter} from "util";
-import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
+import {Formatter} from "../../../csabase/js/util.js";
 
 
 @autoredraw
 class CommandRunStatus extends UI.Element {
     render() {
-        switch(this.options.commandRun.status) {
+        switch (this.options.commandRun.status) {
             case 0: {
                 return "In queue..";
             }
@@ -39,16 +55,16 @@ class CommandRunDetailsModal extends Modal {
     render() {
         let children = [
             <h2>Command run #{this.options.commandRun.id}</h2>,
-            <h4>Ran by <UserHandle userId={this.options.commandRun.userId} /></h4>,
+            <h4>Ran by <UserHandle userId={this.options.commandRun.userId}/></h4>,
             <h4>Command instance: {CommandInstanceStore.get(this.options.commandRun.commandInstanceId).name}</h4>,
             <h4 ref="statusField">Status: {this.options.commandRun.getVerboseStatus()}</h4>,
             <h4>Logs</h4>,
-            <StaticCodeHighlighter ref="logger" numLines={40} readOnly={true} />
+            <StaticCodeHighlighter ref="logger" numLines={40} readOnly={true}/>
         ];
         if (this.options.commandRun.status >= 2) {
             // The command is finished, show the result
             children.push(<h4>Result:</h4>);
-            children.push(<StaticCodeHighlighter ref="resultField" numLines={15} readOnly={true} />);
+            children.push(<StaticCodeHighlighter ref="resultField" numLines={15} readOnly={true}/>);
         }
         return children;
     }
@@ -148,17 +164,17 @@ class PastCommandsTable extends Table {
                 value: commandRun => CommandInstanceStore.get(commandRun.commandInstanceId).name,
                 headerName: "Command",
             }, {
-                value: commandRun => <UserHandle userId={commandRun.userId} />,
+                value: commandRun => <UserHandle userId={commandRun.userId}/>,
                 headerName: "User"
             }, {
                 value: commandRun => StemDate.format(commandRun.dateCreated, "DD/MM/YYYY HH:mm"),
                 headerName: "Date"
             }, {
-                value: commandRun => <CommandRunDuration commandRun={commandRun} />,
+                value: commandRun => <CommandRunDuration commandRun={commandRun}/>,
                 headerName: "Duration"
             }, {
                 value: (commandRun) => {
-                    return <CommandRunStatus commandRun={commandRun} />;
+                    return <CommandRunStatus commandRun={commandRun}/>;
                 },
                 headerName: "Status",
                 headerStyle: {
@@ -168,7 +184,7 @@ class PastCommandsTable extends Table {
                     textAlign: "center"
                 }
             }, {
-                value: commandRun => <CommandRunDetails commandRun={commandRun} />,
+                value: commandRun => <CommandRunDetails commandRun={commandRun}/>,
                 headerName: "Details"
             }
         ];
@@ -178,8 +194,8 @@ class PastCommandsTable extends Table {
 class AutoFormFieldHelper extends UI.Element {
     render() {
         return [
-                <span ref="container" style={{position: "relative", overflow: "hidden", "cursor": "pointer",}}>
-                    <FAIcon icon="question-circle" ref="span" />
+            <span ref="container" style={{position: "relative", overflow: "hidden", "cursor": "pointer",}}>
+                    <FAIcon icon="question-circle" ref="span"/>
                 </span>
         ];
     }
@@ -227,7 +243,7 @@ class AutoFormFieldSelectOption {
 
 class AutoFormField extends UI.Element {
     fieldType = {
-       "text": 1,
+        "text": 1,
         "number": 2,
         "checkbox": 3,
         "select": 4
@@ -254,7 +270,7 @@ class AutoFormField extends UI.Element {
             for (let option of this.options.choices) {
                 options.push(new AutoFormFieldSelectOption(option));
             }
-            formField = <Select ref={this.getInputRef()} options={options} />;
+            formField = <Select ref={this.getInputRef()} options={options}/>;
         }
 
         return <div style={{
@@ -363,7 +379,7 @@ class CommandManager extends UI.Element {
             </div>,
             <div style={{marginTop: "20px"}}>
                 <h4>Past commands</h4>
-                <PastCommandsTable ref="pastCommandsTable" />
+                <PastCommandsTable ref="pastCommandsTable"/>
             </div>
         ];
     }

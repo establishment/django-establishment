@@ -182,7 +182,7 @@ class RedisLoggingHandler(BackgroundLoggingHandler):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.channel = "global_logging"
+        self.channel = "global-logging"
         self.connect_to_redis()
 
     def connect_to_redis(self):

@@ -1,17 +1,16 @@
-import {Ajax} from "base/Ajax";
-import {slugify} from "base/Utils";
-import {MarkupEditor} from "markup/MarkupEditor";
-import {StemDate} from "time/Time";
 import {UI, Level, Route, Router, Button, Link, Modal, Form, FormField, TextInput, FormGroup, CheckboxInput, TemporaryMessageArea} from "ui/All";
-import {StateDependentElement} from "ui/StateDependentElement";
-import {Theme} from "ui/style/Theme";
-
-import {UserHandle} from "UserHandle";
-import {ArticleEditor} from "ArticleEditor";
-import {AsyncCommentThread} from "CommentWidget";
-import {BlogEntryStore} from "state/BlogStore";
-import {BlogArticleRenderer} from "./BlogArticleRenderer";
-import {BlogStyle} from "BlogStyle";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {slugify} from "../../../stemjs/src/base/Utils.js";
+import {MarkupEditor} from "../../content/js/markup/MarkupEditor.jsx";
+import {StemDate} from "../../../stemjs/src/time/Date.js";
+import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
+import {Theme} from "../../../stemjs/src/ui/style/Theme.js";
+import {ArticleEditor} from "../../content/js/ArticleEditor.jsx";
+import {AsyncCommentThread} from "../../chat/js/CommentWidget.jsx";
+import {BlogEntryStore} from "./state/BlogStore.js";
+import {BlogArticleRenderer} from "./BlogArticleRenderer.jsx";
+import {BlogStyle} from "./BlogStyle.js";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
 
 export class BlogEntryEditModal extends Modal {

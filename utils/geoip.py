@@ -35,7 +35,7 @@ class IPGeoLocation(BaseModel):
             info = city_reader.city(ip)
         except (GeoIP2Error, ValueError):
             return IPGeoLocation(ip=ip)
-        region = info.subdivisions[0].iso_code if info.subdivisions else None  # type: ignore
+        region = info.subdivisions[0].iso_code if info.subdivisions else None
         return IPGeoLocation(ip=ip,
                              city=info.city.name or "-",
                              region=region or "-",

@@ -2,12 +2,7 @@ import os
 import django
 import faulthandler
 import signal
-
-# The import encodings.idna is never user explicitly, we just need it for networking
-import encodings.idna
-
 import time
-
 import sys
 
 from establishment.misc.threading_helper import ThreadIntervalHandler
@@ -27,8 +22,6 @@ class ServiceDaemon(Daemon):
         super().__init__(service_name, pidfile)
 
     def setup(self):
-        module_name = os.environ.get("ESTABLISHMENT_DJANGO_MODULE", None)
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", module_name + ".settings")
         django.setup()
 
         # On SIGUSR1, we'll dump to output the stacktrace for all threads
@@ -47,13 +40,17 @@ class ServiceDaemon(Daemon):
 
     def start_background_thread(self, worker, *args, **kwargs):
         name = kwargs.pop("name", worker.__name__)
-        thread_handler = ThreadIntervalHandler(name, worker, *args,
-                                               signaler=self,
-                                               logger=self.logger,
-                                               **kwargs)
+        thread_handler = ThreadIntervalHandler(
+            name,
+            worker,
+            *args,
+            signaler=self,
+            logger=self.logger,
+            **kwargs
+        )
         self.background_thread_handlers.append(thread_handler)
 
-    def wait_for_background_threads(self, wait_time=5):
+    def wait_for_background_threads(self, wait_time: int = 10):
         while not self.terminate:
             time.sleep(0.1)
 

@@ -1,8 +1,8 @@
-import {MarkupRenderer, MarkupClassMap} from "markup/MarkupRenderer";
 import {UI, SVG, Switcher, Button} from "ui/All";
-
-import {Language} from "state/LanguageStore";
+import {MarkupRenderer, MarkupClassMap} from "../../../stemjs/src/markup/MarkupRenderer.js";
+import {Language} from "../../localization/js/state/LanguageStore.js";
 import {Article, ArticleStore} from "./state/ArticleStore";
+import {ensure} from "../../../stemjs/src/base/Require.js";
 
 
 class ArticleRenderer extends MarkupRenderer {
@@ -44,19 +44,21 @@ class ArticleRenderer extends MarkupRenderer {
 
     getArticleDependencies() {
         const dependencies = this.options.article.dependency;
-        return dependencies && dependencies.split(",");
+        return dependencies?.split(",").map(dep => dep.trim()).filter(dep => !!dep);
     }
 
     redraw() {
         const dependencies = this.getArticleDependencies();
-        if (!dependencies) {
+        if (!dependencies || dependencies.length === 0) {
             super.redraw();
             return;
         }
 
-        // Not using require directly to fool webpack
-        window["require"](dependencies, (...args) => {
-            this.registerDependencies(args);
+        const depPaths = dependencies.map(dep => `/static/js/${dep}.js`);
+
+        ensure(depPaths, (...args) => {
+            const reqDep = dependencies.map(dep => require(dep));
+            this.registerDependencies(reqDep);
             super.redraw();
         });
     }

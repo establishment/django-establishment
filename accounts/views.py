@@ -79,7 +79,7 @@ def user_signup_request(request):
 @login_required
 @single_page_app
 def account_settings(request):
-    return State.from_objects(UserSummary(request.user))
+    return State(UserSummary(request.user))
 
 
 @login_required
@@ -159,7 +159,7 @@ def edit_profile(request):
             }
         request.user.publish_event("profileChanged", request.user)
 
-    return State.from_objects([UserSummary(request.user)]).to_response(extra={"success": True})
+    return State([UserSummary(request.user)]).to_response(extra={"success": True})
 
 
 @login_required_ajax
@@ -437,14 +437,14 @@ def public_user_profiles(request):
             return AccountsError.TOO_MANY_PROFILES_REQUESTED
         users = get_user_manager().filter(id__in=user_ids)
 
-    return State.from_objects(get_public_user_class().wrap_user_list(users))
+    return State(get_public_user_class().wrap_user_list(users))
 
 
 @login_required_ajax
 def get_user_notifications(request):
     user_summary = UserSummary(request.user)
     notifications = request.user.notifications.all().order_by("-id")[0:100]
-    return State.from_objects(user_summary, notifications)
+    return State(user_summary, notifications)
 
 
 @login_required_ajax

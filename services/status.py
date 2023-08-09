@@ -2,12 +2,11 @@ import os
 import resource
 import threading
 import time
+from typing import Optional, Any
 
 from establishment.misc.ifconfig import get_default_network_interface
 from establishment.misc.threading_helper import ThreadHandler
 from establishment.funnel.redis_stream import RedisStreamPublisher
-
-#TODO: consider including https://github.com/giampaolo/psutil/ into our codebase
 
 
 class ServiceStatus(object):
@@ -26,7 +25,7 @@ class ServiceStatus(object):
     machine_id = None
 
     @classmethod
-    def init(cls, name, status={}, update_interval=2.0):
+    def init(cls, name: str, update_interval: float = 2.0):
         if hasattr(cls, "init_time") and cls.init_time is not None:
             raise Exception("Service status is already started, manually change the settings if you want")
 
@@ -37,7 +36,7 @@ class ServiceStatus(object):
 
         cls.service_name = name
         cls.lock = threading.Lock()
-        cls.status = status
+        cls.status = {}
         cls.update_interval = min(max(update_interval, 1.0), 30.0)
 
         cls.pid = os.getpid()
@@ -55,7 +54,6 @@ class ServiceStatus(object):
 
         cls.machine_id = cls.get_machine_id()
 
-        # TODO: this should be configurable
         cls.status_stream = RedisStreamPublisher("service_status", persistence=False)
 
         cls.background_thread_handler = ThreadHandler("service_status_update", cls.background_thread)
@@ -100,12 +98,14 @@ class ServiceStatus(object):
         return cls.log_info
 
     @classmethod
-    def publish_status(cls, event_type=None):
+    def publish_status(cls, lifecycle: Optional[str] = None):
         temp_status = {}
 
         # Create a thread-safe copy of the status object
         with cls.lock:
             temp_status.update(cls.status)
+
+        rusage = resource.getrusage(resource.RUSAGE_SELF)
 
         # Always overwrite these (and not keep them in cls.status) to always be sure they are right
         temp_status["uid"] = cls.mac_address
@@ -114,9 +114,6 @@ class ServiceStatus(object):
         temp_status["service"] = cls.service_name
         temp_status["time"] = time.time()
         temp_status["updateInterval"] = cls.update_interval * 1000.0
-
-        rusage = resource.getrusage(resource.RUSAGE_SELF)
-
         temp_status["peakMemUsage"] = rusage.ru_maxrss * resource.getpagesize()
         temp_status["userCPU"] = rusage.ru_utime
         temp_status["systemCPU"] = rusage.ru_stime
@@ -125,23 +122,20 @@ class ServiceStatus(object):
         temp_status["swapouts"] = rusage.ru_nswap
         temp_status["voluntaryContextSwitches"] = rusage.ru_nvcsw
         temp_status["involuntaryContextSwitches"] = rusage.ru_nivcsw
-
         temp_status["uptime"] = time.time() - cls.init_time
 
-        if event_type is None:
-            event_type = "MachineInstance-serviceStatusUpdate"
+        if lifecycle is not None:
+            temp_status["lifecycle"] = lifecycle
 
         response = {
             "objectType": "MachineInstance",
-            "type": event_type,
+            "type": "serviceStatusUpdate",
             "objectId": cls.machine_id,
             "data": {},
             "serviceStatus": temp_status
         }
 
         cls.status_stream.publish_json(response)
-
-        #TODO: should also append to the file /services/log/service_name/pid.log (rolling log)
 
     @classmethod
     def background_thread(cls):
@@ -158,8 +152,8 @@ class ServiceStatus(object):
 
     @classmethod
     def publish_start(cls):
-        cls.publish_status(event_type="MachineInstance-serviceStatusStart")
+        cls.publish_status(lifecycle="start")
 
     @classmethod
     def publish_stop(cls):
-        cls.publish_status(event_type="MachineInstance-serviceStatusStop")
+        cls.publish_status(lifecycle="stop")

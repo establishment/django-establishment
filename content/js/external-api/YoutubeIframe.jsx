@@ -1,6 +1,6 @@
-import {ensure} from "base/Require";
-import {NOOP_FUNCTION} from "base/Utils";
-import {UI} from "ui/UI";
+import {UI} from "../../../../stemjs/src/ui/UIBase.js";
+import {ensure} from "../../../../stemjs/src/base/Require.js";
+import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils.js";
 
 
 const YOUTUBE_API_SRC = "https://www.youtube.com/iframe_api";

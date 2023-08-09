@@ -1,7 +1,7 @@
-import {Ajax} from "base/Ajax";
 import {UI, Button, Panel, getOffset, Orientation, Level, Size} from "UI";
-import {ArticleSwitcher} from "ArticleRenderer";
+import {ArticleSwitcher} from "../../content/js/ArticleRenderer.jsx";
 
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {DocumentationEntryStore} from "./state/DocumentationStore";
 import {CreateEntryButton} from "./CreateEntryModal";
 import {DocumentationPanel} from "./DocumentationPanel";

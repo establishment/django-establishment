@@ -1,6 +1,5 @@
-import {StoreObject, GenericObjectStore} from "state/Store";
-
-import {ArticleStore} from "state/ArticleStore";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
+import {ArticleStore} from "../../../content/js/state/ArticleStore.js";
 
 class BlogEntry extends StoreObject {
     getArticle() {

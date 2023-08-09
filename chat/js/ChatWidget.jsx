@@ -1,19 +1,19 @@
-import {Ajax} from "base/Ajax";
-import {Pluginable} from "base/Plugin";
-import {GlobalState} from "state/State";
-import {StemDate, isDifferentDay} from "time/Time";
-import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
 import {UI, Switcher, TextArea, Button, ButtonGroup, Panel, InfiniteScrollable, registerStyle, Level, Size} from "ui/All";
-import {ButtonStyle} from "ui/button/ButtonStyle";
-import {InputStyle} from "ui/input/Style";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {Pluginable} from "../../../stemjs/src/base/Plugin.js";
+import {GlobalState} from "../../../stemjs/src/state/State.js";
+import {StemDate, isDifferentDay} from "../../../stemjs/src/time/Time.js";
+import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton.jsx";
+import {ButtonStyle} from "../../../stemjs/src/ui/button/ButtonStyle.js";
+import {InputStyle} from "../../../stemjs/src/ui/input/Style.js";
 
-import {MessageThreadStore, MessageInstanceStore, GroupChatStore} from "state/MessageThreadStore";
-import {MarkupEditorModal} from "markup/MarkupEditorModal";
-import {UserHandle} from "UserHandle";
-import {ChatMarkupRenderer} from "ChatMarkupRenderer";
-import {CommentVotingWidgetWithThumbs} from "VotingWidget";
-import {LoginModal} from "LoginModal";
-import {ChatStyle} from "ChatStyle";
+import {MessageThreadStore, MessageInstanceStore, GroupChatStore} from "./state/MessageThreadStore.js";
+import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
+import {ChatMarkupRenderer} from "./ChatMarkupRenderer.jsx";
+import {CommentVotingWidgetWithThumbs} from "./VotingWidget.jsx";
+import {LoginModal} from "../../accounts/js/LoginModal.jsx";
+import {ChatStyle} from "./ChatStyle.js";
 
 ButtonStyle.getInstance().ensureFirstUpdate();
 InputStyle.getInstance().ensureFirstUpdate();
@@ -374,7 +374,7 @@ let ChatWidget = (ChatMessageClass) => {
             return virtualMessageInstance;
         }
 
-        sendMessage(message) {
+        async sendMessage(message) {
             if (!USER.isAuthenticated) {
                 LoginModal.show();
                 return;
@@ -393,32 +393,28 @@ let ChatWidget = (ChatMessageClass) => {
 
             // Create a virtual message to be drawn temporarily
             const virtualMessageInstance = this.createVirtualMessage(request, message);
-
-            let onSuccess = (data) => {
-                if (data.error) {
-                    virtualMessageInstance.setPostError(data.error);
-                    return;
-                }
-                if (virtualMessageInstance && virtualMessageInstance.hasTemporaryId()) {
-                    MessageInstanceStore.applyUpdateObjectId(virtualMessageInstance, data.messageId);
-                    GlobalState.importState(data.state);
-                }
-            };
-
-            let onError = (error) => {
-                if (virtualMessageInstance) {
-                    virtualMessageInstance.setPostError(42);
-                }
-                console.log("Error in sending chat message:\n" + error.message);
-                console.log(error.stack);
-            };
-
             this.messageWindow.scrollToBottom();
 
             this.chatInput.setValue("");
             this.chatInput.dispatch("messageSent");
 
-            Ajax.postJSON(this.getPostURL(), request, {disableStateImport: true}).then(onSuccess, onError);
+            try {
+                const response = await Ajax.postJSON(this.getPostURL(), request, {disableStateImport: true});
+                if (response.error) {
+                    virtualMessageInstance.setPostError(response.error);
+                    return;
+                }
+                if (virtualMessageInstance?.hasTemporaryId()) {
+                    MessageInstanceStore.applyUpdateObjectId(virtualMessageInstance, response.messageId);
+                    GlobalState.importState(response.state);
+                }
+            } catch (error) {
+                if (virtualMessageInstance) {
+                    virtualMessageInstance.setPostError(42);
+                }
+                console.log("Error in sending chat message:\n" + error.message);
+                console.log(error.stack);
+            }
         }
 
         saveScrollPosition() {

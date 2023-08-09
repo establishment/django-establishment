@@ -1,8 +1,8 @@
 import {UI, registerStyle, Orientation, VoteStatus} from "UI";
 
-import {LoginModal} from "LoginModal";
-import {UserReactionCollection} from "state/UserReactionStore";
-import {VotingWidgetStyle} from "./VotingWidgetStyle";
+import {LoginModal} from "../../accounts/js/LoginModal.jsx";
+import {UserReactionCollection} from "../../accounts/js/state/UserReactionStore.js";
+import {VotingWidgetStyle} from "./VotingWidgetStyle.js";
 
 class VotingWidget extends UI.Element {
     setOptions(options) {
