@@ -2,16 +2,26 @@ import datetime
 import json
 import string
 
+from establishment.utils.serializer import DefaultSerializer
+from django.conf import settings
+
 
 class StreamJSONEncoder(json.JSONEncoder):
     """
     Class to serialized json objects that go to the redis stream
     """
     def default(self, obj):
-        if hasattr(obj, "to_json"):
+        if DefaultSerializer.can_serialize(obj):
+            return DefaultSerializer.serialize(obj)
+        elif hasattr(obj, "to_json"):
             return obj.to_json()
         elif isinstance(obj, datetime.datetime):
-            return obj.timestamp()
+            if hasattr(settings, "FORMAT_DATE_TO_FLOAT") and settings.FORMAT_DATE_TO_FLOAT:
+                return obj.timestamp()
+            result = obj.isoformat()
+            if result.endswith("+00:00"):
+                result = result[:-6] + "Z"
+            return result
         elif isinstance(obj, bytes):
             return self.encode_bytes_as_hex(obj)
         elif isinstance(obj, memoryview):

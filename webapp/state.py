@@ -84,12 +84,14 @@ class State(object):
     def __str__(self):
         return self.dumps()
 
-    def get_store_key(self, ObjectClass):
+    def get_store_key(self, ObjectClass) -> str:
+        if isinstance(ObjectClass, str):
+            return ObjectClass
         if hasattr(ObjectClass, "object_type"):
             return ObjectClass.object_type()
         if hasattr(ObjectClass, "_meta") and hasattr(ObjectClass._meta, "db_table"):
             return ObjectClass._meta.db_table
-        return ObjectClass
+        return ObjectClass.__name__
 
     def has_store(self, ObjectClass):
         return self.get_store_key(ObjectClass) in self.object_caches
@@ -145,12 +147,10 @@ class State(object):
         for processor in STATE_FILTERS:
             processor(self)
 
-        empty_keys = []
-        for key in self.object_caches:
+        # TODO Should this actually cleanup the stores?
+        for key in list(self.object_caches):
             if self.object_caches[key].is_empty():
-                empty_keys.append(key)
-        for key in empty_keys:
-            self.object_caches.pop(key)
+                self.object_caches.pop(key)
 
         return self.object_caches
 
