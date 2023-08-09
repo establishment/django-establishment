@@ -84,7 +84,9 @@ class State(object):
     def __str__(self):
         return self.dumps()
 
-    def get_store_key(self, ObjectClass):
+    def get_store_key(self, ObjectClass) -> str:
+        if isinstance(ObjectClass, str):
+            return ObjectClass
         if hasattr(ObjectClass, "object_type"):
             return ObjectClass.object_type()
         if hasattr(ObjectClass, "_meta") and hasattr(ObjectClass._meta, "db_table"):
