@@ -42,7 +42,7 @@ class DBObjectStore(object):
     def has(self, id: IdType) -> bool:
         return id in self.cache
 
-    def add(self, obj, timestamp: int=time.time()):
+    def add(self, obj, timestamp: int = time.time()):
         self.cache[obj.id] = (obj, timestamp)
 
     def size(self) -> int:
@@ -50,9 +50,6 @@ class DBObjectStore(object):
 
     def is_empty(self) -> bool:
         return self.size() == 0
-
-    def add_null(self, id: IdType, timestamp: int=time.time()):
-        self.cache[id] = (None, timestamp)
 
     def all(self) -> list:
         return sorted([o[0] for o in self.cache.values()], key=lambda o: o.id)
@@ -93,7 +90,7 @@ class State(object):
             return ObjectClass._meta.db_table
         return ObjectClass.__name__
 
-    def has_store(self, ObjectClass):
+    def has_store(self, ObjectClass) -> bool:
         return self.get_store_key(ObjectClass) in self.object_caches
 
     def get_store(self, ObjectClass) -> DBObjectStore:
@@ -102,13 +99,13 @@ class State(object):
             self.object_caches[class_key] = DBObjectStore(ObjectClass)
         return self.object_caches[class_key]
 
-    def has(self, ObjectClass, id: Union[str, int]):
+    def has(self, ObjectClass, id: IdType) -> bool:
         object_store = self.get_store(ObjectClass)
         if self.parent_cache and not object_store.has(id):
             return False
         return object_store.has(id)
 
-    def get(self, ObjectClass, id):
+    def get(self, ObjectClass, id: IdType):
         object_store = self.get_store(ObjectClass)
         if self.parent_cache and not object_store.has(id):
             object_store.add(self.parent_cache.get(ObjectClass, id))
@@ -154,7 +151,7 @@ class State(object):
 
         return self.object_caches
 
-    def dumps(self):
+    def dumps(self) -> str:
         return json.dumps(self, cls=StreamJSONEncoder, check_circular=False, separators=(',', ':'))
 
     def wrapped(self):
@@ -171,12 +168,11 @@ class State(object):
 
 
 # TODO: this doesn't belong here
-def int_list(list, ignore_errors=True):
+def int_list(values) -> list[int]:
     result = []
-    for value in list:
+    for value in values:
         try:
             result.append(int(value))
         except Exception as e:
-            if not ignore_errors:
-                raise e
+            pass
     return result
