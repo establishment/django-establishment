@@ -3,6 +3,7 @@ import json
 import string
 
 from establishment.utils.serializer import DefaultSerializer
+from django.conf import settings
 
 
 class StreamJSONEncoder(json.JSONEncoder):
@@ -15,6 +16,8 @@ class StreamJSONEncoder(json.JSONEncoder):
         elif hasattr(obj, "to_json"):
             return obj.to_json()
         elif isinstance(obj, datetime.datetime):
+            if hasattr(settings, "FORMAT_DATE_TO_FLOAT") and settings.FORMAT_DATE_TO_FLOAT:
+                return obj.timestamp()
             result = obj.isoformat()
             if result.endswith("+00:00"):
                 result = result[:-6] + "Z"
