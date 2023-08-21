@@ -9,7 +9,11 @@ StrEnumType = TypeVar("StrEnumType", bound="StrEnum")
 ObjectEnumType = TypeVar("ObjectEnumType", bound="ObjectEnum")
 
 
+# TODO From python 3.11 use builtin StrEnum?
 class StrEnum(str, Enum):
+    def __str__(self) -> str:
+        return self.value
+
     @classmethod
     def values(cls) -> list[str]:
         return [key.value for key in cls]
@@ -33,9 +37,7 @@ class StrEnum(str, Enum):
             return Q(**{field_name: value})
 
     @classmethod
-    def cast(cls: type[StrEnumType], value: Union[str, bytes]) -> StrEnumType:
-        if isinstance(value, bytes):
-            value = value.decode()
+    def cast(cls: type[StrEnumType], value: str) -> StrEnumType:
         for entry in cls:
             if entry.value == value:
                 return entry
