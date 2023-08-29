@@ -97,10 +97,6 @@ def hex_to_bytes(hex_string: str) -> bytes:
 
 
 def bytes_to_hex(bytes_blob: bytes) -> str:
-    if not bytes_blob:
-        return ""
-    if not isinstance(bytes_blob, bytes):
-        bytes_blob = bytes(bytes_blob)
     hex_characters = []
     for byte in bytes_blob:
         hex_characters.append(string.hexdigits[byte >> 4])
@@ -130,8 +126,6 @@ def camel_case_to_title_case(s: str) -> str:
 
 
 def unicode_to_best_match_ascii(value: str) -> str:
-    if not isinstance(value, str):
-        return value
     # Turn the name "Denis Mită" into "Denis Mita".
     return unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
 

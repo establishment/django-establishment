@@ -2,7 +2,7 @@ import datetime
 import json
 import string
 
-from establishment.utils.serializer import DefaultSerializer
+from establishment.utils.serializers import DefaultSerializer
 from django.conf import settings
 
 

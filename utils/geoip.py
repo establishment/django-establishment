@@ -23,11 +23,11 @@ def get_country_code_from_ip(ip: Optional[str]) -> Optional[str]:
 
 class IPGeoLocation(BaseModel):
     ip: str
-    city: Optional[str]
-    region: Optional[str]
-    country_code: Optional[str]
-    longitude: Optional[float]
-    latitude: Optional[float]
+    city: Optional[str] = None
+    region: Optional[str] = None
+    country_code: Optional[str] = None
+    longitude: Optional[float] = None
+    latitude: Optional[float] = None
 
     @staticmethod
     def from_ip(ip: str) -> IPGeoLocation:
@@ -35,11 +35,11 @@ class IPGeoLocation(BaseModel):
             info = city_reader.city(ip)
         except (GeoIP2Error, ValueError):
             return IPGeoLocation(ip=ip)
-        region = info.subdivisions[0].iso_code if info.subdivisions else None
+        region = info.subdivisions[0].iso_code if info.subdivisions else None  # type: ignore
         return IPGeoLocation(ip=ip,
-                             city=info.city.name or "-",
-                             region=region or "-",
-                             country_code=info.country.iso_code or "-",
+                             city=info.city.name,
+                             region=region,
+                             country_code=info.country.iso_code,
                              longitude=info.location.longitude,
                              latitude=info.location.latitude)
 

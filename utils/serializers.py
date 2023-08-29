@@ -3,11 +3,13 @@ from typing import Any, Callable, Generic, TypeVar, Union, Optional
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import Model as DjangoModel
-from pydantic import BaseModel as PydanticModel
+from pydantic import BaseModel as PydanticModel, GetJsonSchemaHandler
+from pydantic.json_schema import JsonSchemaValue
+from pydantic_core import core_schema
 
-from .convert import bytes_to_hex, to_camel_case
-from .proxy import ProxyObject
-from .db.typed_json_field import TypedJSONField
+from establishment.utils.convert import bytes_to_hex
+from establishment.utils.proxy import ProxyObject
+from establishment.utils.db.typed_json_field import TypedJSONField
 
 SerializableObject = Union[DjangoModel, PydanticModel, ProxyObject]
 SerializableObjectClass = type[SerializableObject]
@@ -33,7 +35,7 @@ def make_getter(model_class: SerializableObjectClass, prop_name: str) -> Callabl
             if isinstance(meta_field, ArrayField):
                 base_field = meta_field.base_field
                 if isinstance(base_field, models.BinaryField):
-                    return make_binary_field_getter(prop_name, array=True)
+                    return make_binary_field_getter(prop_name, is_array=True)
                 if isinstance(base_field, TypedJSONField):
                     return make_typed_json_field_getter(prop_name, array=True)
                 if isinstance(base_field, models.JSONField):
@@ -46,11 +48,17 @@ def make_getter(model_class: SerializableObjectClass, prop_name: str) -> Callabl
 
 # All these wrapper classes do is marking the data, so the serializer doesn't change the case
 class JSONFieldValueDict(dict):
-    pass
+    @classmethod
+    def __get_pydantic_json_schema__(cls, schema: core_schema.JsonSchema, handler: GetJsonSchemaHandler) -> JsonSchemaValue:
+        # Use the same schema that would be used for `dict`
+        return handler(core_schema.json_schema())
 
 
 class JSONFieldValueList(list):
-    pass
+    @classmethod
+    def __get_pydantic_json_schema__(cls, schema: core_schema.JsonSchema, handler: GetJsonSchemaHandler) -> JsonSchemaValue:
+        # Use the same schema that would be used for `dict`
+        return handler(core_schema.list_schema())
 
 
 def make_json_field_getter(prop_name: str, array: bool = False) -> Callable[[Any], Any]:
@@ -76,32 +84,37 @@ def make_typed_json_field_getter(prop_name: str, array: bool = False) -> Callabl
     def func(obj: Any) -> Any:
         value = getattr(obj, prop_name)
         if value and isinstance(value, PydanticModel):
-            value = value.dict()
+            value = value.model_dump()
         return value
 
     def array_func(obj: Any) -> Any:
         value = getattr(obj, prop_name)
         if value:
-            value = list(map(lambda entry: entry.dict() if isinstance(entry, PydanticModel) else entry, value))
+            value = list(map(lambda entry: entry.model_dump() if isinstance(entry, PydanticModel) else entry, value))
         return value
 
     return func if not array else array_func
 
 
-def make_binary_field_getter(prop_name: str, array: bool = False) -> Callable[[Any], Any]:
-    def func(obj: Any) -> Any:
+def make_binary_field_getter(prop_name: str, is_array: bool = False) -> Callable[[Any], Union[Optional[str], list[str]]]:
+    def serialize(value: Any) -> str:
+        if not isinstance(value, bytes):
+            value = bytes(value)
+        return bytes_to_hex(value)
+
+    def func(obj: Any) -> Optional[str]:
         value = getattr(obj, prop_name)
-        if value:
-            value = bytes_to_hex(value)
+        if value is not None:
+            value = serialize(value)
         return value
 
-    def array_func(obj: Any) -> Any:
+    def array_func(obj: Any) -> Optional[list[str]]:
         value = getattr(obj, prop_name)
-        if value:
-            value = list(map(bytes_to_hex, value))
+        if value is not None:
+            value = list(map(serialize, value))
         return value
 
-    return func if not array else array_func
+    return func if not is_array else array_func
 
 
 class SerializerFieldDescriptor(Generic[T]):
@@ -196,8 +209,6 @@ class DefaultSerializer:
         serializer_exclude = cls.get_model_class_special_member(model_class, "serializer_exclude")
         include_set = cls.make_include_set(model_class, serializer_include, serializer_exclude)
 
-        for field in include_set:
-            field.name = to_camel_case(field.name)
         cls.cached_values[model_class] = include_set
 
         return include_set
@@ -207,7 +218,7 @@ class DefaultSerializer:
         return isinstance(obj, SerializableObject)
 
     @classmethod
-    def serialize(cls, obj: Optional[SerializableObject]) -> Optional[dict[str, Any]]:
+    def serialize(cls, obj: Optional[SerializableObject]) -> Any:
         if obj is None:
             return None
 
