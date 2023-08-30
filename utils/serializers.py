@@ -8,10 +8,11 @@ from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import core_schema
 
 from establishment.utils.convert import bytes_to_hex
+from establishment.utils.object_cache import ModelT
 from establishment.utils.proxy import ProxyObject
 from establishment.utils.db.typed_json_field import TypedJSONField
 
-SerializableObject = Union[DjangoModel, PydanticModel, ProxyObject]
+SerializableObject = Union[DjangoModel, PydanticModel, ProxyObject[ModelT]]
 SerializableObjectClass = type[SerializableObject]
 
 T = TypeVar("T")
