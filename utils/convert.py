@@ -141,7 +141,7 @@ def normalize_name(name: str) -> str:
     return "#".join(name_parts)
 
 
-def int_list(values) -> list[int]:
+def int_list(values: list[Any]) -> list[int]:
     result = []
     for value in values:
         try:

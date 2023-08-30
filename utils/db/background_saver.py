@@ -5,8 +5,8 @@ from typing import Generic, Optional, Any, Callable
 
 from django.db import OperationalError
 
-from utils.db.helpers import reset_db_connections
-from utils.object_cache import ModelT
+from establishment.utils.object_cache import ModelT
+from utils.db.helpers import reset_db_connections  # TODO @establify fix
 
 
 # The background running thread will be started when the first object will be added in the queue
