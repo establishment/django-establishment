@@ -1,4 +1,4 @@
-from typing import Any, Callable, Generic, TypeVar, Union, Optional
+from typing import Any, Callable, Generic, TypeVar, Union, Optional, get_args
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -214,8 +214,8 @@ class DefaultSerializer:
         return include_set
 
     @classmethod
-    def can_serialize(cls, obj: Any):
-        return isinstance(obj, SerializableObject)
+    def can_serialize(cls, obj: Any) -> bool:
+        return isinstance(obj, get_args(SerializableObject))
 
     @classmethod
     def serialize(cls, obj: Optional[SerializableObject]) -> Any:
