@@ -6,56 +6,10 @@ from typing import Any, Union, Optional
 from django.http.request import HttpRequest
 from django.contrib.auth.base_user import AbstractBaseUser
 from establishment.funnel.encoder import StreamJSONEncoder
+from establishment.utils.object_cache import IdType, DBObjectStore
 from establishment.webapp.base_views import JSONResponse
 
 STATE_FILTERS = []
-
-IdType = Union[int, str]
-
-
-# TODO: This should be made thread safe even without relying on the GIL
-class DBObjectStore(object):
-    def __init__(self, object_class, objects: Any = None, default_max_age: Optional[int] = None):
-        if not objects:
-            objects = []
-        self.object_class = object_class
-        self.cache: dict[IdType, Any] = {}
-        self.default_max_age = default_max_age
-        for obj in objects:
-            self.add(obj)
-
-    # TODO: add method for object removal
-    def get_raw(self, id: IdType):
-        if not self.has(id):
-            self.add(self.object_class.objects.get(id=id))
-        return self.cache[id]
-
-    def get(self, id: IdType, max_age: int = None):
-        if not max_age:
-            max_age = self.default_max_age
-        obj, timestamp = self.get_raw(id)
-        if max_age and time.time() - max_age > timestamp:
-            del self.cache[id]
-            obj, timestamp = self.get_raw(id)
-        return obj
-
-    def has(self, id: IdType) -> bool:
-        return id in self.cache
-
-    def add(self, obj, timestamp: int = time.time()):
-        self.cache[obj.id] = (obj, timestamp)
-
-    def size(self) -> int:
-        return len(self.cache)
-
-    def is_empty(self) -> bool:
-        return self.size() == 0
-
-    def all(self) -> list:
-        return sorted([o[0] for o in self.cache.values()], key=lambda o: o.id)
-
-    def to_json(self) -> Any:
-        return self.all()
 
 
 class State(object):
@@ -165,14 +119,3 @@ class State(object):
         if extra:
             result.update(extra)
         return JSONResponse(result)
-
-
-# TODO: this doesn't belong here
-def int_list(values) -> list[int]:
-    result = []
-    for value in values:
-        try:
-            result.append(int(value))
-        except Exception as e:
-            pass
-    return result

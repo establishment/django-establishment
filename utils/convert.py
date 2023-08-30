@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import re
 import string
@@ -137,3 +139,13 @@ def normalize_name(name: str) -> str:
     name_parts = re.findall(r"[\w']+", name)
     name_parts.sort()
     return "#".join(name_parts)
+
+
+def int_list(values) -> list[int]:
+    result = []
+    for value in values:
+        try:
+            result.append(int(value))
+        except Exception as e:
+            pass
+    return result
