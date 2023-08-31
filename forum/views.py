@@ -9,7 +9,7 @@ from establishment.webapp.throttle import UserActionThrottler, ActionThrottler
 @single_page_app
 def main_forum_view(request):
     main_forum = Forum.objects.get(id=1)
-    state = State(request)
+    state = State(user=request.user)
     main_forum.add_to_state(state)
     return state.to_response(extra={"forumId": main_forum.id})
 
@@ -84,7 +84,7 @@ def forum_thread_post(request):
 @ajax_required
 def forum_state(request):
     forum = Forum.objects.get(id=int(request.POST["forumId"]))
-    state = State(request)
+    state = State(user=request.user)
     forum.add_to_state(state)
     return state.to_response()
 
@@ -99,7 +99,7 @@ def forum_thread_state(request):
     if forum_view_throttler.increm():
         forum_thread.increment_num_views()
 
-    state = State(request)
+    state = State(user=request.user)
     forum_thread.add_to_state(state, request)
     return state.to_response()
 

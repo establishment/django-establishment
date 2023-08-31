@@ -153,7 +153,7 @@ def private_chat_mark_read(request):
 def group_chat_state(request):
     group_chat = GroupChat.objects.get(id=int(request.GET["chatId"]))
 
-    state = State(request)
+    state = State(user=request.user)
 
     last_message_id = request.GET.get("lastMessageId", None)
     if last_message_id:

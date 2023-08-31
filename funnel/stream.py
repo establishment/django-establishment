@@ -306,7 +306,7 @@ class StreamObjectMixin(models.Model):
                 # TODO: log this, may need to ban some asshole
                 from establishment.errors.errors import BaseError
                 return BaseError.TOO_MANY_OBJECTS
-            state = State(request)
+            state = State(user=request.user)
             for obj in cls.objects.get(id__in=ids):
                 if not permission_filter or permission_filter(obj):
                     state.add(obj)
