@@ -5,23 +5,23 @@ from typing import Generic, Optional, Any, Callable
 
 from django.db import OperationalError
 
-from establishment.utils.object_cache import ModelT
+from establishment.utils.object_cache import DjangoModelT
 from utils.db.helpers import reset_db_connections  # TODO @establify fix
 
 
 # The background running thread will be started when the first object will be added in the queue
 # When adding a new type of object here, consider merging the threads into a single background one
-class BackgroundObjectSaver(Generic[ModelT]):
+class BackgroundObjectSaver(Generic[DjangoModelT]):
     DEFAULT_LOOP_SLEEP = 0.01
 
-    def __init__(self, obj_type: type[ModelT],
+    def __init__(self, obj_type: type[DjangoModelT],
                  queue_size: int = 8192,
                  max_batch_size: int = 128,
                  num_save_tries: int = 2,
                  loop_sleep: float = DEFAULT_LOOP_SLEEP,
                  on_save_error: Optional[Callable[[Exception], Any]] = None):
         self.object_type = obj_type
-        self.object_queue: queue.Queue[ModelT] = queue.Queue(maxsize=queue_size)
+        self.object_queue: queue.Queue[DjangoModelT] = queue.Queue(maxsize=queue_size)
         self.max_batch_size = max_batch_size
         self.num_save_tries = num_save_tries
         self.loop_sleep = loop_sleep
@@ -48,7 +48,7 @@ class BackgroundObjectSaver(Generic[ModelT]):
     def queue_size(self) -> int:
         return self.object_queue.qsize()
 
-    def add(self, obj: ModelT) -> bool:
+    def add(self, obj: DjangoModelT) -> bool:
         self.ensure_started()
         try:
             self.object_queue.put_nowait(obj)
@@ -59,7 +59,7 @@ class BackgroundObjectSaver(Generic[ModelT]):
 
         return True
 
-    def add_batch(self, objects: list[ModelT]) -> int:
+    def add_batch(self, objects: list[DjangoModelT]) -> int:
         num_added = 0
         for obj in objects:
             if self.add(obj):
@@ -78,7 +78,7 @@ class BackgroundObjectSaver(Generic[ModelT]):
         except queue.Empty:
             return 0
 
-        objects_to_insert: list[ModelT] = [obj]
+        objects_to_insert: list[DjangoModelT] = [obj]
         while len(objects_to_insert) < self.max_batch_size:
             try:
                 obj = self.object_queue.get_nowait()

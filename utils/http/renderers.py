@@ -13,6 +13,7 @@ from django.utils import timezone
 # This class is only used in this file, to make the difference between
 # returning None as a successful serialization and failing to serialize.
 from establishment.utils.convert import to_camel_case
+from establishment.utils.object_cache import ObjectStore
 from establishment.utils.serializers import JSONFieldValueDict, JSONFieldValueList
 
 
@@ -24,6 +25,8 @@ def serialize_custom_primitive_types(obj: Any) -> Any:
     from utils.state import State
     from establishment.utils.serializers import DefaultSerializer
     from establishment.utils.enums import ObjectEnum
+    if obj is None:
+        return obj
     if isinstance(obj, datetime.datetime):
         representation = obj.isoformat()
         if representation.endswith("+00:00"):
@@ -46,13 +49,17 @@ def serialize_custom_primitive_types(obj: Any) -> Any:
         return str(obj)
     if isinstance(obj, State):
         return obj.to_response()
+    if isinstance(obj, ObjectStore):
+        return obj.to_json()
     if dataclasses.is_dataclass(obj):
         return dataclasses.asdict(obj)
-    if isinstance(obj, BaseModel) or isinstance(obj, django.db.models.Model):
+    if DefaultSerializer.can_serialize(obj):
         return DefaultSerializer.serialize(obj)
         # Any integer that won't fit in an IEEE double can't be handled by Javascript
     if isinstance(obj, int) and abs(obj) >= 2**52:
         return str(obj)
+    if isinstance(obj, (str, int, float)):
+        return obj
 
     # Make sure we can distinguish between returning None and failing to serialize.
     raise SerializeError
@@ -75,20 +82,30 @@ def serialize_to_json(obj: Any, key_transform: Callable[[str], str]) -> Any:
     if isinstance(obj, (JSONFieldValueDict, JSONFieldValueList)):
         # If this object comes from a Django JSONField, don't touch it.
         return obj
+
     if isinstance(obj, (list, tuple)):
-        return [*map(lambda item: serialize_to_json(item, key_transform), obj)]
+        return [serialize_to_json(item, key_transform) for item in obj]
+
     if isinstance(obj, dict):
         return {key_transform(k): serialize_to_json(v, key_transform) for k, v in obj.items()}
-    try:
-        return serialize_custom_primitive_types(obj)
-    except SerializeError:
-        return obj
+
+    new_obj = serialize_custom_primitive_types(obj)
+    if new_obj != obj:
+        return serialize_to_json(new_obj, key_transform)
+    return obj
+
+
+# TODO What are the non-string args?
+def to_camel_case_key(key: Any) -> Any:
+    if isinstance(key, str):
+        return to_camel_case(key)
+    return key
 
 
 # TODO: Should this be merged with to_camel_case_json?
 def to_pure_camel_case_json(obj: Any) -> Any:
     # Integer keys are left as they are
-    return serialize_to_json(obj, key_transform=lambda key: to_camel_case(key) if isinstance(key, str) else key)
+    return serialize_to_json(obj, key_transform=to_camel_case_key)
 
 
 def to_pure_json(obj: Any) -> Any:

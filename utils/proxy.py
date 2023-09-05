@@ -1,12 +1,14 @@
 from typing import TypeVar, Generic, Any
+from django.db.models import Model as DjangoModel
 
-T = TypeVar("T")
+# TODO @establify centralize
+DjangoModelT = TypeVar("DjangoModelT", bound=DjangoModel)
 
 
-class ProxyObject(Generic[T]):
-    wrapped_class: type[T]
+class ProxyObject(Generic[DjangoModelT]):
+    wrapped_class: type[DjangoModelT]
 
-    def __init__(self, obj: T):
+    def __init__(self, obj: DjangoModelT):
         self.wrapped_obj = obj
 
     def __getattr__(self, item: str) -> Any:

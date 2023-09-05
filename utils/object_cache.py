@@ -3,14 +3,19 @@ from __future__ import annotations
 import time
 from typing import Union, TypeVar, Generic, Optional, Iterable, Callable
 
-from django.db.models import Model, Q
+from django.db.models import Model as DjangoModel, Q
+
+from establishment.utils.proxy import ProxyObject
+from establishment.utils.pydantic import FakeModel
 
 IdType = Union[int, str]
-ModelT = TypeVar("ModelT", bound=Model)
+StateObject = Union[DjangoModel, FakeModel, ProxyObject[DjangoModel]]
+ModelT = TypeVar("ModelT", bound=StateObject)
+DjangoModelT = TypeVar("DjangoModelT", bound=DjangoModel)
 
 
 # TODO: This should be made thread safe even without relying on the GIL
-class DBObjectStore(Generic[ModelT]):
+class ObjectStore(Generic[ModelT]):
     def __init__(self,
                  object_class: type[ModelT],
                  objects: Optional[Iterable[ModelT]] = None,
@@ -23,43 +28,23 @@ class DBObjectStore(Generic[ModelT]):
         for obj in objects:
             self.add(obj)
 
-    # TODO: add method for object removal
-    def get_raw(self, id: IdType) -> tuple[ModelT, float]:
-        if not self.has(id):
-            self.add(self.object_class.objects.get(id=id))
-        return self.cache[id]
-
-    def get(self, id: IdType, max_age: Optional[float] = None) -> ModelT:
-        if not max_age:
-            max_age = self.default_max_age
-        obj, timestamp = self.get_raw(id)
-        if max_age and time.time() - max_age > timestamp:
-            del self.cache[id]
-            obj, timestamp = self.get_raw(id)
-        return obj
-
-    def find_raw(self, python_query: Callable[[ModelT], bool], db_query: Q) -> tuple[ModelT, float]:
-        for (obj, age) in self.cache.values():
-            if python_query(obj):
-                return obj, age
-        obj = self.object_class.objects.get(db_query)
-        self.add(obj)
-        return self.cache[obj.id]
-
-    def find(self, python_query: Callable[[ModelT], bool], db_query: Q, max_age: Optional[float] = None) -> ModelT:
-        if not max_age:
-            max_age = self.default_max_age
-        obj, timestamp = self.find_raw(python_query, db_query)
-        if max_age and time.time() - max_age > timestamp:
-            del self.cache[obj.id]
-            obj, timestamp = self.get_raw(obj.id)
-        return obj
+    def add(self, obj: ModelT, timestamp: float = time.time()):
+        self.cache[obj.id] = (obj, timestamp)
 
     def has(self, id: IdType) -> bool:
         return id in self.cache
 
-    def add(self, obj: ModelT, timestamp: float = time.time()):
-        self.cache[obj.id] = (obj, timestamp)
+    def get(self, id: IdType, max_age: Optional[float] = None) -> ModelT:
+        if not max_age:
+            max_age = self.default_max_age
+        entry = self.cache.get(id)
+        if entry is None:
+            raise RuntimeError(f"Missing object {id}")
+        obj, timestamp = entry
+        if max_age and time.time() - max_age > timestamp:
+            del self.cache[id]
+            raise RuntimeError(f"Object expired {id}")
+        return obj
 
     def size(self) -> int:
         return len(self.cache)
@@ -74,3 +59,37 @@ class DBObjectStore(Generic[ModelT]):
 
     def to_json(self) -> list[ModelT]:
         return self.all()
+
+
+class DBObjectStore(ObjectStore[DjangoModelT]):
+    def get_raw(self, id: IdType) -> tuple[DjangoModelT, float]:
+        if not self.has(id):
+            self.add(self.object_class.objects.get(id=id))
+        return self.cache[id]
+
+    def get(self, id: IdType, max_age: Optional[float] = None) -> DjangoModelT:
+        if not max_age:
+            max_age = self.default_max_age
+        obj, timestamp = self.get_raw(id)
+        if max_age and time.time() - max_age > timestamp:
+            del self.cache[id]
+            obj, timestamp = self.get_raw(id)
+        return obj
+
+    def find_raw(self, python_query: Callable[[DjangoModelT], bool], db_query: Q) -> tuple[DjangoModelT, float]:
+        for (obj, age) in self.cache.values():
+            if python_query(obj):
+                return obj, age
+        obj = self.object_class.objects.get(db_query)
+        self.add(obj)
+        return self.cache[obj.pk]
+
+    def find(self, python_query: Callable[[DjangoModelT], bool], db_query: Q, max_age: Optional[float] = None) -> DjangoModelT:
+        if not max_age:
+            max_age = self.default_max_age
+        obj, timestamp = self.find_raw(python_query, db_query)
+        if max_age and time.time() - max_age > timestamp:
+            obj_id = obj.pk
+            del self.cache[obj_id]
+            obj, timestamp = self.get_raw(obj_id)
+        return obj

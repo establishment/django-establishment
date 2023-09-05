@@ -14,6 +14,10 @@ T = TypeVar("T")
 UUIDHexStr = Field(min_length=32, max_length=32)  # TODO Missing validation
 
 
+class FakeModel(BaseModel):
+    id: str
+
+
 class PageQuery(BaseModel):
     page: int = Field(default=1, ge=1, le=2 ** 31)  # Increase this if we made it!
     page_size: int = Field(default=20, ge=0, le=250)

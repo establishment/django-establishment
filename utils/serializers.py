@@ -8,11 +8,10 @@ from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import core_schema
 
 from establishment.utils.convert import bytes_to_hex
-from establishment.utils.object_cache import ModelT
 from establishment.utils.proxy import ProxyObject
 from establishment.utils.db.typed_json_field import TypedJSONField
 
-SerializableObject = Union[DjangoModel, PydanticModel, ProxyObject[ModelT]]
+SerializableObject = Union[DjangoModel, PydanticModel, ProxyObject]
 SerializableObjectClass = type[SerializableObject]
 
 T = TypeVar("T")
@@ -216,7 +215,7 @@ class DefaultSerializer:
 
     @classmethod
     def can_serialize(cls, obj: Any) -> bool:
-        return isinstance(obj, get_args(SerializableObject))
+        return isinstance(obj, SerializableObject)
 
     @classmethod
     def serialize(cls, obj: Optional[SerializableObject]) -> Any:
