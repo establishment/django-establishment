@@ -85,7 +85,7 @@ def to_camel_case(txt: str) -> str:
     return new_txt
 
 
-def canonical_json_dumps(obj: Any) -> str:
+def canonical_str(obj: Any) -> str:
     return json.dumps(obj, separators=(",", ":"), sort_keys=True)
 
 
