@@ -148,6 +148,7 @@ class SerializedJsonFieldAdminForm(django_forms.CharField):
         if isinstance(value, InvalidJSONInput):
             return value
 
+        # TODO Deprecate dumps()
         if hasattr(value, "dumps"):
             return value.dumps()
 

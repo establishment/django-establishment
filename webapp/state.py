@@ -6,7 +6,6 @@ from typing import Any, Union, Optional, Callable
 from django.contrib.auth.base_user import AbstractBaseUser
 from establishment.funnel.encoder import StreamJSONEncoder
 from establishment.utils.object_cache import IdType, ObjectStore, StateObject, StateObjectType
-from establishment.webapp.base_views import JSONResponse
 
 STATE_SERIALIZATION_MIDDLEWARE: list[Callable[[State], Any]] = []
 
@@ -34,7 +33,8 @@ class State(object):
             self.events.append(self.object_to_event(obj, "delete"))
 
     def __str__(self):
-        return self.dumps()
+        from establishment.utils.convert import canonical_str
+        return canonical_str(self)
 
     @classmethod
     def get_object_name(cls, object_type: StateObjectType) -> str:
@@ -94,6 +94,13 @@ class State(object):
         # TODO These should all be added with the same timestamp, sync this top-level
         self.get_store(obj).add(obj)
 
+    def add_delete_event(self, obj: StateObject):
+        event = self.object_to_event(obj, "delete")
+        self.events.append(event)
+
+    def add_extra(self, extra: dict[str, Any]):
+        self.extra.update(extra)
+
     def all(self, object_type: Optional[StateObjectType]) -> list[StateObject]:
         if object_type is None:
             result = []
@@ -109,9 +116,6 @@ class State(object):
         return {
             store_name: store for store_name, store in self.object_caches.items() if not store.is_empty()
         }
-
-    def dumps(self) -> str:
-        return json.dumps(self, cls=StreamJSONEncoder, check_circular=False, separators=(',', ':'))
 
     def to_response(self, extra: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         result: dict[str, Any] = {
