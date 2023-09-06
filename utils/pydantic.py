@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional, TypeVar
+from typing import Optional, TypeVar, Any
 
 from django.db.models import Q
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from establishment.utils.http.request import BaseRequest
 
@@ -16,6 +16,15 @@ UUIDHexStr = Field(min_length=32, max_length=32)  # TODO Missing validation
 
 class FakeModel(BaseModel):
     id: str
+
+    @field_validator("id", mode="before")
+    @classmethod
+    def int_or_str(cls, value: Any) -> str:
+        if isinstance(value, int):
+            return str(value)
+        if not isinstance(value, str):
+            raise ValueError("Only int or string accepted")
+        return str(value)
 
 
 class PageQuery(BaseModel):
