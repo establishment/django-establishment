@@ -20,9 +20,15 @@ class SerializeError(Exception):
 
 
 def normalize_to_primitive_type(obj: Any) -> Any:
-    from utils.state import State
+    # TODO @establify merge this
+    try:
+        from utils.state import State
+    except Exception as exc:
+        from establishment.webapp.state import State
+
     from establishment.utils.serializers import DefaultSerializer
     from establishment.utils.enums import ObjectEnum
+
     if obj is None:
         return obj
     if isinstance(obj, datetime.datetime):
