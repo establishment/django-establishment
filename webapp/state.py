@@ -101,7 +101,7 @@ class State(object):
         obj = objects[0]
         if obj is None:
             return
-        if hasattr(obj, "__iter__"):
+        if not isinstance(obj, StateObject) and hasattr(obj, "__iter__"):  # Ugh, terrible condition
             self.add(*obj)
             return
         # TODO These should all be added with the same timestamp, sync this top-level
