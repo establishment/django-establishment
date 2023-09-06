@@ -5,23 +5,21 @@ import decimal
 import dataclasses
 from typing import Callable, Any
 
-from pydantic import BaseModel
-import django.db.models
 from django.utils import timezone
 
 
-# This class is only used in this file, to make the difference between
-# returning None as a successful serialization and failing to serialize.
 from establishment.utils.convert import to_camel_case
 from establishment.utils.object_cache import ObjectStore
 from establishment.utils.serializers import JSONFieldValueDict, JSONFieldValueList
 
 
+# This class is only used in this file, to make the difference between
+# returning None as a successful serialization and failing to serialize.
 class SerializeError(Exception):
     pass
 
 
-def serialize_custom_primitive_types(obj: Any) -> Any:
+def normalize_to_primitive_type(obj: Any) -> Any:
     from utils.state import State
     from establishment.utils.serializers import DefaultSerializer
     from establishment.utils.enums import ObjectEnum
@@ -34,8 +32,6 @@ def serialize_custom_primitive_types(obj: Any) -> Any:
         return representation
     if isinstance(obj, datetime.date):
         return obj.isoformat()
-    if isinstance(obj, ObjectEnum):
-        return obj.get_value()
     if isinstance(obj, datetime.time):
         if timezone and timezone.is_aware(obj):
             raise ValueError("JSON can't represent timezone-aware times.")
@@ -43,21 +39,28 @@ def serialize_custom_primitive_types(obj: Any) -> Any:
         return representation
     if isinstance(obj, datetime.timedelta):
         return obj.total_seconds()
+
+    if isinstance(obj, ObjectEnum):
+        return obj.get_value()
+
     if isinstance(obj, uuid.UUID):
         return str(obj.hex)
     if isinstance(obj, decimal.Decimal):
         return str(obj)
+
     if isinstance(obj, State):
         return obj.to_response()
     if isinstance(obj, ObjectStore):
         return obj.to_json()
-    if dataclasses.is_dataclass(obj):
-        return dataclasses.asdict(obj)
     if DefaultSerializer.can_serialize(obj):
         return DefaultSerializer.serialize(obj)
-        # Any integer that won't fit in an IEEE double can't be handled by Javascript
+    if dataclasses.is_dataclass(obj):
+        return dataclasses.asdict(obj)
+
+    # Any integer that won't fit in an IEEE double can't be handled by Javascript
     if isinstance(obj, int) and abs(obj) >= 2**52:
         return str(obj)
+
     if isinstance(obj, (str, int, float)):
         return obj
 
@@ -68,10 +71,7 @@ def serialize_custom_primitive_types(obj: Any) -> Any:
 # TODO @establify fix this
 class BlinkJSONEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:
-        try:
-            return serialize_custom_primitive_types(obj)
-        except SerializeError:
-            super().default(obj)
+        return normalize_to_primitive_type(obj)
 
     @classmethod
     def dumps(cls, arg: Any) -> str:
@@ -89,8 +89,9 @@ def serialize_to_json(obj: Any, key_transform: Callable[[str], str]) -> Any:
     if isinstance(obj, dict):
         return {key_transform(k): serialize_to_json(v, key_transform) for k, v in obj.items()}
 
-    new_obj = serialize_custom_primitive_types(obj)
-    if new_obj != obj:
+    new_obj = normalize_to_primitive_type(obj)
+    if new_obj is not obj:
+        # It's not the exact same object
         return serialize_to_json(new_obj, key_transform)
     return obj
 
