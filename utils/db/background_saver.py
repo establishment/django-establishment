@@ -5,7 +5,7 @@ from typing import Generic, Optional, Any, Callable
 
 from django.db import OperationalError
 
-from establishment.utils.object_cache import DjangoModelT
+from establishment.utils.proxy import DjangoModelT
 from utils.db.helpers import reset_db_connections  # TODO @establify fix
 
 

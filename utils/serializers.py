@@ -1,4 +1,4 @@
-from typing import Any, Callable, Generic, TypeVar, Union, Optional, get_args
+from typing import Any, Callable, Generic, TypeVar, Union, Optional
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models

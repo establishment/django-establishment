@@ -5,36 +5,39 @@ from typing import Union, TypeVar, Generic, Optional, Iterable, Callable
 
 from django.db.models import Model as DjangoModel, Q
 
-from establishment.utils.proxy import ProxyObject
+from establishment.utils.proxy import ProxyObject, DjangoModelT
 from establishment.utils.pydantic import FakeModel
 
 IdType = Union[int, str]
-StateObject = Union[DjangoModel, FakeModel, ProxyObject[DjangoModel]]
-ModelT = TypeVar("ModelT", bound=StateObject)
-DjangoModelT = TypeVar("DjangoModelT", bound=DjangoModel)
+StateObject = Union[DjangoModel, FakeModel, ProxyObject]
+
+# Anything from which a state type can be inferred from, including the object itself or a string with that name
+StateObjectType = Union[str, StateObject, type[StateObject]]
+
+StateObjectT = TypeVar("StateObjectT", bound=StateObject)
 
 
 # TODO: This should be made thread safe even without relying on the GIL
-class ObjectStore(Generic[ModelT]):
+class ObjectStore(Generic[StateObjectT]):
     def __init__(self,
-                 object_class: type[ModelT],
-                 objects: Optional[Iterable[ModelT]] = None,
+                 object_class: type[StateObjectT],
+                 objects: Optional[Iterable[StateObjectT]] = None,
                  default_max_age: Optional[float] = None):
         if not objects:
             objects = []
         self.object_class = object_class
-        self.cache: dict[IdType, tuple[ModelT, float]] = {}
+        self.cache: dict[IdType, tuple[StateObjectT, float]] = {}
         self.default_max_age = default_max_age
         for obj in objects:
             self.add(obj)
 
-    def add(self, obj: ModelT, timestamp: float = time.time()):
+    def add(self, obj: StateObjectT, timestamp: float = time.time()):
         self.cache[obj.id] = (obj, timestamp)
 
     def has(self, id: IdType) -> bool:
         return id in self.cache
 
-    def get(self, id: IdType, max_age: Optional[float] = None) -> ModelT:
+    def get(self, id: IdType, max_age: Optional[float] = None) -> StateObjectT:
         if not max_age:
             max_age = self.default_max_age
         entry = self.cache.get(id)
@@ -52,12 +55,12 @@ class ObjectStore(Generic[ModelT]):
     def is_empty(self) -> bool:
         return self.size() == 0
 
-    def all(self) -> list[ModelT]:
+    def all(self) -> list[StateObjectT]:
         rez = [obj for obj, timestamp in self.cache.values()]
         rez.sort(key=lambda obj: obj.id)
         return rez
 
-    def to_json(self) -> list[ModelT]:
+    def to_json(self) -> list[StateObjectT]:
         return self.all()
 
 
