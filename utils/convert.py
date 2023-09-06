@@ -85,8 +85,12 @@ def to_camel_case(txt: str) -> str:
     return new_txt
 
 
-def canonical_str(obj: Any) -> str:
-    return json.dumps(obj, separators=(",", ":"), sort_keys=True)
+def canonical_str(obj: Any, normalize_keys: bool = True) -> str:
+    if normalize_keys:
+        # TODO @establify fix this
+        from establishment.utils.http.renderers import to_pure_camel_case_json
+        obj = to_pure_camel_case_json(obj)
+    return json.dumps(obj, separators=(",", ":"), sort_keys=True, check_circular=False)
 
 
 def hex_to_bytes(hex_string: str) -> bytes:
