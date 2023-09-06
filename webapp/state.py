@@ -1,11 +1,12 @@
 from __future__ import annotations
-import json
+
+import inspect
 from collections.abc import Iterable
 from typing import Any, Union, Optional, Callable
 
 from django.contrib.auth.base_user import AbstractBaseUser
-from establishment.funnel.encoder import StreamJSONEncoder
 from establishment.utils.object_cache import IdType, ObjectStore, StateObject, StateObjectType
+from establishment.utils.proxy import ProxyObject
 
 STATE_SERIALIZATION_MIDDLEWARE: list[Callable[[State], Any]] = []
 
@@ -25,27 +26,38 @@ class State(object):
                  extra: Optional[dict[str, Any]] = None,
                  delete_objects: list[StateObject] = []):
         self.object_caches: dict[str, ObjectStore] = {}
-        self.user: AbstractBaseUser = user  # The user that's intended to receive this state
+        self.user = user
         self.extra: dict[str, Any] = extra or {}
         self.events: list[dict[str, Any]] = []
-        self.add(objects)
+        self.add(*objects)
         for obj in delete_objects:
-            self.events.append(self.object_to_event(obj, "delete"))
+            self.add_delete_event(obj)
 
-    def __str__(self):
+    def __str__(self) -> str:
         from establishment.utils.convert import canonical_str
         return canonical_str(self)
 
     @classmethod
     def get_object_name(cls, object_type: StateObjectType) -> str:
-        if isinstance(object_type, StateObject):
-            object_type = object_type.__class__
         if isinstance(object_type, str):
             return object_type
+
+        object_type: type[StateObject] = object_type.__class__ if not inspect.isclass(object_type) else object_type
+
+        if issubclass(object_type, ProxyObject) and not hasattr(object_type, "state_object_name"):
+            return cls.get_object_name(object_type.wrapped_class)
+
+        # TODO @establify just use one of these
+        if hasattr(object_type, "state_object_name"):
+            return object_type.state_object_name
+
         if hasattr(object_type, "object_type"):
             return object_type.object_type()
-        if hasattr(object_type, "_meta") and hasattr(object_type._meta, "db_table"):
-            return object_type._meta.db_table
+
+        # TODO @establify fix this
+        # if hasattr(object_type, "_meta") and hasattr(object_type._meta, "db_table"):
+        #     return object_type._meta.db_table
+
         return object_type.__name__
 
     @classmethod
@@ -60,6 +72,7 @@ class State(object):
     def has_store(self, object_type: StateObjectType) -> bool:
         return self.get_object_name(object_type) in self.object_caches
 
+    # Tries to create the store if it doesn't exist
     def get_store(self, object_type: StateObjectType) -> ObjectStore:
         class_key = self.get_object_name(object_type)
         if class_key not in self.object_caches:
@@ -92,7 +105,8 @@ class State(object):
             self.add(*obj)
             return
         # TODO These should all be added with the same timestamp, sync this top-level
-        self.get_store(obj).add(obj)
+        store = self.get_store(obj)
+        store.add(obj)
 
     def add_delete_event(self, obj: StateObject):
         event = self.object_to_event(obj, "delete")
@@ -109,6 +123,7 @@ class State(object):
             return result
         return self.get_store(object_type).all()
 
+    # TODO @establify Maybe rename as to_dict?
     def to_json(self) -> dict[str, Any]:
         for processor in STATE_SERIALIZATION_MIDDLEWARE:
             processor(self)
@@ -120,8 +135,11 @@ class State(object):
     def to_response(self, extra: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         result: dict[str, Any] = {
             **self.extra,
-            "state": self.to_json(),
         }
+        self_as_dict = self.to_json()
+        if self_as_dict:
+            # Only add there are objects to the state
+            result["state"] = self_as_dict
         if self.events:
             result["events"] = self.events
         if extra:

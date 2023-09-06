@@ -86,6 +86,8 @@ def to_camel_case(txt: str) -> str:
 
 
 def canonical_str(obj: Any, normalize_keys: bool = True) -> str:
+    if isinstance(obj, str):
+        return obj
     if normalize_keys:
         # TODO @establify fix this
         from establishment.utils.http.renderers import to_pure_camel_case_json
