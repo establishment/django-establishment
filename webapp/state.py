@@ -1,27 +1,27 @@
 from __future__ import annotations
 import json
 from collections.abc import Iterable
-from typing import Any, Union, Optional
+from typing import Any, Union, Optional, Callable
 
 from django.contrib.auth.base_user import AbstractBaseUser
 from establishment.funnel.encoder import StreamJSONEncoder
-from establishment.utils.object_cache import IdType, DBObjectStore
-from establishment.utils.serializers import SerializableObject, SerializableObjectClass
+from establishment.utils.object_cache import IdType, ObjectStore, StateObject
+from establishment.utils.serializers import SerializableObjectClass
 from establishment.webapp.base_views import JSONResponse
 
-STATE_FILTERS = []
+# TODO: rename to STATE_SERIALIZATION_PROCESSORS
+STATE_FILTERS: list[Callable[[State], Any]] = []
 
-
-StateObject = Optional[SerializableObject]
+OptionalStateObject = Optional[StateObject]
 StateObjectList = Union[
-    StateObject,
-    Iterable[StateObject],
-    Iterable[Iterable[StateObject]],
-    Iterable[Iterable[Iterable[StateObject]]]
+    OptionalStateObject,
+    Iterable[OptionalStateObject],
+    Iterable[Iterable[OptionalStateObject]],
+    Iterable[Iterable[Iterable[OptionalStateObject]]]
 ]
 
-# Anything from which a state type can be infered from, including the object itself
-StateObjectType = Union[str, SerializableObject, SerializableObjectClass]
+# Anything from which a state type can be inferred from, including the object itself
+StateObjectType = Union[str, StateObject, SerializableObjectClass]
 
 
 class State(object):
@@ -29,8 +29,8 @@ class State(object):
                  *objects: StateObjectList,
                  user: Optional[AbstractBaseUser] = None,
                  extra: Optional[dict[str, Any]] = None,
-                 delete_objects: list[SerializableObject] = []):
-        self.object_caches: dict[str, DBObjectStore] = {}
+                 delete_objects: list[StateObject] = []):
+        self.object_caches: dict[str, ObjectStore] = {}
         self.user: AbstractBaseUser = user  # The user that's intended to receive this state
         self.extra: dict[str, Any] = extra or {}
         self.events: list[dict[str, Any]] = []
@@ -43,7 +43,7 @@ class State(object):
 
     @classmethod
     def get_object_name(cls, object_type: StateObjectType) -> str:
-        if isinstance(object_type, SerializableObject):
+        if isinstance(object_type, StateObject):
             object_type = object_type.__class__
         if isinstance(object_type, str):
             return object_type
@@ -54,7 +54,7 @@ class State(object):
         return object_type.__name__
 
     @classmethod
-    def object_to_event(cls, obj: SerializableObject, event_type: str = "updateOrCreate") -> dict[str, Any]:
+    def object_to_event(cls, obj: StateObject, event_type: str = "updateOrCreate") -> dict[str, Any]:
         return {
             "objectId": obj.id,
             "objectType": cls.get_object_name(obj),
@@ -65,24 +65,27 @@ class State(object):
     def has_store(self, object_type: StateObjectType) -> bool:
         return self.get_object_name(object_type) in self.object_caches
 
-    def get_store(self, object_type: StateObjectType) -> DBObjectStore:
+    def get_store(self, object_type: StateObjectType) -> ObjectStore:
         class_key = self.get_object_name(object_type)
         if class_key not in self.object_caches:
-            if isinstance(object_type, SerializableObject):
+            if isinstance(object_type, StateObject):
                 object_type = object_type.__class__
-            self.object_caches[class_key] = DBObjectStore(object_type)
+            self.object_caches[class_key] = ObjectStore(object_type)
         return self.object_caches[class_key]
 
     def has(self, object_type: StateObjectType, id: IdType) -> bool:
         object_store = self.get_store(object_type)
         return object_store.has(id)
 
-    def get(self, object_type: StateObjectType, id: IdType) -> SerializableObject:
+    def get(self, object_type: StateObjectType, id: IdType) -> StateObject:
         object_store = self.get_store(object_type)
         return object_store.get(id)
 
-    # Add one or more objects to store. The last argument can be a float timestamp
-    def add(self, *objects: StateObjectList) -> None:
+    def remove_store(self, object_type: StateObjectType):
+        class_key = self.get_object_name(object_type)
+        return self.object_caches.pop(class_key, True)
+
+    def add(self, *objects: StateObjectList):
         if len(objects) != 1:
             for obj in objects:
                 self.add(obj)
@@ -96,12 +99,13 @@ class State(object):
         # TODO These should all be added with the same timestamp, sync this top-level
         self.get_store(obj).add(obj)
 
-    def all(self, object_type: StateObjectType) -> list[Any]:
+    def all(self, object_type: Optional[StateObjectType]) -> list[StateObject]:
+        if object_type is None:
+            result = []
+            for store in self.object_caches.values():
+                result += store.all()
+            return result
         return self.get_store(object_type).all()
-
-    def remove_store(self, object_type: StateObjectType):
-        class_key = self.get_object_name(object_type)
-        return self.object_caches.pop(class_key, True)
 
     def to_json(self) -> dict[str, Any]:
         for processor in STATE_FILTERS:
@@ -120,8 +124,10 @@ class State(object):
     def wrapped(self, extra: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         result = {
             **self.extra,
-            "state": self,
+            "state": self.to_json(),
         }
+        if self.events:
+            result["events"] = self.events
         if extra:
             result.update(extra)
         return result
