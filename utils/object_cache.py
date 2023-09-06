@@ -57,7 +57,8 @@ class ObjectStore(Generic[StateObjectT]):
 
     def all(self) -> list[StateObjectT]:
         rez = [obj for obj, timestamp in self.cache.values()]
-        rez.sort(key=lambda obj: obj.id)
+        # TODO @establify keep this and fix tests?
+        # rez.sort(key=lambda obj: obj.id)
         return rez
 
     def to_json(self) -> list[StateObjectT]:
