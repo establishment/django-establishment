@@ -5,12 +5,10 @@ from typing import Any, Union, Optional, Callable
 
 from django.contrib.auth.base_user import AbstractBaseUser
 from establishment.funnel.encoder import StreamJSONEncoder
-from establishment.utils.object_cache import IdType, ObjectStore, StateObject
-from establishment.utils.serializers import SerializableObjectClass
+from establishment.utils.object_cache import IdType, ObjectStore, StateObject, StateObjectType
 from establishment.webapp.base_views import JSONResponse
 
-# TODO: rename to STATE_SERIALIZATION_PROCESSORS
-STATE_FILTERS: list[Callable[[State], Any]] = []
+STATE_SERIALIZATION_MIDDLEWARE: list[Callable[[State], Any]] = []
 
 OptionalStateObject = Optional[StateObject]
 StateObjectList = Union[
@@ -19,9 +17,6 @@ StateObjectList = Union[
     Iterable[Iterable[OptionalStateObject]],
     Iterable[Iterable[Iterable[OptionalStateObject]]]
 ]
-
-# Anything from which a state type can be inferred from, including the object itself
-StateObjectType = Union[str, StateObject, SerializableObjectClass]
 
 
 class State(object):
@@ -73,6 +68,10 @@ class State(object):
             self.object_caches[class_key] = ObjectStore(object_type)
         return self.object_caches[class_key]
 
+    def remove_store(self, object_type: StateObjectType):
+        class_key = self.get_object_name(object_type)
+        return self.object_caches.pop(class_key, True)
+
     def has(self, object_type: StateObjectType, id: IdType) -> bool:
         object_store = self.get_store(object_type)
         return object_store.has(id)
@@ -80,10 +79,6 @@ class State(object):
     def get(self, object_type: StateObjectType, id: IdType) -> StateObject:
         object_store = self.get_store(object_type)
         return object_store.get(id)
-
-    def remove_store(self, object_type: StateObjectType):
-        class_key = self.get_object_name(object_type)
-        return self.object_caches.pop(class_key, True)
 
     def add(self, *objects: StateObjectList):
         if len(objects) != 1:
@@ -108,21 +103,18 @@ class State(object):
         return self.get_store(object_type).all()
 
     def to_json(self) -> dict[str, Any]:
-        for processor in STATE_FILTERS:
+        for processor in STATE_SERIALIZATION_MIDDLEWARE:
             processor(self)
 
-        # TODO Should this actually cleanup the stores?
-        for key in list(self.object_caches):
-            if self.object_caches[key].is_empty():
-                self.object_caches.pop(key)
-
-        return self.object_caches
+        return {
+            store_name: store for store_name, store in self.object_caches.items() if not store.is_empty()
+        }
 
     def dumps(self) -> str:
         return json.dumps(self, cls=StreamJSONEncoder, check_circular=False, separators=(',', ':'))
 
-    def wrapped(self, extra: Optional[dict[str, Any]] = None) -> dict[str, Any]:
-        result = {
+    def to_response(self, extra: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+        result: dict[str, Any] = {
             **self.extra,
             "state": self.to_json(),
         }
@@ -131,6 +123,3 @@ class State(object):
         if extra:
             result.update(extra)
         return result
-
-    def to_response(self, extra: Optional[dict[str, Any]] = None) -> JSONResponse:
-        return JSONResponse(self.wrapped(extra))

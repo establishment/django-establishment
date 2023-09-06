@@ -7,10 +7,10 @@ class ProcessResponseMiddleware(object):
 
     def __call__(self, request):
         response = self.get_response(request)
-        if type(response) == dict:
-            response = JSONResponse(response)
         if hasattr(response, "to_response"):
             response = response.to_response()
+        if type(response) == dict:
+            response = JSONResponse(response)
         return response
 
     @staticmethod
