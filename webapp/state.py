@@ -4,9 +4,9 @@ import inspect
 from collections.abc import Iterable
 from typing import Any, Union, Optional, Callable
 
-from django.contrib.auth.base_user import AbstractBaseUser
 from establishment.utils.object_cache import IdType, ObjectStore, StateObject, StateObjectType
 from establishment.utils.proxy import ProxyObject
+from django.db.models import Model as DjangoModel
 
 STATE_SERIALIZATION_MIDDLEWARE: list[Callable[[State], Any]] = []
 
@@ -22,7 +22,7 @@ StateObjectList = Union[
 class State(object):
     def __init__(self,
                  *objects: StateObjectList,
-                 user: Optional[AbstractBaseUser] = None,
+                 user: Optional[DjangoModel] = None,  # TODO @establify should be AbstractBaseUser
                  extra: Optional[dict[str, Any]] = None,
                  delete_objects: list[StateObject] = []):
         self.object_caches: dict[str, ObjectStore] = {}
