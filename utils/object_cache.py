@@ -17,6 +17,12 @@ StateObjectType = Union[str, StateObject, type[StateObject]]
 StateObjectT = TypeVar("StateObjectT", bound=StateObject)
 
 
+def get_id_from_obj(obj: StateObject) -> IdType:
+    if isinstance(obj, DjangoModel):
+        return obj.pk
+    return obj.id
+
+
 # TODO: This should be made thread safe even without relying on the GIL
 class ObjectStore(Generic[StateObjectT]):
     def __init__(self,
@@ -32,7 +38,8 @@ class ObjectStore(Generic[StateObjectT]):
             self.add(obj)
 
     def add(self, obj: StateObjectT, timestamp: float = time.time()):
-        self.cache[obj.id] = (obj, timestamp)
+        obj_id = get_id_from_obj(obj)
+        self.cache[obj_id] = (obj, timestamp)
 
     def has(self, id: IdType) -> bool:
         return id in self.cache

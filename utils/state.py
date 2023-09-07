@@ -4,7 +4,7 @@ import inspect
 from collections.abc import Iterable
 from typing import Any, Union, Optional, Callable
 
-from establishment.utils.object_cache import IdType, ObjectStore, StateObject, StateObjectType
+from establishment.utils.object_cache import IdType, ObjectStore, StateObject, StateObjectType, get_id_from_obj
 from establishment.utils.proxy import ProxyObject
 from django.db.models import Model as DjangoModel
 
@@ -38,11 +38,11 @@ class State(object):
         return canonical_str(self)
 
     @classmethod
-    def get_object_name(cls, object_type: StateObjectType) -> str:
-        if isinstance(object_type, str):
-            return object_type
+    def get_object_name(cls, object_type_or_name: StateObjectType) -> str:
+        if isinstance(object_type_or_name, str):
+            return object_type_or_name
 
-        object_type: type[StateObject] = object_type.__class__ if not inspect.isclass(object_type) else object_type
+        object_type: type[StateObject] = object_type_or_name.__class__ if not inspect.isclass(object_type_or_name) else object_type_or_name
 
         if issubclass(object_type, ProxyObject) and not hasattr(object_type, "state_object_name"):
             return cls.get_object_name(object_type.wrapped_class)
@@ -63,7 +63,7 @@ class State(object):
     @classmethod
     def object_to_event(cls, obj: StateObject, event_type: str = "updateOrCreate") -> dict[str, Any]:
         return {
-            "objectId": obj.id,
+            "objectId": get_id_from_obj(obj),
             "objectType": cls.get_object_name(obj),
             "type": event_type,
             "data": obj,
