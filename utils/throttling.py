@@ -6,7 +6,7 @@ from typing import Union, Optional, Any
 import redis.lock
 from django.conf import settings
 
-from utils.logging import logger
+from establishment.utils.logging import logger
 
 throttling_redis_client = redis.Redis.from_url(settings.RATE_LIMITER_REDIS_URL)
 BUCKET_KEY_FORMAT = "throttle-{scope}-{duration}-{identity}-{timestamp}"  # TODO @cleanup rename this field
