@@ -9,7 +9,7 @@ from establishment.blog.models import BlogEntry
 from establishment.content.models import Article
 from establishment.errors.errors import BaseError
 from establishment.webapp.base_views import ajax_required, superuser_required, single_page_app
-from establishment.webapp.state import State
+from establishment.utils.state import State
 
 BLOG_FETCH_CHUNK = 5
 

@@ -5,7 +5,7 @@ from establishment.chat.errors import ChatError
 from establishment.chat.models import PrivateChat, GroupChat, MessageInstance
 from establishment.errors.errors import BaseError
 from establishment.webapp.base_views import login_required_ajax, ajax_required, login_required, single_page_app
-from establishment.webapp.state import State
+from establishment.utils.state import State
 from establishment.webapp.throttle import UserActionThrottler
 
 

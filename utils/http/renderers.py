@@ -24,7 +24,7 @@ def normalize_to_primitive_type(obj: Any) -> Any:
     try:
         from utils.state import State  # type: ignore
     except Exception as exc:
-        from establishment.webapp.state import State  # type: ignore
+        from establishment.utils.state import State  # type: ignore
 
     from establishment.utils.serializers import DefaultSerializer
     from establishment.utils.enums import ObjectEnum

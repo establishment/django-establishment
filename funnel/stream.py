@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models.fields.related import ManyToManyRel, RelatedField, OneToOneField
 from django.db.models.fields.reverse_related import ForeignObjectRel
 
-from establishment.webapp.state import State
+from establishment.utils.state import State
 from ..utils.convert import int_list
 from .json_helper import to_camel_case, to_json_dict
 from .redis_stream import RedisStreamPublisher

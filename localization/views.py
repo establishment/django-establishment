@@ -1,7 +1,7 @@
 import json
 
 from establishment.webapp.base_views import superuser_required
-from establishment.webapp.state import State
+from establishment.utils.state import State
 from .errors import LocalizationError
 from .models import TranslationEntry, TranslationKey
 

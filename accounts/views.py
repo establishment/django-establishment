@@ -14,7 +14,7 @@ from django.utils.http import base36_to_int, int_to_base36
 from establishment.errors.errors import BaseError
 from establishment.webapp.base_views import login_required, login_required_ajax, ajax_required, global_renderer
 from establishment.webapp.base_views import single_page_app
-from establishment.webapp.state import State
+from establishment.utils.state import State
 from ..utils.convert import int_list
 from establishment.webapp.throttle import ActionThrottler
 from .adapter import login, perform_login

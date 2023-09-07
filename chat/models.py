@@ -10,7 +10,7 @@ from establishment.chat.errors import ChatError
 from establishment.errors.errors import BaseError
 from establishment.funnel.nodews_meta import NodeWSMeta
 from establishment.funnel.stream import register_stream_handler, StreamObjectMixin
-from establishment.webapp.state import State
+from establishment.utils.state import State
 
 
 class MessageThread(StreamObjectMixin):

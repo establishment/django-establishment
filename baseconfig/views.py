@@ -2,7 +2,7 @@ import json
 
 from establishment.misc.threading_helper import ThreadHandler
 from establishment.webapp.base_views import superuser_required, ajax_required, single_page_app
-from establishment.webapp.state import State
+from establishment.utils.state import State
 from .errors import BaseconfigError
 from .models import CommandInstance, CommandRun
 

@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 
 from establishment.webapp.base_views import superuser_required, single_page_app
-from establishment.webapp.state import State
+from establishment.utils.state import State
 from mercury.api import MercuryRedisAPI
 from .errors import EmailingError
 from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway

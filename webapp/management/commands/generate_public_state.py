@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 from establishment.baseconfig.models import public_settings_cache, PublicGlobalSettings
 from establishment.funnel.encoder import StreamJSONEncoder
 from establishment.misc.util import import_module_attribute
-from establishment.webapp.state import State
+from establishment.utils.state import State
 
 
 class Command(BaseCommand):

@@ -8,7 +8,7 @@ from django.utils import timezone
 from establishment.errors.errors import BaseError
 from establishment.webapp.base_views import login_required, login_required_ajax, ajax_required, \
     superuser_required, single_page_app
-from establishment.webapp.state import State
+from establishment.utils.state import State
 from .errors import ContentError
 from .models import TermDefinition, ArticleEdit, UserFeedback, Article, Questionnaire, QuestionnaireQuestion, \
                     QuestionnaireInstance, QuestionnaireQuestionResponse, QuestionnaireQuestionOption
