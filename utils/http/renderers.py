@@ -20,12 +20,7 @@ class SerializeError(Exception):
 
 
 def normalize_to_primitive_type(obj: Any) -> Any:
-    # TODO @establify merge this
-    try:
-        from utils.state import State  # type: ignore
-    except Exception as exc:
-        from establishment.utils.state import State  # type: ignore
-
+    from establishment.utils.state import State
     from establishment.utils.serializers import DefaultSerializer
     from establishment.utils.enums import ObjectEnum
 
