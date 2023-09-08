@@ -172,7 +172,7 @@ class BaseRequest(BaseModel):
         typed_request._implicit_fields = implicit_fields
 
         # Prevent circularity, should reference a generic type
-        from utils.http.request_fields import ObjectId
+        from establishment.utils.http.request_fields import ObjectId
 
         for field_name in model_schema["properties"].keys():
             value = getattr(typed_request, field_name)
