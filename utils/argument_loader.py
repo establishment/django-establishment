@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import inspect
 from inspect import Parameter, isclass
-from typing import Optional, Any
+from typing import Optional, Any, Callable
+
+from django.core.exceptions import ImproperlyConfigured
 
 
 class ArgumentLoader:
@@ -28,3 +31,26 @@ class ArgumentLoader:
 
     # Actually handle the loading logic here
     def load(self, param: Parameter) -> Any: raise NotImplementedError
+
+
+def make_arguments_loader_func(handler: Callable, argument_loaders: list[ArgumentLoader]) -> Callable[[], list[Any]]:
+    loaders: list[tuple[ArgumentLoader, Parameter]] = []
+    handler_params: list[Parameter] = list(inspect.signature(handler).parameters.values())
+
+    if len(handler_params) > 0 and handler_params[0].name == "self" and handler_params[0].annotation == Parameter.empty:
+        handler_params = handler_params[1:]
+
+    for param in handler_params:
+        for argument_loader in argument_loaders:
+            if argument_loader.can_load_type(param):
+                loaders.append((argument_loader, param))
+                break
+        else:
+            raise ImproperlyConfigured(f"Invalid view signature of view {handler.__qualname__}:"
+                                       f" cannot parse argument {param.name} of type {param.annotation}")
+
+    def load_arguments() -> list[Any]:
+        # TODO would be nicer if we could actually use the view_context
+        return [matcher.load(param) for matcher, param in loaders]
+
+    return load_arguments
