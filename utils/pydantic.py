@@ -8,8 +8,6 @@ from pydantic import BaseModel, Field, field_validator
 
 from establishment.utils.http.request import BaseRequest
 
-T = TypeVar("T")
-
 
 UUIDHexStr = Field(min_length=32, max_length=32)  # TODO Missing validation
 
