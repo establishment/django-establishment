@@ -150,12 +150,12 @@ class BaseView:
 
         # Check the host
         try:
-            view_context.view_request.get_host()
+            view_context.raw_request.get_host()
         except DisallowedHost:
             raise BadRequest
 
         # Check the method
-        view_method = (view_context.view_request.method or "").upper()
+        view_method = (view_context.raw_request.method or "").upper()
         if self.method is not None and view_method != self.method:
             raise HTTPMethodNotAllowed(f"HTTP Method {view_method} not allowed")
 

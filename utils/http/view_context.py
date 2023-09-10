@@ -9,10 +9,10 @@ from establishment.utils.http.request import BaseRequest
 
 
 class BaseViewContext:
-    def __init__(self, view_request: HttpRequest):
+    def __init__(self, raw_request: HttpRequest):
         from establishment.utils.http.view_handler import BaseView
 
-        self.view_request = view_request
+        self.raw_request = raw_request
         self.raw_body: Optional[bytes] = None
         self.data: Optional[dict[str, Any]] = None
         self.files: Optional[MultiValueDict] = None
@@ -28,17 +28,17 @@ class BaseViewContext:
         # list of proxy ip addresses (separated by comma followed by space):
         #   - the left-most one is the original client ip (can be forged so we cannot trust it)
         #   - the right-most one is the one that hit the load balancer (most reliable source of information)
-        x_forwarded_for = self.view_request.META.get("HTTP_X_FORWARDED_FOR")
+        x_forwarded_for = self.raw_request.META.get("HTTP_X_FORWARDED_FOR")
         if x_forwarded_for is None:
             # In production, this will be the load balancer (our proxy), or just 0.0.0.0 if all else fails.
             # This will never be reached while we still use AWS's load balancer, since they guarantee to
             # put a valid IP address in the X-Forwarded-For header.
-            return self.view_request.META.get("REMOTE_ADDR") or "0.0.0.0"
+            return self.raw_request.META.get("REMOTE_ADDR") or "0.0.0.0"
         return x_forwarded_for.split(",")[-1].strip()
 
     @cached_property
     def user_agent(self) -> str:
-        user_agent_string = self.view_request.META.get("HTTP_USER_AGENT", "")
+        user_agent_string = self.raw_request.META.get("HTTP_USER_AGENT", "")
         if isinstance(user_agent_string, bytes):
             user_agent_string = user_agent_string.decode("utf-8")
         return user_agent_string or ""
