@@ -98,7 +98,6 @@ class ViewSet:
         return urlpatterns
 
 
-
 class BaseView:
     def __init__(self, config: ViewConfig, func: Callable, view_set: ViewSet):
         self.config = config
