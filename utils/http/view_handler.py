@@ -18,7 +18,7 @@ from establishment.utils.throttling import Throttle
 @dataclass
 class ViewConfig:
     method: Literal["GET", "POST"] = "GET"
-    permission: Optional[Permission] = None  # TODO Rename to permissions
+    permissions: Optional[Permission] = None
     throttle: Optional[Throttle] = None
     url_path: Optional[str] = None
     dev_only: Optional[bool] = None
@@ -26,18 +26,18 @@ class ViewConfig:
 
 
 class ViewSet:
-    permission: ClassVar[Permission] = allow_any
+    permissions: ClassVar[Permission] = allow_any
     throttle: ClassVar[Throttle] = Throttle.DEFAULT
     dev_only: ClassVar[bool] = False
 
-    def __init__(self, permission: Optional[Permission] = None, throttle: Optional[Throttle] = None):
-        self._permission = permission
+    def __init__(self, permissions: Optional[Permission] = None, throttle: Optional[Throttle] = None):
+        self._permissions = permissions
         self._throttle = throttle
 
     def add_view_config_defaults(self, view_config: ViewConfig):
         # TODO @establify using a mix of class and instance
-        if view_config.permission is None:
-            view_config.permission = self._permission or self.permission
+        if view_config.permissions is None:
+            view_config.permissions = self._permissions or self.permissions
         if view_config.throttle is None:
             view_config.throttle = self._throttle or self.throttle
         if view_config.dev_only is None:
@@ -109,12 +109,12 @@ class BaseView:
         self.func = func
         self.view_set = view_set
 
-        assert config.permission is not None
+        assert config.permissions is not None
         assert config.throttle is not None
 
         # TODO @establify ensure these are filled in
         self.method = config.method
-        self.permission = config.permission
+        self.permissions = config.permissions
         self.throttle = config.throttle
         self.url_path = config.url_path if config.url_path is not None else func.__name__
         self.dev_only = config.dev_only
@@ -124,7 +124,7 @@ class BaseView:
     def __call__(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         try:
             self.validate_request(request)
-            with self.permission.get_permission_filter():
+            with self.permissions.get_permission_filter():
                 response = self.process_request(request)
                 return self.format_response(response)
         except Exception as exception:
@@ -152,7 +152,7 @@ class BaseView:
                 raise Throttled
 
         # Check permission filters
-        self.permission.check_permission()
+        self.permissions.check_permission()
 
     def format_response(self, response: Any) -> HttpResponse:
         if not isinstance(response, HttpResponse):
