@@ -6,6 +6,7 @@ from typing import Optional, ClassVar, Callable, Any, Literal, TypeVar, Unpack
 from django.conf import settings
 from django.core.exceptions import DisallowedHost
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.urls import URLPattern, re_path, path
 
 from establishment.utils.errors import BadRequest, HTTPMethodNotAllowed, Throttled
 from establishment.utils.http.permissions import Permission, allow_any
@@ -37,7 +38,7 @@ class ViewSet:
         if view_config.dev_only is None:
             view_config.dev_only = self.dev_only
 
-    def make_view(self, **kwargs: Unpack[ViewConfig]):
+    def make_view_decorator(self, **kwargs: Unpack[ViewConfig]):
         view_config = ViewConfig(**kwargs)
         self.add_view_config_defaults(view_config)
 
@@ -49,10 +50,53 @@ class ViewSet:
         return wrapper
 
     def get(self, **kwargs: Unpack[ViewConfig]):
-        return self.make_view(method="GET", **kwargs)
+        return self.make_view_decorator(method="GET", **kwargs)
 
     def post(self, **kwargs: Unpack[ViewConfig]):
-        return self.make_view(method="POST", **kwargs)
+        return self.make_view_decorator(method="POST", **kwargs)
+
+    def make_view(self, view_config: ViewConfig, view_func: Callable):
+        return BaseView(view_config, view_func, self)
+
+    def build_url_patterns(self) -> list[URLPattern]:
+        urlpatterns: list[URLPattern] = []
+
+        for action_name in dir(self):
+            view_func = getattr(self, action_name)
+            view_config = getattr(view_func, "view_config", None)
+            if view_config is None:
+                continue
+
+            self.add_view_config_defaults(view_config)
+
+            view = self.make_view(view_config, view_func)
+            if view.dev_only and not settings.ENABLE_DEV_ROUTES:
+                continue
+
+            url_path: str = view.url_path
+
+            if not url_path or url_path == "/":
+                # Empty paths should never be used in view-sets
+                raise RuntimeError("NO EMPTY URLS!")
+
+            if "(?P" in url_path:
+                django_path_func = re_path
+            else:
+                django_path_func = path
+
+            # TODO @cleanup nooooooooooo
+            # Ensure the all URLs have a trailing slash
+            if not url_path.endswith("/"):
+                url_path += "/"
+
+            urlpatterns.append(django_path_func(url_path, view))
+
+            # Also adding the version of the URL without the trailing space.
+            if len(url_path) > 1 and url_path.endswith("/"):
+                urlpatterns.append(django_path_func(url_path[:-1], view))
+
+        return urlpatterns
+
 
 
 class BaseView:
