@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, ClassVar, Callable, Any, Literal, TypeVar, Unpack
+from typing import Optional, ClassVar, Callable, Any, Literal, TypeVar, Unpack, TypedDict, NotRequired
 
 from django.conf import settings
 from django.core.exceptions import DisallowedHost
@@ -15,14 +15,27 @@ from establishment.utils.http.view_context import get_raw_view_context
 from establishment.utils.throttling import Throttle
 
 
+ViewMethod = Literal["GET", "POST"]
+
+
 @dataclass
 class ViewConfig:
-    method: Literal["GET", "POST"] = "GET"
+    method: ViewMethod = "GET"
     permissions: Optional[Permission] = None
     throttle: Optional[Throttle] = None
     url_path: Optional[str] = None
     dev_only: Optional[bool] = None
     with_read_right: bool = False  # TODO @establify with_read_rights should be a permission mixin
+
+
+# What can be overriden per individual view
+# The method is extra
+class ViewConfigOverrides(TypedDict, total=False):
+    permissions: Permission
+    throttle: Throttle
+    url_path: str
+    dev_only: bool
+    with_read_right: bool
 
 
 class ViewSet:
@@ -43,8 +56,8 @@ class ViewSet:
         if view_config.dev_only is None:
             view_config.dev_only = self.dev_only
 
-    def make_view_decorator(self, **kwargs: Unpack[ViewConfig]) -> Callable:
-        view_config = ViewConfig(**kwargs)
+    def make_view_decorator(self, method: ViewMethod, **kwargs: Unpack[ViewConfigOverrides]) -> Callable:
+        view_config = ViewConfig(method, **kwargs)
         self.add_view_config_defaults(view_config)
 
         def wrapper(func: CallableT) -> CallableT:
@@ -54,11 +67,11 @@ class ViewSet:
 
         return wrapper
 
-    def get(self, **kwargs: Unpack[ViewConfig]) -> Callable:
-        return self.make_view_decorator(method="GET", **kwargs)
+    def get(self, **kwargs: Unpack[ViewConfigOverrides]) -> Callable:
+        return self.make_view_decorator("GET", **kwargs)
 
-    def post(self, **kwargs: Unpack[ViewConfig]) -> Callable:
-        return self.make_view_decorator(method="POST", **kwargs)
+    def post(self, **kwargs: Unpack[ViewConfigOverrides]) -> Callable:
+        return self.make_view_decorator("POST", **kwargs)
 
     def make_view(self, view_config: ViewConfig, view_func: Callable) -> BaseView:
         return BaseView(view_config, view_func, self)
