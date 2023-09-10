@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, ClassVar, Callable, Any, Literal, TypeVar
+from typing import Optional, ClassVar, Callable, Any, Literal, TypeVar, Unpack
 
 from django.conf import settings
 from django.core.exceptions import DisallowedHost
@@ -17,7 +17,7 @@ from establishment.utils.throttling import Throttle
 @dataclass
 class ViewConfig:
     method: Literal["GET", "POST"] = "GET"
-    permission: Optional[Permission] = None
+    permission: Optional[Permission] = None  # TODO Rename to permissions
     throttle: Optional[Throttle] = None
     url_path: Optional[str] = None
     dev_only: Optional[bool] = None
@@ -29,17 +29,48 @@ class ViewSet:
     throttle: ClassVar[Throttle] = Throttle.DEFAULT
     dev_only: ClassVar[bool] = False
 
+    def add_view_config_defaults(self, view_config: ViewConfig):
+        if view_config.permission is None:
+            view_config.permission = self.permission
+        if view_config.throttle is None:
+            view_config.throttle = self.throttle
+        if view_config.dev_only is None:
+            view_config.dev_only = self.dev_only
+
+    def make_view(self, **kwargs: Unpack[ViewConfig]):
+        view_config = ViewConfig(**kwargs)
+        self.add_view_config_defaults(view_config)
+
+        def wrapper(func: CallableT) -> CallableT:
+            name = func.__name__
+            setattr(self, name, func)
+            return add_view_config(view_config)(func)
+
+        return wrapper
+
+    def get(self, **kwargs: Unpack[ViewConfig]):
+        return self.make_view(method="GET", **kwargs)
+
+    def post(self, **kwargs: Unpack[ViewConfig]):
+        return self.make_view(method="POST", **kwargs)
+
 
 class BaseView:
-    def __init__(self, config: ViewConfig, name: str, view_set_cls: type[ViewSet]):
-        self.method = config.method
-        self.permission = config.permission if config.permission is not None else view_set_cls.permission
-        self.throttle = config.throttle if config.throttle is not None else view_set_cls.throttle
-        self.url_path = config.url_path if config.url_path is not None else name  # TODO deprecate
-        self.dev_only = config.dev_only if config.dev_only is not None else view_set_cls.dev_only
-        self.name = name
+    def __init__(self, config: ViewConfig, func: Callable, view_set: ViewSet):
         self.config = config
-        self.view_set_cls = view_set_cls
+        self.func = func
+        self.view_set = view_set
+
+        assert config.permission is not None
+        assert config.throttle is not None
+
+        # TODO @establify ensure these are filled in
+        self.method = config.method
+        self.permission = config.permission
+        self.throttle = config.throttle
+        self.url_path = config.url_path if config.url_path is not None else func.__name__
+        self.dev_only = config.dev_only
+
         self.load_view_arguments: Callable[[], list[Any]] = self.make_argument_loader()
 
     def __call__(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
@@ -67,7 +98,7 @@ class BaseView:
         if self.method is not None and view_method != self.method:
             raise HTTPMethodNotAllowed(f"HTTP Method {view_method} not allowed")
 
-        # Check throttling
+        # Check throttling -- Should also include per user
         if not settings.DISABLE_THROTTLING:
             if self.throttle.throttle_request(view_context.ip):
                 raise Throttled
@@ -96,7 +127,7 @@ class BaseView:
 CallableT = TypeVar("CallableT", bound=Callable)
 
 
-def view_action(view_config: ViewConfig) -> Callable[[CallableT], CallableT]:
+def add_view_config(view_config: ViewConfig) -> Callable[[CallableT], CallableT]:
     def wrapper(view_set_method: CallableT) -> CallableT:
         setattr(view_set_method, "view_config", view_config)
         return view_set_method
