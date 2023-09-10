@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Optional, ClassVar, Callable, Any
+from dataclasses import dataclass
+from typing import Optional, ClassVar, Callable, Any, Literal, TypeVar
 
 from django.conf import settings
 from django.core.exceptions import DisallowedHost
@@ -13,20 +14,14 @@ from establishment.utils.http.view_context import get_raw_view_context
 from establishment.utils.throttling import Throttle
 
 
+@dataclass
 class ViewConfig:
-    def __init__(self,
-                 method: Optional[str],
-                 permission: Optional[Permission],
-                 throttle: Optional[Throttle],
-                 url_path: Optional[str],
-                 dev_only: Optional[bool],
-                 with_read_rights: bool):  # TODO @establify with_read_rights should be a permission mixin
-        self.method = method
-        self.permission = permission
-        self.throttle = throttle
-        self.url_path = url_path
-        self.dev_only = dev_only
-        self.with_read_right = with_read_rights
+    method: Literal["GET", "POST"] = "GET"
+    permission: Optional[Permission] = None
+    throttle: Optional[Throttle] = None
+    url_path: Optional[str] = None
+    dev_only: Optional[bool] = None
+    with_read_right: bool = False  # TODO @establify with_read_rights should be a permission mixin
 
 
 class ViewSet:
@@ -96,3 +91,14 @@ class BaseView:
     def process_request(self, request: HttpRequest) -> Any: raise NotImplementedError
 
     def make_argument_loader(self) -> Callable[[], list[Any]]: raise NotImplementedError
+
+
+CallableT = TypeVar("CallableT", bound=Callable)
+
+
+def view_action(view_config: ViewConfig) -> Callable[[CallableT], CallableT]:
+    def wrapper(view_set_method: CallableT) -> CallableT:
+        setattr(view_set_method, "view_config", view_config)
+        return view_set_method
+
+    return wrapper

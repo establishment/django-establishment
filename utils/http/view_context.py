@@ -10,14 +10,14 @@ from establishment.utils.http.request import BaseRequest
 
 class BaseViewContext:
     def __init__(self, view_request: HttpRequest):
-        from utils.http.viewsets import BlinkView
+        from establishment.utils.http.view_handler import BaseView
 
         self.view_request = view_request
         self.raw_body: Optional[bytes] = None
         self.data: Optional[dict[str, Any]] = None
         self.files: Optional[MultiValueDict] = None
 
-        self.view: Optional[BlinkView] = None
+        self.view: Optional[BaseView] = None
         self.view_args: tuple[Any, ...] = ()
         self.view_kwargs: dict[str, Any] = {}
         self.typed_view_args: list[Any] = []
