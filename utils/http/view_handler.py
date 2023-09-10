@@ -30,15 +30,20 @@ class ViewSet:
     throttle: ClassVar[Throttle] = Throttle.DEFAULT
     dev_only: ClassVar[bool] = False
 
+    def __init__(self, permission: Optional[Permission] = None, throttle: Optional[Throttle] = None):
+        self._permission = permission
+        self._throttle = throttle
+
     def add_view_config_defaults(self, view_config: ViewConfig):
+        # TODO @establify using a mix of class and instance
         if view_config.permission is None:
-            view_config.permission = self.permission
+            view_config.permission = self._permission or self.permission
         if view_config.throttle is None:
-            view_config.throttle = self.throttle
+            view_config.throttle = self._throttle or self.throttle
         if view_config.dev_only is None:
             view_config.dev_only = self.dev_only
 
-    def make_view_decorator(self, **kwargs: Unpack[ViewConfig]):
+    def make_view_decorator(self, **kwargs: Unpack[ViewConfig]) -> Callable:
         view_config = ViewConfig(**kwargs)
         self.add_view_config_defaults(view_config)
 
@@ -49,13 +54,13 @@ class ViewSet:
 
         return wrapper
 
-    def get(self, **kwargs: Unpack[ViewConfig]):
+    def get(self, **kwargs: Unpack[ViewConfig]) -> Callable:
         return self.make_view_decorator(method="GET", **kwargs)
 
-    def post(self, **kwargs: Unpack[ViewConfig]):
+    def post(self, **kwargs: Unpack[ViewConfig]) -> Callable:
         return self.make_view_decorator(method="POST", **kwargs)
 
-    def make_view(self, view_config: ViewConfig, view_func: Callable):
+    def make_view(self, view_config: ViewConfig, view_func: Callable) -> BaseView:
         return BaseView(view_config, view_func, self)
 
     def build_url_patterns(self) -> list[URLPattern]:
