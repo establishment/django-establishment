@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, ClassVar, Callable, Any, Literal, TypeVar, Unpack, TypedDict
 
 from django.conf import settings
@@ -18,6 +18,7 @@ from establishment.utils.throttling import Throttle
 ViewMethod = Literal["GET", "POST"]
 
 
+#  TODO @establify no dataclass
 @dataclass
 class ViewConfig:
     method: ViewMethod = "GET"
@@ -26,6 +27,7 @@ class ViewConfig:
     url_path: Optional[str] = None
     dev_only: Optional[bool] = None
     with_read_right: bool = False  # TODO @establify with_read_rights should be a permission mixin
+    extra: dict[str, Any] = field(default_factory=dict)
 
 
 # What can be overriden per individual view
@@ -36,6 +38,7 @@ class ViewConfigOverrides(TypedDict, total=False):
     url_path: str
     dev_only: bool
     with_read_right: bool
+    extra: dict
 
 
 class ViewSet:

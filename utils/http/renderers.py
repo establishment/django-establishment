@@ -65,6 +65,9 @@ def normalize_to_primitive_type(obj: Any) -> Any:
     if isinstance(obj, (str, int, float)):
         return obj
 
+    if hasattr(obj, "to_json"):
+        return obj.to_json()
+
     # Make sure we can distinguish between returning None and failing to serialize.
     raise SerializeError
 

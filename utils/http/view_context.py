@@ -5,6 +5,7 @@ from typing import Optional, Any
 from django.http import HttpRequest
 from django.utils.datastructures import MultiValueDict
 
+from establishment.utils.errors import InternalServerError
 from establishment.utils.http.request import BaseRequest
 
 
@@ -49,3 +50,10 @@ _current_view_context: ContextVar[Optional[BaseViewContext]] = ContextVar("curre
 
 def get_raw_view_context() -> Optional[BaseViewContext]:
     return _current_view_context.get()
+
+
+def get_raw_view_context_or_raise() -> BaseViewContext:
+    view_context = get_raw_view_context()
+    if view_context is None:
+        raise InternalServerError
+    return view_context
