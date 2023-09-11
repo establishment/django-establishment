@@ -21,7 +21,7 @@ class URLArgLoader(ArgumentLoader):
         return view_context.view_kwargs[param.name]
 
 
-class ViewDjangoRequestArgumentLoader(ArgumentLoader):
+class DjangoRequestViewArgumentLoader(ArgumentLoader):
     def can_load_type(self, param: Parameter) -> bool:
         return self.is_subclass_of(param, HttpRequest)
 
