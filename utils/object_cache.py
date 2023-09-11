@@ -6,7 +6,7 @@ from typing import Union, TypeVar, Generic, Optional, Iterable, Callable
 from django.db.models import Model as DjangoModel, Q
 
 from establishment.utils.proxy import ProxyObject, DjangoModelT
-from establishment.utils.pydantic import FakeModel
+from establishment.utils.db.fake_model import FakeModel
 
 IdType = Union[int, str]
 StateObject = Union[DjangoModel, FakeModel, ProxyObject]

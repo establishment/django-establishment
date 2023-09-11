@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Optional, Any, Union, ClassVar
 
+from establishment.utils.state import State
+
 
 # TODO @Mihai list all classes inheriting/instances or APIError somewhere  just like API endpoints
 #  This should also include all instances of these classes
@@ -9,12 +11,12 @@ class APIError(Exception):
     code: int = 0
     default_message: str = "API Error"
     is_warning: bool = False
-    state: Any  # TODO @state @establify fix this typehint
+    state: Optional[State]
 
     def __init__(self,
                  message: Optional[str] = None,
                  detail: Optional[dict[str, Any]] = None,
-                 state: Any = None):
+                 state: Optional[State] = None):
         self.message = message if message is not None else self.default_message
         self.detail = detail or {}
         self.state = state

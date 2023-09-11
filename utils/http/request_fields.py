@@ -12,18 +12,16 @@ from pydantic_core.core_schema import ValidationInfo
 
 from establishment.utils.errors import NotFound, ValidationError
 from establishment.utils.http.request import BaseRequest
+from establishment.utils.proxy import DjangoModelT
 from establishment.utils.state import State
 
-# TODO @establify replace with DjangoModelT
-M = TypeVar("M", bound=Model)
 
-
-def edit_object_from_request(obj: M,
+def edit_object_from_request(obj: DjangoModelT,
                              request: BaseRequest,
                              fields: Optional[Iterable[str]] = None,  # If None we'll just take everything
                              exclude: Iterable[str] = [],  # Fields to exclude. Included automatically are id
-                             const_validators: list[Callable[[M], Any]] = [],  # Validators that are considered not to make any changes to the object
-                             pre_save: list[Callable[[M], Any]] = [],  # Any function that's to be run on the object pre save
+                             const_validators: list[Callable[[DjangoModelT], Any]] = [],  # Validators that are considered not to make any changes to the object
+                             pre_save: list[Callable[[DjangoModelT], Any]] = [],  # Any function that's to be run on the object pre save
                              save: Optional[bool] = None,  # None means save only if changed from fields or if there are validators (which might change the object)
                              ) -> State:
     changed_fields = []
@@ -71,8 +69,8 @@ def edit_object_from_request(obj: M,
     return State(obj)
 
 
-class ObjectId(Generic[M], int):
-    model_class: type[M]
+class ObjectId(Generic[DjangoModelT], int):
+    model_class: type[DjangoModelT]
     request: BaseRequest
     field_name: str
 
@@ -95,7 +93,7 @@ class ObjectId(Generic[M], int):
         return core_schema.general_plain_validator_function(cls.validate)
 
     @classmethod
-    def validate(cls, input_value: Any, validation_info: ValidationInfo) -> Optional[ObjectId[M]]:
+    def validate(cls, input_value: Any, validation_info: ValidationInfo) -> Optional[ObjectId[DjangoModelT]]:
         if input_value is None:
             return None
         if not isinstance(input_value, (str, int)):
@@ -114,10 +112,10 @@ class ObjectId(Generic[M], int):
     def context_query(self) -> Q:
         return Q()
 
-    def queryset(self) -> QuerySet[M]:
+    def queryset(self) -> QuerySet[DjangoModelT]:
         return self.model_class.objects.filter(self.context_query(), pk=self)
 
-    def get(self, *args: Q, **kwargs: Any) -> M:
+    def get(self, *args: Q, **kwargs: Any) -> DjangoModelT:
         try:
             return self.queryset().get(*args, **kwargs)
         except self.model_class.DoesNotExist:
@@ -126,15 +124,15 @@ class ObjectId(Generic[M], int):
             })
 
     @cached_property
-    def obj(self) -> M:
+    def obj(self) -> DjangoModelT:
         return self.get()
 
     def apply_edit(self,
                    request: Optional[BaseRequest] = None,
                    fields: Optional[Iterable[str]] = None,  # If None we'll just take everything
                    exclude: Iterable[str] = [],  # Fields to exclude from the request
-                   const_validators: list[Callable[[M], Any]] = [],  # Validators that are guaranteed not to make any changes to the object
-                   pre_save: list[Callable[[M], Any]] = [],  # Any function that's to be run on the object pre save
+                   const_validators: list[Callable[[DjangoModelT], Any]] = [],  # Validators that are guaranteed not to make any changes to the object
+                   pre_save: list[Callable[[DjangoModelT], Any]] = [],  # Any function that's to be run on the object pre save
                    save: Optional[bool] = None,  # None means save only if changed from fields or if there are validators (which might change the object)
                    ) -> State:
 
@@ -149,5 +147,5 @@ class ObjectId(Generic[M], int):
         )
 
 
-def maybe_load(fk_field: Optional[ObjectId[M]]) -> Optional[M]:
+def maybe_load(fk_field: Optional[ObjectId[DjangoModelT]]) -> Optional[DjangoModelT]:
     return fk_field.obj if fk_field is not None else None
