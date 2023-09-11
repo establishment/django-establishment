@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, ClassVar, Callable, Any, Literal, TypeVar, Unpack, TypedDict, NotRequired
+from typing import Optional, ClassVar, Callable, Any, Literal, TypeVar, Unpack, TypedDict
 
 from django.conf import settings
 from django.core.exceptions import DisallowedHost
@@ -178,7 +178,8 @@ class BaseView:
 
         return response
 
-    def handle_exception(self, request: HttpRequest, exception: Exception) -> HttpResponse: raise NotImplementedError
+    def handle_exception(self, request: HttpRequest, exception: Exception) -> HttpResponse:
+        raise exception
 
     def process_request(self, request: HttpRequest) -> Any: raise NotImplementedError
 
