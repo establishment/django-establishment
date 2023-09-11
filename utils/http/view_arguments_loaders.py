@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from inspect import Parameter
 
 from django.http import HttpRequest
 
 from establishment.utils.argument_loader import ArgumentLoader
-from establishment.utils.http.view_context import get_raw_view_context_or_raise
+from establishment.utils.http.view_context import get_raw_view_context_or_raise, BaseViewContext
 
 
 class URLArg(str):
@@ -28,3 +30,11 @@ class DjangoRequestViewArgumentLoader(ArgumentLoader):
     def load(self, param: Parameter) -> HttpRequest:
         view_context = get_raw_view_context_or_raise()
         return view_context.raw_request
+
+
+class ViewContextArgumentLoader(ArgumentLoader):
+    def can_load_type(self, param: Parameter) -> bool:
+        return self.is_subclass_of(param, BaseViewContext)
+
+    def load(self, param: Parameter) -> BaseViewContext:
+        return get_raw_view_context_or_raise()
