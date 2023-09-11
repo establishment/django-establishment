@@ -6,6 +6,8 @@ from typing import Optional, Any, Callable
 
 from django.core.exceptions import ImproperlyConfigured
 
+from establishment.utils.http.view_context import BaseViewContext, get_raw_view_context_or_raise
+
 
 class ArgumentLoader:
     @staticmethod
@@ -54,3 +56,11 @@ def make_arguments_loader_func(handler: Callable, argument_loaders: list[Argumen
         return [matcher.load(param) for matcher, param in loaders]
 
     return load_arguments
+
+
+class ViewContextArgumentLoader(ArgumentLoader):
+    def can_load_type(self, param: Parameter) -> bool:
+        return self.is_subclass_of(param, BaseViewContext)
+
+    def load(self, param: Parameter) -> BaseViewContext:
+        return get_raw_view_context_or_raise()

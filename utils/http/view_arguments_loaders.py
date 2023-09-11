@@ -25,6 +25,6 @@ class DjangoRequestViewArgumentLoader(ArgumentLoader):
     def can_load_type(self, param: Parameter) -> bool:
         return self.is_subclass_of(param, HttpRequest)
 
-    def load(self, Parameter) -> HttpRequest:
+    def load(self, param: Parameter) -> HttpRequest:
         view_context = get_raw_view_context_or_raise()
         return view_context.raw_request
