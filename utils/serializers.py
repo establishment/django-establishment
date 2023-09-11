@@ -215,7 +215,7 @@ class DefaultSerializer:
 
     @classmethod
     def can_serialize(cls, obj: Any) -> bool:
-        return isinstance(obj, SerializableObject)
+        return isinstance(obj, SerializableObject)  # type: ignore
 
     @classmethod
     def serialize(cls, obj: Optional[SerializableObject]) -> Any:

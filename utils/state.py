@@ -42,7 +42,7 @@ class State(object):
         if isinstance(object_type_or_name, str):
             return object_type_or_name
 
-        object_type: type[StateObject] = object_type_or_name.__class__ if not inspect.isclass(object_type_or_name) else object_type_or_name
+        object_type: type[StateObject] = object_type_or_name.__class__ if not inspect.isclass(object_type_or_name) else object_type_or_name  # type: ignore
 
         if issubclass(object_type, ProxyObject) and not hasattr(object_type, "state_object_name"):
             return cls.get_object_name(object_type.wrapped_class)
@@ -76,9 +76,9 @@ class State(object):
     def get_store(self, object_type: StateObjectType) -> ObjectStore:
         class_key = self.get_object_name(object_type)
         if class_key not in self.object_caches:
-            if isinstance(object_type, StateObject):
-                object_type = object_type.__class__
-            self.object_caches[class_key] = ObjectStore(object_type)
+            if not inspect.isclass(object_type):
+                object_type = object_type.__class__  # type: ignore
+            self.object_caches[class_key] = ObjectStore(object_type)  # type: ignore
         return self.object_caches[class_key]
 
     def remove_store(self, object_type: StateObjectType):
@@ -91,7 +91,7 @@ class State(object):
 
     def get(self, object_type: StateObjectType, id: IdType) -> StateObject:
         object_store = self.get_store(object_type)
-        return object_store.get(id)
+        return object_store.get(id)  # type: ignore
 
     def add(self, *objects: StateObjectList):
         if len(objects) != 1:
@@ -101,11 +101,11 @@ class State(object):
         obj = objects[0]
         if obj is None:
             return
-        if not isinstance(obj, StateObject) and hasattr(obj, "__iter__"):  # Ugh, terrible condition
+        if not isinstance(obj, StateObject) and hasattr(obj, "__iter__"):  # type: ignore # Ugh, terrible condition
             self.add(*obj)
             return
         # TODO These should all be added with the same timestamp, sync this top-level
-        store = self.get_store(obj)
+        store = self.get_store(obj)  # type: ignore
         store.add(obj)
 
     def add_delete_event(self, obj: StateObject):
