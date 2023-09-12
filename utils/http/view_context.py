@@ -7,6 +7,7 @@ from django.utils.datastructures import MultiValueDict
 
 from establishment.utils.errors import InternalServerError
 from establishment.utils.http.request import BaseRequest
+from establishment.utils.http.request_parser import parse_request_data
 
 
 class BaseViewContext:
@@ -15,7 +16,7 @@ class BaseViewContext:
 
         self.raw_request = raw_request
         self.raw_body: Optional[bytes] = None
-        self.data: Optional[dict[str, Any]] = None
+        self.data: dict[str, Any] = dict()
         self.files: Optional[MultiValueDict] = None
 
         self.view: Optional[BaseView] = None
@@ -23,6 +24,12 @@ class BaseViewContext:
         self.view_kwargs: dict[str, Any] = {}
         self.typed_view_args: list[Any] = []
         self.typed_request: Optional[BaseRequest] = None
+
+    def parse_request(self):
+        raw_body, data, files = parse_request_data(self.raw_request)
+        self.raw_body = raw_body
+        self.data = data
+        self.files = files
 
     @cached_property
     def ip(self) -> str:
