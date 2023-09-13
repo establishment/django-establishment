@@ -46,9 +46,8 @@ class BaseView:
 
     # Ensure that the incoming request is permitted or raise an error
     def validate_request(self, request: HttpRequest):
-        from establishment.utils.http.view_context import get_raw_view_context
-        view_context = get_raw_view_context()
-        assert view_context is not None
+        from establishment.utils.http.view_context import BaseViewContext
+        view_context = BaseViewContext.get()
 
         # Check the host
         try:

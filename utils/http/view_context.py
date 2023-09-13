@@ -81,14 +81,3 @@ class BaseViewContext:
 
 
 _current_view_context: ContextVar[Optional[BaseViewContext]] = ContextVar("current_view_context", default=None)
-
-
-def get_raw_view_context() -> Optional[BaseViewContext]:
-    return _current_view_context.get()
-
-
-def get_raw_view_context_or_raise() -> BaseViewContext:
-    view_context = get_raw_view_context()
-    if view_context is None:
-        raise InternalServerError
-    return view_context
