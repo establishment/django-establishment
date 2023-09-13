@@ -4,7 +4,7 @@ from django.http import HttpRequest, HttpResponse
 from django.utils.deprecation import MiddlewareMixin
 
 from establishment.utils.errors import UnsupportedMediaType, ParseError
-from establishment.utils.http.view_context import BaseViewContext, _current_view_context, get_raw_view_context_or_raise
+from establishment.utils.http.view_context import BaseViewContext
 from establishment.utils.http.view_handler import BaseView
 
 
