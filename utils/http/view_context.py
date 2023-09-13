@@ -8,12 +8,11 @@ from django.utils.datastructures import MultiValueDict
 from establishment.utils.errors import InternalServerError
 from establishment.utils.http.request import BaseRequest
 from establishment.utils.http.request_parser import parse_request_data
+from establishment.utils.http.view_handler import BaseView
 
 
 class BaseViewContext:
     def __init__(self, raw_request: HttpRequest):
-        from establishment.utils.http.view_handler import BaseView
-
         self.raw_request = raw_request
         self.raw_body: Optional[bytes] = None
         self.data: dict[str, Any] = dict()
@@ -30,6 +29,11 @@ class BaseViewContext:
         self.raw_body = raw_body
         self.data = data
         self.files = files
+
+    def set_view(self, view_func: BaseView, view_args: tuple[Any], view_kwargs: dict[str, Any]):
+        self.view = view_func
+        self.view_args = view_args
+        self.view_kwargs = view_kwargs
 
     @cached_property
     def ip(self) -> str:

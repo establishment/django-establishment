@@ -11,7 +11,6 @@ from django.urls import URLPattern, re_path, path
 from establishment.utils.errors import BadRequest, HTTPMethodNotAllowed, Throttled
 from establishment.utils.http.permissions import Permission, allow_any
 from establishment.utils.http.renderers import to_pure_camel_case_json
-from establishment.utils.http.view_context import get_raw_view_context
 from establishment.utils.throttling import Throttle
 
 
@@ -148,6 +147,7 @@ class BaseView:
 
     # Ensure that the incoming request is permitted or raise an error
     def validate_request(self, request: HttpRequest):
+        from establishment.utils.http.view_context import get_raw_view_context
         view_context = get_raw_view_context()
         assert view_context is not None
 
