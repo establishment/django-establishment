@@ -1,43 +1,88 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Optional, ClassVar, Callable, Any, Literal, TypeVar, Unpack, TypedDict
+from typing import Callable, Any, ClassVar, Optional, Unpack
 
 from django.conf import settings
 from django.core.exceptions import DisallowedHost
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import URLPattern, re_path, path
 
+from establishment.utils.bound_types import CallableT
 from establishment.utils.errors import BadRequest, HTTPMethodNotAllowed, Throttled
 from establishment.utils.http.permissions import Permission, allow_any
 from establishment.utils.http.renderers import to_pure_camel_case_json
+from establishment.utils.http.view_config import ViewConfig, ViewMethod, ViewConfigOverrides, add_view_config
 from establishment.utils.throttling import Throttle
 
 
-ViewMethod = Literal["GET", "POST"]
+class BaseView:
+    handle_exception: Callable[[HttpRequest, Exception], HttpResponse]  # Should be overriden when you define your view class.
 
+    def __init__(self, config: ViewConfig, func: Callable, view_set: ViewSet):
+        self.config = config
+        self.func = func
+        self.view_set = view_set
 
-#  TODO @establify no dataclass
-@dataclass
-class ViewConfig:
-    method: ViewMethod = "GET"
-    permissions: Optional[Permission] = None
-    throttle: Optional[Throttle] = None
-    url_path: Optional[str] = None
-    dev_only: Optional[bool] = None
-    with_read_right: bool = False  # TODO @establify with_read_rights should be a permission mixin
-    extra: dict[str, Any] = field(default_factory=dict)
+        assert config.permissions is not None
+        assert config.throttle is not None
 
+        # TODO @establify ensure these are filled in
+        self.method = config.method
+        self.permissions = config.permissions
+        self.throttle = config.throttle
+        self.url_path = config.url_path if config.url_path is not None else func.__name__
+        self.dev_only = config.dev_only
 
-# What can be overriden per individual view
-# The method is extra
-class ViewConfigOverrides(TypedDict, total=False):
-    permissions: Permission
-    throttle: Throttle
-    url_path: str
-    dev_only: bool
-    with_read_right: bool
-    extra: dict
+        self.load_view_arguments: Callable[[], list[Any]] = self.make_argument_loader()
+
+    def __call__(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        try:
+            self.validate_request(request)
+            with self.permissions.get_permission_filter():
+                response = self.process_request(request)
+                return self.format_response(response)
+        except Exception as exception:
+            return BaseView.handle_exception(request, exception)
+
+    # Ensure that the incoming request is permitted or raise an error
+    def validate_request(self, request: HttpRequest):
+        from establishment.utils.http.view_context import get_raw_view_context
+        view_context = get_raw_view_context()
+        assert view_context is not None
+
+        # Check the host
+        try:
+            view_context.raw_request.get_host()
+        except DisallowedHost:
+            raise BadRequest
+
+        # Check the method
+        view_method = (view_context.raw_request.method or "").upper()
+        if self.method is not None and view_method != self.method:
+            raise HTTPMethodNotAllowed(f"HTTP Method {view_method} not allowed")
+
+        # Check throttling -- Should also include per user
+        if not settings.DISABLE_THROTTLING:
+            if self.throttle.throttle_request(view_context.ip):
+                raise Throttled
+
+        # Check permission filters
+        self.permissions.check_permission()
+
+    def format_response(self, response: Any) -> HttpResponse:
+        if not isinstance(response, HttpResponse):
+            # If the view does not return an HTTP request, assume it's JSON-serializable.
+            response = JsonResponse(to_pure_camel_case_json(response))
+
+        # Add the Content-Length header to responses if not already set.
+        if not response.has_header("Content-Length"):
+            response["Content-Length"] = str(len(response.content))
+
+        return response
+
+    def process_request(self, request: HttpRequest) -> Any: raise NotImplementedError
+
+    def make_argument_loader(self) -> Callable[[], list[Any]]: raise NotImplementedError
 
 
 class ViewSet:
@@ -116,85 +161,3 @@ class ViewSet:
                 urlpatterns.append(django_path_func(url_path[:-1], view))
 
         return urlpatterns
-
-
-class BaseView:
-    def __init__(self, config: ViewConfig, func: Callable, view_set: ViewSet):
-        self.config = config
-        self.func = func
-        self.view_set = view_set
-
-        assert config.permissions is not None
-        assert config.throttle is not None
-
-        # TODO @establify ensure these are filled in
-        self.method = config.method
-        self.permissions = config.permissions
-        self.throttle = config.throttle
-        self.url_path = config.url_path if config.url_path is not None else func.__name__
-        self.dev_only = config.dev_only
-
-        self.load_view_arguments: Callable[[], list[Any]] = self.make_argument_loader()
-
-    def __call__(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        try:
-            self.validate_request(request)
-            with self.permissions.get_permission_filter():
-                response = self.process_request(request)
-                return self.format_response(response)
-        except Exception as exception:
-            return self.handle_exception(request, exception)
-
-    # Ensure that the incoming request is permitted or raise an error
-    def validate_request(self, request: HttpRequest):
-        from establishment.utils.http.view_context import get_raw_view_context
-        view_context = get_raw_view_context()
-        assert view_context is not None
-
-        # Check the host
-        try:
-            view_context.raw_request.get_host()
-        except DisallowedHost:
-            raise BadRequest
-
-        # Check the method
-        view_method = (view_context.raw_request.method or "").upper()
-        if self.method is not None and view_method != self.method:
-            raise HTTPMethodNotAllowed(f"HTTP Method {view_method} not allowed")
-
-        # Check throttling -- Should also include per user
-        if not settings.DISABLE_THROTTLING:
-            if self.throttle.throttle_request(view_context.ip):
-                raise Throttled
-
-        # Check permission filters
-        self.permissions.check_permission()
-
-    def format_response(self, response: Any) -> HttpResponse:
-        if not isinstance(response, HttpResponse):
-            # If the view does not return an HTTP request, assume it's JSON-serializable.
-            response = JsonResponse(to_pure_camel_case_json(response))
-
-        # Add the Content-Length header to responses if not already set.
-        if not response.has_header("Content-Length"):
-            response["Content-Length"] = str(len(response.content))
-
-        return response
-
-    def handle_exception(self, request: HttpRequest, exception: Exception) -> HttpResponse:
-        raise exception
-
-    def process_request(self, request: HttpRequest) -> Any: raise NotImplementedError
-
-    def make_argument_loader(self) -> Callable[[], list[Any]]: raise NotImplementedError
-
-
-CallableT = TypeVar("CallableT", bound=Callable)
-
-
-def add_view_config(view_config: ViewConfig) -> Callable[[CallableT], CallableT]:
-    def wrapper(view_set_method: CallableT) -> CallableT:
-        setattr(view_set_method, "view_config", view_config)
-        return view_set_method
-
-    return wrapper

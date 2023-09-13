@@ -6,7 +6,6 @@ from django.utils.deprecation import MiddlewareMixin
 from establishment.utils.errors import UnsupportedMediaType, ParseError
 from establishment.utils.http.view_context import BaseViewContext, _current_view_context, get_raw_view_context_or_raise
 from establishment.utils.http.view_handler import BaseView
-from utils.http.error_response import error_response
 
 
 class BaseViewContextMiddleware(MiddlewareMixin):
@@ -18,8 +17,7 @@ class BaseViewContextMiddleware(MiddlewareMixin):
         try:
             view_context.parse_request()
         except (UnsupportedMediaType, ParseError) as exception:
-            # TODO @establify centralize all instances of error_response usage
-            return error_response(request, exception)
+            return BaseView.handle_exception(request, exception)
 
         _current_view_context.set(view_context)
 
