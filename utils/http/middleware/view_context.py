@@ -19,19 +19,17 @@ class BaseViewContextMiddleware(MiddlewareMixin):
         except (UnsupportedMediaType, ParseError) as exception:
             return BaseView.handle_exception(request, exception)
 
-        _current_view_context.set(view_context)
-
         return None
 
     # Called right before the view
     def process_view(self, request: HttpRequest, view_func: BaseView, view_args: tuple[Any], view_kwargs: dict[str, Any]):
-        view_context = get_raw_view_context_or_raise()
+        view_context = BaseViewContext.get()
         view_context.set_view(view_func, view_args, view_kwargs)
 
     def process_response(self, request: HttpRequest, response: HttpResponse) -> HttpResponse:
-        _current_view_context.set(None)
+        BaseViewContext.clear()
         return response
 
     def process_exception(self, request: HttpRequest, exception: Exception):
-        _current_view_context.set(None)
+        BaseViewContext.clear()
         return None

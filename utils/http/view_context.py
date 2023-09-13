@@ -1,6 +1,6 @@
 from contextvars import ContextVar
 from functools import cached_property
-from typing import Optional, Any
+from typing import Optional, Any, Self
 
 from django.http import HttpRequest
 from django.utils.datastructures import MultiValueDict
@@ -54,6 +54,30 @@ class BaseViewContext:
         if isinstance(user_agent_string, bytes):
             user_agent_string = user_agent_string.decode("utf-8")
         return user_agent_string or ""
+
+    @classmethod
+    def get(cls) -> Self:
+        view_context = _current_view_context.get()
+        if not isinstance(view_context, cls):
+            raise InternalServerError
+        return view_context
+
+    @classmethod
+    def maybe_get(cls) -> Optional[Self]:
+        view_context = _current_view_context.get()
+        if view_context is not None and not isinstance(view_context, cls):
+            raise InternalServerError
+        return view_context
+
+    @classmethod
+    def instantiate(cls, raw_request: HttpRequest) -> Self:
+        view_context = cls(raw_request)
+        _current_view_context.set(view_context)
+        return view_context
+
+    @classmethod
+    def clear(cls):
+        _current_view_context.set(None)
 
 
 _current_view_context: ContextVar[Optional[BaseViewContext]] = ContextVar("current_view_context", default=None)
