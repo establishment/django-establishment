@@ -9,17 +9,18 @@ import sys
 import time
 
 import datetime
+from typing import Callable, Any
 
 
 class ThreadHandler(object):
-    def __init__(self, name, callable, *args, **kwargs):
+    def __init__(self, name: str, func: Callable, *args: Any, **kwargs: Any):
         self.name = name
         # Set up exception handling
         self.exception_info = None
 
         def wrapper(*args, **kwargs):
             try:
-                callable(*args, **kwargs)
+                func(*args, **kwargs)
             except Exception:
                 # TODO mciucu reconsider what we do here (maybe we want to autorestart?)
                 self.exception_info = sys.exc_info()
