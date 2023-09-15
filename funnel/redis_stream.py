@@ -58,7 +58,7 @@ class RedisStreamPublisher(object):
     message_timeout = 60 * 60 * 5   # Default expire time - 5 hours
     global_connection = None
 
-    def __init__(self, stream_name, connection=None, persistence=True, raw=False, expire_time=None):
+    def __init__(self, stream_name: str, connection=None, persistence=True, raw=False, expire_time=None):
         if not connection:
             connection = RetryRedis(connection_pool=get_default_redis_connection_pool())
         self.connection = connection
@@ -71,25 +71,25 @@ class RedisStreamPublisher(object):
             self.expire_time = RedisStreamPublisher.message_timeout
         # TODO: create the publish connection here
 
-    def publish(self, message):
+    def publish(self, message: Any) -> str:
         return RedisStreamPublisher.publish_to_stream(self.name, message, connection=self.connection,
                                                       persistence=self.persistence, raw=self.raw,
                                                       expire_time=self.expire_time)
 
-    def publish_json(self, message):
+    def publish_json(self, message: Any) -> str:
         return RedisStreamPublisher.publish_to_stream(self.name, message, connection=self.connection,
                                                       persistence=self.persistence, raw=self.raw,
                                                       expire_time=self.expire_time)
 
     @classmethod
-    def get_global_connection(cls):
+    def get_global_connection(cls) -> StrictRedis:
         if cls.global_connection is None:
             cls.global_connection = StrictRedis(connection_pool=get_default_redis_connection_pool())
         return cls.global_connection
 
     @classmethod
-    def publish_to_stream(cls, stream_name, message, serializer_class=StreamJSONEncoder,
-                          connection=None, persistence=True, raw=False, expire_time=None):
+    def publish_to_stream(cls, stream_name: str, message: Any, serializer_class=StreamJSONEncoder,
+                          connection: Optional[StrictRedis] = None, persistence: bool = True, raw: bool = False, expire_time: int = None) -> str:
         if connection is None:
             connection = cls.get_global_connection()
         original_message = message
@@ -498,7 +498,7 @@ class RedisStreamSubscriber(object):
     def get_file_descriptor(self):
         return self.subscription.connection._sock.fileno()
 
-    def subscribe(self, stream_name):
+    def subscribe(self, stream_name: str) -> Any:
         """
         Subscribe to a redis stream
         :param stream_name:
@@ -506,11 +506,11 @@ class RedisStreamSubscriber(object):
         """
         return self.subscription.subscribe(stream_name)
 
-    def unsubscribe(self, stream_name):
+    def unsubscribe(self, stream_name: str):
         self.subscription.unsubscribe(stream_name)
 
     @property
-    def num_streams(self):
+    def num_streams(self) -> int:
         return len(self.subscription.channels)
 
     def close(self):
@@ -525,7 +525,7 @@ class CachedRedisStreamPublisher(RedisStreamPublisher):
         self.store_cache = {}
         self.last_message = {}
 
-    def check_and_update_cache(self, message: Any) -> str:
+    def check_and_update_cache(self, message: Any) -> bool:
         if isinstance(message, str):
             # TODO: we don't support cache for strings right now
             return False
