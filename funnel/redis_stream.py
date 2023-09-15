@@ -1,7 +1,7 @@
 import json
 import time
 import threading
-from typing import Union
+from typing import Union, Any, Optional
 
 from django.conf import settings
 from redis import StrictRedis, ConnectionPool
@@ -14,7 +14,7 @@ from establishment.funnel.encoder import StreamJSONEncoder
 redis_connection_pool = None
 
 
-def redis_response_to_json(data):
+def redis_response_to_json(data: Optional[Union[str, bytes]]) -> Any:
     if data is None:
         return None
 
@@ -24,7 +24,7 @@ def redis_response_to_json(data):
     return json.loads(data)
 
 
-def get_default_redis_connection_pool():
+def get_default_redis_connection_pool() -> ConnectionPool:
     global redis_connection_pool
     if redis_connection_pool is None:
         redis_connection_pool = ConnectionPool(**settings.REDIS_CONNECTION)
@@ -45,7 +45,7 @@ class RetryRedis(StrictRedis):
                     raise e
 
 
-def simple_stream_publish(stream_name: str, message: Union[str, dict]):
+def simple_stream_publish(stream_name: str, message: Union[str, dict]) -> None:
     connection = RetryRedis(connection_pool=get_default_redis_connection_pool())
     
     if isinstance(message, dict):
@@ -489,7 +489,7 @@ class RedisStreamSubscriber(object):
     def parse_response(self):
         return self.subscription.parse_response()
 
-    def next_message(self):
+    def next_message(self) -> tuple[Optional[bytes], Optional[bytes]]:
         raw_message = self.parse_response()
         if len(raw_message) == 3 and raw_message[0] == b'message':
             return (raw_message[2], raw_message[1])
@@ -525,7 +525,7 @@ class CachedRedisStreamPublisher(RedisStreamPublisher):
         self.store_cache = {}
         self.last_message = {}
 
-    def check_and_update_cache(self, message):
+    def check_and_update_cache(self, message: Any) -> str:
         if isinstance(message, str):
             # TODO: we don't support cache for strings right now
             return False
@@ -544,12 +544,12 @@ class CachedRedisStreamPublisher(RedisStreamPublisher):
                 self.store_cache[cache_key] = message
                 return False
 
-    def publish(self, message):
+    def publish(self, message: Any) -> bool:
         if self.check_and_update_cache(message):
             return True
         return super().publish(message)
 
-    def publish_json(self, message):
+    def publish_json(self, message: Any) -> bool:
         if self.check_and_update_cache(message):
             return True
         return super().publish_json(message)

@@ -1,7 +1,8 @@
 from importlib import import_module
+from typing import Any
 
 
-def stringify(input):
+def stringify(input: Any) -> Any:
     if isinstance(input, dict):
         return {stringify(key): stringify(value) for key, value in input.items()}
     elif isinstance(input, list):
@@ -14,7 +15,7 @@ def stringify(input):
         return input.decode(encoding="UTF-8")
 
 
-def serializify(input):
+def serializify(input: Any) -> Any:
     if isinstance(input, dict):
         return {key: serializify(value) for key, value in input.items()}
     elif isinstance(input, list):
@@ -25,7 +26,7 @@ def serializify(input):
         return input
 
 
-def same_dict(d1, d2):
+def same_dict(d1: dict, d2: dict) -> bool:
     d1_keys = set(d1.keys())
     d2_keys = set(d2.keys())
     if d1_keys != d2_keys:
@@ -39,7 +40,7 @@ def same_dict(d1, d2):
     return True
 
 
-def jsonify(obj):
+def jsonify(obj: Any) -> Any:
     if isinstance(obj, str):
         return obj
     if isinstance(obj, int):
@@ -54,7 +55,7 @@ def jsonify(obj):
     return obj.to_json()
 
 
-def import_module_attribute(object_path, default=None):
+def import_module_attribute(object_path: str, default: Any=None) -> Any:
     """
     Import from a module path and return the desired attribute/class
     """

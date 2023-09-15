@@ -1,6 +1,7 @@
 import datetime
 import json
 import string
+from typing import Any
 
 from establishment.utils.serializers import DefaultSerializer
 from django.conf import settings
@@ -10,7 +11,7 @@ class StreamJSONEncoder(json.JSONEncoder):
     """
     Class to serialized json objects that go to the redis stream
     """
-    def default(self, obj):
+    def default(self, obj: Any) -> Any:
         if DefaultSerializer.can_serialize(obj):
             return DefaultSerializer.serialize(obj)
         elif hasattr(obj, "to_json"):
@@ -30,7 +31,7 @@ class StreamJSONEncoder(json.JSONEncoder):
             super().default(obj)
 
     @staticmethod
-    def encode_bytes_as_hex(bytes_blob):
+    def encode_bytes_as_hex(bytes_blob: bytes) -> str:
         hex_characters = []
         for byte in bytes_blob:
             hex_characters.append(string.hexdigits[byte >> 4])
