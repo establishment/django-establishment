@@ -6,9 +6,10 @@ import dataclasses
 from typing import Callable, Any
 
 from django.utils import timezone
+from django.conf import settings
 
 
-from establishment.utils.convert import to_camel_case
+from establishment.utils.convert import to_camel_case, bytes_to_hex
 from establishment.utils.object_cache import ObjectStore
 from establishment.utils.serializers import JSONFieldValueDict, JSONFieldValueList
 
@@ -27,6 +28,8 @@ def normalize_to_primitive_type(obj: Any) -> Any:
     if obj is None:
         return obj
     if isinstance(obj, datetime.datetime):
+        if hasattr(settings, "FORMAT_DATE_TO_FLOAT") and settings.FORMAT_DATE_TO_FLOAT:
+            return obj.timestamp()
         representation = obj.isoformat()
         if representation.endswith("+00:00"):
             representation = representation[:-6] + "Z"
@@ -57,6 +60,11 @@ def normalize_to_primitive_type(obj: Any) -> Any:
         return DefaultSerializer.serialize(obj)
     if dataclasses.is_dataclass(obj):
         return dataclasses.asdict(obj)
+
+    if isinstance(obj, bytes):
+        return bytes_to_hex(obj)
+    if isinstance(obj, memoryview):
+        return bytes_to_hex(obj.tobytes())
 
     # Any integer that won't fit in an IEEE double can't be handled by Javascript
     if isinstance(obj, int) and abs(obj) >= 2**52:
