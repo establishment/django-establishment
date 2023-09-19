@@ -1,7 +1,8 @@
-import {StoreObject} from "state/Store";
-import {UI, ErrorModal} from "UI";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {ErrorModal} from "../../../stemjs/src/ui/modal/Modal.jsx";
+import {StoreObject} from "../../../stemjs/src/state/Store.js";
 
-import {ErrorMessageStore, ErrorMessage} from "state/ErrorMessageStore";
+import {ErrorMessageStore, ErrorMessage} from "./state/ErrorMessageStore.js";
 
 const ErrorHandlers = {};
 

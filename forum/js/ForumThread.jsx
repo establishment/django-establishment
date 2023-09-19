@@ -1,21 +1,15 @@
-import {
-    ActionModal,
-    ActionModalButton,
-    Button,
-    Input,
-    Link,
-    Panel,
-    Router,
-    TimePassedSpan,
-    UI,
-    registerStyle,
-    Level,
-    Size
-} from "UI";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {ActionModal, ActionModalButton} from "../../../stemjs/src/ui/modal/Modal.jsx";
+import {Input} from "../../../stemjs/src/ui/input/Input.jsx";
+import {Link} from "../../../stemjs/src/ui/primitives/Link.jsx";
+import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
+import {Router} from "../../../stemjs/src/ui/Router.jsx";
+import {TimePassedSpan} from "../../../stemjs/src/ui/misc/TimePassedSpan.jsx";
+import {registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
+import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {NOOP_FUNCTION} from "../../../stemjs/src/base/Utils.js";
 import {ConcentricCirclesLoadingScreen} from "../../../stemjs/src/ui/ConcentricCirclesLoadingScreen.jsx";
-
 import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";
 import {LoginModal} from "../../accounts/js/LoginModal.jsx";
 import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer.jsx";

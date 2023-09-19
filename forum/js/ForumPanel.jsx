@@ -1,4 +1,9 @@
-import {UI, Panel, Link, Route, TimePassedSpan, registerStyle} from "UI";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
+import {Link} from "../../../stemjs/src/ui/UIPrimitives.jsx";
+import {Route} from "../../../stemjs/src/ui/Router.jsx";
+import {registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
+import {TimePassedSpan} from "../../../stemjs/src/ui/misc/TimePassedSpan.jsx";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {slugify} from "../../../stemjs/src/base/Utils.js";
 import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
