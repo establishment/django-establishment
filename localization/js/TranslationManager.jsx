@@ -1,7 +1,7 @@
 // TODO: this whole file needs a refactoring
 import {UI} from "../../../stemjs/src/ui/UIBase.js";
 import {TabArea} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
-import {TableRow} from "../../../stemjs/src/ui/table/Table.jsx";
+import {Table, TableRow} from "../../../stemjs/src/ui/table/Table.jsx";
 import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
 import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {FileInput} from "../../../stemjs/src/ui/input/Input.jsx";

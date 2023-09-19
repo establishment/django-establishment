@@ -1,4 +1,5 @@
 import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
 import {ActionModal, ActionModalButton} from "../../../stemjs/src/ui/modal/Modal.jsx";
 import {Input} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Link} from "../../../stemjs/src/ui/primitives/Link.jsx";
