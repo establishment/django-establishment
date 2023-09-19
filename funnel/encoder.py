@@ -3,6 +3,7 @@ import json
 import string
 from typing import Any
 
+from establishment.utils.convert import bytes_to_hex
 from establishment.utils.serializers import DefaultSerializer
 from django.conf import settings
 
@@ -24,19 +25,11 @@ class StreamJSONEncoder(json.JSONEncoder):
                 result = result[:-6] + "Z"
             return result
         elif isinstance(obj, bytes):
-            return self.encode_bytes_as_hex(obj)
+            return bytes_to_hex(obj)
         elif isinstance(obj, memoryview):
-            return self.encode_bytes_as_hex(obj.tobytes())
+            return bytes_to_hex(obj.tobytes())
         else:
             super().default(obj)
-
-    @staticmethod
-    def encode_bytes_as_hex(bytes_blob: bytes) -> str:
-        hex_characters = []
-        for byte in bytes_blob:
-            hex_characters.append(string.hexdigits[byte >> 4])
-            hex_characters.append(string.hexdigits[byte & 15])
-        return "".join(hex_characters)
 
     @classmethod
     def dumps(cls, obj):
