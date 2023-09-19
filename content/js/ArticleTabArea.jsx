@@ -1,7 +1,7 @@
-import {Dispatchable} from "base/Dispatcher";
-import {UI, Router, TabArea, BasicTabTitle} from "ui/All";
+import {Dispatchable} from "../../../stemjs/src/base/Dispatcher.js";
+import {UI, Router, TabArea, BasicTabTitle} from "../../../stemjs/src/ui/All.js";
 
-import {ArticleSwitcher} from "./ArticleRenderer";
+import {ArticleSwitcher} from "./ArticleRenderer.jsx";
 
 
 class ArticleTabArea extends TabArea {

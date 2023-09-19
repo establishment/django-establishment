@@ -1,4 +1,8 @@
-import {UI, Orientation, Panel, Router, registerStyle} from "UI";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {Orientation} from "../../../stemjs/src/ui/Constants.js";
+import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
+import {Router} from "../../../stemjs/src/ui/Router.jsx";
+import {registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
 import {Dispatcher} from "../../../stemjs/src/base/Dispatcher.js";
 
 import {ArticleSwitcher} from "../../content/js/ArticleRenderer.jsx";

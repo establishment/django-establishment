@@ -1,9 +1,11 @@
-import {UI, TabArea, Panel} from "UI";
-import {GlobalStyle} from "ui/GlobalStyle";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {TabArea} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
+import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
+import {GlobalStyle} from "../../../stemjs/src/ui/GlobalStyle.js";
 
-import {EmailGatewayWidget} from "EmailGatewayWidget";
-import {EmailCampaignWidget} from "EmailCampaignWidget";
-import {EmailTemplateWidget} from "EmailTemplateWidget";
+import {EmailGatewayWidget} from "./EmailGatewayWidget.jsx";
+import {EmailCampaignWidget} from "./EmailCampaignWidget.jsx";
+import {EmailTemplateWidget} from "./EmailTemplateWidget.jsx";
 
 class EmailManager extends Panel {
     extraNodeAttributes(attr) {

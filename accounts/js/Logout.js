@@ -1,5 +1,5 @@
-import {Ajax} from "base/Ajax";
-import {Dispatcher} from "base/Dispatcher";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {Dispatcher} from "../../../stemjs/src/base/Dispatcher.js";
 
 export function logout() {
     Dispatcher.Global.dispatch("logout");

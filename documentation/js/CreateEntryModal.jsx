@@ -1,7 +1,11 @@
-import {Ajax} from "base/Ajax";
-import {UI, ActionModal, ActionModalButton, Form, FormField, TextInput, Select} from "UI";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {ActionModal, ActionModalButton} from "../../../stemjs/src/ui/modal/Modal.jsx";
+import {Form, FormField} from "../../../stemjs/src/ui/form/Form.jsx";
+import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 
-import {DocumentationEntryStore} from "./state/DocumentationStore";
+import {DocumentationEntryStore} from "./state/DocumentationStore.js";
 
 export class EditEntryModal extends ActionModal {
     getTitle() {

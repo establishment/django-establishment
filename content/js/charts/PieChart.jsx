@@ -1,7 +1,7 @@
-import * as math from "math";
-import {Transition} from "ui/Transition";
-import {UI} from "ui/UI";
-import {SVG} from "ui/SVG";
+import {UI} from "../../../../stemjs/src/ui/UIBase.js";
+import {Transition} from "../../../../stemjs/src/ui/Transition.js";
+import {SVG} from "../../../../stemjs/src/ui/svg/SVGBase.js";
+import * as math from "../../../../stemjs/src/math.js";
 
 class PieChartSector extends SVG.Group {
     getDefaultOptions() {

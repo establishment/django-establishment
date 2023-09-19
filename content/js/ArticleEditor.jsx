@@ -13,7 +13,7 @@ import {
     TextInput,
     Level,
     UI,
-} from "ui/All";
+} from "../../../stemjs/src/ui/All.js";
 import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
 import {Language} from "../../localization/js/state/LanguageStore.js";
 

@@ -1,7 +1,7 @@
-import {UI} from "ui/UI";
-import {Modal} from "ui/modal/Modal";
-import {Login} from "Login";
-import {Device} from "base/Device";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {Modal} from "../../../stemjs/src/ui/modal/Modal.jsx";
+import {Login} from "./Login.jsx";
+import {Device} from "../../../stemjs/src/base/Device.js";
 
 class LoginModal extends Modal {
     getModalWindowStyle() {

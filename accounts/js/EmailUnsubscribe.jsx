@@ -1,5 +1,6 @@
-import {UI, Link} from "UI";
-import {ButtonStyle} from "ui/button/ButtonStyle";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {Link} from "../../../stemjs/src/ui/primitives/Link.jsx";
+import {ButtonStyle} from "../../../stemjs/src/ui/button/ButtonStyle.js";
 
 class EmailUnsubscribe extends UI.Element {
     extraNodeAttributes(attr) {

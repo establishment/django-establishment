@@ -1,10 +1,21 @@
-import {UI, Level, Orientation, SortableTable, Button, SectionDivider, Panel, TableRow, ActionModal, FormField, TextInput, Select, TextArea} from "UI";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {Level, Orientation} from "../../../stemjs/src/ui/Constants.js";
+import {SortableTable} from "../../../stemjs/src/ui/table/SortableTable.jsx";
+import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
+import {SectionDivider} from "../../../stemjs/src/ui/section-divider/SectionDivider.jsx";
+import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
+import {TableRow} from "../../../stemjs/src/ui/table/Table.jsx";
+import {ActionModal} from "../../../stemjs/src/ui/modal/Modal.jsx";
+import {FormField} from "../../../stemjs/src/ui/form/Form.jsx";
+import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
+import {TextArea} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {Language} from "../../localization/js/state/LanguageStore.js";
-import {EmailGatewayStore} from "state/EmailGatewayStore";
-import {EmailCampaignStore} from "state/EmailCampaignStore";
-import {EmailTemplateStore} from "state/EmailTemplateStore";
-import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw";
+import {EmailGatewayStore} from "state/EmailGatewayStore.js";
+import {EmailCampaignStore} from "state/EmailCampaignStore.js";
+import {EmailTemplateStore} from "state/EmailTemplateStore.js";
+import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
 
 class EmailTemplateModal extends ActionModal {
     constructor(options) {

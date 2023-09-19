@@ -1,5 +1,5 @@
-import {Device} from "base/Device";
-import {UI, FloatingWindow, Direction, Panel, Button} from "ui/All";
+import {Device} from "../../../stemjs/src/base/Device.js";
+import {UI, FloatingWindow, Direction, Panel, Button} from "../../../stemjs/src/ui/All.js";
 
 export class BasePopup extends FloatingWindow {
     static bodyPopups = new Set();

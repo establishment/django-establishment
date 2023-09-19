@@ -1,11 +1,21 @@
 // TODO: this whole file needs a refactoring
-import {FileSaver} from "base/FileSaver";
-import {Ajax} from "base/Ajax";
-import {NOOP_FUNCTION} from "base/Utils";
-import {UI, TabArea, TableRow, Table, TextInput, Button, Select, FileInput, CheckboxInput, TextArea, Panel, Level} from "UI";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {TabArea} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
+import {TableRow} from "../../../stemjs/src/ui/table/Table.jsx";
+import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
+import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {FileInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {CheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {TextArea} from "../../../stemjs/src/ui/input/Input.jsx";
+import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
+import {Level} from "../../../stemjs/src/ui/Constants.js";
+import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
+import {FileSaver} from "../../../stemjs/src/base/FileSaver.js";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {NOOP_FUNCTION} from "../../../stemjs/src/base/Utils.js";
 
-import {TranslationKeyStore, TranslationEntryStore} from "./state/TranslationStore";
-import {Language} from "./state/LanguageStore";
+import {TranslationKeyStore, TranslationEntryStore} from "./state/TranslationStore.js";
+import {Language} from "./state/LanguageStore.js";
 
 function ajaxCall(request, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
     Ajax.postJSON("/edit_translation/", request).then(onSuccess, onError);

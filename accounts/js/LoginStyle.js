@@ -1,5 +1,5 @@
-import {StyleSheet, styleRule} from "ui/UI";
-import {Device} from "base/Device";
+import {StyleSheet, styleRule} from "../../../stemjs/src/ui/Style.js";
+import {Device} from "../../../stemjs/src/base/Device.js";
 
 
 let loginHeight = 500;

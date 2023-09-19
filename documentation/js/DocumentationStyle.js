@@ -1,4 +1,4 @@
-import {StyleSheet, styleRule} from "ui/UI";
+import {StyleSheet, styleRule} from "../../../stemjs/src/ui/Style.js";
 
 export class DocumentationStyle extends StyleSheet {
     constructor() {

@@ -1,11 +1,11 @@
-import {Ajax} from "base/Ajax";
-import {CallThrottler} from "base/Utils";
-import {MarkupRenderer} from "markup/MarkupRenderer";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {CallThrottler} from "../../../stemjs/src/base/Utils.js";
+import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer.js";
 import {UI, Switcher, Level, Button, registerStyle, StyleSheet, styleRule,
-        Form, TextArea, TextInput, RadioInput, CheckboxInput, Modal, ActionModalButton} from "ui/All";
-import {StateDependentElement} from "ui/StateDependentElement";
+        Form, TextArea, TextInput, RadioInput, CheckboxInput, Modal, ActionModalButton} from "../../../stemjs/src/ui/All.js";
+import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
 
-import {QuestionnaireStore, QuestionnaireQuestion, QuestionnaireInstanceStore} from "./state/QuestionnaireStore";
+import {QuestionnaireStore, QuestionnaireQuestion, QuestionnaireInstanceStore} from "./state/QuestionnaireStore.js";
 
 
 export class QuestionnaireStyle extends StyleSheet {

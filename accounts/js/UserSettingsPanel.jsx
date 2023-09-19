@@ -1,8 +1,13 @@
-import {
-    UI, TabArea, Form, FormField, TextInput,
-    PasswordInput, EmailInput, Panel,
-    Label, Button, Select, CheckboxInput
-} from "UI";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {TabArea} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
+import {FormField, Form} from "../../../stemjs/src/ui/form/Form.jsx";
+import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {PasswordInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {EmailInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
+import {Label} from "../../../stemjs/src/ui/SimpleElements.jsx";
+import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
+import {CheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton.jsx";
 import {GlobalStyle} from "../../../stemjs/src/ui/GlobalStyle.js";

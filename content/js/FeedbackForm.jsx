@@ -1,4 +1,4 @@
-import {Ajax} from "base/Ajax";
+import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {
     UI,
     StyleSheet,
@@ -9,8 +9,8 @@ import {
     EmailInput,
     TextArea,
     SubmitInput,
-} from "ui/All";
-import {enhance} from "ui/Color";
+} from "../../../stemjs/src/ui/All.js";
+import {enhance} from "../../../stemjs/src/ui/Color.js";
 
 
 export class FeedbackFormStyle extends StyleSheet {
@@ -50,7 +50,6 @@ export class FeedbackFormStyle extends StyleSheet {
     @styleRule
     field = {
         display: "flex",
-        width: "50%",
         flex: "1",
         flexDirection: "column",
         padding: "0 10px",
@@ -82,7 +81,6 @@ export class FeedbackFormStyle extends StyleSheet {
         paddingLeft: this.padding,
         marginBottom: this.marginBottom,
         letterSpacing: "0.2px",
-        border: "0",
         border: "2px solid #ddd",
         transition: "0.25s",
         display: "flex",
@@ -120,7 +118,6 @@ export class FeedbackFormStyle extends StyleSheet {
         padding: "5px 15px",
         fontSize: "18px",
         backgroundColor: "#fff",
-        border: "0",
         border: "2px solid #ddd",
         fontWeight: "600",
         transition: "0.25s",

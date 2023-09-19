@@ -1,8 +1,8 @@
-import {TerminalRoute} from "ui/Router";
-import {StateDependentElement} from "ui/StateDependentElement";
+import {TerminalRoute} from "../../../stemjs/src/ui/Router.jsx";
+import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
 
-import {AdminDocumentationPanel} from "./AdminDocumentationPanel";
-import {DocumentationPanel} from "./DocumentationPanel"
+import {AdminDocumentationPanel} from "./AdminDocumentationPanel.jsx";
+import {DocumentationPanel} from "./DocumentationPanel.jsx";
 
 // Particular case for /docs/ and /docs/edit/
 export class DocumentationRoute extends TerminalRoute {

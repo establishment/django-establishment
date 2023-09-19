@@ -1,6 +1,5 @@
-import {StoreObject, GenericObjectStore} from "state/Store";
-
-import {Language} from "./LanguageStore";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
+import {Language} from "./LanguageStore.js";
 
 
 class TranslationKey extends StoreObject {

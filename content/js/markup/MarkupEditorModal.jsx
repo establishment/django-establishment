@@ -3,8 +3,8 @@ import {Link} from "../../../../stemjs/src/ui/primitives/Link.jsx";
 import {Modal} from "../../../../stemjs/src/ui/modal/Modal.jsx";
 import {Button} from "../../../../stemjs/src/ui/button/Button.jsx";
 import {Level, Direction} from "../../../../stemjs/src/ui/Constants.js";
-import {MarkupEditor} from "./MarkupEditor";
-import {BasePopup} from "../Popup";
+import {MarkupEditor} from "./MarkupEditor.jsx";
+import {BasePopup} from "../Popup.jsx";
 import {Emoji} from "../../../../csabase/js/ui/EmojiUI.jsx";
 
 class ClickableEmote extends Emoji {

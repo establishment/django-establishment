@@ -1,4 +1,4 @@
-import {UI} from "ui/UI";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
 
 class EmailConfirmed extends UI.Element {
     extraNodeAttributes(attr) {

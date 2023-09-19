@@ -1,4 +1,4 @@
-import {UI, TabArea, Panel, Switcher, Theme, registerStyle, styleRule, Level, RowList, CardPanel, Table, CheckboxInput} from "ui/All";
+import {UI, TabArea, Panel, Switcher, Theme, registerStyle, styleRule, Level, RowList, CardPanel, Table, CheckboxInput} from "../../../stemjs/src/ui/All.js";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
 import {ColorGenerator} from "../../../stemjs/src/ui/Color.js";
