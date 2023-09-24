@@ -4,7 +4,7 @@ import inspect
 from collections.abc import Iterable
 from typing import Any, Union, Optional, Callable
 
-from establishment.utils.object_cache import IdType, ObjectStore, StateObject, StateObjectType, get_id_from_obj
+from establishment.utils.object_cache import IdType, ObjectStore, StateObject, StateObjectType, get_id_from_obj, DBObjectStore
 from establishment.utils.proxy import ProxyObject
 from django.db.models import Model as DjangoModel
 
@@ -72,13 +72,18 @@ class State(object):
     def has_store(self, object_type: StateObjectType) -> bool:
         return self.get_object_name(object_type) in self.object_caches
 
+    def new_store(self, object_type: StateObjectType) -> ObjectStore:
+        if issubclass(object_type, DjangoModel):
+            return DBObjectStore(object_type)
+        return ObjectStore(object_type)
+
     # Tries to create the store if it doesn't exist
     def get_store(self, object_type: StateObjectType) -> ObjectStore:
         class_key = self.get_object_name(object_type)
         if class_key not in self.object_caches:
             if not inspect.isclass(object_type):
                 object_type = object_type.__class__  # type: ignore
-            self.object_caches[class_key] = ObjectStore(object_type)  # type: ignore
+            self.object_caches[class_key] = self.new_store(object_type)
         return self.object_caches[class_key]
 
     def remove_store(self, object_type: StateObjectType):
