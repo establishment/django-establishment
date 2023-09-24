@@ -73,9 +73,9 @@ class State(object):
         return self.get_object_name(object_type) in self.object_caches
 
     def new_store(self, object_type: StateObjectType) -> ObjectStore:
-        if issubclass(object_type, DjangoModel):
-            return DBObjectStore(object_type)
-        return ObjectStore(object_type)
+        if issubclass(object_type, DjangoModel):  # type: ignore
+            return DBObjectStore(object_type)  # type: ignore
+        return ObjectStore(object_type)  # type: ignore
 
     # Tries to create the store if it doesn't exist
     def get_store(self, object_type: StateObjectType) -> ObjectStore:
