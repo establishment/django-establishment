@@ -64,6 +64,9 @@ def edit_object_from_request(obj: DjangoModelT,
             save = True
 
         if save:
+            if not obj.pk:
+                # Maybe this is a new object, just save everything then
+                save_options = {}
             obj.save(**save_options)
 
     return State(obj)
