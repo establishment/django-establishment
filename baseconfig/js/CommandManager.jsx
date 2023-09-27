@@ -9,7 +9,7 @@ import {
     FormField,
     TextInput,
     StaticCodeHighlighter,
-    CheckboxInput,
+    RawCheckboxInput,
     NumberInput
 } from "ui/All";
 
@@ -263,7 +263,7 @@ class AutoFormField extends UI.Element {
             formField = <NumberInput ref={this.getInputRef()} initialValue={this.options.initialValue}/>;
         }
         if (this.options.type === this.fieldType.checkbox) {
-            formField = <CheckboxInput ref={this.getInputRef()} initialValue={this.options.initialValue}/>;
+            formField = <RawCheckboxInput ref={this.getInputRef()} initialValue={this.options.initialValue}/>;
         }
         if (this.options.type === this.fieldType.select) {
             let options = [];

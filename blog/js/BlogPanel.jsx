@@ -1,4 +1,4 @@
-import {UI, Level, Route, Router, Button, Link, Modal, Form, FormField, TextInput, FormGroup, CheckboxInput, TemporaryMessageArea} from "ui/All";
+import {UI, Level, Route, Router, Button, Link, Modal, Form, FormField, TextInput, FormGroup, RawCheckboxInput, TemporaryMessageArea} from "ui/All";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {slugify} from "../../../stemjs/src/base/Utils.js";
 import {MarkupEditor} from "../../content/js/markup/MarkupEditor.jsx";
@@ -46,7 +46,7 @@ export class BlogEntryEditModal extends Modal {
                     <TextInput ref="urlInput" value={entry.urlName} />
                 </FormField>
                 <FormField label="Visible">
-                    <CheckboxInput ref="visibleCheckbox" initialValue={entry.visible} />
+                    <RawCheckboxInput ref="visibleCheckbox" initialValue={entry.visible} />
                 </FormField>
                 <Button level={Level.PRIMARY} label="Change settings" onClick={() => this.changeSettings()} />
                 {discussionButton}
@@ -106,7 +106,7 @@ export class NewBlogEntryModal extends Modal {
                     <TextInput ref="urlInput" />
                 </FormField>
                 <FormField label="Visible">
-                    <CheckboxInput ref="visibleCheckbox"/>
+                    <RawCheckboxInput ref="visibleCheckbox"/>
                 </FormField>
                 <Button label="Add Entry" level={Level.PRIMARY} onClick={() => {this.addEntry()}}/>
                 <MarkupEditor ref="postContentMarkup" style={{height: "450px"}} />

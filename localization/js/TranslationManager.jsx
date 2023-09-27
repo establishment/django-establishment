@@ -5,7 +5,7 @@ import {Table, TableRow} from "../../../stemjs/src/ui/table/Table.jsx";
 import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
 import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {FileInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {CheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {RawCheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {TextArea} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
 import {Level} from "../../../stemjs/src/ui/Constants.js";
@@ -538,7 +538,7 @@ class TranslationKeyManager extends Panel {
 
         return [
             <label>Enable editing: &nbsp; </label>,
-            <CheckboxInput ref="editableCheckbox" />,
+            <RawCheckboxInput ref="editableCheckbox" />,
             <TranslationKeyTable ref="table"/>,
             <TextArea ref="textArea" className="form-control" style={style}/>,
             <Button label="Add keys" ref="saveButton" style={{marginLeft: "20px"}} level={Level.INFO}/>,

@@ -1,4 +1,4 @@
-import {UI, TabArea, Panel, Switcher, Theme, registerStyle, styleRule, Level, RowList, CardPanel, Table, CheckboxInput} from "../../../stemjs/src/ui/All.js";
+import {UI, TabArea, Panel, Switcher, Theme, registerStyle, styleRule, Level, RowList, CardPanel, Table, RawCheckboxInput} from "../../../stemjs/src/ui/All.js";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
 import {ColorGenerator} from "../../../stemjs/src/ui/Color.js";
@@ -122,7 +122,7 @@ class QuestionSummary extends UI.Element {
                           {value: option => frequencyMap.get(option.id) || 0, headerName: UI.T("Votes")},
                           {value: (option, index) => <div style={{height: "20px", width: "20px", backgroundColor: ColorGenerator.getPersistentColor(index)}}/>,
                            headerName: UI.T("Color")},
-                          {value: (option) => <CheckboxInput ref={this.refLink("optionFilter" + option.id)} />, headerName: UI.T("Filter")}
+                          {value: (option) => <RawCheckboxInput ref={this.refLink("optionFilter" + option.id)} />, headerName: UI.T("Filter")}
                       ]} />;
     }
     

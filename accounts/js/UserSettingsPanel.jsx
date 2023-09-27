@@ -7,7 +7,7 @@ import {EmailInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
 import {Label} from "../../../stemjs/src/ui/SimpleElements.jsx";
 import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
-import {CheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {RawCheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton.jsx";
 import {GlobalStyle} from "../../../stemjs/src/ui/GlobalStyle.js";
@@ -261,7 +261,7 @@ export class EmailPanel extends Panel {
             </div>,
             <h5>
               <FormField label={UI.T("Receive email notifications")} inline={false}>
-                <CheckboxInput ref="emailSubscriptionCheckbox" initialValue={this.options.user.receivesEmailAnnouncements}
+                <RawCheckboxInput ref="emailSubscriptionCheckbox" initialValue={this.options.user.receivesEmailAnnouncements}
                                   onClick={() => {this.changeEmailSubscription(this.emailSubscriptionCheckbox.getValue())}}/>
               </FormField>
             </h5>,

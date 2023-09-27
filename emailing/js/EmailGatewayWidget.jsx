@@ -6,7 +6,7 @@ import {ActionModal} from "../../../stemjs/src/ui/modal/Modal.jsx";
 import {FormField} from "../../../stemjs/src/ui/form/Form.jsx";
 import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {NumberInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {CheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {RawCheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {PasswordInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
 import {TableRow} from "../../../stemjs/src/ui/table/Table.jsx";
@@ -33,7 +33,7 @@ class EmailGatewayModal extends ActionModal {
                 <NumberInput value={gatewayValues.port || ""} ref="portInput"/>
             </FormField>,
             <FormField label="Use TLS" ref="useTLSField" >
-                <CheckboxInput value={gatewayValues.useTLS || ""} ref="useTLSInput"/>
+                <RawCheckboxInput value={gatewayValues.useTLS || ""} ref="useTLSInput"/>
             </FormField>,
             <FormField label="Username" ref="usernameField">
                 <TextInput value={gatewayValues.username || ""} ref="usernameInput"/>

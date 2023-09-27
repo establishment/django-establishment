@@ -4,7 +4,7 @@ import {ensure} from "../../../stemjs/src/base/Require.js";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {Switcher} from "../../../stemjs/src/ui/Switcher.jsx";
 import {Link} from "../../../stemjs/src/ui/primitives/Link.jsx";
-import {PasswordInput, SubmitInput, CheckboxInput, EmailInput, TextInput, Select} from "../../../stemjs/src/ui/input/Input.jsx";
+import {PasswordInput, SubmitInput, RawCheckboxInput, EmailInput, TextInput, Select} from "../../../stemjs/src/ui/input/Input.jsx";
 import {BasicTabTitle} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
 import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea.jsx";
 import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
@@ -160,7 +160,7 @@ export class LoginWidget extends UI.Element {
 
     getRememberMeCheckbox() {
         return [
-            <CheckboxInput initialValue={true}
+            <RawCheckboxInput initialValue={true}
                               ref="rememberInput" className={this.styleSheet.rememberMeCheckbox} />,
             <div className={this.styleSheet.rememberMe}>{UI.T("Remember me")}</div>,
         ];

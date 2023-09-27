@@ -6,7 +6,7 @@ import {TextArea} from "../../../../stemjs/src/ui/input/Input";
 import {SectionDivider} from "../../../../stemjs/src/ui/section-divider/SectionDivider.jsx";
 import {Orientation} from "../../../../stemjs/src/ui/Constants.js";
 import {Panel} from "../../../../stemjs/src/ui/UIPrimitives.jsx";
-import {CheckboxInput} from "../../../../stemjs/src/ui/input/Input";
+import {RawCheckboxInput} from "../../../../stemjs/src/ui/input/Input";
 
 
 class MarkupEditor extends Panel {
@@ -43,11 +43,11 @@ class MarkupEditor extends Panel {
         if (this.options.showButtons) {
             buttons = <div style={{margin: 6}}>
                 <span onClick={() => this.toggleEditorPanel()}>
-                    <CheckboxInput checked />
+                    <RawCheckboxInput checked />
                     Editor
                 </span>
                 <span onClick={() => this.togglePreviewPanel()}>
-                    <CheckboxInput checked />
+                    <RawCheckboxInput checked />
                     Preview
                 </span>
             </div>;

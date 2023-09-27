@@ -4,7 +4,7 @@ import {SortableTable} from "../../../stemjs/src/ui/table/SortableTable.jsx";
 import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
 import {FormField} from "../../../stemjs/src/ui/form/Form.jsx";
 import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {CheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {RawCheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
 import {ActionModal} from "../../../stemjs/src/ui/modal/Modal.jsx";
 import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
@@ -147,7 +147,7 @@ class EmailCampaignModal extends ActionModal {
                 <Select ref="gatewaySelect" options={EmailGatewayStore.all()} selected={EmailGatewayStore.get(campaignValues.gatewayId)}/>
             </FormField>,
             <FormField label="Is newsletter" ref="isNewsletterField">
-                <CheckboxInput value={campaignValues.isNewsletter || ""} ref="isNewsletterInput"/>
+                <RawCheckboxInput value={campaignValues.isNewsletter || ""} ref="isNewsletterInput"/>
             </FormField>,
         ];
     }

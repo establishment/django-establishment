@@ -2,7 +2,7 @@ import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {CallThrottler} from "../../../stemjs/src/base/Utils.js";
 import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer.js";
 import {UI, Switcher, Level, Button, registerStyle, StyleSheet, styleRule,
-        Form, TextArea, TextInput, RadioInput, CheckboxInput, Modal, ActionModalButton} from "../../../stemjs/src/ui/All.js";
+        Form, TextArea, TextInput, RadioInput, RawCheckboxInput, Modal, ActionModalButton} from "../../../stemjs/src/ui/All.js";
 import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
 
 import {QuestionnaireStore, QuestionnaireQuestion, QuestionnaireInstanceStore} from "./state/QuestionnaireStore.js";
@@ -119,7 +119,7 @@ export class QuestionPage extends UI.Element {
             InputType = RadioInput;
         }
         if (this.isMultipleChoice()) {
-            InputType = CheckboxInput;
+            InputType = RawCheckboxInput;
         }
         if (!this.isPlainText()) {
             formFields = this.options.question.getOptions().map(

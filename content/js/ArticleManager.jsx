@@ -2,7 +2,7 @@ import {
     ActionModal,
     Button,
     ButtonGroup,
-    CheckboxInput,
+    RawCheckboxInput,
     Form,
     FormField,
     Link,
@@ -143,7 +143,7 @@ class CreateArticleModal extends ActionModal {
                 <Select ref="languageSelect" options={Language.all()}/>
             </FormField>
             <FormField ref="publicFormField" label="Public">
-                <CheckboxInput ref="publicCheckbox"/>
+                <RawCheckboxInput ref="publicCheckbox"/>
             </FormField>
         </Form>;
     }
@@ -209,7 +209,7 @@ class AddTranslationModal extends CreateArticleModal {
                         <Select ref="languageSelect" options={Language.all()}/>
                     </FormField>
                     <FormField ref="publicFormField" label="Public">
-                        <CheckboxInput ref="publicCheckbox" initialValue={baseArticle.isPublic}/>
+                        <RawCheckboxInput ref="publicCheckbox" initialValue={baseArticle.isPublic}/>
                     </FormField>
                 </Form>
     }

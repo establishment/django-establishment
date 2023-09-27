@@ -2,7 +2,7 @@ import {
     ActionModal,
     Button,
     ButtonGroup,
-    CheckboxInput,
+    RawCheckboxInput,
     Form,
     FormField,
     Link,
@@ -192,7 +192,7 @@ class ArticleEditor extends Panel {
                                        selected={Language.get(this.getArticle().languageId)}/>
                         </FormField>
                         <FormField ref="publicFormField" label="Public">
-                            <CheckboxInput ref="publicCheckbox" initialValue={this.getArticle().isPublic}/>
+                            <RawCheckboxInput ref="publicCheckbox" initialValue={this.getArticle().isPublic}/>
                         </FormField>
                     </Form>
                     <AjaxButton ref="saveOptionsButton" level={Level.INFO} onClick={() => {
