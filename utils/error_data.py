@@ -35,7 +35,7 @@ def get_error_data(exc: Exception) -> ErrorData:
         exc = object_not_found
 
     if not isinstance(exc, APIError):
-        print("Unhandled error:", exc)
+        print("Unhandled error:", exc, repr(exc))
         # Convert it to an InternalServerError
         try:
             raise InternalServerError() from exc

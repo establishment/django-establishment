@@ -32,7 +32,7 @@ class StreamJSONEncoder(json.JSONEncoder):
             super().default(obj)
 
     @classmethod
-    def dumps(cls, obj):
+    def dumps(cls, obj: Any):
         # TODO: pass on **kwargs?
         return json.dumps(obj, cls=cls)
 
@@ -42,7 +42,7 @@ class LoggingStreamJSONEncoder(StreamJSONEncoder):
     Class that extends the basic Stream JSON encoder, with the extra
     ability to encode exceptions and stacktraces
     """
-    def default(self, obj):
+    def default(self, obj: Any) -> Any:
         #TODO: add serialization for tracebacks
         try:
             return super().default(obj)
