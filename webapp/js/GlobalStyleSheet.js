@@ -52,7 +52,7 @@ export class GlobalStyleSheet extends StyleSheet {
     pre = {
         overflow: "auto",
         display: "block",
-        padding: this.themeProps.BUTTON_BORDER_RADIUS,
+        padding: 4,
         margin: "0 0 10px",
         fontSize: "13px",
         lineHeight: "1.42857143",
