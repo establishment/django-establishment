@@ -14,7 +14,6 @@ from .models import TermDefinition, ArticleEdit, UserFeedback, Article, Question
                     QuestionnaireInstance, QuestionnaireQuestionResponse, QuestionnaireQuestionOption
 
 
-@superuser_required
 @single_page_app
 def article_manager_view(request):
     articles = Article.get_editable_articles(request.user)
