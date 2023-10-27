@@ -3,6 +3,7 @@ import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
 import {Route, Router} from "../../../stemjs/src/ui/Router.jsx";
 import {Link} from "../../../stemjs/src/ui/primitives/Link.jsx";
 import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
+import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
 import {VolatileFloatingWindow} from "../../../stemjs/src/ui/modal/FloatingWindow.jsx";
 import {registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
