@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 import csv
+import sys
 from io import StringIO
-from typing import TypeVar, Union, Callable, Any, Generic, Iterable
+from typing import TypeVar, Union, Callable, Any, Generic, Iterable, IO
 
 T = TypeVar("T")
 CSVColumnList = list[Union[str, tuple[str, Union[str, Callable[[T], Any]]]]]
@@ -81,3 +82,9 @@ def build_string_csv(objects: Iterable[T], columns: CSVColumnList) -> str:
     csv_writer: CSVObjectWriter[T] = CSVObjectWriter(columns, StringIO())
     csv_writer.write_all(objects)
     return csv_writer.stream.getvalue()
+
+
+def print_csv(objects: Iterable[T], columns: CSVColumnList, output: IO = sys.stdout) -> None:
+    csv_writer: CSVObjectWriter[T] = CSVObjectWriter(columns, output)
+    csv_writer.write_all(objects)
+    output.flush()
