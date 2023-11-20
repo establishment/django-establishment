@@ -6,7 +6,7 @@ import {BlogArticleRendererStyle} from "./BlogStyle.js";
 
 // TODO move this to the regular markup class
 @registerStyle(BlogArticleRendererStyle)
-class BlogArticleRenderer extends ArticleRenderer {
+export class BlogArticleRenderer extends ArticleRenderer {
     extraNodeAttributes(attr) {
         super.extraNodeAttributes(attr);
         attr.addClass(this.styleSheet.blogArticleRenderer);
@@ -15,7 +15,7 @@ class BlogArticleRenderer extends ArticleRenderer {
 
 
 @registerStyle(BlogArticleRendererStyle)
-class BlogQuote extends UI.Element {
+export class BlogQuote extends UI.Element {
     extraNodeAttributes(attr) {
         attr.setStyle({
             marginTop: 20,
@@ -50,6 +50,3 @@ class BlogQuote extends UI.Element {
 
 
 MarkupClassMap.addClass("Quote", BlogQuote);
-
-
-export {BlogArticleRenderer, BlogQuote};
