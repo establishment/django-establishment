@@ -3,9 +3,10 @@ from django.db import models
 
 class Language(models.Model):
     name = models.CharField(max_length=64, unique=True)
-    local_name = models.CharField(max_length=64, unique=True)
+    local_name = models.CharField(max_length=64)
     # https://en.wikipedia.org/wiki/ISO_639-3
-    iso_code = models.CharField(max_length=32, unique=True)
+    iso_code = models.CharField(max_length=32, unique=True)  # This is actually the flag ISO code
+    icon = models.CharField(max_length=32, null=True, blank=True)
 
     class Meta:
         db_table = "Language"
@@ -19,6 +20,7 @@ class Language(models.Model):
             "name": self.name,
             "localName": self.local_name,
             "isoCode": self.iso_code,
+            "flagEmoji": self.icon,
         }
 
 
