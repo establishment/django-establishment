@@ -31,10 +31,17 @@ class IPGeoLocation(BaseModel):
 
     @staticmethod
     def from_ip(ip: str) -> IPGeoLocation:
+        default_response = IPGeoLocation(ip=ip)
+
+        # Try to have the country, regardless of city info
+        default_response.country_code = get_country_code_from_ip(ip)
+
         try:
+
             info = city_reader.city(ip)
         except (GeoIP2Error, ValueError):
-            return IPGeoLocation(ip=ip)
+            return default_response
+
         region = info.subdivisions[0].iso_code if info.subdivisions else None
         return IPGeoLocation(ip=ip,
                              city=info.city.name,
