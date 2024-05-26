@@ -1,4 +1,6 @@
 import os
+from typing import Optional
+
 import django
 import faulthandler
 import signal
@@ -13,7 +15,7 @@ from establishment.services.status import ServiceStatus
 class ServiceDaemon(Daemon):
     version = "1.0"
 
-    def __init__(self, service_name, pidfile=None):
+    def __init__(self, service_name: str, pidfile: Optional[str] = None):
         if pidfile is None:
             pidfile = "." + service_name + "_daemon.pid"
 

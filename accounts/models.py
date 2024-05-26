@@ -1,3 +1,4 @@
+from __future__ import annotations
 import datetime
 import json
 import uuid
@@ -583,7 +584,7 @@ class UserGroup(OwnerUserMixin):
         return [member.group for member in user_group_members]
 
     @classmethod
-    def get_group_raw(cls, group_name, default_owner_id):
+    def get_group_raw(cls, group_name, default_owner_id) -> Self:
         try:
             group, created = cls.objects.get_or_create(name=group_name, defaults={"owner_id": default_owner_id})
         except cls.MultipleObjectsReturned:
@@ -607,7 +608,7 @@ class UserGroup(OwnerUserMixin):
     def has_user(self, user):
         return self.members.filter(user=user).exists()
 
-    def add_user(self, user):
+    def add_user(self, user) -> UserGroupMember:
         group_member, created = UserGroupMember.objects.get_or_create(user=user, group=self)
         return group_member
 

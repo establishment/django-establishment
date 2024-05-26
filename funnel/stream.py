@@ -1,4 +1,5 @@
 import datetime
+from typing import Any, Optional
 
 from django.db import models
 from django.db.models.fields.related import ManyToManyRel, RelatedField, OneToOneField
@@ -239,7 +240,7 @@ class StreamObjectMixin(models.Model):
     def can_be_created_by_user(self, user):
         return self.can_be_edited_by_user(user)
 
-    def edit_from_dict(self, data_dict, rename=None, trusted=False, publish_event=True, event_type="update", event_extra=None):
+    def edit_from_dict(self, data_dict, rename=None, trusted=False, publish_event=True, event_type="update", event_extra=None) -> dict[str, Any]:
         updated_fields = self.update_from_dict(data_dict, rename)
 
         if len(updated_fields) == 0 and event_extra is None:
@@ -314,7 +315,7 @@ class StreamObjectMixin(models.Model):
 
         return view_func
 
-    def make_event(self, event_type, data, extra=None):
+    def make_event(self, event_type: str, data: Any, extra: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         event_dict = {
             "objectId": self.id,
             "objectType": self.object_type(),

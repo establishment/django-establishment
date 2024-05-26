@@ -77,7 +77,7 @@ class MessageThread(StreamObjectMixin):
         self.last_activity = timestamp
         self.save(update_fields=["last_activity"])
 
-    def get_stream_name(self):
+    def get_stream_name(self) -> str:
         return self.stream_name
 
     def get_last_message(self):
@@ -412,7 +412,7 @@ class GroupChat(StreamObjectMixin):
     def post(self, user, message):
         return self.message_thread.create_message(user, content=message)
 
-    def set_muted(self, muted):
+    def set_muted(self, muted: bool):
         self.message_thread.set_muted(muted)
 
     def to_json(self):

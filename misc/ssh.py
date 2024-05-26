@@ -128,7 +128,7 @@ class SSHWorker:
     def apt_install(self, package):
         self.run("sudo apt -y install " + package)
 
-    def deploy_zip_to_folder(self, zip_file, remote_folder, overwrite=True, remove_existing=True):
+    def deploy_zip_to_folder(self, zip_file: str, remote_folder: str, overwrite=True, remove_existing=True):
         # TODO: remove the hardcoded path
         zip_file = os.path.join("/maestro/deployment/files", zip_file)
         if not os.path.isfile(zip_file):

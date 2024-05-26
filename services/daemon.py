@@ -165,7 +165,7 @@ class Daemon:
             else:
                 return KILL_NOT_GRACEFULLY
 
-    def stop(self, sync=False):
+    def stop(self, sync: bool = False):
         """Stop the daemon."""
 
         pid = self.get_pid()

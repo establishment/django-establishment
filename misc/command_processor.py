@@ -1,13 +1,14 @@
 import json
 import logging
 import time
+from typing import Optional
 
 from establishment.misc.threading_helper import ThreadHandler
 from establishment.funnel.redis_stream import RedisStreamPublisher, RedisStreamSubscriber, RedisScheduledJob
 
 
 class BaseProcessor(object):
-    def __init__(self, logger_name):
+    def __init__(self, logger_name: Optional[str]):
         self.logger = logging.getLogger(logger_name)
         self.background_thread = None
         self.keep_working = False
@@ -35,7 +36,7 @@ class BaseProcessor(object):
 
 
 class RedisScheduledJobProcessor(BaseProcessor):
-    def __init__(self, redis_scheduled_job_name, callback, logger_name, try_lock_interval=1):
+    def __init__(self, redis_scheduled_job_name, callback, logger_name: Optional[str], try_lock_interval=1):
         super().__init__(logger_name=logger_name)
         self.try_lock_interval = try_lock_interval
         self.redis_scheduled_job_name = redis_scheduled_job_name
@@ -123,12 +124,12 @@ class BaseRedisCommandProcessor(BaseCommandProcessor):
 
 
 class CommandProcessorHandler(object):
-    def __init__(self, command_processors=None):
+    def __init__(self, command_processors: Optional[list[BaseProcessor]] = None):
         if command_processors is None:
             command_processors = []
-        self.command_processors = command_processors
+        self.command_processors: list[BaseProcessor] = command_processors
 
-    def add(self, command_processor):
+    def add(self, command_processor: BaseProcessor):
         self.command_processors.append(command_processor)
 
     def start(self):
