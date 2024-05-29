@@ -196,18 +196,6 @@ class LoginStyle extends StyleSheet {
     };
 
     @styleRule
-    rememberMe = {
-        display: "inline-block",
-        float: "left",
-        paddingLeft: "5px",
-    };
-
-    @styleRule
-    rememberMeCheckbox = {
-        float: "left"
-    };
-
-    @styleRule
     forgotPassword = {
         display: "inline-block",
         float: "right",

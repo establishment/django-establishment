@@ -158,14 +158,6 @@ export class LoginWidget extends UI.Element {
         ];
     }
 
-    getRememberMeCheckbox() {
-        return [
-            <RawCheckboxInput initialValue={true}
-                              ref="rememberInput" className={this.styleSheet.rememberMeCheckbox} />,
-            <div className={this.styleSheet.rememberMe}>{UI.T("Remember me")}</div>,
-        ];
-    }
-
     getForgotPassword() {
         return <Link className={this.styleSheet.forgotPassword} href="/accounts/password_reset"
                      value={UI.T("Forgot Password?")} />;
@@ -198,7 +190,7 @@ export class LoginWidget extends UI.Element {
         return SocialAppStore.all().length ? [
             this.getHorizontalLine(),
             <ThirdPartyLogin loginElement={this}/>,
-        ]: null;
+        ]: [];
     }
 
     render() {
@@ -207,7 +199,6 @@ export class LoginWidget extends UI.Element {
             <form ref="form">
                 {this.getEmailInput()}
                 {this.getPasswordInput()}
-                {this.getRememberMeCheckbox()}
                 {this.getForgotPassword()}
                 {this.getSignInButton()}
                 {this.getClearBothArea()}
@@ -230,7 +221,7 @@ export class LoginWidget extends UI.Element {
         const data = {
             email: this.emailInput.getValue(),
             password: this.passwordInput.getValue(),
-            remember: this.rememberInput.getValue()
+            remember: true
         };
         Ajax.postJSON("/accounts/login/", data).then(
             () => location.reload(),

@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from django.db import models
 from django.db.models.fields.related import ManyToManyRel, RelatedField, OneToOneField
@@ -17,7 +17,7 @@ def register_stream_handler(stream_handler):
     STREAM_HANDLERS.append(stream_handler)
 
 
-def get_stream_handler(stream_name):
+def get_stream_handler(stream_name: str):
     for stream_class in STREAM_HANDLERS:
         if stream_class.matches_stream_name(stream_name):
             return stream_class
@@ -30,11 +30,11 @@ class StreamObjectMixin(models.Model):
     class Meta:
         abstract = True
 
-    def has_field(self, field_name):
+    def has_field(self, field_name: str) -> bool:
         return field_name in map(lambda field: field.name, self._meta.get_fields())
 
     @classmethod
-    def object_type(cls):
+    def object_type(cls) -> str:
         return cls._meta.db_table
 
     @classmethod
@@ -43,7 +43,7 @@ class StreamObjectMixin(models.Model):
         return value or private_settings_cache.get("EVENT_PERSISTENCE_DURATION", cls.EVENT_PERSISTENCE_DURATION)
 
     @classmethod
-    def should_include_field(cls, meta_field, include=None, exclude=None, include_many_to_many=False):
+    def should_include_field(cls, meta_field, include=None, exclude=None, include_many_to_many=False) -> bool:
         # check if this should be there or it shouldn't be
         try:
             name = meta_field.attname
@@ -83,7 +83,7 @@ class StreamObjectMixin(models.Model):
         raise Exception
 
     @classmethod
-    def get_key_name(cls, name, rename):
+    def get_key_name(cls, name: str, rename: Optional[dict[str, str]]) -> str:
         if rename is not None and name in rename:
             return rename[name]
 
@@ -169,7 +169,7 @@ class StreamObjectMixin(models.Model):
 
         return False
 
-    def meta_to_json(self, include_many_to_many=False, rename=None, exclude=None, include=None, exclude_none=True):
+    def meta_to_json(self, include_many_to_many=False, rename=None, exclude=None, include=None, exclude_none=True) -> dict[str, Any]:
         json_obj = dict()
 
         # add all fields
@@ -203,7 +203,7 @@ class StreamObjectMixin(models.Model):
 
         return json_obj
 
-    def to_json(self):
+    def to_json(self) -> dict[str, Any]:
         return self.meta_to_json()
 
     def update_field_from_json_dict(self, meta_field, json_dict, rename=None):
@@ -240,7 +240,8 @@ class StreamObjectMixin(models.Model):
     def can_be_created_by_user(self, user):
         return self.can_be_edited_by_user(user)
 
-    def edit_from_dict(self, data_dict, rename=None, trusted=False, publish_event=True, event_type="update", event_extra=None) -> dict[str, Any]:
+    def edit_from_dict(self, data_dict, rename=None, trusted: bool = False, publish_event: bool = True, event_type: str = "update",
+                       event_extra: Optional[dict] = None) -> dict[str, Any]:
         updated_fields = self.update_from_dict(data_dict, rename)
 
         if len(updated_fields) == 0 and event_extra is None:
@@ -372,5 +373,5 @@ class StreamObjectMixin(models.Model):
         for stream_name in stream_names:
             RedisStreamPublisher.publish_to_stream(stream_name, event, persistence=persistence, expire_time=expire_time)
 
-    def add_to_state(self, state, user=None):
+    def add_to_state(self, state: State, user=None):
         state.add(self)

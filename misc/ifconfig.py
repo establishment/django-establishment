@@ -1,15 +1,9 @@
-from typing import Optional
+from typing import Optional, Any
 
 import netifaces
 
-cached_network_interface_dict = None
 
-
-def get_ifconfig(from_cache=False) -> dict[str, dict]:
-    global cached_network_interface_dict
-    if from_cache and cached_network_interface_dict:
-        return cached_network_interface_dict
-    
+def get_ifconfig() -> dict[str, dict]:
     network_interface_dict = {}
     for interface_name in netifaces.interfaces():
         current_network = dict()
@@ -32,7 +26,6 @@ def get_ifconfig(from_cache=False) -> dict[str, dict]:
 
         network_interface_dict[interface_name] = current_network
 
-    cached_network_interface_dict = network_interface_dict
     return network_interface_dict
 
 
@@ -44,18 +37,18 @@ def get_private_ip() -> Optional[str]:
     return None
 
 
-def get_default_network_interface(from_cache=False, preffered_order=None):
-    dict = get_ifconfig(from_cache)
-    if preffered_order is None:
-        preffered_order = ["eth0:1", "eth0", "wlan0", "eno16777736"]
+def get_default_network_interface() -> dict[str, Any]:
+    ip_config = get_ifconfig()
 
-    for network_interface in preffered_order:
-        if network_interface in dict:
-            return dict[network_interface]
+    preferred_order = ["eth0:1", "eth0", "wlan0", "eno16777736"]
 
-    for network_name in dict.keys():
+    for network_interface in preferred_order:
+        if network_interface in ip_config:
+            return ip_config[network_interface]
+
+    for network_name in ip_config.keys():
         if network_name != "lo":
-            return dict[network_name]
+            return ip_config[network_name]
 
     print("Haha it's gonna fail! TODO IS UP TO YOU!")
-    return list(dict.values())[0]
+    return list(ip_config.values())[0]
