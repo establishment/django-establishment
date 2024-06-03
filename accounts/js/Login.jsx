@@ -1,20 +1,18 @@
 import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Theme, registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
+import {registerStyle, Theme} from "../../../stemjs/src/ui/style/Theme.js";
 import {ensure} from "../../../stemjs/src/base/Require.js";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {Switcher} from "../../../stemjs/src/ui/Switcher.jsx";
 import {Link} from "../../../stemjs/src/ui/primitives/Link.jsx";
-import {PasswordInput, SubmitInput, RawCheckboxInput, EmailInput, TextInput, Select} from "../../../stemjs/src/ui/input/Input.jsx";
+import {EmailInput, PasswordInput, Select, SubmitInput, TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {BasicTabTitle} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
 import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea.jsx";
 import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
 
 import {CountryStore} from "../../localization/js/state/CountryStore.js";
 import {SocialAppStore} from "../../socialaccount/js/state/SocialAppStore.js";
-import {GoogleManager} from "./GoogleManager";
-import {FacebookManager} from "./FacebookManager";
-import {GithubManager} from "./GithubManager";
 import {LoginStyle} from "./LoginStyle";
+import {ThirdPartyLogin} from "./thirt-party/ThirdPartyLogin.jsx";
 
 const ERROR_TIMEOUT = 6 * 1000;
 
@@ -23,98 +21,6 @@ const accountsConfig = {
     country: true,
 };
 
-const socialLoginSpecificInfo = {
-    Google: {
-        name: "Google",
-        color: "#de4b39",
-        icon: "google-plus",
-        loginManager: GoogleManager,
-    },
-    Facebook: {
-        name: "Facebook",
-        color: "#3b5998",
-        icon: "facebook",
-        loginManager: FacebookManager,
-    },
-    Github: {
-        name: "Github",
-        color: "#000",
-        icon: "github",
-        loginManager: GithubManager,
-    },
-};
-
-
-@registerStyle(LoginStyle)
-class SocialConnectButton extends UI.Primitive("button") {
-    extraNodeAttributes(attr) {
-        let {specificInfo} = this.options;
-
-        attr.addClass(this.styleSheet.socialConnectButtonContainer);
-        attr.setStyle({
-            backgroundColor: specificInfo.color,
-        });
-    }
-
-    getLoginManager() {
-        return this.options.specificInfo.loginManager.getInstance();
-    }
-
-    render() {
-        let {specificInfo} = this.options;
-
-        return [
-            <FAIcon icon={specificInfo.icon} className={this.styleSheet.socialConnectButtonIcon} />,
-            <span> {specificInfo.name}</span>
-        ];
-    }
-
-    onMount() {
-        // Access the login manager, to load any scripts needed by the social provider
-        // TODO: try to find a way to not load all provider scripts on the login page
-        this.getLoginManager();
-        this.addClickListener(() => {
-            const loginElement = this.options.loginElement;
-            loginElement && loginElement.clearErrorMessage();
-            this.getLoginManager().login();
-        });
-    }
-}
-
-@registerStyle(LoginStyle)
-class ThirdPartyLogin extends UI.Element {
-    getSocialApps() {
-        return SocialAppStore.all();
-    }
-
-    getConnectWith() {
-        return (
-            <div style={this.styleSheet.connectWith}>
-                {UI.T("or connect with")}
-            </div>
-        );
-    }
-
-    getConnectWithButtons() {
-        return (
-            <div className={this.styleSheet.thirdPartyLoginContainer}>
-                {
-                    this.getSocialApps().map(
-                        socialApp => <SocialConnectButton specificInfo={socialLoginSpecificInfo[socialApp.name]}
-                                                          loginElement={this.options.loginElement} />
-                    )
-                }
-            </div>
-        );
-    }
-
-    render() {
-        return [
-            this.getConnectWith(),
-            this.getConnectWithButtons(),
-        ];
-    }
-}
 
 @registerStyle(LoginStyle)
 export class LoginWidget extends UI.Element {
@@ -150,9 +56,7 @@ export class LoginWidget extends UI.Element {
         }, passwordInputOptions);
         return [
             <div style={{width: "80% !important",}}>
-                <FAIcon icon="lock"
-                        style={this.styleSheet.fontAwesomeIcon}
-                />
+                <FAIcon icon="lock" style={this.styleSheet.fontAwesomeIcon} />
                 <PasswordInput {...passwordInputOptions} />
             </div>
         ];
@@ -164,7 +68,7 @@ export class LoginWidget extends UI.Element {
     }
 
     getClearBothArea() {
-        return <div style={{clear: "both", height: "20px"}}/>;
+        return <div style={{clear: "both", height: "20px"}} />;
     }
 
     getErrorArea() {
@@ -182,15 +86,16 @@ export class LoginWidget extends UI.Element {
     }
 
     getHorizontalLine() {
-        return <div className={this.styleSheet.horizontalLine}>
-        </div>;
+        return <div className={this.styleSheet.horizontalLine} />;
     }
 
     getThirdPartyLogin() {
-        return SocialAppStore.all().length ? [
+        const socialApps = SocialAppStore.all();
+
+        return (socialApps.length > 0) && [
             this.getHorizontalLine(),
-            <ThirdPartyLogin loginElement={this}/>,
-        ]: [];
+            <ThirdPartyLogin socialApps={socialApps} loginElement={this} />,
+        ];
     }
 
     render() {
@@ -416,7 +321,7 @@ class NormalLogin extends UI.Element {
     }
 
     render() {
-        let result = [
+        return [
             <div className={this.styleSheet.loginRegisterButtons}>
                 {this.getLoginButton()}
                 {this.getRegisterButton()}
@@ -426,8 +331,6 @@ class NormalLogin extends UI.Element {
                 <RegisterWidget ref="registerWidget" active={this.state === 1} />
             </Switcher>
         ];
-
-        return result;
     }
 
     onMount() {

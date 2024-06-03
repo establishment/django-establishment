@@ -14,7 +14,6 @@ let signInButtonWidth = 120;
 
 
 class LoginStyle extends StyleSheet {
-
     @styleRule
     loginRegisterSystem = () => {
         if (Device.isTouchDevice()) {

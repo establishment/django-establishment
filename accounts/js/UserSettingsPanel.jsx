@@ -14,8 +14,8 @@ import {GlobalStyle} from "../../../stemjs/src/ui/GlobalStyle.js";
 import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
 
 import {UserStore} from "../../../csaaccounts/js/state/UserStore.js";
-import {FacebookManager} from "./FacebookManager.js";
-import {GoogleManager} from "./GoogleManager.js";
+import {FacebookManager} from "./thirt-party/FacebookManager.js";
+import {GoogleManager} from "./thirt-party/GoogleManager.js";
 
 
 export class GeneralInformationPanel extends Panel {
