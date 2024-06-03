@@ -14,7 +14,8 @@ class SSHRun:
     """
     Class to wrap a single remote run call
     """
-    def __init__(self, worker: SSHWorker, command, max_output_size: int = 1 << 20, timeout = 0):
+
+    def __init__(self, worker: SSHWorker, command, max_output_size: int = 1 << 20):
         self.worker = worker
         self.command = command
         self.failed = False
@@ -23,7 +24,7 @@ class SSHRun:
 
         worker.log("Running command ", command)
 
-        self.channel = worker.client._transport.open_session()
+        self.channel = worker.client.get_transport().open_session()
         # Right now we combine stdout with stderr. We may want to change this in the future
         self.channel.set_combine_stderr(True)
         # self.channel.settimeout(timeout)
@@ -101,7 +102,7 @@ class SSHWorker:
         return True
 
     # Returns the whole content of the given file path
-    def get_content(self, path: str) -> str:
+    def get_content(self, path: str) -> Optional[str]:
         try:
             with self.ftp_client.open(path, "rb") as file:
                 buffer = file.read()
