@@ -9,6 +9,7 @@ import {Label} from "../../../stemjs/src/ui/SimpleElements.jsx";
 import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
 import {RawCheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
 import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton.jsx";
 import {GlobalStyle} from "../../../stemjs/src/ui/GlobalStyle.js";
 import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
