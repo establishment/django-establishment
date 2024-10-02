@@ -80,7 +80,8 @@ class ObjectId(Generic[DjangoModelT], int):
     @classmethod
     def __class_getitem__(cls, model_class: type[Model]):
         # TODO @pydantic find out what this does
-        if isinstance(model_class, TypeVar) or model_class == Any:
+        # TODO @Mihai figure out why mypy is complaining here
+        if isinstance(model_class, TypeVar) or model_class == Any:  # type: ignore
             # Allow sub-classes to forward the type var to TaskBase at runtime (match mypy behaviour).
             return cls
 
