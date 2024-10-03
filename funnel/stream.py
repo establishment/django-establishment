@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 from django.db import models
 from django.db.models.fields.related import ManyToManyRel, RelatedField, OneToOneField
@@ -262,7 +262,7 @@ class StreamObjectMixin(models.Model):
 
     def edit_from_request(self, request, rename=None):
         if not self.can_be_edited_by_request(request):
-            from establishment.errors.errors import BaseError
+            from establishment.utils.errors_deprecated import BaseError
             raise BaseError.NOT_ALLOWED
         return self.edit_from_dict(request.POST, rename, publish_event=False)
 
@@ -283,7 +283,7 @@ class StreamObjectMixin(models.Model):
         obj = cls()
         obj.update_from_dict(request.POST)
         if not obj.can_be_created_by_request(request):
-            from establishment.errors.errors import BaseError
+            from establishment.utils.errors_deprecated import BaseError
             raise BaseError.NOT_ALLOWED
         obj.full_clean()
         return obj
@@ -306,7 +306,7 @@ class StreamObjectMixin(models.Model):
             ids = int_list(request.GET.getlist("ids[]"))
             if len(ids) > max_ids:
                 # TODO: log this, may need to ban some asshole
-                from establishment.errors.errors import BaseError
+                from establishment.utils.errors_deprecated import BaseError
                 return BaseError.TOO_MANY_OBJECTS
             state = State(user=request.user)
             for obj in cls.objects.get(id__in=ids):

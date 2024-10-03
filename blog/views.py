@@ -7,7 +7,7 @@ from django.utils.text import slugify
 
 from establishment.blog.models import BlogEntry
 from establishment.content.models import Article
-from establishment.errors.errors import BaseError
+from establishment.utils.errors_deprecated import BaseError
 from establishment.webapp.base_views import ajax_required, superuser_required, single_page_app
 from establishment.utils.state import State
 

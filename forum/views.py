@@ -1,4 +1,4 @@
-from establishment.errors.errors import BaseError
+from establishment.utils.errors_deprecated import BaseError
 from establishment.forum.errors import ForumError
 from establishment.forum.models import ForumThread, Forum
 from establishment.webapp.base_views import ajax_required, login_required_ajax, single_page_app

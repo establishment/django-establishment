@@ -1,5 +1,4 @@
-from establishment.errors.errors import ErrorList
-from establishment.errors.models import get_error
+from establishment.utils.errors_deprecated import ErrorList
 
 
 class WebAppError(ErrorList):

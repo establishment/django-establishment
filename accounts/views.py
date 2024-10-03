@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.http import base36_to_int, int_to_base36
 
-from establishment.errors.errors import BaseError
+from establishment.utils.errors_deprecated import BaseError
 from establishment.webapp.base_views import login_required, login_required_ajax, ajax_required, global_renderer
 from establishment.webapp.base_views import single_page_app
 from establishment.utils.state import State

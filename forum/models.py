@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import F
 
 from establishment.chat.models import MessageThread, MessageThreadSummary
-from establishment.errors.errors import BaseError
+from establishment.utils.errors_deprecated import BaseError
 from establishment.funnel.stream import StreamObjectMixin
 
 

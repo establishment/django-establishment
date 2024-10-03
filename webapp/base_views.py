@@ -45,7 +45,7 @@ def login_required(function=None):
         def _wrapped_view(request, *args, **kwargs):
             if not request.user.is_authenticated:
                 if request.is_ajax():
-                    from establishment.errors.errors import BaseError
+                    from establishment.utils.errors_deprecated import BaseError
                     return BaseError.USER_NOT_AUTHENTICATED
                 return global_renderer.render_error_message(request, "Please login", "You need to login to continue."
                                                                        "You can login from the navbar (upper right corner)")
@@ -63,7 +63,7 @@ def superuser_required(function=None):
         def _wrapped_view(request, *args, **kwargs):
             if not request.user.is_superuser:
                 if request.is_ajax():
-                    from establishment.errors.errors import BaseError
+                    from establishment.utils.errors_deprecated import BaseError
                     return BaseError.NOT_ALLOWED
                 raise Http404()
             return view_func(request, *args, **kwargs)
@@ -85,7 +85,7 @@ def login_required_ajax(function=None):
             if not request.is_ajax():
                 return HttpResponseBadRequest()
             if not request.user.is_authenticated:
-                from establishment.errors.errors import BaseError
+                from establishment.utils.errors_deprecated import BaseError
                 return BaseError.USER_NOT_AUTHENTICATED
             return view_func(request, *args, **kwargs)
         return _wrapped_view

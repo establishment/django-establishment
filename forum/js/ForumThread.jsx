@@ -19,7 +19,7 @@ import {EditThreadReplyButton} from "./EditThreadReplyButton.jsx";
 import {DeleteThreadReplyButton} from "./DeleteThreadReplyButton.jsx";
 import {CreateThreadReplyButton} from "./CreateThreadReplyButton.jsx";
 import {CommentVotingWidgetWithThumbs} from "../../chat/js/VotingWidget.jsx";
-import {ErrorHandlers} from "../../errors/js/ErrorHandlers.js";
+import {ErrorHandlers} from "../../webapp/js/ErrorHandlers.js";
 import {ForumThreadPanelStyle, ForumButtonStyle} from "./ForumStyle.js";
 
 let forumThreadPanelStyle = ForumThreadPanelStyle.getInstance();

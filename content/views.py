@@ -5,7 +5,7 @@ from django.core.mail import mail_admins
 from django.db import IntegrityError, models, transaction
 from django.utils import timezone
 
-from establishment.errors.errors import BaseError
+from establishment.utils.errors_deprecated import BaseError
 from establishment.webapp.base_views import login_required, login_required_ajax, ajax_required, \
     superuser_required, single_page_app
 from establishment.utils.state import State

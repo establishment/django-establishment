@@ -1,6 +1,5 @@
-from establishment.errors.models import get_error
-from establishment.errors.errors import ErrorList
+from establishment.utils.errors_deprecated import get_error, ErrorList
 
 
 class BaseconfigError(ErrorList):
-    INVALID_COMMAND_INSTANCE = get_error(message="Invalid command instance")
+    INVALID_COMMAND_INSTANCE = get_error("Invalid command instance")

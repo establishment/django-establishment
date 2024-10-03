@@ -16,7 +16,7 @@ class Command(BaseCommand):
             with patch("mypy.semanal.SemanticAnalyzer", SemanticAnalyzerWithAutoNoneReturns):
                 with patch("mypy.checker.TypeChecker", TypeCheckerWithAutoNoneReturns):
                     import mypy.main
-                    mypy.main.main(args=[".", "--config-file=mypy.ini", "--show-traceback", "--enable-incomplete-feature=Unpack"], stdout=sys.stdout, stderr=sys.stderr)
+                    mypy.main.main(args=[".", "--config-file=mypy.ini", "--show-traceback"], stdout=sys.stdout, stderr=sys.stderr)
             sys.stdout.flush()
             sys.stderr.flush()
         except BrokenPipeError:

@@ -7,7 +7,7 @@ import {ServerTime} from "../../../stemjs/src/time/Time.js";
 import {ViewportMeta} from "../../../stemjs/src/ui/ViewportMeta.jsx";
 
 import {WebsocketSubscriber} from "../../../stemjs/src/websocket/client/WebsocketSubscriber.js";
-import {ErrorHandlers} from "../../errors/js/ErrorHandlers.js";
+import {ErrorHandlers} from "./ErrorHandlers.js";
 import {GlobalStyleSheet} from "./GlobalStyleSheet";
 
 export class EstablishmentApp extends StemApp {
