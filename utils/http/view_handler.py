@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from functools import partial
 from typing import Callable, Any, ClassVar, Optional, Unpack
 
 from django.conf import settings
 from django.core.exceptions import DisallowedHost
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.urls import URLPattern, re_path, path
+from django.urls import URLPattern, re_path, path, include
 
 from establishment.utils.bound_types import CallableT
 from establishment.utils.errors import BadRequest, HTTPMethodNotAllowed, Throttled
@@ -160,3 +161,6 @@ class ViewSet:
                 urlpatterns.append(django_path_func(url_path[:-1], view))
 
         return urlpatterns
+
+    def build_path(self, path_url: str = "") -> partial:
+        return path(path_url, include(self.build_url_patterns()))
