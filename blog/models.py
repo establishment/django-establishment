@@ -1,7 +1,10 @@
+from typing import Any
+
 from django.db import models
 
 from establishment.content.models import Article
 from establishment.chat.models import Commentable
+from establishment.utils.state import State
 
 
 class BlogEntry(Commentable):
@@ -15,14 +18,11 @@ class BlogEntry(Commentable):
     def __str__(self):
         return "BlogEntry-" + str(self.id) + " " + self.url_name
 
-    def create(self, author):
-        self.article = Article(name="Untitled")
-
-    def to_json(self):
+    def to_json(self) -> dict[str, Any]:
         rez = super().to_json()
         rez["lastActive"] = self.get_discussion_last_activity()
         return rez
 
-    def add_to_state(self, state):
+    def add_to_state(self, state: State):
         state.add(self)
         state.add(self.article)

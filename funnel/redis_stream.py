@@ -231,25 +231,25 @@ def redis_cached(expiration: float, *cache_args, **cache_kwargs) -> Callable:
 
 
 class RedisPriorityQueue(object):
-    def __init__(self, name, **connection_info):
+    def __init__(self, name: str, **connection_info):
         self.name = name
         self.redis_connection = StrictRedis(**connection_info)
 
-    def push(self, score, value):
+    def push(self, score: int, value: str):
         """
         Adds the string 'value' in queue with priority 'score'
         :return: true if the element was added and false if it already exists
         """
         return self.redis_connection.execute_command("ZADD", self.name, score, value) == 1
 
-    def pop(self):
+    def pop(self) -> bool:
         """
         Removes the first element in queue
         :return: true if an element was removed, false if the queue was empty
         """
         return len(self.redis_connection.zremrangebyrank(self.name, 0, 0)) > 0
 
-    def get(self):
+    def get(self) -> Optional[str]:
         """
         :return: the first element in queue or None if the queue is empty
         """
@@ -259,7 +259,7 @@ class RedisPriorityQueue(object):
         else:
             return None
 
-    def get_and_pop(self):
+    def get_and_pop(self) -> Optional[bytes]:
         """
         Gets the first element in queue and removes it
         :return: the first element in queue or None if the queue was empty
