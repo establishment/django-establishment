@@ -222,25 +222,25 @@ class AbstractStreamObjectUser(AbstractBaseUser, SuperuserPermissionsMixin, Stre
         })
 
     @classmethod
-    def get_object_stream_name(cls, object_id):
+    def get_object_stream_name(cls, object_id) -> str:
         return "user-" + str(object_id) + "-events"
 
-    def get_stream_name(self):
+    def get_stream_name(self) -> str:
         return self.get_object_stream_name(self.id)
 
     # The next 2 methods are only needed by Django, no other real use for them
-    def get_full_name(self):
+    def get_full_name(self) -> str:
         full_name = ("%s %s" % (self.first_name, self.last_name)).strip()
         if not full_name:
             full_name = self.email
         return full_name.strip()
 
-    def get_short_name(self):
+    def get_short_name(self) -> str:
         if not self.username:
             return self.get_full_name()
         return self.username
 
-    def get_all_emails(self):
+    def get_all_emails(self) -> list[str]:
         return list(self.emails.all().order_by("-primary")) + list(self.unverified_emails.all())
 
     # TODO: consider localization

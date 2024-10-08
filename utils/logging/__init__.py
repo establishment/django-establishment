@@ -13,7 +13,7 @@ def get_logger() -> logging.Logger:
     # TODO Maybe patch _log better?
     original_make_record = global_logger.makeRecord
 
-    # Putting python3.11 here, so you know to check when upgrading the version
+    # Putting python3.12 here, so you know to check when upgrading the version
     def makeRecordWithExtra(name, level, fn, lno, msg, args, exc_info, func=None, extra=None, sinfo=None):  # type: ignore
         extra_fields = extra
         log_record = original_make_record(name, level, fn, lno, msg, args, exc_info, func, extra, sinfo)

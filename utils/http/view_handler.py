@@ -162,5 +162,5 @@ class ViewSet:
 
         return urlpatterns
 
-    def build_path(self, path_url: str = "") -> partial:
+    def build_path(self, path_url: str = "") -> partial[Any]:
         return path(path_url, include(self.build_url_patterns()))

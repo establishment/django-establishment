@@ -5,6 +5,7 @@ import os
 import time
 import atexit
 import signal
+from typing import Optional
 
 import psutil
 
@@ -76,15 +77,15 @@ class Daemon:
         os.dup2(se.fileno(), sys.stderr.fileno())
 
         # write pidfile
-        atexit.register(self.delpid)
+        atexit.register(self.remove_pid_file)
 
-        pid = str(os.getpid())
+        pid = os.getpid()
         self.logger.info("Current pid file: " + self.pidfile)
 
         with open(self.pidfile, "w+") as pidfile:
-            pidfile.write(pid + "\n")
+            pidfile.write(str(pid) + "\n")
 
-    def delpid(self):
+    def remove_pid_file(self):
         if os.path.isfile(self.pidfile):
             os.remove(self.pidfile)
 
@@ -106,7 +107,7 @@ class Daemon:
         """Start the daemon."""
 
         # Check for a pidfile to see if the daemon is already running
-        if self.get_pid():
+        if self.get_existing_pid():
             self.logger.error("Daemon is already running ...")
             sys.exit(1)
 
@@ -115,13 +116,13 @@ class Daemon:
 
         self.start_raw()
 
-    def get_pid(self):
+    def get_existing_pid(self) -> Optional[int]:
         """Get the daemon pid from file."""
         try:
             with open(self.pidfile, "r") as pidfile:
                 file_pid = int(pidfile.read().strip())
         except IOError:
-            self.delpid()
+            self.remove_pid_file()
             return None
 
         try:
@@ -130,14 +131,14 @@ class Daemon:
                 self.logger.error(f"Strange, the existing process doesn't seem to be python, but {str(existing_proc)}")
         except psutil.NoSuchProcess:
             self.logger.critical("There is no daemon running but pid file is present! Deleting ...")
-            self.delpid()
+            self.remove_pid_file()
             return None
 
         return file_pid
 
     def kill(self, signal_number, pid=None, timeout=None):
         if not pid:
-            pid = self.get_pid()
+            pid = self.get_existing_pid()
 
         if not pid:
             self.logger.warning("No running daemon found!")
@@ -160,7 +161,7 @@ class Daemon:
             if e.find("No such process") > 0:
                 if os.path.exists(self.pidfile):
                     self.logger.warning("Daemon was not gracefully closed! (residual pid file is still present)")
-                    self.delpid()
+                    self.remove_pid_file()
                 return KILL_GRACEFULLY
             else:
                 return KILL_NOT_GRACEFULLY
@@ -168,7 +169,7 @@ class Daemon:
     def stop(self, sync: bool = False):
         """Stop the daemon."""
 
-        pid = self.get_pid()
+        pid = self.get_existing_pid()
 
         if not pid:
             self.logger.error("Daemon is not running ...")
@@ -176,7 +177,7 @@ class Daemon:
 
         self.logger.warning("Trying to stop the daemon")
 
-        timeout = 6.0
+        timeout: Optional[float] = 6.0
         if sync:
             timeout = None
         rc = self.kill(signal.SIGTERM, pid=pid, timeout=timeout)
@@ -197,7 +198,7 @@ class Daemon:
         self.start()
 
     def force_stop(self):
-        pid = self.get_pid()
+        pid = self.get_existing_pid()
 
         if not pid:
             self.logger.error("Daemon is not running ...")

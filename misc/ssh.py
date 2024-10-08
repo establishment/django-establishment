@@ -7,6 +7,7 @@ from functools import cached_property
 from typing import Any, Optional
 
 import paramiko
+from paramiko.sftp_client import SFTPClient
 import time
 
 
@@ -15,7 +16,7 @@ class SSHRun:
     Class to wrap a single remote run call
     """
 
-    def __init__(self, worker: SSHWorker, command, max_output_size: int = 1 << 20):
+    def __init__(self, worker: SSHWorker, command: str, max_output_size: int = 1 << 20):
         self.worker = worker
         self.command = command
         self.failed = False
@@ -24,7 +25,12 @@ class SSHRun:
 
         worker.log("Running command ", command)
 
-        self.channel = worker.client.get_transport().open_session()
+        transport = worker.client.get_transport()
+
+        if transport is None:
+            raise RuntimeError("SSHWorker is not connected")
+
+        self.channel = transport.open_session()
         # Right now we combine stdout with stderr. We may want to change this in the future
         self.channel.set_combine_stderr(True)
         # self.channel.settimeout(timeout)
@@ -75,28 +81,32 @@ class SSHWorker:
         self.logger.log(*arguments, **keywords)
 
     @cached_property
-    def ftp_client(self):
-        return self.client.open_sftp()
+    def ftp_client(self) -> SFTPClient:
+        client = self.client.open_sftp()
+        if client is None:
+            raise RuntimeError("FTPClient is not connected")
+        return client
 
     # Returns True if the give path is a folder on the remote machine
-    def is_folder(self, path):
+    def is_folder(self, path: str) -> bool:
         try:
-            file_stat = self.ftp_client.stat(path)
-            return stat.S_ISDIR(file_stat.st_mode)
+            mode = self.ftp_client.stat(path).st_mode
+            return mode is not None and stat.S_ISDIR(mode)
         except IOError:
             return False
 
     # Returns True if the given path is a link on the remote machine
-    def is_link(self, path):
+    def is_link(self, path: str) -> bool:
         try:
-            return stat.S_ISLNK(self.ftp_client.lstat(path).st_mode)
+            mode = self.ftp_client.stat(path).st_mode
+            return mode is not None and stat.S_ISLNK(mode)
         except IOError:
             return False
 
     # Returns True if the given resource exists on the remote machine
-    def file_exists(self, path):
+    def file_exists(self, path: str) -> bool:
         try:
-            self.ftp.ftp_client.lstat(path).st_mode
+            self.ftp_client.lstat(path).st_mode
         except IOError:
             return False
         return True
@@ -117,7 +127,7 @@ class SSHWorker:
         return json.loads(content)
 
     # Run a shell command on the remote host
-    def run(self, command, stop_at_error=True) -> SSHRun:
+    def run(self, command: str, stop_at_error: bool = True) -> SSHRun:
         current_run = SSHRun(self, command)
         if current_run.failed and stop_at_error:
             raise Exception("SSH command failed: " + command)
@@ -126,10 +136,10 @@ class SSHWorker:
     def apt_upgrade(self):
         self.run("sudo apt update && sudo apt dist-upgrade -y && sudo apt autoremove -y")
 
-    def apt_install(self, package):
+    def apt_install(self, package: str):
         self.run("sudo apt -y install " + package)
 
-    def deploy_zip_to_folder(self, zip_file: str, remote_folder: str, overwrite=True, remove_existing=True):
+    def deploy_zip_to_folder(self, zip_file: str, remote_folder: str):
         # TODO: remove the hardcoded path
         zip_file = os.path.join("/maestro/deployment/files", zip_file)
         if not os.path.isfile(zip_file):

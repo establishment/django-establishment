@@ -1,6 +1,7 @@
 import json
 import time
 import threading
+from collections.abc import Callable
 from typing import Union, Any, Optional
 
 from django.conf import settings
@@ -160,7 +161,7 @@ class RedisCache(object):
         # Returning the deserialized value to be consistent between calls of cached/uncached values
         return self.deserialize(serialized_value)
 
-    def get_or_set(self, key, generator, timeout, stale_extra=None, retries_per_second=50):
+    def get_or_set(self, key: str, generator: Callable, timeout: float, stale_extra: Optional[float] = None, retries_per_second: int = 50):
         if stale_extra is None:
             stale_extra = min(timeout, max(1, timeout // 5))
         key = key or generator.__name__
@@ -218,8 +219,8 @@ def serialize_arguments(*args, **kwargs):
     return ",".join(args_serialized + kwargs_serialized)
 
 
-def redis_cached(expiration, *cache_args, **cache_kwargs):
-    def _decorator(func):
+def redis_cached(expiration: float, *cache_args, **cache_kwargs) -> Callable:
+    def _decorator(func: Callable) -> Callable:
         def _wrapped_call(*func_args, **func_kwargs):
             redis_cache = RedisCache()
             key_name = func.__name__ + ":" + serialize_arguments(*func_args, **func_kwargs)

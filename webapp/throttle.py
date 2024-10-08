@@ -20,7 +20,7 @@ class ActionThrottler(object):
         self.timeframe = timeframe
         self.limit = limit
 
-    def single_increm(self):
+    def single_increm(self) -> bool:
         if redis_connection.set(self.key_name, "true", self.timeframe, nx=True):
             return True
         return False
