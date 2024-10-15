@@ -115,6 +115,8 @@ class State(object):
 
     def add_delete_event(self, obj: StateObject):
         event = self.object_to_event(obj, "delete")
+        # Now clear the data, since we won't have an object later
+        event["data"] = {}
         self.events.append(event)
 
     def add_extra(self, extra: dict[str, Any]):
