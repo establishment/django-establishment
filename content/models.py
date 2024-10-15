@@ -1,9 +1,16 @@
+from __future__ import annotations
+from typing import Any, Self, Optional
+
 from django.conf import settings
 from django.db import models
 from django.db import transaction
+from django.http.request import HttpRequest
+from django.db.models.query import QuerySet
 
+from establishment.accounts.models import AbstractStreamObjectUser
 from establishment.funnel.stream import StreamObjectMixin
 from establishment.localization.models import Language
+from establishment.utils.state import State
 
 
 class EditableTextField(models.JSONField):
@@ -77,10 +84,10 @@ class ArticleEdit(StreamObjectMixin):
         self.version = article.version
         self.markup = article.markup
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "ArticleEdit-" + str(self.id) + " Article-" + self.article.name
 
-    def to_json(self):
+    def to_json(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "articleId": self.article_id,
@@ -109,13 +116,13 @@ class Article(models.Model):
         unique_together = ("base_article", "language")
 
     @classmethod
-    def object_type(cls):
+    def object_type(cls) -> str:
         return "article"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Article-" + str(self.id) + " " + self.name
 
-    def edit(self, user, markup, compiled_json="", compiled_html=""):
+    def edit(self, user: AbstractStreamObjectUser, markup: str, compiled_json: str = "", compiled_html: str = "") -> int:
         if markup == self.markup:
             # don't do anything
             return self.version
@@ -134,26 +141,26 @@ class Article(models.Model):
 
             return self.version
 
-    def is_available_to(self, user):
+    def is_available_to(self, user: AbstractStreamObjectUser) -> bool:
         if user.is_authenticated and self.author_created_id == user.id:
             return True
         return self.is_public or user.is_superuser
 
     @classmethod
-    def get_editable_articles(cls, user):
+    def get_editable_articles(cls, user: AbstractStreamObjectUser) -> QuerySet[Self]:
         if user.is_superuser:
             articles = cls.objects.all()
         else:
             articles = cls.objects.filter(author_created_id=user.id)
         return articles
 
-    def add_to_state(self, state, with_edits=False):
+    def add_to_state(self, state: State, with_edits: bool = False):
         state.add(self)
         if with_edits:
             article_edits = ArticleEdit.objects.filter(article=self)
             state.add(article_edits)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
             "id": self.id,
             "name": self.name,
@@ -180,11 +187,12 @@ class UserFeedback(StreamObjectMixin):
     class Meta:
         db_table = "UserFeedback"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "UserFeedback-" + str(self.id)
 
+    # TODO Deprecate this
     @classmethod
-    def create_from_request(cls, request):
+    def create_from_request(cls, request: HttpRequest) -> Self:
         user_feedback = super().create_from_request(request)
         if request.user.is_authenticated:
             user_feedback.sender_email = request.user.email
@@ -200,10 +208,10 @@ class Questionnaire(StreamObjectMixin):
         db_table = "Questionnaire"
         unique_together = (("owner", "name"), )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def add_question(self, question_text, choices):
+    def add_question(self, question_text: str, choices: Optional[list[str]]) -> QuestionnaireQuestion:
         type = 2
         if choices is None:
             type = 1
@@ -212,7 +220,7 @@ class Questionnaire(StreamObjectMixin):
             QuestionnaireQuestionOption.objects.create(question=question, answer=choice)
         return question
 
-    def add_to_state(self, state, user=None):
+    def add_to_state(self, state: State, user: AbstractStreamObjectUser = None):
         # Questionnaire itself
         state.add(self)
         for question in self.questions.all().prefetch_related("options"):
@@ -239,10 +247,10 @@ class QuestionnaireQuestion(StreamObjectMixin):
     class Meta:
         db_table = "QuestionnaireQuestion"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.questionnaire.name + ": " + self.text
 
-    def add_to_state(self, state, user=None):
+    def add_to_state(self, state: State, user: AbstractStreamObjectUser = None):
         state.add(self)
         state.add(self.options.all())
 
@@ -255,7 +263,7 @@ class QuestionnaireQuestionOption(StreamObjectMixin):
     class Meta:
         db_table = "QuestionnaireQuestionOption"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.question.text + ": " + self.answer
 
 
@@ -269,10 +277,10 @@ class QuestionnaireInstance(StreamObjectMixin):
         db_table = "QuestionnaireInstance"
         unique_together = (("questionnaire", "user"), )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.user) + "'s answer to " + self.questionnaire.name
 
-    def add_to_state(self, state, user=None):
+    def add_to_state(self, state: State, user: AbstractStreamObjectUser = None):
         state.add(self)
         state.add(self.question_answers.all())
 
@@ -289,8 +297,8 @@ class QuestionnaireQuestionResponse(StreamObjectMixin):
         db_table = "QuestionnaireQuestionResponse"
         unique_together = (("instance", "question"), )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.instance) + ": " + self.question.text
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return self.meta_to_json(include_many_to_many=True, exclude_none=False)

@@ -1,8 +1,8 @@
-from .stream import get_stream_handler
+from .stream import get_stream_handler, StreamPermissionResponse
 from ..accounts.models import AbstractStreamObjectUser
 
 
-def guest_can_subscribe_to_stream(stream_name: str) -> tuple[bool, str]:
+def guest_can_subscribe_to_stream(stream_name: str) -> StreamPermissionResponse:
     """
     Function to test if a given stream supports guests or not
     :param stream_name: The stream the guest wants to subscribe to
@@ -28,7 +28,7 @@ def guest_can_subscribe_to_stream(stream_name: str) -> tuple[bool, str]:
     return False, "No matching streams"
 
 
-def user_can_subscribe_to_stream(user: AbstractStreamObjectUser, stream_name: str) -> tuple[bool, str]:
+def user_can_subscribe_to_stream(user: AbstractStreamObjectUser, stream_name: str) -> StreamPermissionResponse:
     """
     Function to test if the current user can subscribe to a given stream
     :param user: The user

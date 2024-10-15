@@ -1,14 +1,17 @@
 import datetime
-from typing import Any, Optional
+from typing import Any, Optional, Self
 
 from django.db import models
 from django.db.models.fields.related import ManyToManyRel, RelatedField, OneToOneField
 from django.db.models.fields.reverse_related import ForeignObjectRel
+from django.http.request import HttpRequest
 
 from establishment.utils.state import State
 from ..utils.convert import int_list
 from .json_helper import to_camel_case, to_json_dict
 from .redis_stream import RedisStreamPublisher
+
+StreamPermissionResponse = tuple[bool, str]
 
 STREAM_HANDLERS = []
 
@@ -279,7 +282,7 @@ class StreamObjectMixin(models.Model):
         return view_func
 
     @classmethod
-    def create_from_request(cls, request):
+    def create_from_request(cls, request: HttpRequest) -> Self:
         obj = cls()
         obj.update_from_dict(request.POST)
         if not obj.can_be_created_by_request(request):
