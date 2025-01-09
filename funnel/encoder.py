@@ -32,7 +32,7 @@ class StreamJSONEncoder(json.JSONEncoder):
             super().default(obj)
 
     @classmethod
-    def dumps(cls, obj: Any):
+    def dumps(cls, obj: Any) -> str:
         # TODO: pass on **kwargs?
         return json.dumps(obj, cls=cls)
 

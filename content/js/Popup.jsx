@@ -20,15 +20,15 @@ export class BasePopup extends FloatingWindow {
         super.setOptions(options);
         this.options.style = Object.assign({
             boxShadow: "0px 0px 4px rgba(0,0,0,0.5)",
-            borderRadius: "5px",
+            borderRadius: 5,
             display: "table",
-            width: "300px",
+            width: 300,
             backgroundColor: this.options.backgroundColor,
             position: "absolute",
-            left: (this.options.x) + "px",
-            top: (this.options.y) + "px",
-            zIndex: "3",
-            right: "0px"
+            left: this.options.x,
+            top: this.options.y,
+            zIndex: 111,
+            right: 0
         }, this.options.style);
         this.createArrowStyle();
     }
