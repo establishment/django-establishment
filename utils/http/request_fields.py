@@ -5,7 +5,7 @@ from typing import TypeVar, Generic, Any, Optional, Iterable, Callable
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import Model, Q, QuerySet
-from pydantic._internal._annotated_handlers import GetCoreSchemaHandler, GetJsonSchemaHandler
+from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, core_schema
 from pydantic_core.core_schema import ValidationInfo
