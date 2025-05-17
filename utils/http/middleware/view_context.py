@@ -22,7 +22,7 @@ class BaseViewContextMiddleware(MiddlewareMixin):
         return None
 
     # Called right before the view
-    def process_view(self, request: HttpRequest, view_func: BaseView, view_args: tuple[Any], view_kwargs: dict[str, Any]):
+    def process_view(self, request: HttpRequest, view_func: BaseView, view_args: tuple[Any], view_kwargs: dict[str, Any]) -> None:
         view_context = BaseViewContext.get()
         view_context.set_view(view_func, view_args, view_kwargs)
 
@@ -30,6 +30,5 @@ class BaseViewContextMiddleware(MiddlewareMixin):
         BaseViewContext.clear()
         return response
 
-    def process_exception(self, request: HttpRequest, exception: Exception):
+    def process_exception(self, request: HttpRequest, exception: Exception) -> None:
         BaseViewContext.clear()
-        return None

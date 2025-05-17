@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from inspect import Parameter
+from typing import Any
 
 from django.http import HttpRequest
 
@@ -17,7 +18,7 @@ class URLArgLoader(ArgumentLoader):
     def can_load_type(self, param: Parameter) -> bool:
         return self.is_subclass_of(param, URLArg)
 
-    def load(self, param: Parameter):
+    def load(self, param: Parameter) -> Any:
         view_context = BaseViewContext.get()
 
         return view_context.view_kwargs[param.name]
