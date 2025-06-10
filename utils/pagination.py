@@ -29,7 +29,10 @@ def paginate_to_state(objects: QuerySet[T],
     else:
         state.add(paginated_objects)
     if page_query.include_count:
+        num_objects = objects.count()
         state.add_extra({
-            "count": objects.count(),
+            "count": num_objects,
+            "countPages": (num_objects + page_query.page_size - 1) // page_query.page_size
         })
+
     return state
