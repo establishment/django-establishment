@@ -59,7 +59,7 @@ def normalize_to_primitive_type(obj: Any) -> Any:
     if DefaultSerializer.can_serialize(obj):
         return DefaultSerializer.serialize(obj)
     if dataclasses.is_dataclass(obj):
-        return dataclasses.asdict(obj) # type: ignore
+        return dataclasses.asdict(obj)
 
     if isinstance(obj, bytes):
         return bytes_to_hex(obj)
