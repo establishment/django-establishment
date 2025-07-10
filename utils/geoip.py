@@ -7,15 +7,29 @@ from os.path import join
 from pydantic import BaseModel
 from typing import Optional
 
-country_reader = Reader(join(settings.GEOIP_PATH, "GeoLite2-Country.mmdb"), mode=0)
-city_reader = Reader(join(settings.GEOIP_PATH, "GeoLite2-City.mmdb"), mode=0)
+_country_reader: Optional[Reader] = None
+_city_reader: Optional[Reader] = None
+
+
+def get_country_reader() -> Reader:
+    global _country_reader
+    if _country_reader is None:
+        _country_reader = Reader(join(settings.GEOIP_PATH, "GeoLite2-Country.mmdb"), mode=0)
+    return _country_reader
+
+
+def get_city_reader() -> Reader:
+    global _city_reader
+    if _city_reader is None:
+        _city_reader = Reader(join(settings.GEOIP_PATH, "GeoLite2-City.mmdb"), mode=0)
+    return _city_reader
 
 
 def get_country_code_from_ip(ip: Optional[str]) -> Optional[str]:
     if ip is None:
         return None
     try:
-        response = country_reader.country(ip)
+        response = get_country_reader().country(ip)
     except (GeoIP2Error, ValueError):
         return None
     return response.country.iso_code
@@ -37,8 +51,7 @@ class IPGeoLocation(BaseModel):
         default_response.country_code = get_country_code_from_ip(ip)
 
         try:
-
-            info = city_reader.city(ip)
+            info = get_city_reader().city(ip)
         except (GeoIP2Error, ValueError):
             return default_response
 
