@@ -1,5 +1,5 @@
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {CallThrottler} from "../../../stemjs/src/base/Utils.js";
+import {CallThrottler} from "../../../stemjs/src/base/CallModifier.js";
 import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer.js";
 import {UI, Switcher, Level, Button, registerStyle, StyleSheet, styleRule,
         Form, TextArea, TextInput, RadioInput, RawCheckboxInput, Modal, ActionModalButton} from "../../../stemjs/src/ui/All.js";

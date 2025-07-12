@@ -28,7 +28,7 @@ import {Popup} from "../../content/js/Popup.jsx";
 import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
 
 // TODO: This is CSAcademy dependency. Fix this!!
-import {Formatter} from "../../../csabase/js/util.js";
+import {Formatter} from "../../../csabase/js/util.ts";
 
 
 @autoredraw
