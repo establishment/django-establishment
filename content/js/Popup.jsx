@@ -1,4 +1,4 @@
-import {Device} from "../../../stemjs/src/base/Device.js";
+import {Device} from "../../../stemjs/src/base/Device";
 import {UI, FloatingWindow, Direction, Panel, Button} from "../../../stemjs/src/ui/All.js";
 
 export class BasePopup extends FloatingWindow {

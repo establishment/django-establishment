@@ -6,7 +6,7 @@ import {StemDate} from "../../../stemjs/src/time/Date.js";
 import {ServerTime} from "../../../stemjs/src/time/Time.js";
 import {ViewportMeta} from "../../../stemjs/src/ui/ViewportMeta.jsx";
 
-import {WebsocketSubscriber} from "../../../stemjs/src/websocket/client/WebsocketSubscriber.js";
+import {WebsocketSubscriber} from "../../../stemjs/src/websocket/client/WebsocketSubscriber";
 import {ErrorHandlers} from "./ErrorHandlers.js";
 import {GlobalStyleSheet} from "./GlobalStyleSheet";
 
