@@ -2,7 +2,7 @@ import {UI, Switcher, TextArea, Button, ButtonGroup, Panel, InfiniteScrollable, 
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {Pluginable} from "../../../stemjs/src/base/Plugin.js";
 import {GlobalState} from "../../../stemjs/src/state/State.js";
-import {StemDate, isDifferentDay} from "../../../stemjs/src/time/Time.js";
+import {StemDate, TimeUnit} from "../../../stemjs/src/time/Time.js";
 import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton.jsx";
 import {ButtonStyle} from "../../../stemjs/src/ui/button/ButtonStyle.js";
 import {InputStyle} from "../../../stemjs/src/ui/input/Style.js";
@@ -166,7 +166,7 @@ class GroupChatMessage extends EditableMessage {
 
     shouldShowDayTimestamp() {
         let lastMessage = this.options.message.getPreviousMessage();
-        return !lastMessage || isDifferentDay(lastMessage.timeAdded, this.options.message.timeAdded);
+        return !lastMessage || new StemDate(lastMessage.timeAdded).isSame(this.options.message.timeAdded, TimeUnit.DAY);
     }
 
     render() {
@@ -235,7 +235,7 @@ class PrivateChatMessage extends Panel {
 
     shouldShowDayTimestamp() {
         let lastMessage = this.options.message.getPreviousMessage();
-        return !lastMessage || isDifferentDay(lastMessage.timeAdded, this.options.message.timeAdded);
+        return !lastMessage || new StemDate(lastMessage.timeAdded).isSame(this.options.message.timeAdded, TimeUnit.DAY);
     }
 
     isOwnMessage() {
