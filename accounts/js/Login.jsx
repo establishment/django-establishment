@@ -350,7 +350,7 @@ class NormalLogin extends UI.Element {
 
 
 @registerStyle(LoginStyle)
-class LoginTabButton extends UI.Primitive(BasicTabTitle, "div") {
+class LoginTabButton extends UI.Primitive("div", BasicTabTitle) {
     getDefaultOptions() {
         return {
             children: [UI.T("Log In")]
@@ -366,7 +366,7 @@ class LoginTabButton extends UI.Primitive(BasicTabTitle, "div") {
 }
 
 @registerStyle(LoginStyle)
-class RegisterTabButton extends UI.Primitive(BasicTabTitle, "div") {
+class RegisterTabButton extends UI.Primitive("div", BasicTabTitle) {
     getDefaultOptions() {
         return {
             children: [UI.T("Register")]
