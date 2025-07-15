@@ -303,11 +303,11 @@ const GroupChatStore = new GroupChatStoreClass("groupChat", GroupChat, {
     maxFetchObjectCount: 1,
 });
 
-GroupChatStore.getFetchRequestData = function (ids, fetchJobs) {
+GroupChatStore.getFetchRequestData = (entries) => {
     return {
-        chatId: ids[0],
+        chatId: entries.map(entry => entry[0])[0],
     };
-};
+}
 
 class PrivateChat extends BaseChatObject {
     getOtherUserId() {
