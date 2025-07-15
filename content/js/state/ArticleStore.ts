@@ -1,6 +1,7 @@
 import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
 import {AjaxFetchMixin} from "../../../../stemjs/src/state/StoreMixins";
 
+import {User} from "../../../../csaaccounts/js/state/UserStore";
 import {Language} from "../../../localization/js/state/LanguageStore.js";
 
 class Article extends StoreObject {
@@ -17,7 +18,7 @@ class Article extends StoreObject {
         this.edits = new Map();
     }
 
-    canBeEditedByUser(user: any = USER): boolean {
+    canBeEditedByUser(user: User = USER): boolean {
         return user.isSuperUser || this.userCreatedId == user.id;
     }
 
