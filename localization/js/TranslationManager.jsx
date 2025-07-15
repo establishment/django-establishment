@@ -15,7 +15,7 @@ import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {NOOP_FUNCTION} from "../../../stemjs/src/base/Utils.js";
 
 import {TranslationKeyStore, TranslationEntryStore} from "./state/TranslationStore.js";
-import {Language} from "./state/LanguageStore.js";
+import {Language} from "./state/LanguageStore.ts";
 
 function ajaxCall(request, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
     Ajax.postJSON("/edit_translation/", request).then(onSuccess, onError);

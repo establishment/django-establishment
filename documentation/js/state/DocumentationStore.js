@@ -1,5 +1,5 @@
-import {GenericObjectStore, StoreObject} from "../../../../stemjs/src/state/Store.js";
-import {ArticleStore} from "../../../content/js/state/ArticleStore.js";
+import {GenericObjectStore, StoreObject} from "../../../../stemjs/src/state/Store";
+import {ArticleStore} from "../../../content/js/state/ArticleStore.ts";
 
 
 class DocumentationEntry extends StoreObject {

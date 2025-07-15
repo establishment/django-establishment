@@ -1,7 +1,7 @@
 import {UI, SVG, Switcher, Button} from "../../../stemjs/src/ui/All.js";
 import {MarkupRenderer, MarkupClassMap} from "../../../stemjs/src/markup/MarkupRenderer.js";
-import {Language} from "../../localization/js/state/LanguageStore.js";
-import {Article, ArticleStore} from "./state/ArticleStore";
+import {Language} from "../../localization/js/state/LanguageStore.ts";
+import {Article, ArticleStore} from "./state/ArticleStore.js";
 import {ensure} from "../../../stemjs/src/base/Require.js";
 
 

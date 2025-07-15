@@ -15,9 +15,9 @@ import {
     UI,
 } from "../../../stemjs/src/ui/All.js";
 import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
-import {Language} from "../../localization/js/state/LanguageStore.js";
+import {Language} from "../../localization/js/state/LanguageStore.ts";
 
-import {ArticleStore} from "./state/ArticleStore";
+import {ArticleStore} from "./state/ArticleStore.js";
 import {ArticleTranslationManager} from "./ArticleManager";
 import {ArticleRenderer} from "./ArticleRenderer";
 import {MarkupEditor} from "./markup/MarkupEditor";

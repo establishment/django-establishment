@@ -1,4 +1,4 @@
-import {GenericObjectStore, StoreObject} from "../../../../stemjs/src/state/Store.js";
+import {GenericObjectStore, StoreObject} from "../../../../stemjs/src/state/Store";
 import {TranslationKeyStore} from "../../../localization/js/state/TranslationStore.js";
 
 export class ErrorMessage extends StoreObject {

@@ -21,8 +21,8 @@ import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
 import {GlobalStyle} from "../../../stemjs/src/ui/GlobalStyle.js";
 
 import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
-import {Language} from "../../localization/js/state/LanguageStore.js";
-import {ArticleStore} from "./state/ArticleStore";
+import {Language} from "../../localization/js/state/LanguageStore.ts";
+import {ArticleStore} from "./state/ArticleStore.js";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 

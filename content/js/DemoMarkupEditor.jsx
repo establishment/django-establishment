@@ -1,6 +1,6 @@
 import {UI} from "../../../stemjs/src/ui/UIBase.js";
 
-import {ArticleStore} from "./state/ArticleStore.js";
+import {ArticleStore} from "./state/ArticleStore.ts";
 import {MarkupEditor} from "./markup/MarkupEditor.jsx";
 
 

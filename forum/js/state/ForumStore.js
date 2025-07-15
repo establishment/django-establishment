@@ -1,6 +1,6 @@
 import {Ajax} from "../../../../stemjs/src/base/Ajax.js";
 import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils.js";
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
 
 import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore.js";
 import {MessageThreadStore, MessageInstanceStore} from "../../../chat/js/state/MessageThreadStore.js";

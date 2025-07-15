@@ -11,7 +11,7 @@ import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
 import {TextArea} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {Language} from "../../localization/js/state/LanguageStore.js";
+import {Language} from "../../localization/js/state/LanguageStore.ts";
 import {EmailGatewayStore} from "state/EmailGatewayStore.js";
 import {EmailCampaignStore} from "state/EmailCampaignStore.js";
 import {EmailTemplateStore} from "state/EmailTemplateStore.js";

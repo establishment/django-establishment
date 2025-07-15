@@ -1,7 +1,7 @@
 import {Ajax} from "../../../../stemjs/src/base/Ajax.js";
 import {GlobalState} from "../../../../stemjs/src/state/State.js";
 import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils.js";
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
 import {AjaxFetchMixin, VirtualStoreObjectMixin, VirtualStoreMixin} from "../../../../stemjs/src/state/StoreMixins.js";
 import {StemDate} from "../../../../stemjs/src/time/Date.js";
 import {ServerTime} from "../../../../stemjs/src/time/Time.js";

@@ -1,4 +1,4 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
 
 export class CommandInstance extends StoreObject {
     toString() {
