@@ -1,7 +1,7 @@
 // A basic store that can be used to keep objects that map to ISO-code backed languages
 import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
 
-class LanguageObject extends StoreObject {
+export class LanguageObject extends StoreObject {
     declare id: number;
     declare name: string;
     declare localName?: string;

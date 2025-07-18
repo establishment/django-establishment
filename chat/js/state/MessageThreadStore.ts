@@ -1,22 +1,32 @@
-import {Ajax} from "../../../../stemjs/src/base/Ajax.js";
-import {GlobalState} from "../../../../stemjs/src/state/State.js";
-import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils.js";
+import {Ajax} from "../../../../stemjs/src/base/Ajax";
+import {GlobalState} from "../../../../stemjs/src/state/State";
+import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils";
 import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
-import {AjaxFetchMixin, VirtualStoreObjectMixin, VirtualStoreMixin} from "../../../../stemjs/src/state/StoreMixins.js";
-import {StemDate} from "../../../../stemjs/src/time/Date.js";
-import {ServerTime} from "../../../../stemjs/src/time/Time.js";
+import {AjaxFetchMixin, VirtualStoreObjectMixin, VirtualStoreMixin} from "../../../../stemjs/src/state/StoreMixins";
+import {StemDate} from "../../../../stemjs/src/time/Date";
+import {ServerTime} from "../../../../stemjs/src/time/Time";
 
-import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore.js";
-import {UserReactionCollectionStore} from "../../../accounts/js/state/UserReactionStore.js";
+import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore";
+import {UserReactionCollectionStore} from "../../../accounts/js/state/UserReactionStore";
+
 
 class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
-    constructor(obj, event) {
+    declare content: string;
+    declare timeAdded: number;
+    declare userId: number;
+    declare messageThreadId: number;
+    declare reactionCollectionId?: number;
+    declare temporaryId?: number;
+    declare meta: any;
+    declare postError?: any;
+
+    constructor(obj: any, event: any) {
         super(obj, event);
 
         PublicUserStore.create(event.user);
     }
 
-    getNormalizedId() {
+    getNormalizedId(): number {
         // TODO: Pretty bad implementation, works though
         let messageId = this.id + "";
         if (messageId.startsWith("temp-")) {
@@ -25,11 +35,11 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
         return parseInt(messageId);
     }
 
-    getDate() {
+    getDate(): number {
         return this.timeAdded;
     }
 
-    getUser() {
+    getUser(): string {
         let user = PublicUserStore.get(this.userId);
         if (user) {
             return user.username;
@@ -37,15 +47,15 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
         return "user-" + this.userId;
     }
 
-    getContent() {
+    getContent(): string {
         return this.content;
     }
 
-    getMessageThread() {
+    getMessageThread(): MessageThread | undefined {
         return MessageThreadStore.get(this.messageThreadId);
     }
 
-    getReactionCollection(fakeIfMissing=false) {
+    getReactionCollection(fakeIfMissing: boolean = false): any {
         let reactionCollection = UserReactionCollectionStore.get(this.reactionCollectionId);
         if (fakeIfMissing && !reactionCollection) {
             return {
@@ -57,32 +67,32 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
         return reactionCollection;
     }
 
-    getNumLikes() {
+    getNumLikes(): number {
         return this.getReactionCollection(true).upvotesCount;
     }
 
-    getNumDislikes() {
+    getNumDislikes(): number {
         return this.getReactionCollection(true).downvotesCount;
     }
 
-    getVotesBalance() {
+    getVotesBalance(): number {
         return this.getNumLikes() - this.getNumDislikes();
     }
 
-    getUserVote() {
+    getUserVote(): string | undefined {
         return this.getReactionCollection(true).getCurrentUserReactionType();
     }
 
-    getPreviousMessage() {
+    getPreviousMessage(): MessageInstance | null {
         // TODO: this should be cached and kept by the message thread
-        let ans = null;
+        let ans: MessageInstance | null = null;
         let currentId = this.getNormalizedId();
         // If message has temporary id, then it is identical with the previous message id, so instead the
         // previous previous message would be found instead.
         if (this.hasTemporaryId()) {
             currentId += 1;
         }
-        for (let message of this.getMessageThread().getMessages()) {
+        for (let message of this.getMessageThread()!.getMessages()) {
             if (message.id < currentId && (!ans || ans.id < message.id)) {
                 ans = message;
             }
@@ -90,52 +100,52 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
         return ans;
     }
 
-    getNextMessage() {
+    getNextMessage(): never {
         throw "Implement me!";
     }
 
-    hasMarkupEnabled() {
-        return this.getMessageThread().hasMarkupEnabled();
+    hasMarkupEnabled(): boolean {
+        return this.getMessageThread()!.hasMarkupEnabled();
     }
 
-    getTimeOfDay() {
+    getTimeOfDay(): string {
         return StemDate.unix(this.timeAdded).format("HH:mm");
     }
 
-    edit(content, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
+    edit(content: string, onSuccess: () => void = NOOP_FUNCTION, onError: () => void = NOOP_FUNCTION): void {
         Ajax.postJSON("/chat/edit_message/", {
             messageId: this.id,
             message: content,
         }).then(onSuccess, onError);
     }
 
-    react(reaction, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
+    react(reaction: string, onSuccess: () => void = NOOP_FUNCTION, onError: () => void = NOOP_FUNCTION): void {
         Ajax.postJSON("/chat/edit_message/", {
             messageId: this.id,
             reaction: reaction,
         }).then(onSuccess, onError);
     }
 
-    like(onSuccess, onError) {
+    like(onSuccess?: () => void, onError?: () => void): void {
         this.react("like", onSuccess, onError);
     }
 
-    dislike(onSuccess, onError) {
+    dislike(onSuccess?: () => void, onError?: () => void): void {
         this.react("dislike", onSuccess, onError);
     }
 
-    resetReaction(onSuccess, onError) {
+    resetReaction(onSuccess?: () => void, onError?: () => void): void {
         this.react("resetReaction", onSuccess, onError);
     }
 
-    deleteMessage(onSuccess, onError) {
+    deleteMessage(onSuccess?: () => void, onError?: () => void): void {
         Ajax.postJSON("/chat/edit_message/", {
             messageId: this.id,
             hidden: true,
         }).then(onSuccess, onError);
     }
 
-    applyEvent(event) {
+    applyEvent(event: any): void {
         if (event.type === "messageEdit") {
             Object.assign(this, event.data);
             this.dispatch("edit", event);
@@ -144,24 +154,24 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
             this.dispatch("reaction", event);
         } else if (event.type === "messageDelete") {
             this.dispatch("delete", event);
-            this.getMessageThread().deleteMessageInstance(this);
+            this.getMessageThread()!.deleteMessageInstance(this);
         } else {
             super.applyEvent(event);
         }
     }
 
-    updateId(newId) {
+    updateId(newId: any): void {
         if (this.id == newId) {
             return;
         }
         let oldId = this.id;
         super.updateId(newId);
-        let messageThread = this.getMessageThread();
+        let messageThread = this.getMessageThread()!;
         messageThread.messages.delete(oldId);
         messageThread.messages.set(this.id, this);
     }
 
-    setPostError(postError) {
+    setPostError(postError: any): void {
         this.postError = postError;
         this.dispatch("postError", postError);
         console.log("Post error: ", postError);
@@ -169,7 +179,12 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
 }
 
 class MessageThread extends StoreObject {
-    constructor(obj) {
+    declare streamName: string;
+    declare markupEnabled?: boolean;
+    declare online: Set<number>;
+    declare messages: Map<any, MessageInstance>;
+
+    constructor(obj: any) {
         super(obj);
         this.messages = new Map();
         // TODO: don't change the global here, you fool!
@@ -180,20 +195,20 @@ class MessageThread extends StoreObject {
         this.online.delete(0);
     }
 
-    hasMarkupEnabled() {
+    hasMarkupEnabled(): boolean {
         return this.markupEnabled || false;
     }
 
-    addMessageInstance(messageInstance, event) {
+    addMessageInstance(messageInstance: MessageInstance, event: any): void {
         this.messages.set(messageInstance.id, messageInstance);
         this.dispatch("newMessage", event);
     }
 
-    deleteMessageInstance(messageInstance) {
+    deleteMessageInstance(messageInstance: MessageInstance): void {
         this.messages.delete(messageInstance.id);
     }
 
-    applyEvent(event) {
+    applyEvent(event: any): void {
         if (event.data.online) {
             this.online = event.data.online = new Set(event.data.online);
             this.online.delete(0);
@@ -217,7 +232,7 @@ class MessageThread extends StoreObject {
         }
     }
 
-    getMessages(orderDescending=false) {
+    getMessages(orderDescending: boolean = false): MessageInstance[] {
         // TODO: should be also as iterable
         let messages = Array.from(this.messages.values());
         if (orderDescending) {
@@ -226,11 +241,11 @@ class MessageThread extends StoreObject {
         return messages.sort((a, b) => {return a.id - b.id});
     }
 
-    getNumMessages() {
+    getNumMessages(): number {
         return this.messages.size;
     }
 
-    getMaxMessageId() {
+    getMaxMessageId(): number {
         let value = 0;
         for (let messageInstance of this.messages.values()) {
             if (!messageInstance.hasTemporaryId() && messageInstance.id > value) {
@@ -242,8 +257,8 @@ class MessageThread extends StoreObject {
 
     // This method will return the last message of the message thread,
     // regardless of whether it is virtual or real.
-    getLastMessage() {
-        let lastMessage = null;
+    getLastMessage(): MessageInstance | null {
+        let lastMessage: MessageInstance | null = null;
         for (let messageInstance of this.messages.values()) {
             if (!lastMessage || lastMessage.getNormalizedId() < messageInstance.getNormalizedId() ||
                     (lastMessage.getNormalizedId() === messageInstance.getNormalizedId() && messageInstance.hasTemporaryId())) {
@@ -259,7 +274,7 @@ class MessageInstanceStoreClass extends VirtualStoreMixin(GenericObjectStore) {
         super("MessageInstance", MessageInstance, {dependencies: ["messagethread", "publicuser"]});
     }
 
-    createVirtualMessageInstance(messageContent, messageThread, temporaryId) {
+    createVirtualMessageInstance(messageContent: string, messageThread: MessageThread, temporaryId: number): MessageInstance {
         let virtualMessageInstance = {
             content: messageContent,
             temporaryId: temporaryId,
@@ -271,25 +286,27 @@ class MessageInstanceStoreClass extends VirtualStoreMixin(GenericObjectStore) {
         };
 
         return this.create(virtualMessageInstance, {isVirtual: true});
-    };
+    }
 }
 
 const MessageInstanceStore = new MessageInstanceStoreClass();
 
-MessageInstanceStore.addCreateListener((messageInstance, createEvent) => {
-    messageInstance.getMessageThread().addMessageInstance(messageInstance, createEvent);
+MessageInstanceStore.addCreateListener((messageInstance: MessageInstance, createEvent: any) => {
+    messageInstance.getMessageThread()?.addMessageInstance(messageInstance, createEvent);
 });
 
 
 const MessageThreadStore = new GenericObjectStore("messagethread", MessageThread);
 
 class BaseChatObject extends StoreObject {
-    getMessageThread() {
+    declare messageThreadId: number;
+
+    getMessageThread(): MessageThread | undefined {
         return MessageThreadStore.get(this.messageThreadId);
     }
 
-    getOnlineUserIds() {
-        return this.getMessageThread().online;
+    getOnlineUserIds(): Set<number> | undefined {
+        return this.getMessageThread()?.online;
     }
 }
 
@@ -303,14 +320,17 @@ const GroupChatStore = new GroupChatStoreClass("groupChat", GroupChat, {
     maxFetchObjectCount: 1,
 });
 
-GroupChatStore.getFetchRequestData = (entries) => {
+GroupChatStore.getFetchRequestData = (entries: any[]) => {
     return {
         chatId: entries.map(entry => entry[0])[0],
     };
 }
 
 class PrivateChat extends BaseChatObject {
-    getOtherUserId() {
+    declare user1Id: number;
+    declare user2Id: number;
+
+    getOtherUserId(): number {
         return (USER.id === this.user1Id ? this.user2Id : this.user1Id);
     }
 }
@@ -318,7 +338,7 @@ class PrivateChat extends BaseChatObject {
 const PrivateChatStore = new GenericObjectStore("PrivateChat", PrivateChat, {
 });
 
-PrivateChatStore.getChatWithUser = function(userId) {
+PrivateChatStore.getChatWithUser = function(userId: number): PrivateChat | null {
     let myUserId = USER.id;
     if (myUserId === userId) {
         for (let privateChat of this.all()) {
@@ -333,18 +353,19 @@ PrivateChatStore.getChatWithUser = function(userId) {
             return privateChat;
         }
     }
+    return null;
 };
 
-PrivateChatStore.fetchForUser = function (userId, onSuccess, onError) {
+PrivateChatStore.fetchForUser = function (userId: number, onSuccess: (chat: PrivateChat) => void, onError: (error: any) => void): void {
     Ajax.postJSON("/chat/private_chat_state/", {
         userId: userId,
     }).then(
-        (data) => onSuccess(PrivateChatStore.get(data.privateChatId)),
+        (data: any) => onSuccess(PrivateChatStore.get(data.privateChatId)),
         onError
     );
 };
 
-PrivateChatStore.addChangeListener((obj, event) => {
+PrivateChatStore.addChangeListener((obj: any, event: any) => {
     if (event.type === "privateMessage") {
         GlobalState.importState(event.state);
     }
