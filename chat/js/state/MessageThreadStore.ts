@@ -1,8 +1,8 @@
 import {Ajax} from "../../../../stemjs/src/base/Ajax";
-import {GlobalState} from "../../../../stemjs/src/state/State";
+import {GlobalState, StoreId} from "../../../../stemjs/src/state/State";
 import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils";
 import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
-import {AjaxFetchMixin, VirtualStoreObjectMixin, VirtualStoreMixin} from "../../../../stemjs/src/state/StoreMixins";
+import {AjaxFetchMixin, VirtualStoreObjectMixin, VirtualStoreMixin, FetchJob, FetchRequestData} from "../../../../stemjs/src/state/StoreMixins";
 import {StemDate} from "../../../../stemjs/src/time/Date";
 import {ServerTime} from "../../../../stemjs/src/time/Time";
 
@@ -10,7 +10,7 @@ import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore";
 import {UserReactionCollectionStore} from "../../../accounts/js/state/UserReactionStore";
 
 
-class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
+export class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
     declare content: string;
     declare timeAdded: number;
     declare userId: number;
@@ -178,7 +178,7 @@ class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
     }
 }
 
-class MessageThread extends StoreObject {
+export class MessageThread extends StoreObject {
     declare streamName: string;
     declare markupEnabled?: boolean;
     declare online: Set<number>;
@@ -289,14 +289,14 @@ class MessageInstanceStoreClass extends VirtualStoreMixin(GenericObjectStore) {
     }
 }
 
-const MessageInstanceStore = new MessageInstanceStoreClass();
+export const MessageInstanceStore = new MessageInstanceStoreClass();
 
 MessageInstanceStore.addCreateListener((messageInstance: MessageInstance, createEvent: any) => {
     messageInstance.getMessageThread()?.addMessageInstance(messageInstance, createEvent);
 });
 
 
-const MessageThreadStore = new GenericObjectStore("messagethread", MessageThread);
+export const MessageThreadStore = new GenericObjectStore("messagethread", MessageThread);
 
 class BaseChatObject extends StoreObject {
     declare messageThreadId: number;
@@ -313,18 +313,18 @@ class BaseChatObject extends StoreObject {
 class GroupChat extends BaseChatObject {
 }
 
-const GroupChatStoreClass = AjaxFetchMixin(GenericObjectStore);
+class GroupChatStoreClass extends AjaxFetchMixin(GenericObjectStore<GroupChat>) {
+    getFetchRequestData(entries: [StoreId, FetchJob[]][]) {
+        return {
+            chatId: entries.map(entry => entry[0])[0],
+        };
+    }
+}
 
-const GroupChatStore = new GroupChatStoreClass("groupChat", GroupChat, {
+export const GroupChatStore = new GroupChatStoreClass("groupChat", GroupChat, {
     fetchURL: "/chat/group_chat_state/",
     maxFetchObjectCount: 1,
 });
-
-GroupChatStore.getFetchRequestData = (entries: any[]) => {
-    return {
-        chatId: entries.map(entry => entry[0])[0],
-    };
-}
 
 class PrivateChat extends BaseChatObject {
     declare user1Id: number;
@@ -335,7 +335,7 @@ class PrivateChat extends BaseChatObject {
     }
 }
 
-const PrivateChatStore = new GenericObjectStore("PrivateChat", PrivateChat, {
+export const PrivateChatStore = new GenericObjectStore<PrivateChat>("PrivateChat", PrivateChat, {
 });
 
 PrivateChatStore.getChatWithUser = function(userId: number): PrivateChat | null {
@@ -370,5 +370,3 @@ PrivateChatStore.addChangeListener((obj: any, event: any) => {
         GlobalState.importState(event.state);
     }
 });
-
-export {MessageInstance, MessageInstanceStore, MessageThread, MessageThreadStore, PrivateChatStore, GroupChatStore};

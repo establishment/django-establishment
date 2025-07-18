@@ -1,4 +1,6 @@
 import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
+import {isNotNull} from "../../../../stemjs/src/base/Utils";
+import {StoreId} from "../../../../stemjs/src/state/State";
 
 export class Country extends StoreObject {
     declare id: number;
@@ -36,12 +38,12 @@ class CountryStoreClass extends GenericObjectStore<Country> {
         ];
     }
 
-    getCountriesFromIds(countriesIds: Set<number> | number[], allCountries: boolean = true): any[] {
+    getCountriesFromIds(countriesIds: Iterable<StoreId>, allCountries: boolean = true): any[] {
         const countries: (Country | null)[] = [];
         for (const countryId of countriesIds) {
             countries.push(CountryStore.get(countryId));
         }
-        const result = countries.filter((c) => c !== null).sort(COUNTRY_COMPARATOR);
+        const result = countries.filter(isNotNull).sort(COUNTRY_COMPARATOR);
         if (allCountries) {
             result.unshift(ALL_COUNTRIES_PLACEHOLDER);
         }
