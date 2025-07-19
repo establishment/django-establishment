@@ -11,6 +11,7 @@ import {BasePointPlot} from "./PointPlot.jsx";
 import {scaleLinear, scaleTime} from "d3-scale";
 import {select} from "d3-selection";
 import {zoom, zoomIdentity} from "d3-zoom";
+import {SVGRoot} from "../../../../stemjs/src/ui/svg/SVGPrimitives.js";
 
 
 // TODO: This file desperately needs a refactoring.
@@ -265,11 +266,11 @@ export class BasicChart extends SVG.Group {
         let interactiveLayer = <SVG.Rect ref={this.refLink("interactiveLayer")} height={this.options.chartOptions.height}
                                              width={this.options.chartOptions.width} style={{cursor: this.options.cursorStyle}} opacity={0}/>;
         // Add a clipPath
-        let clipPathDef = <SVG.Defs ref="defs">
-                <SVG.ClipPath id={"chartClipPath" + uniqueId(this)}>
+        let clipPathDef = <defs ref="defs">
+                <clipPath id={"chartClipPath" + uniqueId(this)}>
                     <SVG.Rect width={this.options.chartOptions.width} height={this.options.chartOptions.height}/>
-                </SVG.ClipPath>
-            </SVG.Defs>;
+                </clipPath>
+            </defs>;
         this.clipPath = "url(#chartClipPath" + uniqueId(this) + ")";
 
         this.translate(this.options.margin.left, this.options.margin.right);
@@ -442,7 +443,7 @@ export class TimeChart extends BasicChart {
     }
 }
 
-export class ChartSVG extends SVG.SVGRoot {
+export class ChartSVG extends SVGRoot {
     setOptions(options) {
         super.setOptions(options);
         this.chartOptions = {

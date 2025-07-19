@@ -2,6 +2,7 @@ import {UI} from "../../../../stemjs/src/ui/UIBase.js";
 import {Transition} from "../../../../stemjs/src/ui/Transition.js";
 import {SVG} from "../../../../stemjs/src/ui/svg/SVGBase.js";
 import * as math from "../../../../stemjs/src/numerics/math.js";
+import {SVGRoot} from "../../../../stemjs/src/ui/svg/SVGPrimitives.js";
 
 class PieChartSector extends SVG.Group {
     getDefaultOptions() {
@@ -166,7 +167,7 @@ export class PieChart extends SVG.Group {
     }
 }
 
-export class PieChartSVG extends SVG.SVGRoot {
+export class PieChartSVG extends SVGRoot {
     getDefaultOptions() {
         return {
             width: 240,

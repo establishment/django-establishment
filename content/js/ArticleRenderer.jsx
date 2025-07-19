@@ -1,4 +1,4 @@
-import {UI, SVG, Switcher, Button} from "../../../stemjs/src/ui/All.js";
+import {UI, SVG, Switcher, Button, RawSVG} from "../../../stemjs/src/ui/All.js";
 import {MarkupRenderer, MarkupClassMap} from "../../../stemjs/src/markup/MarkupRenderer.js";
 import {Language} from "../../localization/js/state/LanguageStore.ts";
 import {Article, ArticleStore} from "./state/ArticleStore.js";
@@ -138,7 +138,7 @@ class ArticleSwitcher extends Switcher {
 
 ArticleRenderer.markupClassMap = new MarkupClassMap(MarkupClassMap.GLOBAL, [
     ["Article", RecursiveArticleRenderer],
-    ["RawSVG", SVG.RawSVG]
+    ["RawSVG", RawSVG]
 ]);
 
 export {ArticleRenderer, RecursiveArticleRenderer, ArticleSwitcher};
