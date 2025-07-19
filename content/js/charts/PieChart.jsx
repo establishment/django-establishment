@@ -3,6 +3,7 @@ import {Transition} from "../../../../stemjs/src/ui/Transition.js";
 import {SVG} from "../../../../stemjs/src/ui/svg/SVGBase.js";
 import * as math from "../../../../stemjs/src/numerics/math.js";
 import {SVGRoot} from "../../../../stemjs/src/ui/svg/SVGPrimitives.js";
+import {makeOpacityTransition} from "../../../../stemjs/src/ui/svg/Animations.js";
 
 class PieChartSector extends SVG.Group {
     getDefaultOptions() {
@@ -107,14 +108,14 @@ class PieChartSector extends SVG.Group {
 
     onMount() {
         this.addNodeListener("mouseenter", () => {
-            this.changeOpacityTransition(this.options.endOpacity, this.options.hoverTime).start();
+            makeOpacityTransition(this, this.options.endOpacity, this.options.hoverTime).start();
             this.changeRadiusTransition(this.options.hoverExpandRadius, this.options.hoverTime).start();
             if (typeof this.options.mouseenterCallback === "function") {
                 this.options.mouseenterCallback();
             }
         });
         this.addNodeListener("mouseout", () => {
-            this.changeOpacityTransition(this.options.startOpacity, this.options.hoverTime).start();
+            makeOpacityTransition(this, this.options.startOpacity, this.options.hoverTime).start();
             this.changeRadiusTransition(0, this.options.hoverTime).start();
             if (typeof this.options.mouseoutCallback === "function") {
                 this.options.mouseoutCallback();
