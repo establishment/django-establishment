@@ -1,4 +1,4 @@
-import {StyleSheet, styleRule} from "ui/UI";
+import {StyleSheet, styleRule} from "ui/Style";
 
 
 export class ChatStyle extends StyleSheet {

@@ -1,4 +1,4 @@
-import {UI} from "ui/UI";
+import {UI} from "../../../../stemjs/src/ui/UIBase.js";
 import {SVGCircle, SVGGroup} from "../../../../stemjs/src/ui/svg/SVGPrimitives.js";
 
 export class PointPlotElement extends SVGCircle {

@@ -1,4 +1,4 @@
-import {UI} from "ui/UI";
+import {UI} from "../../../stemjs/src/ui/UIBase";
 import {Button} from "ui/button/Button";
 import {Level, Size} from "ui/Constants";
 import {Ajax} from "base/Ajax";

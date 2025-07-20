@@ -1,4 +1,4 @@
-import {UI} from "ui/UI";
+import {UI} from "ui/UIBase";
 import {Panel} from "ui/UIPrimitives";
 
 import {ArticleRenderer} from "ArticleRenderer";
