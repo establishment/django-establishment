@@ -1,13 +1,23 @@
-import {UI, TabArea, Panel, Switcher, Theme, registerStyle, styleRule, Level, RowList, CardPanel, Table, RawCheckboxInput} from "../../../stemjs/src/ui/All.js";
+import {UI} from "../../../stemjs/src/ui/UIBase";
+import {TabArea} from "../../../stemjs/src/ui/tabs/TabArea";
+import {Panel} from "../../../stemjs/src/ui/UIPrimitives";
+import {CardPanel} from "../../../stemjs/src/ui/CardPanel";
+import {Switcher} from "../../../stemjs/src/ui/Switcher";
+import {Theme, registerStyle} from "../../../stemjs/src/ui/style/Theme";
+import {styleRule} from "../../../stemjs/src/decorators/Style";
+import {Level} from "../../../stemjs/src/ui/Constants";
+import {RowList} from "../../../stemjs/src/ui/RowList";
+import {Table} from "../../../stemjs/src/ui/table/Table";
+import {RawCheckboxInput} from "../../../stemjs/src/ui/input/Input";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
-import {ColorGenerator} from "../../../stemjs/src/ui/Color.js";
-import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer.js";
+import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement";
+import {ColorGenerator} from "../../../stemjs/src/ui/Color";
+import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer";
 
-import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
-import {QuestionnaireStore, QuestionnaireQuestion} from "./state/QuestionnaireStore.js";
-import {PieChartSVG} from "./charts/PieChart.jsx";
-import {QuestionPage, QuestionnaireStyle} from "./QuestionnairePanel.jsx";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle";
+import {QuestionnaireStore, QuestionnaireQuestion} from "./state/QuestionnaireStore";
+import {PieChartSVG} from "./charts/PieChart";
+import {QuestionPage, QuestionnaireStyle} from "./QuestionnairePanel";
 
 
 class QuestionnaireAnswersStyle extends QuestionnaireStyle {
