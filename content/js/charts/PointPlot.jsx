@@ -1,7 +1,7 @@
 import {UI} from "ui/UI";
-import {SVG} from "ui/SVG";
+import {SVGCircle, SVGGroup} from "../../../../stemjs/src/ui/svg/SVGPrimitives.js";
 
-class PointPlotElement extends SVG.Circle {
+export class PointPlotElement extends SVGCircle {
     getDefaultOptions() {
         return {
             center: {x: 0, y: 0},
@@ -23,7 +23,7 @@ class PointPlotElement extends SVG.Circle {
     }
 }
 
-const PointPlot = (PointPlotElementClass) => class PointPlot extends SVG.Group {
+export const PointPlot = (PointPlotElementClass) => class PointPlot extends SVGGroup {
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
         attr.setAttribute("clip-path", this.options.chart.clipPath);
@@ -53,6 +53,4 @@ const PointPlot = (PointPlotElementClass) => class PointPlot extends SVG.Group {
     }
 };
 
-const BasePointPlot = PointPlot(PointPlotElement);
-
-export {PointPlot, PointPlotElement, BasePointPlot};
+export const BasePointPlot = PointPlot(PointPlotElement);
