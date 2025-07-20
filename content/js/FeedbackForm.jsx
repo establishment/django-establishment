@@ -1,15 +1,9 @@
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {
-    UI,
-    StyleSheet,
-    styleRule,
-    registerStyle,
-    Form,
-    Input,
-    EmailInput,
-    TextArea,
-    SubmitInput,
-} from "../../../stemjs/src/ui/All.js";
+import {UI} from "../../../stemjs/src/ui/UIBase";
+import {registerStyle} from "../../../stemjs/src/ui/style/Theme";
+import {styleRule, StyleSheet} from "../../../stemjs/src/decorators/Style";
+import {Form} from "../../../stemjs/src/ui/form/Form";
+import {Input, EmailInput, TextArea, SubmitInput} from "../../../stemjs/src/ui/input/Input";
 import {enhance} from "../../../stemjs/src/ui/Color.js";
 
 

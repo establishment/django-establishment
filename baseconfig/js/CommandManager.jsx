@@ -1,17 +1,11 @@
-import {
-    UI,
-    Select,
-    Button,
-    Table,
-    ProgressBar,
-    Modal,
-    ActionModal,
-    FormField,
-    TextInput,
-    StaticCodeHighlighter,
-    RawCheckboxInput,
-    NumberInput
-} from "ui/All";
+import {UI} from "../../../stemjs/src/ui/UIBase";
+import {Select, TextInput, RawCheckboxInput, NumberInput} from "../../../stemjs/src/ui/input/Input";
+import {Button} from "../../../stemjs/src/ui/button/Button";
+import {Table} from "../../../stemjs/src/ui/table/Table";
+import {ProgressBar} from "../../../stemjs/src/ui/ProgressBar";
+import {Modal, ActionModal} from "../../../stemjs/src/ui/modal/Modal";
+import {FormField} from "../../../stemjs/src/ui/form/Form";
+import {StaticCodeHighlighter} from "../../../stemjs/src/ui/CodeEditor";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";

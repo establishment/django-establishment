@@ -1,19 +1,14 @@
-import {
-    ActionModal,
-    Button,
-    ButtonGroup,
-    RawCheckboxInput,
-    Form,
-    FormField,
-    Link,
-    Panel,
-    Select,
-    TabArea,
-    TemporaryMessageArea,
-    TextInput,
-    Level,
-    UI,
-} from "../../../stemjs/src/ui/All.js";
+import {UI} from "../../../stemjs/src/ui/UIBase";
+import {ActionModal} from "../../../stemjs/src/ui/modal/Modal";
+import {Button} from "../../../stemjs/src/ui/button/Button";
+import {ButtonGroup} from "../../../stemjs/src/ui/button/ButtonGroup.jsx";
+import {Form, FormField} from "../../../stemjs/src/ui/form/Form";
+import {RawCheckboxInput, TextInput, Select} from "../../../stemjs/src/ui/input/Input";
+import {Link} from "../../../stemjs/src/ui/primitives/Link";
+import {Panel} from "../../../stemjs/src/ui/UIPrimitives";
+import {TabArea} from "../../../stemjs/src/ui/tabs/TabArea";
+import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea";
+import {Level} from "../../../stemjs/src/ui/Constants";
 import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
 import {Language} from "../../localization/js/state/LanguageStore.ts";
 

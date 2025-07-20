@@ -1,4 +1,12 @@
-import {UI, Level, Route, Router, Button, Link, Modal, Form, FormField, TextInput, FormGroup, RawCheckboxInput, TemporaryMessageArea} from "ui/All";
+import {UI} from "../../../stemjs/src/ui/UIBase";
+import {Level} from "../../../stemjs/src/ui/Constants";
+import {Route, Router} from "../../../stemjs/src/ui/Router";
+import {Button} from "../../../stemjs/src/ui/button/Button";
+import {Link} from "../../../stemjs/src/ui/primitives/Link";
+import {Modal} from "../../../stemjs/src/ui/modal/Modal";
+import {Form, FormField, FormGroup} from "../../../stemjs/src/ui/form/Form";
+import {TextInput, RawCheckboxInput} from "../../../stemjs/src/ui/input/Input";
+import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {slugify} from "../../../stemjs/src/base/Utils.js";
 import {MarkupEditor} from "../../content/js/markup/MarkupEditor.jsx";

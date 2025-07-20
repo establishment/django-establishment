@@ -1,5 +1,9 @@
+import {UI} from "../../../stemjs/src/ui/UIBase";
 import {Device} from "../../../stemjs/src/base/Device";
-import {UI, FloatingWindow, Direction, Panel, Button} from "../../../stemjs/src/ui/All.js";
+import {FloatingWindow} from "../../../stemjs/src/ui/modal/FloatingWindow";
+import {Direction} from "../../../stemjs/src/ui/Constants";
+import {Panel} from "../../../stemjs/src/ui/UIPrimitives";
+import {Button} from "../../../stemjs/src/ui/button/Button";
 
 export class BasePopup extends FloatingWindow {
     static bodyPopups = new Set();

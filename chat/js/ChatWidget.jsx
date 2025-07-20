@@ -1,4 +1,12 @@
-import {UI, Switcher, TextArea, Button, ButtonGroup, Panel, InfiniteScrollable, registerStyle, Level, Size} from "ui/All";
+import {UI} from "../../../stemjs/src/ui/UIBase";
+import {Switcher} from "../../../stemjs/src/ui/Switcher";
+import {TextArea} from "../../../stemjs/src/ui/input/Input";
+import {Button} from "../../../stemjs/src/ui/button/Button";
+import {ButtonGroup} from "../../../stemjs/src/ui/button/ButtonGroup";
+import {Panel} from "../../../stemjs/src/ui/UIPrimitives";
+import {InfiniteScrollable} from "../../../stemjs/src/ui/misc/Scrollable";
+import {registerStyle} from "../../../stemjs/src/ui/style/Theme";
+import {Level, Size} from "../../../stemjs/src/ui/Constants";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {Pluginable} from "../../../stemjs/src/base/Plugin.js";
 import {GlobalState} from "../../../stemjs/src/state/State.js";
@@ -7,7 +15,7 @@ import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton.jsx";
 import {ButtonStyle} from "../../../stemjs/src/ui/button/ButtonStyle.js";
 import {InputStyle} from "../../../stemjs/src/ui/input/Style.js";
 
-import {MessageThreadStore, MessageInstanceStore, GroupChatStore} from "./state/MessageThreadStore.js";
+import {MessageThreadStore, MessageInstanceStore, GroupChatStore} from "./state/MessageThreadStore";
 import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 import {ChatMarkupRenderer} from "./ChatMarkupRenderer.jsx";

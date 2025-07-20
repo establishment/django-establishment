@@ -1,8 +1,11 @@
-import {UI, SVG, Switcher, Button, RawSVG} from "../../../stemjs/src/ui/All.js";
-import {MarkupRenderer, MarkupClassMap} from "../../../stemjs/src/markup/MarkupRenderer.js";
-import {Language} from "../../localization/js/state/LanguageStore.ts";
-import {Article, ArticleStore} from "./state/ArticleStore.js";
-import {ensure} from "../../../stemjs/src/base/Require.js";
+import {UI} from "../../../stemjs/src/ui/UIBase";
+import {RawSVG} from "../../../stemjs/src/ui/svg/SVGPrimitives";
+import {Switcher} from "../../../stemjs/src/ui/Switcher";
+import {Button} from "../../../stemjs/src/ui/button/Button";
+import {MarkupRenderer, MarkupClassMap} from "../../../stemjs/src/markup/MarkupRenderer";
+import {Language} from "../../localization/js/state/LanguageStore";
+import {Article, ArticleStore} from "./state/ArticleStore";
+import {ensure} from "../../../stemjs/src/base/Require";
 
 
 class ArticleRenderer extends MarkupRenderer {
