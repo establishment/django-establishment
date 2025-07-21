@@ -1,4 +1,7 @@
-import {UI, Button, registerStyle, Level, Size} from "UI";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
+import {registerStyle} from "../../../stemjs/src/ui/style/Theme.ts";
+import {Level, Size} from "../../../stemjs/src/ui/Constants.ts";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 
 import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";

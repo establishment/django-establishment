@@ -1,4 +1,6 @@
-import {UI, registerStyle, Orientation, VoteStatus} from "UI";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {registerStyle} from "../../../stemjs/src/ui/style/Theme.ts";
+import {Orientation, VoteStatus} from "../../../stemjs/src/ui/Constants.ts";
 
 import {LoginModal} from "../../accounts/js/LoginModal.jsx";
 import {UserReactionCollection} from "../../accounts/js/state/UserReactionStore.js";

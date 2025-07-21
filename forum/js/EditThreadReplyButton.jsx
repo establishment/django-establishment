@@ -1,4 +1,6 @@
-import {UI, Button, Level} from "UI";
+import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
+import {Level} from "../../../stemjs/src/ui/Constants.ts";
 import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";
 import {LoginModal} from "../../accounts/js/LoginModal.jsx";
 import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer.jsx";
