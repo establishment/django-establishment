@@ -3,26 +3,26 @@ import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
 import {StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
 
 @coolStore
-export class UserGroupObject extends BaseStore("UserGroup") {
+export class UserGroup extends BaseStore("UserGroup") {
     declare id: number;
     declare name: string;
-    members: Map<StoreId, UserGroupMemberObject> = new Map();
-    membersByUserId: Map<StoreId, UserGroupMemberObject> = new Map();
+    members: Map<StoreId, UserGroupMember> = new Map();
+    membersByUserId: Map<StoreId, UserGroupMember> = new Map();
 
-    addMember(groupMember: UserGroupMemberObject): void {
+    addMember(groupMember: UserGroupMember): void {
         this.members.set(groupMember.id, groupMember);
         this.membersByUserId.set(groupMember.userId, groupMember);
     }
 
-    getMember(groupMemberId: StoreId): UserGroupMemberObject | undefined {
+    getMember(groupMemberId: StoreId): UserGroupMember | undefined {
         return this.members.get(groupMemberId);
     }
 
-    getMemberById(groupMemberId: StoreId): UserGroupMemberObject | undefined {
+    getMemberById(groupMemberId: StoreId): UserGroupMember | undefined {
         return this.getMember(groupMemberId);
     }
 
-    getMemberByUserId(userId: StoreId): UserGroupMemberObject | undefined {
+    getMemberByUserId(userId: StoreId): UserGroupMember | undefined {
         return this.membersByUserId.get(userId);
     }
 
@@ -31,23 +31,23 @@ export class UserGroupObject extends BaseStore("UserGroup") {
         if (member) {
             this.members.delete(member.id);
             this.membersByUserId.delete(member.userId);
-            UserGroupMemberObject.applyDeleteEvent({
+            UserGroupMember.applyDeleteEvent({
                 objectId: member.id
             } as StoreEvent);
         }
     }
 
-    getMembers(): UserGroupMemberObject[] {
+    getMembers(): UserGroupMember[] {
         return [...this.members.values()];
     }
 
-    static getByName(name: string): UserGroupObject | undefined {
+    static getByName(name: string): UserGroup | undefined {
         return this.all().find(group => group.name === name);
     }
 }
 
 @coolStore
-export class UserGroupMemberObject extends BaseStore("UserGroupMember", {
+export class UserGroupMember extends BaseStore("UserGroupMember", {
     dependencies: ["UserGroup"]
 }) {
     declare id: number;
@@ -63,8 +63,8 @@ export class UserGroupMemberObject extends BaseStore("UserGroupMember", {
         this.getGroup()?.removeMemberByUserId(this.userId);
     }
 
-    getGroup(): UserGroupObject | undefined {
-        return UserGroupObject.get(this.groupId);
+    getGroup(): UserGroup | undefined {
+        return UserGroup.get(this.groupId);
     }
 
     getPublicUser(): any {
@@ -72,7 +72,5 @@ export class UserGroupMemberObject extends BaseStore("UserGroupMember", {
     }
 }
 
-export const UserGroup = UserGroupObject;
-export const UserGroupStore = UserGroupObject;
-export const UserGroupMember = UserGroupMemberObject;
-export const UserGroupMemberStore = UserGroupMemberObject;
+export const UserGroupStore = UserGroup;
+export const UserGroupMemberStore = UserGroupMember;

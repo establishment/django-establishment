@@ -3,7 +3,7 @@ import {TranslationKeyStore} from "../../../localization/js/state/TranslationSto
 import {StoreId} from "../../../../stemjs/src/state/State";
 
 @coolStore
-export class ErrorMessageObject extends BaseStore("ErrorMessage") {
+export class ErrorMessage extends BaseStore("ErrorMessage") {
     declare id: number;
     declare translationKeyId: StoreId;
 
@@ -13,5 +13,4 @@ export class ErrorMessageObject extends BaseStore("ErrorMessage") {
     }
 }
 
-export const ErrorMessage = ErrorMessageObject;
-export const ErrorMessageStore = ErrorMessageObject;
+export const ErrorMessageStore = ErrorMessage;

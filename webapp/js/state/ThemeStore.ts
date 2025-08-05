@@ -3,8 +3,8 @@ import {StoreId} from "../../../../stemjs/src/state/State";
 import {ThemeProps} from "../../../../stemjs/src/ui/style/Theme";
 
 @coolStore
-export class PredefinedThemeObject extends BaseStore("PredefinedTheme") {
-    private static customTheme?: PredefinedThemeObject;
+export class PredefinedTheme extends BaseStore("PredefinedTheme") {
+    private static customTheme?: PredefinedTheme;
 
     declare id: string | number;
     declare name: string;
@@ -14,7 +14,7 @@ export class PredefinedThemeObject extends BaseStore("PredefinedTheme") {
         return this.name;
     }
 
-    static getCustomTheme(): PredefinedThemeObject {
+    static getCustomTheme(): PredefinedTheme {
         this.customTheme = this.customTheme || new this({
             properties: {
                 COLOR_PRIMARY: null,
@@ -29,11 +29,11 @@ export class PredefinedThemeObject extends BaseStore("PredefinedTheme") {
         return this.customTheme;
     }
 
-    static allWithCustom(): PredefinedThemeObject[] {
+    static allWithCustom(): PredefinedTheme[] {
         return [...this.all(), this.getCustomTheme()];
     }
 
-    static getSafe(id: StoreId): PredefinedThemeObject {
+    static getSafe(id: StoreId): PredefinedTheme {
         if (id === "custom") {
             return this.getCustomTheme();
         }
@@ -45,5 +45,4 @@ export class PredefinedThemeObject extends BaseStore("PredefinedTheme") {
     }
 }
 
-export const PredefinedTheme = PredefinedThemeObject;
-export const ThemeStore = PredefinedThemeObject;
+export const ThemeStore = PredefinedTheme;

@@ -1,9 +1,9 @@
 import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
 
 @coolStore
-export class TagObject extends BaseStore("Tag") {
-    static _caseSensitiveCache?: Map<string, TagObject>;
-    static _caseInsensitiveCache?: Map<string, TagObject>;
+export class Tag extends BaseStore("Tag") {
+    static _caseSensitiveCache?: Map<string, Tag>;
+    static _caseInsensitiveCache?: Map<string, Tag>;
 
     declare id: number;
     declare name: string;
@@ -18,13 +18,13 @@ export class TagObject extends BaseStore("Tag") {
         return result;
     }
 
-    getParent(): TagObject | null {
-        return TagObject.get(this.parentId);
+    getParent(): Tag | null {
+        return Tag.get(this.parentId);
     }
 
     getDepth(): number {
         let depth = -1;
-        let tag: TagObject | null = this;
+        let tag: Tag | null = this;
         while (tag) {
             tag = tag.getParent();
             depth += 1;
@@ -32,7 +32,7 @@ export class TagObject extends BaseStore("Tag") {
         return depth;
     }
 
-    static getTagByName(name: string): TagObject | null {
+    static getTagByName(name: string): Tag | null {
         if (!this._caseSensitiveCache) {
             this._caseSensitiveCache = new Map();
         }
@@ -48,7 +48,7 @@ export class TagObject extends BaseStore("Tag") {
         return null;
     }
 
-    static getTagByNameInsensitive(name: string): TagObject | null {
+    static getTagByNameInsensitive(name: string): Tag | null {
         const lowerCaseName = name.toLocaleLowerCase();
         if (!this._caseInsensitiveCache) {
             this._caseInsensitiveCache = new Map();
@@ -66,5 +66,4 @@ export class TagObject extends BaseStore("Tag") {
     }
 }
 
-export const Tag = TagObject;
-export const TagStore = TagObject;
+export const TagStore = Tag;
