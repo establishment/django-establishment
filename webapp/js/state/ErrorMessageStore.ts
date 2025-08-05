@@ -1,8 +1,10 @@
-import {GenericObjectStore, StoreObject} from "../../../../stemjs/src/state/Store";
+import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
 import {TranslationKeyStore} from "../../../localization/js/state/TranslationStore";
 import {StoreId} from "../../../../stemjs/src/state/State";
 
-export class ErrorMessage extends StoreObject {
+@coolStore
+export class ErrorMessageObject extends BaseStore("ErrorMessage") {
+    declare id: number;
     declare translationKeyId: StoreId;
 
     getTranslation() {
@@ -11,11 +13,5 @@ export class ErrorMessage extends StoreObject {
     }
 }
 
-// TODO @types MakeStore? registerStore?
-class ErrorMessageStoreClass extends GenericObjectStore<ErrorMessage> {
-    constructor() {
-        super("ErrorMessage", ErrorMessage);
-    }
-}
-
-export const ErrorMessageStore = new ErrorMessageStoreClass();
+export const ErrorMessage = ErrorMessageObject;
+export const ErrorMessageStore = ErrorMessageObject;

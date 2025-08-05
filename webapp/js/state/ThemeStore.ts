@@ -1,26 +1,21 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
+import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
 import {StoreId} from "../../../../stemjs/src/state/State";
 import {ThemeProps} from "../../../../stemjs/src/ui/style/Theme";
 
+@coolStore
+export class PredefinedThemeObject extends BaseStore("PredefinedTheme") {
+    private static customTheme?: PredefinedThemeObject;
 
-class PredefinedTheme extends StoreObject {
+    declare id: string | number;
     declare name: string;
     declare properties: ThemeProps;
     
     toString(): string {
         return this.name;
     }
-}
 
-class PredefinedThemeStoreClass extends GenericObjectStore<PredefinedTheme> {
-    private declare customTheme?: PredefinedTheme;
-
-    constructor() {
-        super("PredefinedTheme", PredefinedTheme);
-    }
-
-    getCustomTheme(): PredefinedTheme {
-        this.customTheme = this.customTheme || new PredefinedTheme({
+    static getCustomTheme(): PredefinedThemeObject {
+        this.customTheme = this.customTheme || new this({
             properties: {
                 COLOR_PRIMARY: null,
                 COLOR_SECONDARY: null,
@@ -34,20 +29,21 @@ class PredefinedThemeStoreClass extends GenericObjectStore<PredefinedTheme> {
         return this.customTheme;
     }
 
-    allWithCustom(): PredefinedTheme[] {
+    static allWithCustom(): PredefinedThemeObject[] {
         return [...this.all(), this.getCustomTheme()];
     }
 
-    getSafe(id: StoreId): PredefinedTheme {
+    static getSafe(id: StoreId): PredefinedThemeObject {
         if (id === "custom") {
             return this.getCustomTheme();
         }
         return this.get(id) || this.get(1);
     }
 
-    updateCustomTheme(properties: ThemeProps): void {
+    static updateCustomTheme(properties: ThemeProps): void {
         Object.assign(this.getCustomTheme().properties, properties);
     }
 }
 
-export const ThemeStore = new PredefinedThemeStoreClass();
+export const PredefinedTheme = PredefinedThemeObject;
+export const ThemeStore = PredefinedThemeObject;

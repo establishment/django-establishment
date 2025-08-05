@@ -1,6 +1,10 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
+import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
 
-export class Tag extends StoreObject {
+@coolStore
+export class TagObject extends BaseStore("Tag") {
+    static _caseSensitiveCache?: Map<string, TagObject>;
+    static _caseInsensitiveCache?: Map<string, TagObject>;
+
     declare id: number;
     declare name: string;
     declare parentId?: number;
@@ -14,59 +18,53 @@ export class Tag extends StoreObject {
         return result;
     }
 
-    getParent(): Tag | null {
-        return TagStore.get(this.parentId);
+    getParent(): TagObject | null {
+        return TagObject.get(this.parentId);
     }
 
     getDepth(): number {
         let depth = -1;
-        let tag: Tag | null = this;
+        let tag: TagObject | null = this;
         while (tag) {
             tag = tag.getParent();
             depth += 1;
         }
         return depth;
     }
+
+    static getTagByName(name: string): TagObject | null {
+        if (!this._caseSensitiveCache) {
+            this._caseSensitiveCache = new Map();
+        }
+        if (this._caseSensitiveCache.has(name)) {
+            return this._caseSensitiveCache.get(name) || null;
+        }
+        for (const tag of this.all()) {
+            if (tag.name === name) {
+                this._caseSensitiveCache.set(name, tag);
+                return tag;
+            }
+        }
+        return null;
+    }
+
+    static getTagByNameInsensitive(name: string): TagObject | null {
+        const lowerCaseName = name.toLocaleLowerCase();
+        if (!this._caseInsensitiveCache) {
+            this._caseInsensitiveCache = new Map();
+        }
+        if (this._caseInsensitiveCache.has(lowerCaseName)) {
+            return this._caseInsensitiveCache.get(lowerCaseName) || null;
+        }
+        for (const tag of this.all()) {
+            if (tag.name.toLocaleLowerCase() === lowerCaseName) {
+                this._caseInsensitiveCache.set(name, tag);
+                return tag;
+            }
+        }
+        return null;
+    }
 }
 
-interface TagStoreType extends GenericObjectStore {
-    _caseSensitiveCache?: Map<string, Tag>;
-    _caseInsensitiveCache?: Map<string, Tag>;
-    getTagByName(name: string): Tag | null;
-    getTagByNameInsensitive(name: string): Tag | null;
-}
-
-export const TagStore = new GenericObjectStore<Tag>("tag", Tag);
-
-TagStore.getTagByName = function(name: string): Tag | null {
-    if (!this._caseSensitiveCache) {
-        this._caseSensitiveCache = new Map();
-    }
-    if (this._caseSensitiveCache.has(name)) {
-        return this._caseSensitiveCache.get(name) || null;
-    }
-    for (const tag of this.all()) {
-        if (tag.name === name) {
-            this._caseSensitiveCache.set(name, tag);
-            return tag;
-        }
-    }
-    return null;
-};
-
-TagStore.getTagByNameInsensitive = function(name: string): Tag | null {
-    const lowerCaseName = name.toLocaleLowerCase();
-    if (!this._caseInsensitiveCache) {
-        this._caseInsensitiveCache = new Map();
-    }
-    if (this._caseInsensitiveCache.has(lowerCaseName)) {
-        return this._caseInsensitiveCache.get(lowerCaseName) || null;
-    }
-    for (const tag of this.all()) {
-        if (tag.name.toLocaleLowerCase() === lowerCaseName) {
-            this._caseInsensitiveCache.set(name, tag);
-            return tag;
-        }
-    }
-    return null;
-};
+export const Tag = TagObject;
+export const TagStore = TagObject;
