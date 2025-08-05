@@ -1,12 +1,11 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
+import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
 
-export class UserReactionCollection extends StoreObject {
-    getUserReactionStore(): GenericObjectStore<UserReaction> {
-        return this.getStore().getState().getStore("UserReaction");
-    }
+@coolStore
+export class UserReactionCollection extends BaseStore("UserReactionCollection") {
+    declare id: number;
 
     getReactions(): UserReaction[] {
-        return this.getUserReactionStore().all().filter(reaction => reaction.collectionId == this.id);
+        return UserReaction.all().filter(reaction => reaction.collectionId == this.id);
     }
 
     getCurrentUserReaction(): UserReaction | undefined {
@@ -20,11 +19,13 @@ export class UserReactionCollection extends StoreObject {
     }
 }
 
-export class UserReaction extends StoreObject {
+@coolStore
+export class UserReaction extends BaseStore("UserReaction") {
+    declare id: number;
     declare userId: number;
     declare collectionId: number;
     declare type: string;
 }
 
-export let UserReactionCollectionStore = new GenericObjectStore("UserReactionCollection", UserReactionCollection);
-export let UserReactionStore = new GenericObjectStore("UserReaction", UserReaction);
+export const UserReactionCollectionStore = UserReactionCollection;
+export const UserReactionStore = UserReaction;

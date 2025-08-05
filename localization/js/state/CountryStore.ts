@@ -20,14 +20,14 @@ export class Country extends BaseStore("Country") {
         return "flag_" + this.getIsoCode().toLowerCase();
     }
 
-    static allWithNone(noneName: string = "None"): any[] {
+    static allWithNone(noneName: string = "None") {
          return [
             NO_COUNTRY_PLACEHOLDER(noneName),
             ...Array.from(this.all()).sort(COUNTRY_COMPARATOR)
         ];
     }
 
-    static getCountriesFromIds(countriesIds: Iterable<StoreId>, allCountries: boolean = true): any[] {
+    static getCountriesFromIds(countriesIds: Iterable<StoreId>, allCountries: boolean = true) {
         const countries: (Country | null)[] = [];
         for (const countryId of countriesIds) {
             countries.push(this.get(countryId));

@@ -1,15 +1,14 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
+import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
 import {Language} from "./LanguageStore";
 
-
-class TranslationKey extends StoreObject {
+@coolStore
+export class TranslationKey extends BaseStore("TranslationKey") {
     declare id: number;
     declare value: string;
 }
 
-export const TranslationKeyStore = new GenericObjectStore("TranslationKey", TranslationKey);
-
-class TranslationEntry extends StoreObject {
+@coolStore
+export class TranslationEntry extends BaseStore("TranslationEntry") {
     declare id: number;
     declare languageId: number;
     declare translationKeyId: number;
@@ -20,14 +19,15 @@ class TranslationEntry extends StoreObject {
     }
 
     getTranslationKey() {
-        return TranslationKeyStore.get(this.translationKeyId);
+        return TranslationKey.get(this.translationKeyId);
     }
 }
 
-export const TranslationEntryStore = new GenericObjectStore("TranslationEntry", TranslationEntry);
+export const TranslationKeyStore = TranslationKey;
+export const TranslationEntryStore = TranslationEntry;
 
-Language.addListener("buildTranslationMap", (language: any) => {
-    for (const translationEntry of TranslationEntryStore.all()) {
+Language.addListener("buildTranslationMap", (language: Language) => {
+    for (const translationEntry of TranslationEntry.all()) {
         if (translationEntry.languageId === language.id) {
             const translationKey = translationEntry.getTranslationKey();
             if (translationKey) {
