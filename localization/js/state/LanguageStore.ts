@@ -1,7 +1,8 @@
 // A basic store that can be used to keep objects that map to ISO-code backed languages
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
+import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
 
-export class LanguageObject extends StoreObject {
+@coolStore
+export class Language extends BaseStore("Language") {
     declare id: number;
     declare name: string;
     declare localName?: string;
@@ -17,19 +18,13 @@ export class LanguageObject extends StoreObject {
     }
 
     buildTranslation(callback: (translationMap: Map<any, any>) => void): void {
-        Language.dispatch("buildTranslationMap", this);
+        this.getStore().dispatch("buildTranslationMap", this);
         callback(this.translationMap);
     }
-}
 
-class LanguageStoreClass extends GenericObjectStore<LanguageObject> {
-    declare Locale: LanguageObject;
+    declare static Locale: Language;
 
-    constructor() {
-        super("Language", LanguageObject);
-    }
-
-    getLanguageForCode(isoCode: string): LanguageObject | undefined {
+    static getLanguageForCode(isoCode: string): Language | undefined {
         for (const language of this.all()) {
             if (language.isoCode === isoCode) {
                 return language;
@@ -37,7 +32,7 @@ class LanguageStoreClass extends GenericObjectStore<LanguageObject> {
         }
     }
 
-    setLocale(language: LanguageObject): void {
+    static setLocale(language: Language): void {
         if (this.Locale == language) {
             return;
         }
@@ -45,9 +40,7 @@ class LanguageStoreClass extends GenericObjectStore<LanguageObject> {
         this.dispatch("localeChange", language);
     }
 
-    getLocale(): LanguageObject {
+    static getLocale(): Language {
         return this.Locale;
     }
 }
-
-export const Language = new LanguageStoreClass();

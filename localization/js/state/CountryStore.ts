@@ -1,8 +1,9 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
+import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
 import {isNotNull} from "../../../../stemjs/src/base/Utils";
 import {StoreId} from "../../../../stemjs/src/state/State";
 
-export class Country extends StoreObject {
+@coolStore
+export class Country extends BaseStore("Country") {
     declare id: number;
     declare name: string;
     declare isoCode: string;
@@ -18,6 +19,25 @@ export class Country extends StoreObject {
     getEmojiName(): string {
         return "flag_" + this.getIsoCode().toLowerCase();
     }
+
+    static allWithNone(noneName: string = "None"): any[] {
+         return [
+            NO_COUNTRY_PLACEHOLDER(noneName),
+            ...Array.from(this.all()).sort(COUNTRY_COMPARATOR)
+        ];
+    }
+
+    static getCountriesFromIds(countriesIds: Iterable<StoreId>, allCountries: boolean = true): any[] {
+        const countries: (Country | null)[] = [];
+        for (const countryId of countriesIds) {
+            countries.push(this.get(countryId));
+        }
+        const result = countries.filter(isNotNull).sort(COUNTRY_COMPARATOR);
+        if (allCountries) {
+            result.unshift(ALL_COUNTRIES_PLACEHOLDER);
+        }
+        return result;
+    }
 }
 
 const ALL_COUNTRIES_PLACEHOLDER = new Country({id: 0, name: "All Countries", isCode: "-"});
@@ -30,25 +50,4 @@ const COUNTRY_COMPARATOR = (a: Country, b: Country): number => {
     return -1;
 };
 
-class CountryStoreClass extends GenericObjectStore<Country> {
-    allWithNone(noneName: string = "None"): any[] {
-         return [
-            NO_COUNTRY_PLACEHOLDER(noneName),
-            ...Array.from(this.all()).sort(COUNTRY_COMPARATOR)
-        ];
-    }
-
-    getCountriesFromIds(countriesIds: Iterable<StoreId>, allCountries: boolean = true): any[] {
-        const countries: (Country | null)[] = [];
-        for (const countryId of countriesIds) {
-            countries.push(CountryStore.get(countryId));
-        }
-        const result = countries.filter(isNotNull).sort(COUNTRY_COMPARATOR);
-        if (allCountries) {
-            result.unshift(ALL_COUNTRIES_PLACEHOLDER);
-        }
-        return result;
-    }
-}
-
-export const CountryStore = new CountryStoreClass("country", Country);
+export const CountryStore = Country;
