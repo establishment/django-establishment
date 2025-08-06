@@ -1,8 +1,7 @@
 import {Ajax} from "../../../../stemjs/src/base/Ajax";
-import {GlobalState, StoreId} from "../../../../stemjs/src/state/State";
+import {GlobalState, StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
 import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils";
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
-import {coolStore} from "../../../../stemjs/src/state/Store";
+import {BaseStore, coolStore} from "../../../../stemjs/src/state/Store";
 import {VirtualObjectStoreMixin} from "../../../../stemjs/src/state/VirtualObjectStore";
 import {StemDate} from "../../../../stemjs/src/time/Date";
 import {ServerTime} from "../../../../stemjs/src/time/Time";
@@ -202,11 +201,13 @@ MessageInstance.addCreateListener((messageInstance: MessageInstance, createEvent
     messageInstance.getMessageThread()?.addMessageInstance(messageInstance, createEvent);
 });
 
-export class MessageThread extends StoreObject {
+
+@coolStore
+export class MessageThread extends BaseStore("MessageThread") {
     declare streamName: string;
     declare markupEnabled?: boolean;
-    declare online: Set<number>;
-    declare messages: Map<any, MessageInstance>;
+    declare online: Set<StoreId>;
+    declare messages: Map<StoreId, MessageInstance>;
 
     constructor(obj: any) {
         super(obj);
@@ -215,8 +216,13 @@ export class MessageThread extends StoreObject {
         if (!this.streamName.startsWith("messagethread-privatechat-") && !this.streamName.startsWith("temp-")) {
             GlobalState.registerStream(this.streamName);
         }
-        this.online = new Set(this.online || []);
+        this.setOnlineUsers(this.online as any as StoreId[]);
+    }
+
+    setOnlineUsers(userIds?: StoreId[]) {
+        this.online = new Set(userIds || []);
         this.online.delete(0);
+        return this.online;
     }
 
     hasMarkupEnabled(): boolean {
@@ -232,10 +238,9 @@ export class MessageThread extends StoreObject {
         this.messages.delete(messageInstance.id);
     }
 
-    applyEvent(event: any): void {
+    applyEvent(event: StoreEvent): void {
         if (event.data.online) {
-            this.online = event.data.online = new Set(event.data.online);
-            this.online.delete(0);
+            event.data.online = this.setOnlineUsers(event.data.online);
         }
         if (event.type === "online") {
             this.dispatch("usersChanged", event);
@@ -272,8 +277,8 @@ export class MessageThread extends StoreObject {
     getMaxMessageId(): number {
         let value = 0;
         for (let messageInstance of this.messages.values()) {
-            if (!messageInstance.hasTemporaryId() && messageInstance.id > value) {
-                value = messageInstance.id;
+            if (!messageInstance.hasTemporaryId() && messageInstance.id as number > value) {
+                value = messageInstance.id as number;
             }
         }
         return value;
@@ -294,5 +299,4 @@ export class MessageThread extends StoreObject {
 }
 
 
-export const MessageThreadStore = new GenericObjectStore("messagethread", MessageThread);
-
+export const MessageThreadStore = MessageThread;
