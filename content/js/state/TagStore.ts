@@ -1,4 +1,4 @@
-import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
+import {coolStore, BaseStore} from "../../../../stemjs/src/state/Store";
 
 @coolStore
 export class Tag extends BaseStore("Tag") {

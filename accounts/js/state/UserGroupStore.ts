@@ -1,5 +1,5 @@
 import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore.js";
-import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
+import {coolStore, BaseStore} from "../../../../stemjs/src/state/Store";
 import {StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
 
 @coolStore

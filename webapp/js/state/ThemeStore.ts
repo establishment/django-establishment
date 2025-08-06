@@ -1,4 +1,4 @@
-import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
+import {coolStore, BaseStore} from "../../../../stemjs/src/state/Store";
 import {StoreId} from "../../../../stemjs/src/state/State";
 import {ThemeProps} from "../../../../stemjs/src/ui/style/Theme";
 

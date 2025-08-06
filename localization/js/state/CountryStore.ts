@@ -1,4 +1,4 @@
-import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
+import {coolStore, BaseStore} from "../../../../stemjs/src/state/Store";
 import {isNotNull} from "../../../../stemjs/src/base/Utils";
 import {StoreId} from "../../../../stemjs/src/state/State";
 
