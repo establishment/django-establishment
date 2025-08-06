@@ -7,7 +7,7 @@ import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
 import {registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
 import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer.js";
 
-import {GroupChatStore} from "./state/MessageThreadStore.js";
+import {GroupChatStore} from "./state/ChatStore.js";
 import {ChatMessageScrollSection, ChatWidget, EditableMessage} from "ChatWidget";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 import {LoginModal} from "../../accounts/js/LoginModal.jsx";

@@ -15,7 +15,8 @@ import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton.jsx";
 import {ButtonStyle} from "../../../stemjs/src/ui/button/ButtonStyle.js";
 import {InputStyle} from "../../../stemjs/src/ui/input/Style.js";
 
-import {MessageThreadStore, MessageInstanceStore, GroupChatStore} from "./state/MessageThreadStore";
+import {MessageThreadStore, MessageInstanceStore} from "./state/MessageThreadStore";
+import {GroupChatStore} from "./state/ChatStore.js";
 import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 import {ChatMarkupRenderer} from "./ChatMarkupRenderer.jsx";

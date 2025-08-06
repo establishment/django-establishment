@@ -13,7 +13,7 @@ import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
 import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
 import {MessagesPanelListStyle} from "./SocialNotificationsStyle.js";
 import {PrivateChatWidget} from "./ChatWidget.jsx";
-import {PrivateChatStore} from "./state/MessageThreadStore.js";
+import {PrivateChatStore} from "./state/ChatStore.js";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
 
