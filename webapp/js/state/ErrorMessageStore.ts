@@ -4,7 +4,6 @@ import {StoreId} from "../../../../stemjs/src/state/State";
 
 @coolStore
 export class ErrorMessage extends BaseStore("ErrorMessage") {
-    declare id: number;
     declare translationKeyId: StoreId;
 
     getTranslation() {

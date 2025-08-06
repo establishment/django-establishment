@@ -2,7 +2,6 @@ import {coolStore, BaseStore} from "../../../../stemjs/src/state/StoreRewrite";
 
 @coolStore
 export class UserReactionCollection extends BaseStore("UserReactionCollection") {
-    declare id: number;
 
     getReactions(): UserReaction[] {
         return UserReaction.all().filter(reaction => reaction.collectionId == this.id);
@@ -21,7 +20,6 @@ export class UserReactionCollection extends BaseStore("UserReactionCollection") 
 
 @coolStore
 export class UserReaction extends BaseStore("UserReaction") {
-    declare id: number;
     declare userId: number;
     declare collectionId: number;
     declare type: string;

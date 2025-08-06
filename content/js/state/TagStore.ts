@@ -5,7 +5,6 @@ export class Tag extends BaseStore("Tag") {
     static _caseSensitiveCache?: Map<string, Tag>;
     static _caseInsensitiveCache?: Map<string, Tag>;
 
-    declare id: number;
     declare name: string;
     declare parentId?: number;
 

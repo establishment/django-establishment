@@ -4,7 +4,6 @@ import {StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
 
 @coolStore
 export class UserGroup extends BaseStore("UserGroup") {
-    declare id: number;
     declare name: string;
     members: Map<StoreId, UserGroupMember> = new Map();
     membersByUserId: Map<StoreId, UserGroupMember> = new Map();
@@ -50,7 +49,6 @@ export class UserGroup extends BaseStore("UserGroup") {
 export class UserGroupMember extends BaseStore("UserGroupMember", {
     dependencies: ["UserGroup"]
 }) {
-    declare id: number;
     declare userId: number;
     declare groupId: any;
 
