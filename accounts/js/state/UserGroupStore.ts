@@ -1,8 +1,8 @@
 import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore.js";
-import {coolStore, BaseStore} from "../../../../stemjs/src/state/Store";
+import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
 import {StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
 
-@coolStore
+@globalStore
 export class UserGroup extends BaseStore("UserGroup") {
     declare name: string;
     members: Map<StoreId, UserGroupMember> = new Map();
@@ -45,7 +45,7 @@ export class UserGroup extends BaseStore("UserGroup") {
     }
 }
 
-@coolStore
+@globalStore
 export class UserGroupMember extends BaseStore("UserGroupMember", {
     dependencies: ["UserGroup"]
 }) {

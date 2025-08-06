@@ -1,11 +1,11 @@
 import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
 import {AjaxFetchMixin} from "../../../../stemjs/src/state/StoreMixins";
-import {coolStore} from "../../../../stemjs/src/state/Store";
+import {globalStore} from "../../../../stemjs/src/state/Store";
 
 import {User} from "../../../../csaaccounts/js/state/UserStore";
 import {Language} from "../../../localization/js/state/LanguageStore.js";
 
-@coolStore
+@globalStore
 export class Article extends AjaxFetchMixin("Article", {
     fetchURL: "/fetch_article/",
     maxFetchObjectCount: 32,

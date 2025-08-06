@@ -1,5 +1,5 @@
 import {AjaxFetchMixin, FetchJob} from "../../../../stemjs/src/state/StoreMixins";
-import {BaseStore, coolStore, StoreObject} from "../../../../stemjs/src/state/Store";
+import {BaseStore, globalStore, StoreObject} from "../../../../stemjs/src/state/Store";
 import {GlobalState, StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
 import {Ajax} from "../../../../stemjs/src/base/Ajax";
 import {MessageThread} from "./MessageThreadStore";
@@ -16,12 +16,11 @@ export class BaseChatObject extends StoreObject {
     }
 }
 
-@coolStore
+@globalStore
 export class GroupChat extends AjaxFetchMixin("GroupChat", {
     fetchURL: "/chat/group_chat_state/",
     maxFetchObjectCount: 1,
-    baseClass: BaseChatObject,
-}) {
+}, BaseChatObject) {
     static getFetchRequestData(entries: [StoreId, FetchJob[]][]) {
         return {
             chatId: entries.map(entry => entry[0])[0],
@@ -31,7 +30,7 @@ export class GroupChat extends AjaxFetchMixin("GroupChat", {
 
 export const GroupChatStore = GroupChat;
 
-class PrivateChat extends BaseStore("PrivateChat", {baseClass: BaseChatObject}) {
+class PrivateChat extends BaseStore("PrivateChat", {}, BaseChatObject) {
     declare user1Id: number;
     declare user2Id: number;
 

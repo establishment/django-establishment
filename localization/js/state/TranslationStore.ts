@@ -1,12 +1,12 @@
-import {coolStore, BaseStore} from "../../../../stemjs/src/state/Store";
+import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
 import {Language} from "./LanguageStore";
 
-@coolStore
+@globalStore
 export class TranslationKey extends BaseStore("TranslationKey") {
     declare value: string;
 }
 
-@coolStore
+@globalStore
 export class TranslationEntry extends BaseStore("TranslationEntry") {
     declare languageId: number;
     declare translationKeyId: number;

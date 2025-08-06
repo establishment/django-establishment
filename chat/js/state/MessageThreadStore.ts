@@ -1,7 +1,7 @@
 import {Ajax} from "../../../../stemjs/src/base/Ajax";
 import {GlobalState, StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
 import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils";
-import {BaseStore, coolStore} from "../../../../stemjs/src/state/Store";
+import {BaseStore, globalStore} from "../../../../stemjs/src/state/Store";
 import {VirtualObjectStoreMixin} from "../../../../stemjs/src/state/mixins/VirtualObjectStore";
 import {StemDate} from "../../../../stemjs/src/time/Date";
 import {ServerTime} from "../../../../stemjs/src/time/Time";
@@ -10,7 +10,7 @@ import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore";
 import {UserReactionCollectionStore} from "../../../accounts/js/state/UserReactionStore";
 
 
-@coolStore
+@globalStore
 export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") {
     static dependencies = ["messagethread", "publicuser"];
 
@@ -202,7 +202,7 @@ MessageInstance.addCreateListener((messageInstance: MessageInstance, createEvent
 });
 
 
-@coolStore
+@globalStore
 export class MessageThread extends BaseStore("MessageThread") {
     declare streamName: string;
     declare markupEnabled?: boolean;

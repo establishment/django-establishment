@@ -1,8 +1,8 @@
-import {coolStore, BaseStore} from "../../../../stemjs/src/state/Store";
+import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
 import {StoreId} from "../../../../stemjs/src/state/State";
 import {ThemeProps} from "../../../../stemjs/src/ui/style/Theme";
 
-@coolStore
+@globalStore
 export class PredefinedTheme extends BaseStore("PredefinedTheme") {
     private static customTheme?: PredefinedTheme;
 

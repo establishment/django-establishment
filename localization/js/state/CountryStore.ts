@@ -1,8 +1,8 @@
-import {coolStore, BaseStore} from "../../../../stemjs/src/state/Store";
+import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
 import {isNotNull} from "../../../../stemjs/src/base/Utils";
 import {StoreId} from "../../../../stemjs/src/state/State";
 
-@coolStore
+@globalStore
 export class Country extends BaseStore("Country") {
     declare name: string;
     declare isoCode: string;

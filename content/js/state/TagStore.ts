@@ -1,6 +1,6 @@
-import {coolStore, BaseStore} from "../../../../stemjs/src/state/Store";
+import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
 
-@coolStore
+@globalStore
 export class Tag extends BaseStore("Tag") {
     static _caseSensitiveCache?: Map<string, Tag>;
     static _caseInsensitiveCache?: Map<string, Tag>;

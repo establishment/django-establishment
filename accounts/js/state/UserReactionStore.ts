@@ -1,6 +1,6 @@
-import {coolStore, BaseStore} from "../../../../stemjs/src/state/Store";
+import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
 
-@coolStore
+@globalStore
 export class UserReactionCollection extends BaseStore("UserReactionCollection") {
     declare upvotesCount: number;
     declare downvotesCount: number;
@@ -20,7 +20,7 @@ export class UserReactionCollection extends BaseStore("UserReactionCollection") 
     }
 }
 
-@coolStore
+@globalStore
 export class UserReaction extends BaseStore("UserReaction") {
     declare userId: number;
     declare collectionId: number;
