@@ -11,7 +11,7 @@ class BaseChatObject extends StoreObject {
         return MessageThreadStore.get(this.messageThreadId);
     }
 
-    getOnlineUserIds(): Set<number> | undefined {
+    getOnlineUserIds() {
         return this.getMessageThread()?.online;
     }
 }
