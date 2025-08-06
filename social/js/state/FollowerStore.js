@@ -1,4 +1,4 @@
-import {StoreObject, GenericObjectStore} from "state/Store";
+import {StoreObject, GenericObjectStore} from "state/OldStore";
 
 import {UserStore} from "state/UserStore";
 

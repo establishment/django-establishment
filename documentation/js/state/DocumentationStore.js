@@ -1,4 +1,4 @@
-import {GenericObjectStore, StoreObject} from "../../../../stemjs/src/state/Store";
+import {GenericObjectStore, StoreObject} from "../../../../stemjs/src/state/OldStore";
 import {ArticleStore} from "../../../content/js/state/ArticleStore.ts";
 
 

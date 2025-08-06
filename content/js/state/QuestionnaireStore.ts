@@ -1,4 +1,4 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
 
 class Questionnaire extends StoreObject {
     declare id: number;

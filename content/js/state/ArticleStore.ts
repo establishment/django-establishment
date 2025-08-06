@@ -1,4 +1,4 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
 import {AjaxFetchMixin} from "../../../../stemjs/src/state/StoreMixins";
 
 import {User} from "../../../../csaaccounts/js/state/UserStore";

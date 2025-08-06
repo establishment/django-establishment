@@ -1,4 +1,4 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
 import {GlobalState} from "../../../../stemjs/src/state/State.js";
 
 export class EmailGateway extends StoreObject {

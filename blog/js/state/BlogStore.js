@@ -1,4 +1,4 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
 import {ArticleStore} from "../../../content/js/state/ArticleStore.ts";
 
 class BlogEntry extends StoreObject {

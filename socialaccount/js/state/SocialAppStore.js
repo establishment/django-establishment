@@ -1,4 +1,4 @@
-import {StoreObject, GenericObjectStore} from "state/Store";
+import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
 
 export class SocialApp extends StoreObject {
     getClientId() {
