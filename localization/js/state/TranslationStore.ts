@@ -3,13 +3,11 @@ import {Language} from "./LanguageStore";
 
 @coolStore
 export class TranslationKey extends BaseStore("TranslationKey") {
-    declare id: number;
     declare value: string;
 }
 
 @coolStore
 export class TranslationEntry extends BaseStore("TranslationEntry") {
-    declare id: number;
     declare languageId: number;
     declare translationKeyId: number;
     declare value: string;

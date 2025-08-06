@@ -1,7 +1,6 @@
 import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
 
 class Questionnaire extends StoreObject {
-    declare id: number;
     declare title?: string;
     questions: QuestionnaireQuestion[] = [];
 
@@ -23,7 +22,6 @@ class Questionnaire extends StoreObject {
 export const QuestionnaireStore = new GenericObjectStore("questionnaire", Questionnaire);
 
 export class QuestionnaireQuestion extends StoreObject {
-    declare id: number;
     declare questionnaireId: number;
     declare priority: number;
     declare text?: string;
@@ -69,7 +67,6 @@ const QuestionnaireQuestionStore = new GenericObjectStore("questionnairequestion
 });
 
 class QuestionnaireQuestionOption extends StoreObject {
-    declare id: number;
     declare questionId: number;
     declare priority: number;
     declare text?: string;
@@ -92,7 +89,6 @@ const QuestionnaireQuestionOptionStore = new GenericObjectStore("QuestionnaireQu
 });
 
 class QuestionnaireInstance extends StoreObject {
-    declare id: number;
     declare questionnaireId: number;
     declare userId: number;
     questionResponses: Map<number, QuestionnaireQuestionResponse> = new Map();
@@ -125,7 +121,6 @@ class QuestionnaireInstanceStoreClass extends GenericObjectStore<QuestionnaireIn
 export const QuestionnaireInstanceStore = new QuestionnaireInstanceStoreClass();
 
 class QuestionnaireQuestionResponse extends StoreObject {
-    declare id: number;
     declare instanceId: number;
     declare questionId: number;
     declare text?: string;

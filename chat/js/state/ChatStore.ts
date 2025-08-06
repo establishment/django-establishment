@@ -1,14 +1,14 @@
-import {GenericObjectStore, StoreObject} from "../../../../stemjs/src/state/OldStore";
 import {AjaxFetchMixin, FetchJob} from "../../../../stemjs/src/state/StoreMixins";
-import {GlobalState, StoreId} from "../../../../stemjs/src/state/State";
+import {BaseStore, coolStore, StoreObject} from "../../../../stemjs/src/state/Store";
+import {GlobalState, StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
 import {Ajax} from "../../../../stemjs/src/base/Ajax";
-import {MessageThread, MessageThreadStore} from "./MessageThreadStore";
+import {MessageThread} from "./MessageThreadStore";
 
-class BaseChatObject extends StoreObject {
+export class BaseChatObject extends StoreObject {
     declare messageThreadId: number;
 
     getMessageThread(): MessageThread | undefined {
-        return MessageThreadStore.get(this.messageThreadId);
+        return MessageThread.get(this.messageThreadId);
     }
 
     getOnlineUserIds() {
@@ -16,62 +16,60 @@ class BaseChatObject extends StoreObject {
     }
 }
 
-class GroupChat extends BaseChatObject {
-}
-
-class GroupChatStoreClass extends AjaxFetchMixin(GenericObjectStore<GroupChat>) {
-    getFetchRequestData(entries: [StoreId, FetchJob[]][]) {
+@coolStore
+export class GroupChat extends AjaxFetchMixin("GroupChat", {
+    fetchURL: "/chat/group_chat_state/",
+    maxFetchObjectCount: 1,
+    baseClass: BaseChatObject,
+}) {
+    static getFetchRequestData(entries: [StoreId, FetchJob[]][]) {
         return {
             chatId: entries.map(entry => entry[0])[0],
         };
     }
 }
 
-export const GroupChatStore = new GroupChatStoreClass("groupChat", GroupChat, {
-    fetchURL: "/chat/group_chat_state/",
-    maxFetchObjectCount: 1,
-});
+export const GroupChatStore = GroupChat;
 
-class PrivateChat extends BaseChatObject {
+class PrivateChat extends BaseStore("PrivateChat", {baseClass: BaseChatObject}) {
     declare user1Id: number;
     declare user2Id: number;
 
     getOtherUserId(): number {
         return (USER.id === this.user1Id ? this.user2Id : this.user1Id);
     }
-}
 
-export const PrivateChatStore = new GenericObjectStore<PrivateChat>("PrivateChat", PrivateChat, {
-});
-
-PrivateChatStore.getChatWithUser = function(userId: number): PrivateChat | null {
-    let myUserId = USER.id;
-    if (myUserId === userId) {
-        for (let privateChat of this.all()) {
-            if (privateChat.user1Id === userId && privateChat.user2Id === userId) {
+    static getChatWithUser(userId: StoreId): PrivateChat | null {
+        let myUserId = USER.id;
+        if (myUserId === userId) {
+            for (let privateChat of this.all()) {
+                if (privateChat.user1Id === userId && privateChat.user2Id === userId) {
+                    return privateChat;
+                }
+            }
+            return null;
+        }
+        for (const privateChat of this.all()) {
+            if (privateChat.user1Id === userId || privateChat.user2Id === userId) {
                 return privateChat;
             }
         }
         return null;
     }
-    for (const privateChat of this.all()) {
-        if (privateChat.user1Id === userId || privateChat.user2Id === userId) {
-            return privateChat;
-        }
+
+    static fetchForUser(userId: StoreId, onSuccess: (chat: PrivateChat) => void, onError: (error: any) => void): void {
+        Ajax.postJSON("/chat/private_chat_state/", {
+            userId: userId,
+        }).then(
+            (data: any) => onSuccess(PrivateChatStore.get(data.privateChatId)),
+            onError
+        );
     }
-    return null;
-};
+}
 
-PrivateChatStore.fetchForUser = function (userId: number, onSuccess: (chat: PrivateChat) => void, onError: (error: any) => void): void {
-    Ajax.postJSON("/chat/private_chat_state/", {
-        userId: userId,
-    }).then(
-        (data: any) => onSuccess(PrivateChatStore.get(data.privateChatId)),
-        onError
-    );
-};
+export const PrivateChatStore = PrivateChat;
 
-PrivateChatStore.addChangeListener((obj: any, event: any) => {
+PrivateChat.addChangeListener((obj: PrivateChat, event: StoreEvent) => {
     if (event.type === "privateMessage") {
         GlobalState.importState(event.state);
     }

@@ -3,7 +3,6 @@ import {coolStore, BaseStore} from "../../../../stemjs/src/state/Store";
 
 @coolStore
 export class Language extends BaseStore("Language") {
-    declare id: number;
     declare name: string;
     declare localName?: string;
     declare isoCode: string;

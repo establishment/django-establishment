@@ -4,7 +4,6 @@ import {StoreId} from "../../../../stemjs/src/state/State";
 
 @coolStore
 export class Country extends BaseStore("Country") {
-    declare id: number;
     declare name: string;
     declare isoCode: string;
 

@@ -1,11 +1,15 @@
 import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
 import {AjaxFetchMixin} from "../../../../stemjs/src/state/StoreMixins";
+import {coolStore} from "../../../../stemjs/src/state/Store";
 
 import {User} from "../../../../csaaccounts/js/state/UserStore";
 import {Language} from "../../../localization/js/state/LanguageStore.js";
 
-class Article extends StoreObject {
-    declare id: number;
+@coolStore
+export class Article extends AjaxFetchMixin("Article", {
+    fetchURL: "/fetch_article/",
+    maxFetchObjectCount: 32,
+}) {
     declare userCreatedId: number;
     declare baseArticleId?: number;
     declare languageId?: number;
@@ -31,7 +35,7 @@ class Article extends StoreObject {
     }
 
     getTranslation(language: any = Language.Locale): Article {
-        for (const article of ArticleStore.all()) {
+        for (const article of Article.all()) {
             if (article.baseArticleId === this.id && article.languageId === language.id) {
                 return article;
             }
@@ -40,21 +44,10 @@ class Article extends StoreObject {
     }
 
     getBaseArticle(): Article {
-        return ArticleStore.get(this.baseArticleId) || this;
+        return Article.get(this.baseArticleId) || this;
     }
-}
 
-class ArticleEdit extends StoreObject {
-    declare id: number;
-    declare articleId: number;
-
-    getArticle(): Article | null {
-        return ArticleStore.get(this.articleId);
-    }
-}
-
-class ArticleStoreClass extends AjaxFetchMixin(GenericObjectStore<Article>) {
-    getTranslation(id: number, language: any = Language.Locale): Article | null {
+    static getTranslation(id: number, language: any = Language.Locale): Article | null {
         let baseArticle = this.get(id);
         if (baseArticle) {
             baseArticle = baseArticle.getTranslation(language);
@@ -63,12 +56,17 @@ class ArticleStoreClass extends AjaxFetchMixin(GenericObjectStore<Article>) {
     }
 }
 
-const ArticleStore = new ArticleStoreClass("article", Article, {
-    fetchURL: "/fetch_article/",
-    maxFetchObjectCount: 32,
-});
+export class ArticleEdit extends StoreObject {
+    declare articleId: number;
 
-const ArticleEditStore = new GenericObjectStore("articleedit", ArticleEdit, {
+    getArticle(): Article | null {
+        return Article.get(this.articleId);
+    }
+}
+
+export const ArticleStore = Article;
+
+export const ArticleEditStore = new GenericObjectStore("articleedit", ArticleEdit, {
     dependencies: ["article"],
 });
 
@@ -78,5 +76,3 @@ ArticleEditStore.addCreateListener((articleEdit: ArticleEdit) => {
         article.addEdit(articleEdit);
     }
 });
-
-export {Article, ArticleStore, ArticleEditStore};
