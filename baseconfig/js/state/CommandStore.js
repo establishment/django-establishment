@@ -1,6 +1,7 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
+import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
 
-export class CommandInstance extends StoreObject {
+@globalStore
+export class CommandInstance extends BaseStore("CommandInstance") {
     toString() {
         return this.name;
     }
@@ -12,7 +13,8 @@ export class CommandInstance extends StoreObject {
 
 const verboseStatus = ["Waiting", "Running", "Failed", "Successful"];
 
-export class CommandRun extends StoreObject {
+@globalStore
+export class CommandRun extends BaseStore("CommandRun") {
     update(event) {
         if (event.type === "logMessage") {
             this.logEntries = this.logEntries || {
@@ -30,5 +32,5 @@ export class CommandRun extends StoreObject {
     }
 }
 
-export let CommandInstanceStore = new GenericObjectStore("CommandInstance", CommandInstance);
-export let CommandRunStore = new GenericObjectStore("CommandRun", CommandRun);
+export let CommandInstanceStore = CommandInstance;
+export let CommandRunStore = CommandRun;

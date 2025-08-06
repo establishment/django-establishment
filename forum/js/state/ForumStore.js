@@ -1,18 +1,19 @@
 import {Ajax} from "../../../../stemjs/src/base/Ajax.js";
 import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils.js";
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
+import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
 
 import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore.js";
 import {MessageThreadStore, MessageInstanceStore} from "../../../chat/js/state/MessageThreadStore.js";
 import {GlobalState} from "../../../../stemjs/src/state/State.js";
 
-class Forum extends StoreObject {
+@globalStore
+class Forum extends BaseStore("forum") {
     constructor() {
         super(...arguments);
         this.forumThreads = new Map();
         // TODO: not appropriate to register to streams here
         GlobalState.registerStream(this.getStreamName());
-        ForumThreadStore.addDeleteListener((forumThread) => {
+        ForumThread.addDeleteListener((forumThread) => {
             if (forumThread.parentId === this.id && this.forumThreads.has(forumThread.id)) {
                 this.deleteForumThread(forumThread);
             }
@@ -42,9 +43,10 @@ class Forum extends StoreObject {
     }
 }
 
-var ForumStore = new GenericObjectStore("forum", Forum);
+var ForumStore = Forum;
 
-class ForumThread extends StoreObject {
+@globalStore
+class ForumThread extends BaseStore("forumthread", {dependencies: ["forum", "messageinstance"]}) {
     constructor(obj) {
         super(obj);
         let parent = this.getParent();
@@ -80,7 +82,7 @@ class ForumThread extends StoreObject {
     }
 
     getParent() {
-        return ForumStore.get(this.parentId);
+        return Forum.get(this.parentId);
     }
 
     getMessageThread() {
@@ -122,9 +124,6 @@ class ForumThread extends StoreObject {
     }
 }
 
-const ForumThreadStore = new GenericObjectStore("forumthread", ForumThread, {
-    dependencies: ["forum", "messageinstance"]
-});
-
+const ForumThreadStore = ForumThread;
 
 export {ForumStore, ForumThreadStore};

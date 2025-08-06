@@ -1,6 +1,7 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
+import {globalStore, BaseStore, StoreObject} from "../../../../stemjs/src/state/Store";
 
-class Questionnaire extends StoreObject {
+@globalStore
+class Questionnaire extends BaseStore("questionnaire") {
     declare title?: string;
     questions: QuestionnaireQuestion[] = [];
 
@@ -19,20 +20,21 @@ class Questionnaire extends StoreObject {
     }
 }
 
-export const QuestionnaireStore = new GenericObjectStore("questionnaire", Questionnaire);
+export const QuestionnaireStore = Questionnaire;
 
-export class QuestionnaireQuestion extends StoreObject {
-    declare questionnaireId: number;
-    declare priority: number;
-    declare text?: string;
-    declare type?: number;
-    options: QuestionnaireQuestionOption[] = [];
-
+@globalStore
+export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {dependencies: ["Questionnaire"]}) {
     static Type = {
         PLAIN_TEXT: 1,
         SINGLE_CHOICE: 2,
         MULTIPLE_CHOICE: 3
     };
+
+    declare questionnaireId: number;
+    declare priority: number;
+    declare text?: string;
+    declare type?: number;
+    options: QuestionnaireQuestionOption[] = [];
 
     getQuestionnaire(): Questionnaire | null {
         return QuestionnaireStore.get(this.questionnaireId);
@@ -62,11 +64,10 @@ export class QuestionnaireQuestion extends StoreObject {
     }
 }
 
-const QuestionnaireQuestionStore = new GenericObjectStore("questionnairequestion", QuestionnaireQuestion, {
-    dependencies: ["Questionnaire"]
-});
+const QuestionnaireQuestionStore = QuestionnaireQuestion;
 
-class QuestionnaireQuestionOption extends StoreObject {
+@globalStore
+class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestionOption", {dependencies: ["QuestionnaireQuestion"]}) {
     declare questionId: number;
     declare priority: number;
     declare text?: string;
@@ -84,11 +85,10 @@ class QuestionnaireQuestionOption extends StoreObject {
     }
 }
 
-const QuestionnaireQuestionOptionStore = new GenericObjectStore("QuestionnaireQuestionOption", QuestionnaireQuestionOption, {
-    dependencies: ["QuestionnaireQuestion"]
-});
+const QuestionnaireQuestionOptionStore = QuestionnaireQuestionOption;
 
-class QuestionnaireInstance extends StoreObject {
+@globalStore
+class QuestionnaireInstance extends BaseStore("QuestionnaireInstance", {dependencies: ["Questionnaire", "QuestionnaireQuestion", "QuestionnaireQuestionOption"]}) {
     declare questionnaireId: number;
     declare userId: number;
     questionResponses: Map<number, QuestionnaireQuestionResponse> = new Map();
@@ -104,23 +104,16 @@ class QuestionnaireInstance extends StoreObject {
     getQuestionResponse(questionId: number): QuestionnaireQuestionResponse | undefined {
         return this.questionResponses.get(questionId);
     }
-}
 
-class QuestionnaireInstanceStoreClass extends GenericObjectStore<QuestionnaireInstance> {
-    constructor() {
-        super("QuestionnaireInstance", QuestionnaireInstance, {
-            dependencies: ["Questionnaire", "QuestionnaireQuestion", "QuestionnaireQuestionOption"]
-        });
-    }
-
-    getCurrentUserInstance(questionnaireId: number): QuestionnaireInstance | undefined {
+    static getCurrentUserInstance(questionnaireId: number): QuestionnaireInstance | undefined {
         return this.all().find((instance: QuestionnaireInstance) => instance.userId === (USER as any).id && instance.questionnaireId === questionnaireId);
     }
 }
 
-export const QuestionnaireInstanceStore = new QuestionnaireInstanceStoreClass();
+export const QuestionnaireInstanceStore = QuestionnaireInstance;
 
-class QuestionnaireQuestionResponse extends StoreObject {
+@globalStore
+class QuestionnaireQuestionResponse extends BaseStore("QuestionnaireQuestionResponse", {dependencies: ["QuestionnaireInstance"]}) {
     declare instanceId: number;
     declare questionId: number;
     declare text?: string;
@@ -147,6 +140,4 @@ class QuestionnaireQuestionResponse extends StoreObject {
     }
 }
 
-const QuestionnaireQuestionResponseStore = new GenericObjectStore("QuestionnaireQuestionResponse", QuestionnaireQuestionResponse, {
-    dependencies: ["QuestionnaireInstance"]
-});
+const QuestionnaireQuestionResponseStore = QuestionnaireQuestionResponse;

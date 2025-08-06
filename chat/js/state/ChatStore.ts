@@ -1,4 +1,4 @@
-import {AjaxFetchMixin, FetchJob} from "../../../../stemjs/src/state/StoreMixins";
+import {FetchStoreMixin, FetchJob} from "../../../../stemjs/src/state/mixins/FetchStoreMixin";
 import {BaseStore, globalStore, StoreObject} from "../../../../stemjs/src/state/Store";
 import {GlobalState, StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
 import {Ajax} from "../../../../stemjs/src/base/Ajax";
@@ -17,7 +17,7 @@ export class BaseChatObject extends StoreObject {
 }
 
 @globalStore
-export class GroupChat extends AjaxFetchMixin("GroupChat", {
+export class GroupChat extends FetchStoreMixin("GroupChat", {
     fetchURL: "/chat/group_chat_state/",
     maxFetchObjectCount: 1,
 }, BaseChatObject) {

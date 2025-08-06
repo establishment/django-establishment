@@ -1,6 +1,6 @@
 import {UI} from "../../../stemjs/src/ui/UIBase";
 import {ErrorModal} from "../../../stemjs/src/ui/modal/Modal";
-import {StoreObject} from "../../../stemjs/src/state/OldStore";
+import {StoreObject} from "../../../stemjs/src/state/Store";
 
 import {ErrorMessageStore, ErrorMessage} from "./state/ErrorMessageStore";
 

@@ -1,26 +1,13 @@
-import {StoreObject, GenericObjectStore} from "state/OldStore";
-
+import {globalStore, BaseStore} from "state/Store";
 import {UserStore} from "state/UserStore";
 
-
-export class Follower extends StoreObject {
-
-}
-
-
-class FollowerStoreClass extends GenericObjectStore {
-    constructor() {
-        super("social_follower", Follower, {
-            dependencies: ["user"]
-        });
-    }
-
-    getFollowed(userId) {
-        return FollowerStore.all().filter(follower => follower.userId === userId).map(
+@globalStore
+export class Follower extends BaseStore("social_follower", {dependencies: ["user"]}) {
+    static getFollowed(userId) {
+        return this.all().filter(follower => follower.userId === userId).map(
             follower => UserStore.get(follower.targetId)
         );
     }
 }
 
-
-export const FollowerStore = new FollowerStoreClass();
+export const FollowerStore = Follower;

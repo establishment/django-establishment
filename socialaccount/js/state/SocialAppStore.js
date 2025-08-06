@@ -1,23 +1,18 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/OldStore";
+import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
 
-export class SocialApp extends StoreObject {
+@globalStore
+export class SocialApp extends BaseStore("SocialApp") {
     getClientId() {
         return this.clientId;
     }
-}
 
-class SocialAppStoreClass extends GenericObjectStore {
-    constructor() {
-        super("SocialApp", SocialApp);
-    }
-
-    getSocialApps() {
+    static getSocialApps() {
         return this.all();
     }
 
-    getSocialAppByName(name) {
+    static getSocialAppByName(name) {
         return this.all().find(socialApp => socialApp.name === name);
     }
 }
 
-export const SocialAppStore = new SocialAppStoreClass();
+export const SocialAppStore = SocialApp;
