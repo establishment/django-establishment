@@ -7,7 +7,7 @@ import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
 import {registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
 import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer.js";
 
-import {GroupChatStore} from "./state/ChatStore.js";
+import {GroupChat} from "./state/ChatStore.js";
 import {ChatMessageScrollSection, ChatWidget, EditableMessage} from "ChatWidget";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 import {LoginModal} from "../../accounts/js/LoginModal.jsx";
@@ -225,7 +225,7 @@ class CommentWidget extends BlogCommentWidget {
 
 class AsyncCommentThread extends UI.Element {
     getMessageThread() {
-        let groupChat = GroupChatStore.get(this.options.chatId);
+        let groupChat = GroupChat.get(this.options.chatId);
         return groupChat && groupChat.getMessageThread();
     }
 
@@ -247,7 +247,7 @@ class AsyncCommentThread extends UI.Element {
             return [<CommentWidget ref="commentsSection" chatId={this.options.chatId} messageThread={messageThread}
                                    style={commentWidgetOptions} />];
         } else {
-            GroupChatStore.fetch(this.options.chatId, (groupChat) => {
+            GroupChat.fetch(this.options.chatId, (groupChat) => {
                 this.redraw();
             });
             return [

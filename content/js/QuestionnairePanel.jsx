@@ -13,7 +13,7 @@ import {Modal} from "../../../stemjs/src/ui/modal/Modal";
 import {ActionModalButton} from "../../../stemjs/src/ui/modal/Modal";
 import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
 
-import {QuestionnaireStore, QuestionnaireQuestion, QuestionnaireInstanceStore} from "./state/QuestionnaireStore.js";
+import {Questionnaire, QuestionnaireQuestion, QuestionnaireInstance} from "./state/QuestionnaireStore.js";
 
 
 export class QuestionnaireStyle extends StyleSheet {
@@ -273,7 +273,7 @@ class OrderedChildrenSwitcher extends Switcher {
 @registerStyle(QuestionnaireStyle)
 export class QuestionnairePanel extends UI.Element {
     getQuestionnaire() {
-        return QuestionnaireStore.get(this.options.questionnaireId);
+        return Questionnaire.get(this.options.questionnaireId);
     }
 
     getQuestions() {
@@ -352,7 +352,7 @@ export class QuestionnairePanel extends UI.Element {
 @registerStyle(QuestionnaireStyle)
 export class DelayedQuestionnairePanel extends UI.Element {
     isFinished() {
-        return !!QuestionnaireInstanceStore.getCurrentUserInstance(this.options.questionnaireId).dateSubmitted;
+        return !!QuestionnaireInstance.getCurrentUserInstance(this.options.questionnaireId).dateSubmitted;
     }
 
     render() {

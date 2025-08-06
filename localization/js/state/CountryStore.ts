@@ -48,5 +48,3 @@ const COUNTRY_COMPARATOR = (a: Country, b: Country): number => {
     }
     return -1;
 };
-
-export const CountryStore = Country;

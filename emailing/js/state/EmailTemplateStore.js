@@ -8,4 +8,3 @@ export class EmailTemplate extends BaseStore("EmailTemplate") {
     }
 }
 
-export const EmailTemplateStore = EmailTemplate;

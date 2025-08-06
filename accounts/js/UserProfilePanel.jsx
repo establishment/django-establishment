@@ -2,7 +2,7 @@ import {UI} from "../../../stemjs/src/ui/UIBase.js";
 import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
 import {TabArea} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
 
-import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
 class ProfilePanel extends Panel {
@@ -28,7 +28,7 @@ class UserProfilePanel extends TabArea {
     setOptions(options) {
         super.setOptions(options);
 
-        this.setUser(PublicUserStore.get(this.options.userId));
+        this.setUser(PublicUser.get(this.options.userId));
 
         this.options.children = [
             <ProfilePanel title="Profile" user={this.user} active={true}/>

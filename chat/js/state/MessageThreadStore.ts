@@ -5,9 +5,8 @@ import {BaseStore, globalStore} from "../../../../stemjs/src/state/Store";
 import {VirtualObjectStoreMixin} from "../../../../stemjs/src/state/mixins/VirtualObjectStoreMixin";
 import {StemDate} from "../../../../stemjs/src/time/Date";
 import {ServerTime} from "../../../../stemjs/src/time/Time";
-
-import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore";
-import {UserReactionCollectionStore} from "../../../accounts/js/state/UserReactionStore";
+import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
+import {UserReactionCollection} from "../../../accounts/js/state/UserReaction";
 
 
 @globalStore
@@ -26,7 +25,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     constructor(obj: any, event: any) {
         super(obj, event);
 
-        PublicUserStore.create(event.user);
+        PublicUser.create(event.user);
     }
 
     getNormalizedId(): number {
@@ -43,7 +42,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     }
 
     getUser(): string {
-        let user = PublicUserStore.get(this.userId);
+        let user = PublicUser.get(this.userId);
         if (user) {
             return user.username;
         }
@@ -55,11 +54,11 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     }
 
     getMessageThread(): MessageThread | undefined {
-        return MessageThreadStore.get(this.messageThreadId);
+        return MessageThread.get(this.messageThreadId);
     }
 
     getReactionCollection(fakeIfMissing: boolean = false): any {
-        let reactionCollection = UserReactionCollectionStore.get(this.reactionCollectionId);
+        let reactionCollection = UserReactionCollection.get(this.reactionCollectionId);
         if (fakeIfMissing && !reactionCollection) {
             return {
                 upvotesCount: 0,
@@ -195,8 +194,6 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     }
 }
 
-export const MessageInstanceStore = MessageInstance;
-
 MessageInstance.addCreateListener((messageInstance: MessageInstance, createEvent: any) => {
     messageInstance.getMessageThread()?.addMessageInstance(messageInstance, createEvent);
 });
@@ -297,6 +294,3 @@ export class MessageThread extends BaseStore("MessageThread") {
         return lastMessage;
     }
 }
-
-
-export const MessageThreadStore = MessageThread;

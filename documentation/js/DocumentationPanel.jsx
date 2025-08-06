@@ -6,7 +6,7 @@ import {registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
 import {Dispatcher} from "../../../stemjs/src/base/Dispatcher.js";
 
 import {ArticleSwitcher} from "../../content/js/ArticleRenderer.jsx";
-import {DocumentationEntryStore} from "./state/DocumentationStore.js";
+import {DocumentationEntry} from "./state/DocumentationStore.js";
 import {SimpleDocumentationNavElement} from "./DocumentationNavElement.jsx";
 import {DocumentationStyle} from "./DocumentationStyle.js";
 
@@ -22,7 +22,7 @@ class DocumentationPanel extends UI.Element {
     }
 
     getDocumentationEntry() {
-        return DocumentationEntryStore.get(this.options.documentationEntryId);
+        return DocumentationEntry.get(this.options.documentationEntryId);
     }
 
     render() {
@@ -62,7 +62,7 @@ class DocumentationPanel extends UI.Element {
 
     setURL(urlParts) {
         if (this.articleSwitcher) {
-            for (let documentationEntry of DocumentationEntryStore.all()) {
+            for (let documentationEntry of DocumentationEntry.all()) {
                 if (this.checkUrl(urlParts, documentationEntry)) {
                     this.focusToDocumentationEntry(documentationEntry);
                     return;

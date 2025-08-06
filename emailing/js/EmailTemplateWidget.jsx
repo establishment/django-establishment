@@ -12,9 +12,9 @@ import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
 import {TextArea} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 import {Language} from "../../localization/js/state/LanguageStore.ts";
-import {EmailGatewayStore} from "state/EmailGatewayStore.js";
-import {EmailCampaignStore} from "state/EmailCampaignStore.js";
-import {EmailTemplateStore} from "state/EmailTemplateStore.js";
+import {EmailGateway} from "state/EmailGatewayStore";
+import {EmailCampaign} from "state/EmailCampaignStore";
+import {EmailTemplate} from "state/EmailTemplateStore";
 import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
 
 class EmailTemplateModal extends ActionModal {
@@ -58,13 +58,13 @@ class EmailTemplateModal extends ActionModal {
                 <TextInput value={templateValues.subject || ""} ref="subjectInput"/>
             </FormField>,
             <FormField label="Campaign" ref="campaignIdField" style={{margin: "initial"}}>
-                <Select ref="campaignSelect" options={EmailCampaignStore.all()} selected={EmailCampaignStore.get(templateValues.campaignId)}/>
+                <Select ref="campaignSelect" options={EmailCampaign.all()} selected={EmailCampaign.get(templateValues.campaignId)}/>
             </FormField>,
             <FormField label="Language" ref="languageIdField" style={{margin: "initial"}}>
                 <Select ref="languageSelect" options={Language.all()} selected={Language.get(templateValues.languageId)}/>
             </FormField>,
             <FormField label="Gateway" ref="gatewayIdField" style={{margin: "initial"}}>
-                <Select ref="gatewaySelect" options={EmailGatewayStore.all()} selected={EmailGatewayStore.get(templateValues.gatewayId)}/>
+                <Select ref="gatewaySelect" options={EmailGateway.all()} selected={EmailGateway.get(templateValues.gatewayId)}/>
             </FormField>,
             <FormField label="Html" ref="htmlField" inline={false} style={{margin: "initial"}}>
             </FormField>,
@@ -218,14 +218,14 @@ class EmailTemplateTableRow extends TableRow {
 }
 
 
-@autoredraw(EmailTemplateStore)
+@autoredraw(EmailTemplate)
 class EmailTemplateTable extends SortableTable {
     getRowClass() {
         return EmailTemplateTableRow;
     }
 
     getEntries() {
-        return EmailTemplateStore.all();
+        return EmailTemplate.all();
     }
 
     getDefaultColumns() {
@@ -251,7 +251,7 @@ class EmailTemplateTable extends SortableTable {
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: template => EmailCampaignStore.get(template.campaignId).name,
+            value: template => EmailCampaign.get(template.campaignId).name,
             headerName: UI.T("Campaign"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
@@ -261,7 +261,7 @@ class EmailTemplateTable extends SortableTable {
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: template => EmailGatewayStore.get(template.gatewayId).name,
+            value: template => EmailGateway.get(template.gatewayId).name,
             headerName: UI.T("Gateway"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
@@ -288,9 +288,9 @@ export class EmailTemplateWidget extends Panel {
     onMount() {
         super.onMount();
 
-        EmailGatewayStore.registerStreams();
-        EmailCampaignStore.registerStreams();
-        EmailTemplateStore.registerStreams();
+        EmailGateway.registerStreams();
+        EmailCampaign.registerStreams();
+        EmailTemplate.registerStreams();
 
         this.addTemplateButton.addClickListener(() => {
             const addTemplateModal = <AddEmailTemplateModal template={this.options.entry} />;

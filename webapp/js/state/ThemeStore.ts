@@ -44,5 +44,3 @@ export class PredefinedTheme extends BaseStore("PredefinedTheme") {
         Object.assign(this.getCustomTheme().properties, properties);
     }
 }
-
-export const ThemeStore = PredefinedTheme;

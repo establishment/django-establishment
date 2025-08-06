@@ -16,7 +16,7 @@ import {StemDate} from "../../../stemjs/src/time/Date.js";
 import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
 import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
 
-import {CommandInstanceStore, CommandRunStore} from "./state/CommandStore.js";
+import {CommandInstance, CommandRun} from "./state/CommandStore.js";
 import {Popup} from "../../content/js/Popup.jsx";
 
 import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
@@ -50,7 +50,7 @@ class CommandRunDetailsModal extends Modal {
         let children = [
             <h2>Command run #{this.options.commandRun.id}</h2>,
             <h4>Ran by <UserHandle userId={this.options.commandRun.userId}/></h4>,
-            <h4>Command instance: {CommandInstanceStore.get(this.options.commandRun.commandInstanceId).name}</h4>,
+            <h4>Command instance: {CommandInstance.get(this.options.commandRun.commandInstanceId).name}</h4>,
             <h4 ref="statusField">Status: {this.options.commandRun.getVerboseStatus()}</h4>,
             <h4>Logs</h4>,
             <StaticCodeHighlighter ref="logger" numLines={40} readOnly={true}/>
@@ -147,7 +147,7 @@ class CommandRunDuration extends UI.Primitive("span") {
 
 class PastCommandsTable extends Table {
     getEntries() {
-        return CommandRunStore.all().sort((a, b) => {
+        return CommandRun.all().sort((a, b) => {
             return b.dateCreated - a.dateCreated;
         });
     }
@@ -155,7 +155,7 @@ class PastCommandsTable extends Table {
     getDefaultColumns() {
         return [
             {
-                value: commandRun => CommandInstanceStore.get(commandRun.commandInstanceId).name,
+                value: commandRun => CommandInstance.get(commandRun.commandInstanceId).name,
                 headerName: "Command",
             }, {
                 value: commandRun => <UserHandle userId={commandRun.userId}/>,
@@ -344,7 +344,7 @@ class CommandRunCreationModal extends ActionModal {
 
 
         runCommand(requestJson, () => {
-            CommandRunStore.dispatch("redrawTable");
+            CommandRun.dispatch("redrawTable");
         });
         this.hide();
     }
@@ -365,7 +365,7 @@ class CommandManager extends UI.Element {
             <h3>Command manager</h3>,
             <div>
                 <h4>Run a command</h4>
-                <Select options={CommandInstanceStore.all()} style={{marginLeft: "10px"}} ref="commandSelect"/>
+                <Select options={CommandInstance.all()} style={{marginLeft: "10px"}} ref="commandSelect"/>
                 <Button level={Level.PRIMARY} size={Size.SMALL} ref="runCommandButton"
                         icon="cogs" style={{marginLeft: "10px"}}/>
             </div>,
@@ -385,8 +385,8 @@ class CommandManager extends UI.Element {
             this.pastCommandsTable.redraw();
         };
 
-        this.attachCreateListener(CommandRunStore, redrawPastCommandsTable);
-        this.attachListener(CommandRunStore, "redrawTable", redrawPastCommandsTable);
+        this.attachCreateListener(CommandRun, redrawPastCommandsTable);
+        this.attachListener(CommandRun, "redrawTable", redrawPastCommandsTable);
 
         this.descriptionArea.node.textContent = this.commandSelect.get().description;
         this.commandSelect.addChangeListener(() => {

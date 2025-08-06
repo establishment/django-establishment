@@ -12,4 +12,3 @@ export class EmailCampaign extends BaseStore("EmailCampaign") {
     }
 }
 
-export const EmailCampaignStore = EmailCampaign;

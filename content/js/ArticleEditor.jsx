@@ -12,7 +12,7 @@ import {Level} from "../../../stemjs/src/ui/Constants";
 import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
 import {Language} from "../../localization/js/state/LanguageStore.ts";
 
-import {ArticleStore} from "./state/ArticleStore.js";
+import {Article} from "./state/Article.ts";
 import {ArticleTranslationManager} from "./ArticleManager";
 import {ArticleRenderer} from "./ArticleRenderer";
 import {MarkupEditor} from "./markup/MarkupEditor";
@@ -77,7 +77,7 @@ class ArticleEditor extends Panel {
     }
 
     getArticle() {
-        return ArticleStore.get(this.options.articleId);
+        return Article.get(this.options.articleId);
     }
 
     initializeVersioning() {

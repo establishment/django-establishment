@@ -3,7 +3,7 @@ import {registerStyle} from "../../../stemjs/src/ui/style/Theme.ts";
 import {Orientation, VoteStatus} from "../../../stemjs/src/ui/Constants.ts";
 
 import {LoginModal} from "../../accounts/js/LoginModal.jsx";
-import {UserReactionCollection} from "../../accounts/js/state/UserReactionStore.js";
+import {UserReactionCollection} from "../../accounts/js/state/UserReaction.ts";
 import {VotingWidgetStyle} from "./VotingWidgetStyle.js";
 
 class VotingWidget extends UI.Element {

@@ -15,7 +15,7 @@ import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElemen
 import {Theme} from "../../../stemjs/src/ui/style/Theme.js";
 import {ArticleEditor} from "../../content/js/ArticleEditor.jsx";
 import {AsyncCommentThread} from "../../chat/js/CommentWidget.jsx";
-import {BlogEntryStore} from "./state/BlogStore.js";
+import {BlogEntry} from "./state/BlogStore.js";
 import {BlogArticleRenderer} from "./BlogArticleRenderer.jsx";
 import {BlogStyle} from "./BlogStyle.js";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
@@ -35,7 +35,7 @@ export class BlogEntryEditModal extends Modal {
     }
 
     render() {
-        let entry = BlogEntryStore.get(this.options.entryId);
+        let entry = BlogEntry.get(this.options.entryId);
         let article = entry.getArticle();
 
         let discussionButton = null;
@@ -152,7 +152,7 @@ export class NewBlogEntryModal extends Modal {
 
         Ajax.postJSON("/blog/add_entry/", data).then(
             (data) => {
-                let blogEntry = BlogEntryStore.get(data.blogEntryId);
+                let blogEntry = BlogEntry.get(data.blogEntryId);
                 Router.changeURL(["blog", blogEntry.urlName]);
                 this.hide();
             }
@@ -175,7 +175,7 @@ class BlogEntryPreview extends UI.Element {
     }
 
     getBlogEntry() {
-        return BlogEntryStore.get(this.options.entryId);
+        return BlogEntry.get(this.options.entryId);
     }
 
     getBlogArticle() {
@@ -240,7 +240,7 @@ class BlogEntryView extends UI.Element {
     }
 
     getBlogEntry() {
-        return BlogEntryStore.get(this.options.entryId);
+        return BlogEntry.get(this.options.entryId);
     }
 
     getBlogArticle() {
@@ -331,7 +331,7 @@ class BlogEntryList extends UI.Element {
 
         let entries = [];
 
-        let blogEntries = BlogEntryStore.all().sort((a, b) => {
+        let blogEntries = BlogEntry.all().sort((a, b) => {
             return b.getArticle().dateCreated - a.getArticle().dateCreated;
         });
 
@@ -366,7 +366,7 @@ class BlogEntryList extends UI.Element {
         this.loadMoreButton.addClickListener(() => {
             if (!this.options.finishedLoading) {
                 Ajax.getJSON("/blog/", {
-                    lastDate: Math.min.apply(null, BlogEntryStore.all().map(x => x.getArticle().dateCreated))
+                    lastDate: Math.min.apply(null, BlogEntry.all().map(x => x.getArticle().dateCreated))
                 }).then(
                     (data) => {
                         this.options.finishedLoading = data.finishedLoading;
@@ -381,7 +381,7 @@ class BlogEntryList extends UI.Element {
             }
         });
 
-        this.attachCreateListener(BlogEntryStore, () => {
+        this.attachCreateListener(BlogEntry, () => {
             this.redraw();
         });
     }
@@ -396,7 +396,7 @@ class DelayedBlogEntryList extends StateDependentElement(BlogEntryList) {
 
 class DelayedBlogEntryView extends StateDependentElement(BlogEntryView) {
     getBlogEntry() {
-        return BlogEntryStore.getEntryForURL(this.options.entryURL);
+        return BlogEntry.getEntryForURL(this.options.entryURL);
     }
 
     get pageTitle() {
@@ -432,7 +432,7 @@ class BlogRoute extends Route {
             new Route("%s", (options) => {
                 let entryURL = options.args[options.args.length - 1];
 
-                let blogEntry = BlogEntryStore.getEntryForURL(entryURL);
+                let blogEntry = BlogEntry.getEntryForURL(entryURL);
 
                 if (blogEntry) {
                     return <BlogEntryView entryId={blogEntry.id} />;

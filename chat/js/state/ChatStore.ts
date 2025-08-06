@@ -16,6 +16,7 @@ export class BaseChatObject extends StoreObject {
     }
 }
 
+
 @globalStore
 export class GroupChat extends FetchStoreMixin("GroupChat", {
     fetchURL: "/chat/group_chat_state/",
@@ -28,9 +29,8 @@ export class GroupChat extends FetchStoreMixin("GroupChat", {
     }
 }
 
-export const GroupChatStore = GroupChat;
 
-class PrivateChat extends BaseStore("PrivateChat", {}, BaseChatObject) {
+export class PrivateChat extends BaseStore("PrivateChat", {}, BaseChatObject) {
     declare user1Id: number;
     declare user2Id: number;
 
@@ -60,13 +60,11 @@ class PrivateChat extends BaseStore("PrivateChat", {}, BaseChatObject) {
         Ajax.postJSON("/chat/private_chat_state/", {
             userId: userId,
         }).then(
-            (data: any) => onSuccess(PrivateChatStore.get(data.privateChatId)),
+            (data: any) => onSuccess(PrivateChat.get(data.privateChatId)),
             onError
         );
     }
 }
-
-export const PrivateChatStore = PrivateChat;
 
 PrivateChat.addChangeListener((obj: PrivateChat, event: StoreEvent) => {
     if (event.type === "privateMessage") {

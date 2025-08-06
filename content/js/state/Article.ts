@@ -3,6 +3,7 @@ import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
 
 import {User} from "../../../../csaaccounts/js/state/UserStore";
 import {Language} from "../../../localization/js/state/LanguageStore.js";
+import {StoreId} from "../../../../stemjs/src/state/State";
 
 @globalStore
 export class Article extends FetchStoreMixin("Article", {
@@ -14,7 +15,7 @@ export class Article extends FetchStoreMixin("Article", {
     declare languageId?: number;
     declare title?: string;
     declare content?: string;
-    edits: Map<number, ArticleEdit>;
+    edits: Map<StoreId, ArticleEdit>;
 
     constructor(obj: any) {
         super(obj);
@@ -63,10 +64,6 @@ export class ArticleEdit extends BaseStore("articleedit", {dependencies: ["artic
         return Article.get(this.articleId);
     }
 }
-
-export const ArticleStore = Article;
-
-export const ArticleEditStore = ArticleEdit;
 
 ArticleEdit.addCreateListener((articleEdit: ArticleEdit) => {
     const article = articleEdit.getArticle();

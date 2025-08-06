@@ -9,8 +9,8 @@ import {BasicTabTitle} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
 import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea.jsx";
 import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
 
-import {CountryStore} from "../../localization/js/state/CountryStore.js";
-import {SocialAppStore} from "../../socialaccount/js/state/SocialAppStore.js";
+import {Country} from "../../localization/js/state/CountryStore.js";
+import {SocialApp} from "../../socialaccount/js/state/SocialAppStore";
 import {LoginStyle} from "./LoginStyle";
 import {ThirdPartyLogin} from "./thirt-party/ThirdPartyLogin.jsx";
 
@@ -90,7 +90,7 @@ export class LoginWidget extends UI.Element {
     }
 
     getThirdPartyLogin() {
-        const socialApps = SocialAppStore.all();
+        const socialApps = SocialApp.all();
 
         return (socialApps.length > 0) && [
             this.getHorizontalLine(),
@@ -202,7 +202,7 @@ export class RegisterWidget extends UI.Element {
         return [
             <div style={{width: "100%", marginBottom: "20px"}}>
                 <FAIcon icon="flag" style={this.styleSheet.fontAwesomeIcon} />
-                <Select ref="countrySelect" options={CountryStore.allWithNone("Don't set country")}
+                <Select ref="countrySelect" options={Country.allWithNone("Don't set country")}
                         className={this.styleSheet.countrySelect} />
                 <div style={{clear: "both"}}/>
             </div>

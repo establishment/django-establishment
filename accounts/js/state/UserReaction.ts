@@ -20,12 +20,10 @@ export class UserReactionCollection extends BaseStore("UserReactionCollection") 
     }
 }
 
+
 @globalStore
 export class UserReaction extends BaseStore("UserReaction") {
     declare userId: number;
     declare collectionId: number;
     declare type: string;
 }
-
-export const UserReactionCollectionStore = UserReactionCollection;
-export const UserReactionStore = UserReaction;

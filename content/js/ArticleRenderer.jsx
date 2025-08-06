@@ -4,7 +4,7 @@ import {Switcher} from "../../../stemjs/src/ui/Switcher";
 import {Button} from "../../../stemjs/src/ui/button/Button";
 import {MarkupRenderer, MarkupClassMap} from "../../../stemjs/src/markup/MarkupRenderer";
 import {Language} from "../../localization/js/state/LanguageStore";
-import {Article, ArticleStore} from "./state/ArticleStore";
+import {Article} from "./state/Article.js";
 import {ensure} from "../../../stemjs/src/base/Require";
 
 
@@ -83,7 +83,7 @@ class RecursiveArticleRenderer extends ArticleRenderer {
         if (this.options.article) {
             return super.redraw();
         } else {
-            ArticleStore.fetch(this.options.articleId, (article) => this.updateOptions({ article }));
+            Article.fetch(this.options.articleId, (article) => this.updateOptions({ article }));
         }
     }
 }
@@ -123,7 +123,7 @@ class ArticleSwitcher extends Switcher {
     }
 
     setActiveArticleId(articleId) {
-        ArticleStore.fetch(articleId, (article) => {
+        Article.fetch(articleId, (article) => {
             this.setActive(article);
         });
     }

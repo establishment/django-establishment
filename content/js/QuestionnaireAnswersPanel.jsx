@@ -15,7 +15,7 @@ import {ColorGenerator} from "../../../stemjs/src/ui/Color";
 import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
-import {QuestionnaireStore, QuestionnaireQuestion} from "./state/QuestionnaireStore";
+import {Questionnaire, QuestionnaireQuestion} from "./state/QuestionnaireStore";
 import {PieChartSVG} from "./charts/PieChart";
 import {QuestionPage, QuestionnaireStyle} from "./QuestionnairePanel";
 
@@ -205,7 +205,7 @@ class QuestionnaireSummaryWidget extends UI.Element {
     }
 
     getQuestionnaire() {
-        return QuestionnaireStore.get(this.options.questionnaireId);
+        return Questionnaire.get(this.options.questionnaireId);
     }
 
     respectsFilters(instance) {
@@ -299,7 +299,7 @@ class QuestionnaireResponsesWidget extends UI.Element {
     }
 
     getQuestionnaire() {
-        return QuestionnaireStore.get(this.options.questionnaireId);
+        return Questionnaire.get(this.options.questionnaireId);
     }
 
     setOptions(options) {

@@ -1,15 +1,13 @@
 import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
-import {ArticleStore} from "../../../content/js/state/ArticleStore.ts";
+import {Article} from "../../../content/js/state/Article.ts";
 
 @globalStore
-class BlogEntry extends BaseStore("BlogEntry", {dependencies: ["Article"]}) {
+export class BlogEntry extends BaseStore("BlogEntry", {dependencies: ["Article"]}) {
     getArticle() {
-        return ArticleStore.get(this.articleId);
+        return Article.get(this.articleId);
     }
 
     static getEntryForURL(urlName) {
         return this.all().find(blogEntry => blogEntry.urlName === urlName);
     }
 }
-
-export const BlogEntryStore = BlogEntry;

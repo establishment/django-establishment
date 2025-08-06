@@ -11,7 +11,7 @@ import {PasswordInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
 import {TableRow} from "../../../stemjs/src/ui/table/Table.jsx";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {EmailGatewayStore} from "./state/EmailGatewayStore.js";
+import {EmailGateway} from "./state/EmailGatewayStore";
 import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
 
 class EmailGatewayModal extends ActionModal {
@@ -173,14 +173,14 @@ class EmailGatewayTableRow extends TableRow {
 }
 
 
-@autoredraw(EmailGatewayStore)
+@autoredraw(EmailGateway)
 class EmailGatewayTable extends SortableTable {
     getRowClass() {
         return EmailGatewayTableRow;
     }
 
     getEntries() {
-        return EmailGatewayStore.all();
+        return EmailGateway.all();
     }
 
     getDefaultColumns() {
@@ -246,7 +246,7 @@ class EmailGatewayWidget extends Panel {
     }
 
     onMount() {
-        EmailGatewayStore.registerStreams();
+        EmailGateway.registerStreams();
         this.addGatewayButton.addClickListener(() => {
             const addGatewayModal = <AddEmailGatewayModal />;
             addGatewayModal.show();

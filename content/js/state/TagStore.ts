@@ -64,5 +64,3 @@ export class Tag extends BaseStore("Tag") {
         return null;
     }
 }
-
-export const TagStore = Tag;

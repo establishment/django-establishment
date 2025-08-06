@@ -5,7 +5,7 @@ import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
 import {Ajax} from "../../../stemjs/src/base/Ajax.js";
 
-import {DocumentationEntryStore} from "./state/DocumentationStore.js";
+import {DocumentationEntry} from "./state/DocumentationStore.js";
 
 export class EditEntryModal extends ActionModal {
     getTitle() {
@@ -64,7 +64,7 @@ export class EditEntryModal extends ActionModal {
         if (!data.name) {
             return "Name cannot be empty.";
         }
-        for (let entry of DocumentationEntryStore.all()) {
+        for (let entry of DocumentationEntry.all()) {
             if (entry === this.getEntry()) {
                 continue;
             }
@@ -109,7 +109,7 @@ export class CreateEntryModal extends EditEntryModal {
     }
 
     getParentInput() {
-        let entries = DocumentationEntryStore.all();
+        let entries = DocumentationEntry.all();
         entries.push({
             toString: () => {
                 return "No Parent"

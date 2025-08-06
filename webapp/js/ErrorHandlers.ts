@@ -2,7 +2,7 @@ import {UI} from "../../../stemjs/src/ui/UIBase";
 import {ErrorModal} from "../../../stemjs/src/ui/modal/Modal";
 import {StoreObject} from "../../../stemjs/src/state/Store";
 
-import {ErrorMessageStore, ErrorMessage} from "./state/ErrorMessageStore";
+import {ErrorMessage} from "./state/ErrorMessageStore";
 
 type ErrorInput = string | Error | StoreObject | ErrorMessage | {
     id?: string | number;
@@ -24,7 +24,7 @@ export const ErrorHandlers: ErrorHandlersInterface = {
         }
 
         if (typeof error === "object" && error !== null && "id" in error && error.id) {
-            return ErrorMessageStore.create(error);
+            return ErrorMessage.create(error);
         } else {
             let errorObj: { name?: string; message?: string; [key: string]: any };
             

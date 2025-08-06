@@ -1,7 +1,9 @@
-import {globalStore, BaseStore, StoreObject} from "../../../../stemjs/src/state/Store";
+import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
+import {StoreId} from "../../../../stemjs/src/state/State";
+
 
 @globalStore
-class Questionnaire extends BaseStore("questionnaire") {
+export class Questionnaire extends BaseStore("questionnaire") {
     declare title?: string;
     questions: QuestionnaireQuestion[] = [];
 
@@ -16,11 +18,10 @@ class Questionnaire extends BaseStore("questionnaire") {
     }
 
     getAllInstances(): QuestionnaireInstance[] {
-        return QuestionnaireInstanceStore.all().filter((instance: QuestionnaireInstance) => instance.questionnaireId === this.id);
+        return QuestionnaireInstance.all().filter((instance: QuestionnaireInstance) => instance.questionnaireId === this.id);
     }
 }
 
-export const QuestionnaireStore = Questionnaire;
 
 @globalStore
 export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {dependencies: ["Questionnaire"]}) {
@@ -37,7 +38,7 @@ export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {d
     options: QuestionnaireQuestionOption[] = [];
 
     getQuestionnaire(): Questionnaire | null {
-        return QuestionnaireStore.get(this.questionnaireId);
+        return Questionnaire.get(this.questionnaireId);
     }
 
     constructor(obj?: any) {
@@ -59,15 +60,14 @@ export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {d
     }
 
     getCurrentUserResponse(): QuestionnaireQuestionResponse | null {
-        const userInstance = QuestionnaireInstanceStore.getCurrentUserInstance(this.questionnaireId);
-        return userInstance && userInstance.getQuestionResponse(this.id);
+        const userInstance = QuestionnaireInstance.getCurrentUserInstance(this.questionnaireId);
+        return userInstance?.getQuestionResponse(this.id);
     }
 }
 
-const QuestionnaireQuestionStore = QuestionnaireQuestion;
 
 @globalStore
-class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestionOption", {dependencies: ["QuestionnaireQuestion"]}) {
+export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestionOption", {dependencies: ["QuestionnaireQuestion"]}) {
     declare questionId: number;
     declare priority: number;
     declare text?: string;
@@ -75,47 +75,43 @@ class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestionOption
     constructor(obj?: any) {
         super(obj);
         const question = this.getQuestion();
-        if (question) {
-            question.addOption(this);
-        }
+        question?.addOption(this);
     }
 
     getQuestion(): QuestionnaireQuestion | null {
-        return QuestionnaireQuestionStore.get(this.questionId);
+        return QuestionnaireQuestion.get(this.questionId);
     }
 }
 
-const QuestionnaireQuestionOptionStore = QuestionnaireQuestionOption;
 
 @globalStore
-class QuestionnaireInstance extends BaseStore("QuestionnaireInstance", {dependencies: ["Questionnaire", "QuestionnaireQuestion", "QuestionnaireQuestionOption"]}) {
+export class QuestionnaireInstance extends BaseStore("QuestionnaireInstance", {dependencies: ["Questionnaire", "QuestionnaireQuestion", "QuestionnaireQuestionOption"]}) {
     declare questionnaireId: number;
     declare userId: number;
-    questionResponses: Map<number, QuestionnaireQuestionResponse> = new Map();
+    questionResponses: Map<StoreId, QuestionnaireQuestionResponse> = new Map();
 
     getQuestionnaire(): Questionnaire | null {
-        return QuestionnaireStore.get(this.questionnaireId);
+        return Questionnaire.get(this.questionnaireId);
     }
 
     addQuestionResponse(questionResponse: QuestionnaireQuestionResponse): void {
         this.questionResponses.set(questionResponse.questionId, questionResponse);
     }
 
-    getQuestionResponse(questionId: number): QuestionnaireQuestionResponse | undefined {
+    getQuestionResponse(questionId: StoreId): QuestionnaireQuestionResponse | undefined {
         return this.questionResponses.get(questionId);
     }
 
-    static getCurrentUserInstance(questionnaireId: number): QuestionnaireInstance | undefined {
+    static getCurrentUserInstance(questionnaireId: StoreId): QuestionnaireInstance | undefined {
         return this.all().find((instance: QuestionnaireInstance) => instance.userId === (USER as any).id && instance.questionnaireId === questionnaireId);
     }
 }
 
-export const QuestionnaireInstanceStore = QuestionnaireInstance;
 
 @globalStore
-class QuestionnaireQuestionResponse extends BaseStore("QuestionnaireQuestionResponse", {dependencies: ["QuestionnaireInstance"]}) {
-    declare instanceId: number;
-    declare questionId: number;
+export class QuestionnaireQuestionResponse extends BaseStore("QuestionnaireQuestionResponse", {dependencies: ["QuestionnaireInstance"]}) {
+    declare instanceId: StoreId;
+    declare questionId: StoreId;
     declare text?: string;
     declare choiceId?: number;
 
@@ -128,7 +124,7 @@ class QuestionnaireQuestionResponse extends BaseStore("QuestionnaireQuestionResp
     }
 
     getQuestionnaireInstance(): QuestionnaireInstance | null {
-        return QuestionnaireInstanceStore.get(this.instanceId);
+        return QuestionnaireInstance.get(this.instanceId);
     }
 
     getText(): string {
@@ -136,8 +132,6 @@ class QuestionnaireQuestionResponse extends BaseStore("QuestionnaireQuestionResp
     }
 
     getChoice(): QuestionnaireQuestionOption | null {
-        return QuestionnaireQuestionOptionStore.get(this.choiceId);
+        return QuestionnaireQuestionOption.get(this.choiceId);
     }
 }
-
-const QuestionnaireQuestionResponseStore = QuestionnaireQuestionResponse;

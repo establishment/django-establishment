@@ -8,13 +8,13 @@ import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessage
 import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
 import {Direction, Level, Size} from "../../../stemjs/src/ui/Constants.js";
 
-import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
 
 export class AbstractUsernameAutocomplete extends Dispatchable {
     static requestNewUsers(prefix, callback) {
-        Ajax.getJSON(PublicUserStore.fetchURL, {
+        Ajax.getJSON(PublicUser.fetchURL, {
             usernamePrefix: prefix
         }).then(
             (data) => {
@@ -209,7 +209,7 @@ export class UserInputField extends UI.Element {
 
     getUserId() {
         let username = this.usernameInput.getValue();
-        for (let user of PublicUserStore.all()) {
+        for (let user of PublicUser.all()) {
             if (user.name === username || user.username === username) {
                 return user.id;
             }
@@ -218,7 +218,7 @@ export class UserInputField extends UI.Element {
     }
 
     autocompleteUser(userId) {
-        this.usernameInput.setValue(PublicUserStore.get(userId).username);
+        this.usernameInput.setValue(PublicUser.get(userId).username);
         this.dispatch("autocomplete", []);
     }
 

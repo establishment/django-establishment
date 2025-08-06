@@ -21,8 +21,6 @@ export class TranslationEntry extends BaseStore("TranslationEntry") {
     }
 }
 
-export const TranslationKeyStore = TranslationKey;
-export const TranslationEntryStore = TranslationEntry;
 
 Language.addListener("buildTranslationMap", (language: Language) => {
     for (const translationEntry of TranslationEntry.all()) {

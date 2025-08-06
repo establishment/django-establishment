@@ -15,4 +15,3 @@ export class SocialApp extends BaseStore("SocialApp") {
     }
 }
 
-export const SocialAppStore = SocialApp;

@@ -1,4 +1,4 @@
-import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore.js";
+import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
 import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
 import {StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
 
@@ -45,6 +45,7 @@ export class UserGroup extends BaseStore("UserGroup") {
     }
 }
 
+
 @globalStore
 export class UserGroupMember extends BaseStore("UserGroupMember", {
     dependencies: ["UserGroup"]
@@ -66,9 +67,6 @@ export class UserGroupMember extends BaseStore("UserGroupMember", {
     }
 
     getPublicUser(): any {
-        return PublicUserStore.get(this.userId);
+        return PublicUser.get(this.userId);
     }
 }
-
-export const UserGroupStore = UserGroup;
-export const UserGroupMemberStore = UserGroupMember;

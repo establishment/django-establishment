@@ -1,10 +1,11 @@
 import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
-import {ArticleStore} from "../../../content/js/state/ArticleStore.ts";
+import {Article} from "../../../content/js/state/Article.ts";
+
 
 @globalStore
-class DocumentationEntry extends BaseStore("DocumentationEntry") {
+export class DocumentationEntry extends BaseStore("DocumentationEntry") {
     getArticle() {
-        let article = ArticleStore.get(this.articleId);
+        let article = Article.get(this.articleId);
         return article && article.getTranslation();
     }
 
@@ -48,7 +49,3 @@ class DocumentationEntry extends BaseStore("DocumentationEntry") {
         return entries;
     }
 }
-
-let DocumentationEntryStore = DocumentationEntry;
-
-export {DocumentationEntryStore}

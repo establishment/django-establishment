@@ -13,6 +13,7 @@ export class CommandInstance extends BaseStore("CommandInstance") {
 
 const verboseStatus = ["Waiting", "Running", "Failed", "Successful"];
 
+
 @globalStore
 export class CommandRun extends BaseStore("CommandRun") {
     update(event) {
@@ -31,6 +32,3 @@ export class CommandRun extends BaseStore("CommandRun") {
         return verboseStatus[this.status];
     }
 }
-
-export let CommandInstanceStore = CommandInstance;
-export let CommandRunStore = CommandRun;

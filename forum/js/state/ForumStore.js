@@ -2,12 +2,12 @@ import {Ajax} from "../../../../stemjs/src/base/Ajax.js";
 import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils.js";
 import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
 
-import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore.js";
-import {MessageThreadStore, MessageInstanceStore} from "../../../chat/js/state/MessageThreadStore.js";
+import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
+import {MessageThread, MessageInstance} from "../../../chat/js/state/MessageThreadStore.js";
 import {GlobalState} from "../../../../stemjs/src/state/State.js";
 
 @globalStore
-class Forum extends BaseStore("forum") {
+export class Forum extends BaseStore("forum") {
     constructor() {
         super(...arguments);
         this.forumThreads = new Map();
@@ -43,10 +43,9 @@ class Forum extends BaseStore("forum") {
     }
 }
 
-var ForumStore = Forum;
 
 @globalStore
-class ForumThread extends BaseStore("forumthread", {dependencies: ["forum", "messageinstance"]}) {
+export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum", "messageinstance"]}) {
     constructor(obj) {
         super(obj);
         let parent = this.getParent();
@@ -54,7 +53,7 @@ class ForumThread extends BaseStore("forumthread", {dependencies: ["forum", "mes
     }
 
     getAuthor() {
-        return PublicUserStore.get(this.authorId);
+        return PublicUser.get(this.authorId);
     }
 
     isPinned() {
@@ -70,7 +69,7 @@ class ForumThread extends BaseStore("forumthread", {dependencies: ["forum", "mes
     }
 
     getContentMessage() {
-        return MessageInstanceStore.get(this.contentMessageId);
+        return MessageInstance.get(this.contentMessageId);
     }
 
     getVotesBalance() {
@@ -86,7 +85,7 @@ class ForumThread extends BaseStore("forumthread", {dependencies: ["forum", "mes
     }
 
     getMessageThread() {
-        return MessageThreadStore.get(this.messageThreadId);
+        return MessageThread.get(this.messageThreadId);
     }
 
     getTimeAdded() {
@@ -123,7 +122,3 @@ class ForumThread extends BaseStore("forumthread", {dependencies: ["forum", "mes
         return this.getMessageThread() != null && this.getNumReplies() === this.getMessageThread().getNumMessages() - 1;
     }
 }
-
-const ForumThreadStore = ForumThread;
-
-export {ForumStore, ForumThreadStore};

@@ -12,4 +12,3 @@ export class EmailGateway extends BaseStore("EmailGateway") {
     }
 }
 
-export const EmailGatewayStore = EmailGateway;

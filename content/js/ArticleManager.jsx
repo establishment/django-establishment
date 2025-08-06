@@ -15,9 +15,9 @@ import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
 import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
 import {GlobalStyle} from "../../../stemjs/src/ui/GlobalStyle.js";
 
-import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {Language} from "../../localization/js/state/LanguageStore.ts";
-import {ArticleStore} from "./state/ArticleStore.js";
+import {Article} from "./state/Article.ts";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
@@ -170,7 +170,7 @@ class CreateArticleModal extends ActionModal {
         }
         this.createArticleButton.postJSON("/create_article/", request).then(
             (data) => {
-                this.options.parent.table.addArticle(ArticleStore.get(data.article.id));
+                this.options.parent.table.addArticle(Article.get(data.article.id));
                 this.hide();
             },
             (error) => {
@@ -313,7 +313,7 @@ class ArticleTable extends SortableTable {
             cellStyle: cellStyle
         }, {
             value: article => <ArticleOwnerSpan article={article} />,
-            rawValue: article => PublicUserStore.get(article.userCreatedId).username,
+            rawValue: article => PublicUser.get(article.userCreatedId).username,
             headerName: "Author",
             headerStyle: headerStyle,
             cellStyle: cellStyle
@@ -404,7 +404,7 @@ class ArticleManager extends Panel {
             </div>;
         }
 
-        this.options.articles = ArticleStore.all();
+        this.options.articles = Article.all();
 
         return [
             <div className="pull-left">
@@ -449,7 +449,7 @@ class ArticleTranslationManager extends Panel {
 
         Ajax.getJSON("/article/" + this.options.baseArticle.id + "/get_translations/", {}).then(
             () => {
-                for (let article of ArticleStore.all()) {
+                for (let article of Article.all()) {
                     if (article.baseArticleId === this.options.baseArticle.id) {
                         this.table.options.articles.push(article);
                     }
