@@ -178,6 +178,32 @@ export class MessageInstance extends VirtualStoreObjectMixin(StoreObject) {
     }
 }
 
+class MessageInstanceStoreClass extends VirtualStoreMixin(GenericObjectStore) {
+    constructor() {
+        super("MessageInstance", MessageInstance, {dependencies: ["messagethread", "publicuser"]});
+    }
+
+    createVirtualMessageInstance(messageContent: string, messageThread: MessageThread, temporaryId: number): MessageInstance {
+        let virtualMessageInstance = {
+            content: messageContent,
+            temporaryId: temporaryId,
+            id: "temp-" + temporaryId,
+            timeAdded: ServerTime.now().toUnix(),
+            userId: parseInt(USER.id),
+            messageThreadId: messageThread.id,
+            meta: {},
+        };
+
+        return this.create(virtualMessageInstance, {isVirtual: true});
+    }
+}
+
+export const MessageInstanceStore = new MessageInstanceStoreClass();
+
+MessageInstanceStore.addCreateListener((messageInstance: MessageInstance, createEvent: any) => {
+    messageInstance.getMessageThread()?.addMessageInstance(messageInstance, createEvent);
+});
+
 export class MessageThread extends StoreObject {
     declare streamName: string;
     declare markupEnabled?: boolean;
@@ -268,32 +294,6 @@ export class MessageThread extends StoreObject {
         return lastMessage;
     }
 }
-
-class MessageInstanceStoreClass extends VirtualStoreMixin(GenericObjectStore) {
-    constructor() {
-        super("MessageInstance", MessageInstance, {dependencies: ["messagethread", "publicuser"]});
-    }
-
-    createVirtualMessageInstance(messageContent: string, messageThread: MessageThread, temporaryId: number): MessageInstance {
-        let virtualMessageInstance = {
-            content: messageContent,
-            temporaryId: temporaryId,
-            id: "temp-" + temporaryId,
-            timeAdded: ServerTime.now().toUnix(),
-            userId: parseInt(USER.id),
-            messageThreadId: messageThread.id,
-            meta: {},
-        };
-
-        return this.create(virtualMessageInstance, {isVirtual: true});
-    }
-}
-
-export const MessageInstanceStore = new MessageInstanceStoreClass();
-
-MessageInstanceStore.addCreateListener((messageInstance: MessageInstance, createEvent: any) => {
-    messageInstance.getMessageThread()?.addMessageInstance(messageInstance, createEvent);
-});
 
 
 export const MessageThreadStore = new GenericObjectStore("messagethread", MessageThread);
