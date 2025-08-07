@@ -30,6 +30,7 @@ export class GroupChat extends FetchStoreMixin("GroupChat", {
 }
 
 
+@globalStore
 export class PrivateChat extends BaseStore("PrivateChat", {}, BaseChatObject) {
     declare user1Id: number;
     declare user2Id: number;
