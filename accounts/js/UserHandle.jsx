@@ -27,7 +27,7 @@ class UserHandle extends UI.Element {
     render() {
         let handle;
         if (!this.user) {
-            PublicUser.fetch(this.options.userId, (user) => {
+            PublicUser.fetchSync(this.options.userId, (user) => {
                 this.setUser(user);
                 this.redraw();
             });

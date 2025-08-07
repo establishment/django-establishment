@@ -247,7 +247,7 @@ class AsyncCommentThread extends UI.Element {
             return [<CommentWidget ref="commentsSection" chatId={this.options.chatId} messageThread={messageThread}
                                    style={commentWidgetOptions} />];
         } else {
-            GroupChat.fetch(this.options.chatId, (groupChat) => {
+            GroupChat.fetchSync(this.options.chatId, (groupChat) => {
                 this.redraw();
             });
             return [

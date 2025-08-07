@@ -15,7 +15,7 @@ export class DemoMarkupEditor extends UI.Element {
         if (article) {
             return [<MarkupEditor value={article.markup} style={{height: "100%"}} showButtons={false} />];
         }
-        Article.fetch(this.options.articleId, () => {
+        Article.fetchSync(this.options.articleId, () => {
             setTimeout(() => {this.redraw()}, 100);
         });
         return [];

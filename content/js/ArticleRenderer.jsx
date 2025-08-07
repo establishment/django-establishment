@@ -83,7 +83,7 @@ class RecursiveArticleRenderer extends ArticleRenderer {
         if (this.options.article) {
             return super.redraw();
         } else {
-            Article.fetch(this.options.articleId, (article) => this.updateOptions({ article }));
+            Article.fetchSync(this.options.articleId, (article) => this.updateOptions({article}));
         }
     }
 }
@@ -123,7 +123,7 @@ class ArticleSwitcher extends Switcher {
     }
 
     setActiveArticleId(articleId) {
-        Article.fetch(articleId, (article) => {
+        Article.fetchSync(articleId, (article) => {
             this.setActive(article);
         });
     }
