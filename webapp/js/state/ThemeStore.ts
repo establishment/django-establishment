@@ -1,6 +1,6 @@
-import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
-import {StoreId} from "../../../../stemjs/src/state/State";
-import {ThemeProps} from "../../../../stemjs/src/ui/style/Theme";
+import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {StoreId} from "../../../../stemjs/state/State";
+import {ThemeProps} from "../../../../stemjs/ui/style/Theme";
 
 @globalStore
 export class PredefinedTheme extends BaseStore("PredefinedTheme") {

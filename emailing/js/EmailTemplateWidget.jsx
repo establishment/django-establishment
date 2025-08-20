@@ -1,21 +1,21 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Level, Orientation} from "../../../stemjs/src/ui/Constants.js";
-import {SortableTable} from "../../../stemjs/src/ui/table/SortableTable.jsx";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {SectionDivider} from "../../../stemjs/src/ui/section-divider/SectionDivider.jsx";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {TableRow} from "../../../stemjs/src/ui/table/Table.jsx";
-import {ActionModal} from "../../../stemjs/src/ui/modal/Modal.jsx";
-import {FormField} from "../../../stemjs/src/ui/form/Form.jsx";
-import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
-import {TextArea} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Level, Orientation} from "../../../stemjs/ui/Constants.js";
+import {SortableTable} from "../../../stemjs/ui/table/SortableTable.jsx";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {SectionDivider} from "../../../stemjs/ui/section-divider/SectionDivider.jsx";
+import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {TableRow} from "../../../stemjs/ui/table/Table.jsx";
+import {ActionModal} from "../../../stemjs/ui/modal/Modal.jsx";
+import {FormField} from "../../../stemjs/ui/form/Form.jsx";
+import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {Select} from "../../../stemjs/ui/input/Input.jsx";
+import {TextArea} from "../../../stemjs/ui/input/Input.jsx";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
 import {Language} from "../../localization/js/state/LanguageStore.ts";
 import {EmailGateway} from "state/EmailGatewayStore";
 import {EmailCampaign} from "state/EmailCampaignStore";
 import {EmailTemplate} from "state/EmailTemplateStore";
-import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
+import {autoredraw} from "../../../stemjs/decorators/AutoRedraw.js";
 
 class EmailTemplateModal extends ActionModal {
     constructor(options) {

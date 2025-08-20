@@ -1,4 +1,4 @@
-import {StyleSheet, styleRule} from "ui/Style";
+import {StyleSheet, styleRule} from "../../../stemjs/ui/Style";
 
 class CommentWidgetStyle extends StyleSheet {
     loadMoreButton = {

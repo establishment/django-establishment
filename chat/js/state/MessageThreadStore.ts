@@ -1,10 +1,10 @@
-import {Ajax} from "../../../../stemjs/src/base/Ajax";
-import {GlobalState, StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
-import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils";
-import {BaseStore, globalStore} from "../../../../stemjs/src/state/Store";
-import {VirtualObjectStoreMixin} from "../../../../stemjs/src/state/mixins/VirtualObjectStoreMixin";
-import {StemDate} from "../../../../stemjs/src/time/Date";
-import {ServerTime} from "../../../../stemjs/src/time/Time";
+import {Ajax} from "../../../../stemjs/base/Ajax";
+import {GlobalState, StoreEvent, StoreId} from "../../../../stemjs/state/State";
+import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
+import {BaseStore, globalStore} from "../../../../stemjs/state/Store";
+import {VirtualObjectStoreMixin} from "../../../../stemjs/state/mixins/VirtualObjectStoreMixin";
+import {StemDate} from "../../../../stemjs/time/Date";
+import {ServerTime} from "../../../../stemjs/time/Time";
 import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
 import {UserReactionCollection} from "../../../accounts/js/state/UserReaction";
 

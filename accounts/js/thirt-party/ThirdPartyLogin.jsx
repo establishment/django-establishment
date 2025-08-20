@@ -1,11 +1,11 @@
 import {GoogleManager} from "./GoogleManager.js";
 import {FacebookManager} from "./FacebookManager.js";
 import {GithubManager} from "./GithubManager.js";
-import {registerStyle} from "../../../../stemjs/src/ui/style/Theme.js";
+import {registerStyle} from "../../../../stemjs/ui/style/Theme.js";
 import {LoginStyle} from "../LoginStyle.js";
-import {UI} from "../../../../stemjs/src/ui/UIBase.js";
-import {FAIcon} from "../../../../stemjs/src/ui/FontAwesome.jsx";
-import {MakeIcon} from "../../../../stemjs/src/ui/SimpleElements.jsx";
+import {UI} from "../../../../stemjs/ui/UIBase.js";
+import {FAIcon} from "../../../../stemjs/ui/FontAwesome.jsx";
+import {MakeIcon} from "../../../../stemjs/ui/SimpleElements.jsx";
 
 export const THIRD_PARTY_LOGIN_HANDLERS = {
     Google: {

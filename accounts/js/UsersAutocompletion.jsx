@@ -1,12 +1,12 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {Dispatchable} from "../../../stemjs/src/base/Dispatcher.js";
-import {VolatileFloatingWindow} from "../../../stemjs/src/ui/modal/FloatingWindow.jsx";
-import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {getOffset, getComputedStyle} from "../../../stemjs/src/ui/Utils.js";
-import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea.jsx";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {Direction, Level, Size} from "../../../stemjs/src/ui/Constants.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {Dispatchable} from "../../../stemjs/base/Dispatcher.js";
+import {VolatileFloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow.jsx";
+import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {getOffset, getComputedStyle} from "../../../stemjs/ui/Utils.js";
+import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea.jsx";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {Direction, Level, Size} from "../../../stemjs/ui/Constants.js";
 
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";

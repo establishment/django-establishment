@@ -1,8 +1,8 @@
-import {UI} from "../../../../stemjs/src/ui/UIBase.js";
-import {SVG} from "../../../../stemjs/src/ui/svg/SVGBase.js";
-import {Direction} from "../../../../stemjs/src/ui/Constants.js";
-import {uniqueId} from "../../../../stemjs/src/base/Utils.js";
-import {StemDate} from "../../../../stemjs/src/time/Date.js";
+import {UI} from "../../../../stemjs/ui/UIBase.js";
+import {SVG} from "../../../../stemjs/ui/svg/SVGBase.js";
+import {Direction} from "../../../../stemjs/ui/Constants.js";
+import {uniqueId} from "../../../../stemjs/base/Utils.js";
+import {StemDate} from "../../../../stemjs/time/Date.js";
 import {LinePlot} from "./LinePlot.jsx";
 import {BasePointPlot} from "./PointPlot.jsx";
 
@@ -11,7 +11,7 @@ import {BasePointPlot} from "./PointPlot.jsx";
 import {scaleLinear, scaleTime} from "d3-scale";
 import {select} from "d3-selection";
 import {zoom, zoomIdentity} from "d3-zoom";
-import {SVGRoot} from "../../../../stemjs/src/ui/svg/SVGPrimitives.js";
+import {SVGRoot} from "../../../../stemjs/ui/svg/SVGPrimitives.js";
 
 
 // TODO: This file desperately needs a refactoring.

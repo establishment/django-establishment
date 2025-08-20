@@ -1,9 +1,9 @@
-import {FetchStoreMixin} from "../../../../stemjs/src/state/mixins/FetchStoreMixin";
-import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
+import {FetchStoreMixin} from "../../../../stemjs/state/mixins/FetchStoreMixin";
+import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 
 import {User} from "../../../../csaaccounts/js/state/UserStore";
 import {Language} from "../../../localization/js/state/LanguageStore.js";
-import {StoreId} from "../../../../stemjs/src/state/State";
+import {StoreId} from "../../../../stemjs/state/State";
 
 @globalStore
 export class Article extends FetchStoreMixin("Article", {

@@ -1,6 +1,6 @@
 import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
-import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
-import {StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
+import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {StoreEvent, StoreId} from "../../../../stemjs/state/State";
 
 @globalStore
 export class UserGroup extends BaseStore("UserGroup") {

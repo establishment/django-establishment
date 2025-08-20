@@ -1,4 +1,4 @@
-import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
+import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 
 @globalStore
 export class UserReactionCollection extends BaseStore("UserReactionCollection") {

@@ -1,15 +1,15 @@
-import {StemApp} from "../../../stemjs/src/app/StemApp";
-import {Ajax} from "../../../stemjs/src/base/Ajax";
-import {getCookie} from "../../../stemjs/src/base/Utils";
-import {GlobalState, StateLoadOptions} from "../../../stemjs/src/state/State";
-import {StemDate} from "../../../stemjs/src/time/Date";
-import {ServerTime} from "../../../stemjs/src/time/Time";
-import {ViewportMeta} from "../../../stemjs/src/ui/ViewportMeta";
+import {StemApp} from "../../../stemjs/app/StemApp";
+import {Ajax} from "../../../stemjs/base/Ajax";
+import {getCookie} from "../../../stemjs/base/Utils";
+import {GlobalState, StateLoadOptions} from "../../../stemjs/state/State";
+import {StemDate} from "../../../stemjs/time/Date";
+import {ServerTime} from "../../../stemjs/time/Time";
+import {ViewportMeta} from "../../../stemjs/ui/ViewportMeta";
 
-import {WebsocketSubscriber} from "../../../stemjs/src/websocket/client/WebsocketSubscriber";
+import {WebsocketSubscriber} from "../../../stemjs/websocket/client/WebsocketSubscriber";
 import {ErrorHandlers} from "./ErrorHandlers";
 import {GlobalStyleSheet} from "./GlobalStyleSheet";
-import {FetchOptions, XHRPromise} from "../../../stemjs/src/base/Fetch";
+import {FetchOptions, XHRPromise} from "../../../stemjs/base/Fetch";
 
 // Global type extensions
 declare global {

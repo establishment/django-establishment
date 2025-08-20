@@ -1,14 +1,14 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
-import {Route, Router} from "../../../stemjs/src/ui/Router.jsx";
-import {Link} from "../../../stemjs/src/ui/primitives/Link.jsx";
-import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {VolatileFloatingWindow} from "../../../stemjs/src/ui/modal/FloatingWindow.jsx";
-import {registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {StemDate} from "../../../stemjs/src/time/Date.js";
-import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Level, Size} from "../../../stemjs/ui/Constants.js";
+import {Route, Router} from "../../../stemjs/ui/Router.jsx";
+import {Link} from "../../../stemjs/ui/primitives/Link.jsx";
+import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {VolatileFloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow.jsx";
+import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {StemDate} from "../../../stemjs/time/Date.js";
+import {FAIcon} from "../../../stemjs/ui/FontAwesome.jsx";
 
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {MessagesPanelListStyle} from "./SocialNotificationsStyle.js";

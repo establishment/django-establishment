@@ -1,5 +1,5 @@
-import {UI} from "ui/UIBase";
-import {Panel} from "ui/UIPrimitives";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Panel} from "../../../stemjs/ui/UIPrimitives";
 
 import {ArticleRenderer} from "ArticleRenderer";
 import {BlogEntry} from "state/BlogStore";

@@ -1,4 +1,4 @@
-import {Plugin} from "base/Plugin";
+import {Plugin} from "../../../stemjs/base/Plugin";
 
 export class ChatPlugin extends Plugin {
     linkToParent(parent) {

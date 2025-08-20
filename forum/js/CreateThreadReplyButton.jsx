@@ -1,8 +1,8 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {registerStyle} from "../../../stemjs/src/ui/style/Theme.ts";
-import {Level, Size} from "../../../stemjs/src/ui/Constants.ts";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {registerStyle} from "../../../stemjs/ui/style/Theme.ts";
+import {Level, Size} from "../../../stemjs/ui/Constants.ts";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
 
 import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";
 import {LoginModal} from "../../accounts/js/LoginModal.jsx";

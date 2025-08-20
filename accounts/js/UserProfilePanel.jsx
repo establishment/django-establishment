@@ -1,6 +1,6 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {TabArea} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {TabArea} from "../../../stemjs/ui/tabs/TabArea.jsx";
 
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";

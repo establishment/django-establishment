@@ -1,13 +1,13 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {registerStyle, Theme} from "../../../stemjs/src/ui/style/Theme.js";
-import {ensure} from "../../../stemjs/src/base/Require.js";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {Switcher} from "../../../stemjs/src/ui/Switcher.jsx";
-import {Link} from "../../../stemjs/src/ui/primitives/Link.jsx";
-import {EmailInput, PasswordInput, Select, SubmitInput, TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {BasicTabTitle} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
-import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea.jsx";
-import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {registerStyle, Theme} from "../../../stemjs/ui/style/Theme.js";
+import {ensure} from "../../../stemjs/base/Require.js";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {Switcher} from "../../../stemjs/ui/Switcher.jsx";
+import {Link} from "../../../stemjs/ui/primitives/Link.jsx";
+import {EmailInput, PasswordInput, Select, SubmitInput, TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {BasicTabTitle} from "../../../stemjs/ui/tabs/TabArea.jsx";
+import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea.jsx";
+import {FAIcon} from "../../../stemjs/ui/FontAwesome.jsx";
 
 import {Country} from "../../localization/js/state/CountryStore.js";
 import {SocialApp} from "../../socialaccount/js/state/SocialAppStore";

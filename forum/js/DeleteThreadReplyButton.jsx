@@ -1,5 +1,5 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {ActionModal, ActionModalButton} from "../../../stemjs/src/ui/modal/Modal.jsx";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {ActionModal, ActionModalButton} from "../../../stemjs/ui/modal/Modal.jsx";
 
 class DeleteThreadReplyModal extends ActionModal {
     getTitle() {

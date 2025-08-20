@@ -1,15 +1,15 @@
-import {UI} from "../../../stemjs/src/ui/UIBase";
-import {ActionModal} from "../../../stemjs/src/ui/modal/Modal";
-import {Button} from "../../../stemjs/src/ui/button/Button";
-import {ButtonGroup} from "../../../stemjs/src/ui/button/ButtonGroup.jsx";
-import {Form, FormField} from "../../../stemjs/src/ui/form/Form";
-import {RawCheckboxInput, TextInput, Select} from "../../../stemjs/src/ui/input/Input";
-import {Link} from "../../../stemjs/src/ui/primitives/Link";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives";
-import {TabArea} from "../../../stemjs/src/ui/tabs/TabArea";
-import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea";
-import {Level} from "../../../stemjs/src/ui/Constants";
-import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {ActionModal} from "../../../stemjs/ui/modal/Modal";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup.jsx";
+import {Form, FormField} from "../../../stemjs/ui/form/Form";
+import {RawCheckboxInput, TextInput, Select} from "../../../stemjs/ui/input/Input";
+import {Link} from "../../../stemjs/ui/primitives/Link";
+import {Panel} from "../../../stemjs/ui/UIPrimitives";
+import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
+import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea";
+import {Level} from "../../../stemjs/ui/Constants";
+import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
 import {Language} from "../../localization/js/state/LanguageStore.ts";
 
 import {Article} from "./state/Article.ts";

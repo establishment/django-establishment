@@ -1,7 +1,7 @@
-import {UI} from "../../../stemjs/src/ui/UIBase";
-import {Button} from "ui/button/Button";
-import {Level, Size} from "ui/Constants";
-import {Ajax} from "base/Ajax";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {Level, Size} from "../../../stemjs/ui/Constants";
+import {Ajax} from "../../../stemjs/base/Ajax";
 
 import {UserGroup, UserGroupMember} from "./state/UserGroup.js";
 import {UserHandle} from "UserHandle";

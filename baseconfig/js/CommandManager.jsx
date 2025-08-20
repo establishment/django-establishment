@@ -1,25 +1,25 @@
-import {UI} from "../../../stemjs/src/ui/UIBase";
-import {Select, TextInput, RawCheckboxInput, NumberInput} from "../../../stemjs/src/ui/input/Input";
-import {Button} from "../../../stemjs/src/ui/button/Button";
-import {Table} from "../../../stemjs/src/ui/table/Table";
-import {ProgressBar} from "../../../stemjs/src/ui/ProgressBar";
-import {Modal, ActionModal} from "../../../stemjs/src/ui/modal/Modal";
-import {FormField} from "../../../stemjs/src/ui/form/Form";
-import {StaticCodeHighlighter} from "../../../stemjs/src/ui/CodeEditor";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Select, TextInput, RawCheckboxInput, NumberInput} from "../../../stemjs/ui/input/Input";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {Table} from "../../../stemjs/ui/table/Table";
+import {ProgressBar} from "../../../stemjs/ui/ProgressBar";
+import {Modal, ActionModal} from "../../../stemjs/ui/modal/Modal";
+import {FormField} from "../../../stemjs/ui/form/Form";
+import {StaticCodeHighlighter} from "../../../stemjs/ui/CodeEditor";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {GlobalState} from "../../../stemjs/src/state/State.js";
-import {StemDate} from "../../../stemjs/src/time/Date.js";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {GlobalState} from "../../../stemjs/state/State.js";
+import {StemDate} from "../../../stemjs/time/Date.js";
 
 
-import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
-import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
+import {FAIcon} from "../../../stemjs/ui/FontAwesome.jsx";
+import {Level, Size} from "../../../stemjs/ui/Constants.js";
 
 import {CommandInstance, CommandRun} from "./state/CommandStore.js";
 import {Popup} from "../../content/js/Popup.jsx";
 
-import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
+import {autoredraw} from "../../../stemjs/decorators/AutoRedraw.js";
 
 // TODO: This is CSAcademy dependency. Fix this!!
 import {Formatter} from "../../../csabase/js/util.ts";

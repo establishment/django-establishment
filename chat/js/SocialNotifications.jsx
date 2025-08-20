@@ -1,7 +1,7 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {TimePassedSpan} from "../../../stemjs/src/ui/misc/TimePassedSpan.jsx";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan.jsx";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer.js";
 import {UserNotification} from "../../../csaaccounts/js/state/UserStore";
 import {Emoji} from "../../../csabase/js/ui/EmojiUI.jsx";
 

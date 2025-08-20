@@ -1,4 +1,4 @@
-import {Dispatchable} from "base/Dispatcher";
+import {Dispatchable} from "../../../stemjs/base/Dispatcher";
 
 class SocialAccountManager extends Dispatchable {
     constructor(socialApp, options) {

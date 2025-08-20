@@ -1,5 +1,5 @@
-import {UI} from "../../../../stemjs/src/ui/UIBase.js";
-import {SVG} from "../../../../stemjs/src/ui/svg/SVGBase.js";
+import {UI} from "../../../../stemjs/ui/UIBase.js";
+import {SVG} from "../../../../stemjs/ui/svg/SVGBase.js";
 import {line} from "d3-shape";
 
 class LinePlot extends SVG.Path {

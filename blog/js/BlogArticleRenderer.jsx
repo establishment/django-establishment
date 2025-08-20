@@ -1,6 +1,6 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
-import {MarkupClassMap} from "../../../stemjs/src/markup/MarkupRenderer.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
+import {MarkupClassMap} from "../../../stemjs/markup/MarkupRenderer.js";
 import {ArticleRenderer} from "../../content/js/ArticleRenderer.jsx";
 import {BlogArticleRendererStyle} from "./BlogStyle.js";
 

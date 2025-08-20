@@ -1,4 +1,4 @@
-import {composeURL} from "../../../../stemjs/src/base/Fetch.js";
+import {composeURL} from "../../../../stemjs/base/Fetch.js";
 import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
 import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager.js";
 

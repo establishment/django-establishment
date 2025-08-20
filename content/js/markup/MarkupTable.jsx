@@ -1,6 +1,6 @@
-import {UI} from "../../../../stemjs/src/ui/UIBase.js";
-import {Table} from "../../../../stemjs/src/ui/table/Table.jsx";
-import {MarkupRenderer} from "../../../../stemjs/src/markup/MarkupRenderer.js";
+import {UI} from "../../../../stemjs/ui/UIBase.js";
+import {Table} from "../../../../stemjs/ui/table/Table.jsx";
+import {MarkupRenderer} from "../../../../stemjs/markup/MarkupRenderer.js";
 
 export class MarkupTable extends Table {
     setOptions(options) {

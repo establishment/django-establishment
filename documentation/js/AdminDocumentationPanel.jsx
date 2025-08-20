@@ -1,11 +1,11 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {getOffset} from "../../../stemjs/src/ui/Utils.js";
-import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {getOffset} from "../../../stemjs/ui/Utils.js";
+import {Level, Size} from "../../../stemjs/ui/Constants.js";
 import {ArticleSwitcher} from "../../content/js/ArticleRenderer.jsx";
 
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
 import {DocumentationEntry} from "./state/DocumentationStore.js";
 import {CreateEntryButton} from "./CreateEntryModal.jsx";
 import {DocumentationPanel} from "./DocumentationPanel.jsx";

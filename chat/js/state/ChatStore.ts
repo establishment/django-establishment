@@ -1,7 +1,7 @@
-import {FetchStoreMixin, FetchJob} from "../../../../stemjs/src/state/mixins/FetchStoreMixin";
-import {BaseStore, globalStore, StoreObject} from "../../../../stemjs/src/state/Store";
-import {GlobalState, StoreEvent, StoreId} from "../../../../stemjs/src/state/State";
-import {Ajax} from "../../../../stemjs/src/base/Ajax";
+import {FetchStoreMixin, FetchJob} from "../../../../stemjs/state/mixins/FetchStoreMixin";
+import {BaseStore, globalStore, StoreObject} from "../../../../stemjs/state/Store";
+import {GlobalState, StoreEvent, StoreId} from "../../../../stemjs/state/State";
+import {Ajax} from "../../../../stemjs/base/Ajax";
 import {MessageThread} from "./MessageThreadStore";
 
 export class BaseChatObject extends StoreObject {

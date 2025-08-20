@@ -1,7 +1,7 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {TabArea} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {GlobalStyle} from "../../../stemjs/src/ui/GlobalStyle.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {TabArea} from "../../../stemjs/ui/tabs/TabArea.jsx";
+import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {GlobalStyle} from "../../../stemjs/ui/GlobalStyle.js";
 
 import {EmailGatewayWidget} from "./EmailGatewayWidget.jsx";
 import {EmailCampaignWidget} from "./EmailCampaignWidget.jsx";

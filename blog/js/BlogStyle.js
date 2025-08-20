@@ -1,4 +1,4 @@
-import {StyleSheet, styleRule} from "ui/Style";
+import {StyleSheet, styleRule} from "../../../stemjs/ui/Style";
 
 const color = {
     BLUE: "#20232d",

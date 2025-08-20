@@ -1,6 +1,6 @@
-import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
-import {isNotNull} from "../../../../stemjs/src/base/Utils";
-import {StoreId} from "../../../../stemjs/src/state/State";
+import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {isNotNull} from "../../../../stemjs/base/Utils";
+import {StoreId} from "../../../../stemjs/state/State";
 
 @globalStore
 export class Country extends BaseStore("Country") {

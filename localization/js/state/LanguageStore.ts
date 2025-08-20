@@ -1,5 +1,5 @@
 // A basic store that can be used to keep objects that map to ISO-code backed languages
-import {globalStore, BaseStore} from "../../../../stemjs/src/state/Store";
+import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 
 @globalStore
 export class Language extends BaseStore("Language") {

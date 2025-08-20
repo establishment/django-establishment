@@ -1,17 +1,17 @@
-import {UI} from "../../../stemjs/src/ui/UIBase";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {CallThrottler} from "../../../stemjs/src/base/CallModifier.js";
-import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer.js";
-import {Switcher} from "../../../stemjs/src/ui/Switcher";
-import {Level} from "../../../stemjs/src/ui/Constants";
-import {Button} from "../../../stemjs/src/ui/button/Button";
-import {registerStyle} from "../../../stemjs/src/ui/style/Theme";
-import {styleRule, StyleSheet} from "../../../stemjs/src/ui/Style.js";
-import {Form} from "../../../stemjs/src/ui/form/Form";
-import {TextArea, TextInput, RadioInput, RawCheckboxInput} from "../../../stemjs/src/ui/input/Input";
-import {Modal} from "../../../stemjs/src/ui/modal/Modal";
-import {ActionModalButton} from "../../../stemjs/src/ui/modal/Modal";
-import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {CallThrottler} from "../../../stemjs/base/CallModifier.js";
+import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer.js";
+import {Switcher} from "../../../stemjs/ui/Switcher";
+import {Level} from "../../../stemjs/ui/Constants";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {registerStyle} from "../../../stemjs/ui/style/Theme";
+import {styleRule, StyleSheet} from "../../../stemjs/ui/Style.js";
+import {Form} from "../../../stemjs/ui/form/Form";
+import {TextArea, TextInput, RadioInput, RawCheckboxInput} from "../../../stemjs/ui/input/Input";
+import {Modal} from "../../../stemjs/ui/modal/Modal";
+import {ActionModalButton} from "../../../stemjs/ui/modal/Modal";
+import {StateDependentElement} from "../../../stemjs/ui/StateDependentElement.jsx";
 
 import {Questionnaire, QuestionnaireQuestion, QuestionnaireInstance} from "./state/QuestionnaireStore.js";
 

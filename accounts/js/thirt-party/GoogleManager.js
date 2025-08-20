@@ -1,5 +1,5 @@
-import {Ajax} from "../../../../stemjs/src/base/Ajax.js";
-import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils.js";
+import {Ajax} from "../../../../stemjs/base/Ajax.js";
+import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils.js";
 
 import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
 import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager.js";

@@ -1,4 +1,4 @@
-import {MarkupClassMap, MarkupRenderer} from "markup/MarkupRenderer";
+import {MarkupClassMap, MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
 
 class ChatMarkupRenderer extends MarkupRenderer {
     setOptions(options) {
