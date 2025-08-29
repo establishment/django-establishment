@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import inspect
 from collections.abc import Iterable
-from typing import Any, Union, Optional, Callable
+from typing import Any, Union, Optional, Callable, Self
 
 from establishment.utils.object_cache import IdType, ObjectStore, StateObject, StateObjectType, get_id_from_obj, DBObjectStore
 from establishment.utils.proxy import ProxyObject
@@ -119,8 +119,9 @@ class State(object):
         event["data"] = {}
         self.events.append(event)
 
-    def add_extra(self, extra: dict[str, Any]):
+    def add_extra(self, extra: dict[str, Any]) -> Self:
         self.extra.update(extra)
+        return self
 
     def all(self, object_type: Optional[StateObjectType]) -> list[StateObject]:
         if object_type is None:
