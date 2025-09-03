@@ -14,14 +14,20 @@ _city_reader: Optional[Reader] = None
 def get_country_reader() -> Reader:
     global _country_reader
     if _country_reader is None:
-        _country_reader = Reader(join(settings.GEOIP_PATH, "GeoLite2-Country.mmdb"), mode=0)
+        try:
+            _country_reader = Reader(join(settings.GEOIP_PATH, "GeoIP2-Country.mmdb"), mode=0)
+        except OSError:
+            _country_reader = Reader(join(settings.GEOIP_PATH, "GeoLite2-Country.mmdb"), mode=0)
     return _country_reader
 
 
 def get_city_reader() -> Reader:
     global _city_reader
     if _city_reader is None:
-        _city_reader = Reader(join(settings.GEOIP_PATH, "GeoLite2-City.mmdb"), mode=0)
+        try:
+            _city_reader = Reader(join(settings.GEOIP_PATH, "GeoIP2-City.mmdb"), mode=0)
+        except OSError:
+            _city_reader = Reader(join(settings.GEOIP_PATH, "GeoLite2-City.mmdb"), mode=0)
     return _city_reader
 
 
