@@ -1,0 +1,54 @@
+import {UI} from "../../../stemjs/ui/UIBase";
+import {ErrorModal} from "../../../stemjs/ui/modal/Modal";
+import {StoreObject} from "../../../stemjs/state/Store";
+
+import {ErrorMessage} from "./state/ErrorMessageStore";
+
+type ErrorInput = string | Error | StoreObject | ErrorMessage | {
+    id?: string | number;
+    name?: string;
+    message?: string;
+    [key: string]: any;
+};
+
+interface ErrorHandlersInterface {
+    wrapError(error: ErrorInput): StoreObject | ErrorMessage;
+    showErrorAlert(error: ErrorInput): void;
+    PAGE_NOT_FOUND: StoreObject | ErrorMessage;
+}
+
+export const ErrorHandlers: ErrorHandlersInterface = {
+    wrapError: (error: ErrorInput): StoreObject | ErrorMessage => {
+        if (error instanceof StoreObject) {
+            return error;
+        }
+
+        if (typeof error === "object" && error !== null && "id" in error && error.id) {
+            return ErrorMessage.create(error);
+        } else {
+            let errorObj: { name?: string; message?: string; [key: string]: any };
+            
+            if (typeof error === "string" || error instanceof String) {
+                errorObj = { message: error.toString() };
+            } else if (error instanceof Error) {
+                errorObj = {
+                    name: error.name,
+                    message: error.message
+                };
+            } else {
+                errorObj = error as any;
+            }
+            return new ErrorMessage(errorObj);
+        }
+    },
+
+    showErrorAlert: (error: ErrorInput): void => {
+        ErrorModal.show({
+            error: ErrorHandlers.wrapError(error)
+        });
+    },
+
+    PAGE_NOT_FOUND: null as any // Will be initialized below
+};
+
+ErrorHandlers.PAGE_NOT_FOUND = ErrorHandlers.wrapError("Page not found.");

@@ -1,12 +1,12 @@
-import {UI} from "../../../../stemjs/src/ui/UIBase.js";
-import {MarkupRenderer} from "../../../../stemjs/src/markup/MarkupRenderer.js";
+import {UI} from "../../../../stemjs/ui/UIBase.js";
+import {MarkupRenderer} from "../../../../stemjs/markup/MarkupRenderer.js";
 
 
-import {TextArea} from "../../../../stemjs/src/ui/input/Input";
-import {SectionDivider} from "../../../../stemjs/src/ui/section-divider/SectionDivider.jsx";
-import {Orientation} from "../../../../stemjs/src/ui/Constants.js";
-import {Panel} from "../../../../stemjs/src/ui/UIPrimitives.jsx";
-import {RawCheckboxInput} from "../../../../stemjs/src/ui/input/Input";
+import {TextArea} from "../../../../stemjs/ui/input/Input";
+import {SectionDivider} from "../../../../stemjs/ui/section-divider/SectionDivider.jsx";
+import {Orientation} from "../../../../stemjs/ui/Constants.js";
+import {Panel} from "../../../../stemjs/ui/UIPrimitives.jsx";
+import {RawCheckboxInput} from "../../../../stemjs/ui/input/Input";
 
 
 class MarkupEditor extends Panel {

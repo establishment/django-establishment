@@ -1,4 +1,5 @@
-import {StyleSheet, styleRule, Orientation} from "UI";
+import {StyleSheet, styleRule} from "../../../stemjs/ui/Style.js";
+import {Orientation} from "../../../stemjs/ui/Constants.ts";
 
 class VotingWidgetStyle extends StyleSheet {
     height = 40;

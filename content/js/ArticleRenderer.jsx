@@ -1,8 +1,11 @@
-import {UI, SVG, Switcher, Button} from "../../../stemjs/src/ui/All.js";
-import {MarkupRenderer, MarkupClassMap} from "../../../stemjs/src/markup/MarkupRenderer.js";
-import {Language} from "../../localization/js/state/LanguageStore.js";
-import {Article, ArticleStore} from "./state/ArticleStore";
-import {ensure} from "../../../stemjs/src/base/Require.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {RawSVG} from "../../../stemjs/ui/svg/SVGPrimitives";
+import {Switcher} from "../../../stemjs/ui/Switcher";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {MarkupRenderer, MarkupClassMap} from "../../../stemjs/markup/MarkupRenderer";
+import {Language} from "../../localization/js/state/LanguageStore";
+import {Article} from "./state/Article.js";
+import {ensure} from "../../../stemjs/base/Require";
 
 
 class ArticleRenderer extends MarkupRenderer {
@@ -80,7 +83,7 @@ class RecursiveArticleRenderer extends ArticleRenderer {
         if (this.options.article) {
             return super.redraw();
         } else {
-            ArticleStore.fetch(this.options.articleId, (article) => this.updateOptions({ article }));
+            Article.fetchSync(this.options.articleId, (article) => this.updateOptions({article}));
         }
     }
 }
@@ -120,7 +123,7 @@ class ArticleSwitcher extends Switcher {
     }
 
     setActiveArticleId(articleId) {
-        ArticleStore.fetch(articleId, (article) => {
+        Article.fetchSync(articleId, (article) => {
             this.setActive(article);
         });
     }
@@ -138,7 +141,7 @@ class ArticleSwitcher extends Switcher {
 
 ArticleRenderer.markupClassMap = new MarkupClassMap(MarkupClassMap.GLOBAL, [
     ["Article", RecursiveArticleRenderer],
-    ["RawSVG", SVG.RawSVG]
+    ["RawSVG", RawSVG]
 ]);
 
 export {ArticleRenderer, RecursiveArticleRenderer, ArticleSwitcher};

@@ -1,12 +1,12 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {getOffset} from "../../../stemjs/src/ui/Utils.js";
-import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {getOffset} from "../../../stemjs/ui/Utils.js";
+import {Level, Size} from "../../../stemjs/ui/Constants.js";
 import {ArticleSwitcher} from "../../content/js/ArticleRenderer.jsx";
 
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {DocumentationEntryStore} from "./state/DocumentationStore.js";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {DocumentationEntry} from "./state/DocumentationStore.js";
 import {CreateEntryButton} from "./CreateEntryModal.jsx";
 import {DocumentationPanel} from "./DocumentationPanel.jsx";
 import {DraggableDocumentationNavElement, dragAndDropHandler} from "./DocumentationNavElement.jsx";
@@ -18,10 +18,10 @@ export class AdminDocumentationPanel extends DocumentationPanel {
     }
 
     getDocumentationEntry() {
-        let documentationEntry = DocumentationEntryStore.get(1);
+        let documentationEntry = DocumentationEntry.get(1);
         documentationEntry.getEntries = function() {
             let entries = [];
-            for (let documentationEntry of DocumentationEntryStore.all()) {
+            for (let documentationEntry of DocumentationEntry.all()) {
                 if ((documentationEntry.parentId === this.id || !documentationEntry.parentId) && documentationEntry.id !== this.id) {
                     entries.push(documentationEntry);
                 }
@@ -97,7 +97,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
                 entryId: entry.id,
                 parentId: -1
             });
-            DocumentationEntryStore.applyDeleteEvent({
+            DocumentationEntry.applyDeleteEvent({
                 objectId: entry.id
             });
         } else if (!newParent) {
@@ -110,7 +110,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
             });
         } else {
             let newBrothers = [];
-            for (let docEntry of DocumentationEntryStore.all()) {
+            for (let docEntry of DocumentationEntry.all()) {
                 if (docEntry.parentId === newParent.id && docEntry !== entry) {
                     newBrothers.push(docEntry);
                 }
@@ -173,17 +173,17 @@ export class AdminDocumentationPanel extends DocumentationPanel {
             if (borderType === "border") {
                 newParent = element.getDocumentationEntry();
                 nextSibling = null;
-                for (let docEntry of DocumentationEntryStore.all()) {
+                for (let docEntry of DocumentationEntry.all()) {
                     if (docEntry.parentId === newParent.id && (nextSibling === null || nextSibling.parentIndex > docEntry.parentIndex)) {
                         nextSibling = docEntry;
                     }
                 }
             } else if (borderType === "border-top") {
                 nextSibling = element.getDocumentationEntry();
-                newParent = DocumentationEntryStore.get(nextSibling.parentId);
+                newParent = DocumentationEntry.get(nextSibling.parentId);
             } else {
                 nextSibling = element.getDocumentationEntry();
-                newParent = DocumentationEntryStore.get(nextSibling.parentId);
+                newParent = DocumentationEntry.get(nextSibling.parentId);
                 nextSibling = null;
             }
             return [newParent, nextSibling];
@@ -203,7 +203,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
             }
             if (visibleEntries.indexOf(entryNavElement.getDocumentationEntry()) !== -1
                     && entryNavElement.getDocumentationEntry().parentId) {
-                let parentEntry = DocumentationEntryStore.get(entryNavElement.getDocumentationEntry().parentId);
+                let parentEntry = DocumentationEntry.get(entryNavElement.getDocumentationEntry().parentId);
                 let parentEntryNavElement = this.getNavElement(parentEntry);
                 if (parentEntryNavElement && parentEntryNavElement.titleElement.options.shouldToggle) {
                     parentEntryNavElement.titleElement.setCollapsed(false);
@@ -235,7 +235,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
 
     onMount() {
         super.onMount();
-        this.attachCreateListener(DocumentationEntryStore, (entry) => {
+        this.attachCreateListener(DocumentationEntry, (entry) => {
             this.attachChangeListener(entry, () => {
                 this.focusToDocumentationEntry(entry);
             });

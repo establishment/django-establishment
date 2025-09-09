@@ -1,9 +1,9 @@
-import {UI} from "ui/UI";
-import {Button} from "ui/button/Button";
-import {Level, Size} from "ui/Constants";
-import {Ajax} from "base/Ajax";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {Level, Size} from "../../../stemjs/ui/Constants";
+import {Ajax} from "../../../stemjs/base/Ajax";
 
-import {UserGroupStore, UserGroupMemberStore} from "./state/UserGroupStore";
+import {UserGroup, UserGroupMember} from "./state/UserGroup.js";
 import {UserHandle} from "UserHandle";
 import {UserInputField} from "UsersAutocompletion";
 
@@ -41,7 +41,7 @@ export class UserGroupMemberUI extends UI.Element {
 
 export class UserGroupEditor extends UI.Element {
     getGroup() {
-        return UserGroupStore.get(this.options.groupId);
+        return UserGroup.get(this.options.groupId);
     }
 
     renderUserGroupMember(member) {
@@ -62,7 +62,7 @@ export class UserGroupEditor extends UI.Element {
             userId: userId,
             action: "add"
         }).then(() => this.addUserField.clear()));
-        this.attachListener(UserGroupMemberStore, ["create", "delete"], (userGroupMember) => {
+        this.attachListener(UserGroupMember, ["create", "delete"], (userGroupMember) => {
             if (userGroupMember.groupId === this.options.groupId) {
                 this.redraw();
             }

@@ -1,12 +1,10 @@
-import {StoreObject, GenericObjectStore} from "state/Store";
-import {GlobalState} from "state/State";
+import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {GlobalState} from "../../../../stemjs/state/State";
 
-export class EmailStatus extends StoreObject {}
-
-class EmailStatusStoreClass extends GenericObjectStore {
-    registerStreams() {
+@globalStore
+export class EmailStatus extends BaseStore("EmailStatus") {
+    static registerStreams() {
         GlobalState.registerStream("admin-email-manager");
     }
 }
 
-export const EmailStatusStore = new EmailStatusStoreClass("EmailStatus", EmailStatus);

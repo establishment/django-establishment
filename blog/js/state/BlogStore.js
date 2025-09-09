@@ -1,22 +1,13 @@
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
-import {ArticleStore} from "../../../content/js/state/ArticleStore.js";
+import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {Article} from "../../../content/js/state/Article.ts";
 
-class BlogEntry extends StoreObject {
+@globalStore
+export class BlogEntry extends BaseStore("BlogEntry", {dependencies: ["Article"]}) {
     getArticle() {
-        return ArticleStore.get(this.articleId);
-    }
-}
-
-class BlogEntryStoreClass extends GenericObjectStore {
-    constructor(objectType="BlogEntry", ObjectClass=BlogEntry) {
-        super(objectType, ObjectClass, {
-            dependencies: ["Article"],
-        });
+        return Article.get(this.articleId);
     }
 
-    getEntryForURL(urlName) {
+    static getEntryForURL(urlName) {
         return this.all().find(blogEntry => blogEntry.urlName === urlName);
     }
 }
-
-export const BlogEntryStore = new BlogEntryStoreClass();

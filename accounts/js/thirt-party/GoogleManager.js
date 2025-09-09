@@ -1,12 +1,12 @@
-import {Ajax} from "../../../../stemjs/src/base/Ajax.js";
-import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils.js";
+import {Ajax} from "../../../../stemjs/base/Ajax.js";
+import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils.js";
 
-import {SocialAppStore} from "../../../socialaccount/js/state/SocialAppStore.js";
+import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
 import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager.js";
 
 class GoogleManager extends SocialAccountManager {
     constructor() {
-        super(SocialAppStore.getSocialAppByName("Google"), {
+        super(SocialApp.getSocialAppByName("Google"), {
             loginByTokenUrl: "/accounts/google/login/token/",
         });
         this.ensureScriptNodeExists();

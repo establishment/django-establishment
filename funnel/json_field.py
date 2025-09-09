@@ -1,11 +1,11 @@
 import json
-from psycopg2.extras import Json
 from django import forms as django_forms
 from django.db.models.fields import Field
 from django.core.exceptions import ValidationError
+from psycopg.types.json import Json
 
 from establishment.funnel.encoder import StreamJSONEncoder
-from establishment.funnel.json_helper import to_camel_case, to_underscore_case, from_json_dict
+from establishment.funnel.json_helper import to_camel_case, from_json_dict
 
 
 # BaseJSONSerializable Usage

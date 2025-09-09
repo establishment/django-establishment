@@ -1,10 +1,10 @@
-import {Ajax} from "../../../../stemjs/src/base/Ajax.js";
-import {SocialAppStore} from "../../../socialaccount/js/state/SocialAppStore.js";
+import {Ajax} from "../../../../stemjs/base/Ajax.js";
+import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
 import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager.js";
 
 class FacebookManager extends SocialAccountManager {
     constructor() {
-        super(SocialAppStore.getSocialAppByName("Facebook"), {
+        super(SocialApp.getSocialAppByName("Facebook"), {
             version: "v2.7",
             loginByTokenUrl: "/accounts/facebook/login/token/",
             loginOptions: {

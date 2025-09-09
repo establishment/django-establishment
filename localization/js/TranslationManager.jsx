@@ -1,21 +1,21 @@
 // TODO: this whole file needs a refactoring
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {TabArea} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
-import {Table, TableRow} from "../../../stemjs/src/ui/table/Table.jsx";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {FileInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {RawCheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {TextArea} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {Level} from "../../../stemjs/src/ui/Constants.js";
-import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
-import {FileSaver} from "../../../stemjs/src/base/FileSaver.js";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {NOOP_FUNCTION} from "../../../stemjs/src/base/Utils.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {TabArea} from "../../../stemjs/ui/tabs/TabArea.jsx";
+import {Table, TableRow} from "../../../stemjs/ui/table/Table.jsx";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {FileInput} from "../../../stemjs/ui/input/Input.jsx";
+import {RawCheckboxInput} from "../../../stemjs/ui/input/Input.jsx";
+import {TextArea} from "../../../stemjs/ui/input/Input.jsx";
+import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {Level} from "../../../stemjs/ui/Constants.js";
+import {Select} from "../../../stemjs/ui/input/Input.jsx";
+import {FileSaver} from "../../../stemjs/base/FileSaver.js";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {NOOP_FUNCTION} from "../../../stemjs/base/Utils.js";
 
-import {TranslationKeyStore, TranslationEntryStore} from "./state/TranslationStore.js";
-import {Language} from "./state/LanguageStore.js";
+import {TranslationKey, TranslationEntry} from "./state/TranslationStore.js";
+import {Language} from "./state/LanguageStore.ts";
 
 function ajaxCall(request, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
     Ajax.postJSON("/edit_translation/", request).then(onSuccess, onError);
@@ -124,14 +124,14 @@ class TranslationEntryTable extends Table {
         const {language} = this.options;
 
         let keyEntryMap = new Map();
-        for (let entry of TranslationEntryStore.all()) {
+        for (let entry of TranslationEntry.all()) {
             if (entry.getLanguage().id === language.id) {
                 keyEntryMap.set(entry.getTranslationKey().id, entry);
             }
         }
 
         let result = [];
-        for (let key of TranslationKeyStore.all()) {
+        for (let key of TranslationKey.all()) {
             result.push({
                 key,
                 entry: keyEntryMap.get(key.id),
@@ -293,7 +293,7 @@ class TranslationEntryManager extends Panel {
                             };
                             if (x.entryId) {
                                 change.entryId = x.entryId;
-                                let entry = TranslationEntryStore.get(x.entryId);
+                                let entry = TranslationEntry.get(x.entryId);
                                 if (x.entryValue === entry.value) {
                                     continue;
                                 }
@@ -343,14 +343,14 @@ class TranslationEntryManager extends Panel {
     exportToFile() {
         let language = this.language;
         let keyEntryMap = new Map();
-        for (let entry of TranslationEntryStore.all()) {
+        for (let entry of TranslationEntry.all()) {
             if (entry.getLanguage().id === language.id) {
                 keyEntryMap.set(entry.getTranslationKey().id, entry);
             }
         }
 
         let output = [];
-        for (let key of TranslationKeyStore.all()) {
+        for (let key of TranslationKey.all()) {
             let entry = keyEntryMap.get(key.id);
             output.push({
                 keyId: key.id,
@@ -408,10 +408,10 @@ class TranslationKeyTableRow extends TableRow {
         this.hide();
         ajaxCall(request, () => {
             this.options.entry.table.changed = true;
-            TranslationKeyStore.applyDeleteEvent({objectId: key.id});
-            for (let entry of TranslationEntryStore.all()) {
+            TranslationKey.applyDeleteEvent({objectId: key.id});
+            for (let entry of TranslationEntry.all()) {
                 if (entry.translationKeyId == key.id) {
-                    TranslationEntryStore.applyDeleteEvent({objectId: entry.id});
+                    TranslationEntry.applyDeleteEvent({objectId: entry.id});
                 }
             }
         });
@@ -508,7 +508,7 @@ class TranslationKeyTable extends Table {
 
     getEntries() {
         let ret = [];
-        for (let key of TranslationKeyStore.all()) {
+        for (let key of TranslationKey.all()) {
             ret.push({key: key, table: this, editable: this.editable});
         }
         return ret;

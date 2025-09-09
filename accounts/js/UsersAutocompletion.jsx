@@ -1,20 +1,20 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {Dispatchable} from "../../../stemjs/src/base/Dispatcher.js";
-import {VolatileFloatingWindow} from "../../../stemjs/src/ui/modal/FloatingWindow.jsx";
-import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {getOffset, getComputedStyle} from "../../../stemjs/src/ui/Utils.js";
-import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea.jsx";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {Direction, Level, Size} from "../../../stemjs/src/ui/Constants.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {Dispatchable} from "../../../stemjs/base/Dispatcher.js";
+import {VolatileFloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow.jsx";
+import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {getOffset, getComputedStyle} from "../../../stemjs/ui/Utils.js";
+import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea.jsx";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {Direction, Level, Size} from "../../../stemjs/ui/Constants.js";
 
-import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
 
 export class AbstractUsernameAutocomplete extends Dispatchable {
     static requestNewUsers(prefix, callback) {
-        Ajax.getJSON(PublicUserStore.fetchURL, {
+        Ajax.getJSON(PublicUser.fetchURL, {
             usernamePrefix: prefix
         }).then(
             (data) => {
@@ -209,7 +209,7 @@ export class UserInputField extends UI.Element {
 
     getUserId() {
         let username = this.usernameInput.getValue();
-        for (let user of PublicUserStore.all()) {
+        for (let user of PublicUser.all()) {
             if (user.name === username || user.username === username) {
                 return user.id;
             }
@@ -218,7 +218,7 @@ export class UserInputField extends UI.Element {
     }
 
     autocompleteUser(userId) {
-        this.usernameInput.setValue(PublicUserStore.get(userId).username);
+        this.usernameInput.setValue(PublicUser.get(userId).username);
         this.dispatch("autocomplete", []);
     }
 

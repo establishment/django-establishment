@@ -1,19 +1,19 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
-import {Route, Router} from "../../../stemjs/src/ui/Router.jsx";
-import {Link} from "../../../stemjs/src/ui/primitives/Link.jsx";
-import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {VolatileFloatingWindow} from "../../../stemjs/src/ui/modal/FloatingWindow.jsx";
-import {registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {StemDate} from "../../../stemjs/src/time/Date.js";
-import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Level, Size} from "../../../stemjs/ui/Constants.js";
+import {Route, Router} from "../../../stemjs/ui/Router.jsx";
+import {Link} from "../../../stemjs/ui/primitives/Link.jsx";
+import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {VolatileFloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow.jsx";
+import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {StemDate} from "../../../stemjs/time/Date.js";
+import {FAIcon} from "../../../stemjs/ui/FontAwesome.jsx";
 
-import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {MessagesPanelListStyle} from "./SocialNotificationsStyle.js";
 import {PrivateChatWidget} from "./ChatWidget.jsx";
-import {PrivateChatStore} from "./state/MessageThreadStore.js";
+import {PrivateChat} from "./state/ChatStore.js";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
 
@@ -46,7 +46,7 @@ class MiniMessage extends UI.Element {
     }
 
     getPrivateChat() {
-        return PrivateChatStore.get(this.options.privateChatId);
+        return PrivateChat.get(this.options.privateChatId);
     }
 
     getMessageThread() {
@@ -193,7 +193,7 @@ class UserSearchInput extends UI.Element {
         this.input.addNodeListener("keyup", () => {
             this.window.show();
             if (this.input.getValue()) {
-                Ajax.getJSON(PublicUserStore.fetchURL, {
+                Ajax.getJSON(PublicUser.fetchURL, {
                     usernamePrefix: this.input.getValue(),
                 }).then(
                     (data) => this.updateList(data.state.publicuser),
@@ -215,7 +215,7 @@ class MessagesList extends UI.Element {
 
     getMiniMessages() {
         this.miniMessages = [];
-        for (let privateChat of PrivateChatStore.all()) {
+        for (let privateChat of PrivateChat.all()) {
             let userId = privateChat.getOtherUserId();
             let miniMessage = <MiniMessage active={userId === this.activeUserId}
                                            list={this} privateChatId={privateChat.id} />;
@@ -337,7 +337,7 @@ class MessagesPanelList extends UI.Element {
 
 class PrivateChatWidgetWrapper extends UI.Element {
     render() {
-        const privateChat = PrivateChatStore.getChatWithUser(parseInt(this.options.userId));
+        const privateChat = PrivateChat.getChatWithUser(parseInt(this.options.userId));
         if (privateChat) {
             let widgetStyle = {
                 marginLeft: "0px",
@@ -353,7 +353,7 @@ class PrivateChatWidgetWrapper extends UI.Element {
             return <PrivateChatWidget ref="chat" style={widgetStyle} extraHeightOffset={75}
                                privateChat={privateChat} />;
         }
-        PrivateChatStore.fetchForUser(this.options.userId, (privateChat) => {
+        PrivateChat.fetchForUser(this.options.userId, (privateChat) => {
             this.updateOptions({ privateChat });
             this.chat.messageWindow.scrollToBottom();
         });

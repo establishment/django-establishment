@@ -1,20 +1,20 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {TabArea} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
-import {FormField, Form} from "../../../stemjs/src/ui/form/Form.jsx";
-import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {PasswordInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {EmailInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {Label} from "../../../stemjs/src/ui/SimpleElements.jsx";
-import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
-import {RawCheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton.jsx";
-import {GlobalStyle} from "../../../stemjs/src/ui/GlobalStyle.js";
-import {Level, Size} from "../../../stemjs/src/ui/Constants.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {TabArea} from "../../../stemjs/ui/tabs/TabArea.jsx";
+import {FormField, Form} from "../../../stemjs/ui/form/Form.jsx";
+import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {PasswordInput} from "../../../stemjs/ui/input/Input.jsx";
+import {EmailInput} from "../../../stemjs/ui/input/Input.jsx";
+import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {Label} from "../../../stemjs/ui/SimpleElements.jsx";
+import {Select} from "../../../stemjs/ui/input/Input.jsx";
+import {RawCheckboxInput} from "../../../stemjs/ui/input/Input.jsx";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton.jsx";
+import {GlobalStyle} from "../../../stemjs/ui/GlobalStyle.js";
+import {Level, Size} from "../../../stemjs/ui/Constants.js";
 
-import {UserStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {User} from "../../../csaaccounts/js/state/UserStore";
 import {FacebookManager} from "./thirt-party/FacebookManager.js";
 import {GoogleManager} from "./thirt-party/GoogleManager.js";
 
@@ -84,7 +84,7 @@ export class GeneralInformationPanel extends Panel {
         this.lastNameFormField.removeError();
         this.userNameFormField.removeError();
         this.saveProfileButton.postJSON("/accounts/profile_changed/", request).then(
-            (data) => UserStore.applyEvent({
+            (data) => User.applyEvent({
                           objectId: data.user.id,
                           data: data.user,
                       }),
@@ -167,7 +167,7 @@ export class SecuritySettingsPanel extends Panel {
         }
 
         this.setPasswordButton.postJSON("/accounts/password_change/", request).then(
-            (data) => UserStore.applyEvent({
+            (data) => User.applyEvent({
                           objectId: data.user.id,
                           data: data.user,
                       }),
@@ -280,7 +280,7 @@ export class EmailPanel extends Panel {
         this.addEmailButton.postJSON("/accounts/email_address_add/", request).then(
             (data) => {
                 this.emailFormInput.setValue("");
-                UserStore.applyEvent({
+                User.applyEvent({
                     objectId: data.user.id,
                     data: data.user,
                 });
@@ -299,7 +299,7 @@ export class EmailPanel extends Panel {
         }
 
         Ajax.postJSON("/accounts/email_address_remove/", request).then(
-            (data) => UserStore.applyEvent({
+            (data) => User.applyEvent({
                           objectId: data.user.id,
                           data: data.user,
                       })
@@ -312,7 +312,7 @@ export class EmailPanel extends Panel {
         };
 
         Ajax.postJSON("/accounts/email_address_make_primary/", request).then(
-            (data) => UserStore.applyEvent({
+            (data) => User.applyEvent({
                           objectId: data.user.id,
                           data: data.user,
                       })
@@ -399,7 +399,7 @@ export class SocialAccountsPanel extends Panel {
         Ajax.postJSON("/accounts/remove_social_account/", {
             socialAccountId: socialAccountId
         }).then(
-            (data) => UserStore.applyEvent({
+            (data) => User.applyEvent({
                           objectId: data.user.id,
                           data: data.user,
                       })
@@ -442,7 +442,7 @@ export class UserSettingsPanel extends Panel {
     }
 
     getUser() {
-        return UserStore.getCurrentUser();
+        return User.getCurrentUser();
     }
 
     getPanels() {

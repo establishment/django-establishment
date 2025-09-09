@@ -1,4 +1,4 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
 
 import {BasePopup} from "./Popup.jsx";
 

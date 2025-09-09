@@ -1,15 +1,16 @@
-import {GenericObjectStore, StoreObject} from "../../../../stemjs/src/state/Store.js";
-import {ArticleStore} from "../../../content/js/state/ArticleStore.js";
+import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {Article} from "../../../content/js/state/Article.ts";
 
 
-class DocumentationEntry extends StoreObject {
+@globalStore
+export class DocumentationEntry extends BaseStore("DocumentationEntry") {
     getArticle() {
-        let article = ArticleStore.get(this.articleId);
+        let article = Article.get(this.articleId);
         return article && article.getTranslation();
     }
 
     getParent() {
-        return DocumentationEntryStore.get(this.parentId);
+        return DocumentationEntry.get(this.parentId);
     }
 
     toString() {
@@ -36,7 +37,7 @@ class DocumentationEntry extends StoreObject {
 
     getEntries() {
         let entries = [];
-        for (let documentationEntry of DocumentationEntryStore.all()) {
+        for (let documentationEntry of DocumentationEntry.all()) {
             if (documentationEntry.parentId === this.id) {
                 entries.push(documentationEntry);
             }
@@ -48,13 +49,3 @@ class DocumentationEntry extends StoreObject {
         return entries;
     }
 }
-
-class DocumentationEntryStoreClass extends GenericObjectStore {
-    constructor() {
-        super("DocumentationEntry", DocumentationEntry);
-    }
-}
-
-let DocumentationEntryStore = new DocumentationEntryStoreClass();
-
-export {DocumentationEntryStore}

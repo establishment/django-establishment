@@ -1,12 +1,12 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Orientation} from "../../../stemjs/src/ui/Constants.js";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {Router} from "../../../stemjs/src/ui/Router.jsx";
-import {registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
-import {Dispatcher} from "../../../stemjs/src/base/Dispatcher.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Orientation} from "../../../stemjs/ui/Constants.js";
+import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {Router} from "../../../stemjs/ui/Router.jsx";
+import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
+import {Dispatcher} from "../../../stemjs/base/Dispatcher.js";
 
 import {ArticleSwitcher} from "../../content/js/ArticleRenderer.jsx";
-import {DocumentationEntryStore} from "./state/DocumentationStore.js";
+import {DocumentationEntry} from "./state/DocumentationStore.js";
 import {SimpleDocumentationNavElement} from "./DocumentationNavElement.jsx";
 import {DocumentationStyle} from "./DocumentationStyle.js";
 
@@ -22,7 +22,7 @@ class DocumentationPanel extends UI.Element {
     }
 
     getDocumentationEntry() {
-        return DocumentationEntryStore.get(this.options.documentationEntryId);
+        return DocumentationEntry.get(this.options.documentationEntryId);
     }
 
     render() {
@@ -62,7 +62,7 @@ class DocumentationPanel extends UI.Element {
 
     setURL(urlParts) {
         if (this.articleSwitcher) {
-            for (let documentationEntry of DocumentationEntryStore.all()) {
+            for (let documentationEntry of DocumentationEntry.all()) {
                 if (this.checkUrl(urlParts, documentationEntry)) {
                     this.focusToDocumentationEntry(documentationEntry);
                     return;

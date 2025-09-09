@@ -1,28 +1,23 @@
-import {
-    ActionModal,
-    Button,
-    ButtonGroup,
-    RawCheckboxInput,
-    Form,
-    FormField,
-    Link,
-    Panel,
-    Select,
-    SortableTable,
-    TemporaryMessageArea,
-    TextInput,
-    Level,
-    UI,
-} from "../../../stemjs/src/ui/All.js";
-import {Ajax} from "../../../stemjs/src/base/Ajax";
-import {StemDate} from "../../../stemjs/src/time/Date";
-import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
-import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
-import {GlobalStyle} from "../../../stemjs/src/ui/GlobalStyle.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {ActionModal} from "../../../stemjs/ui/modal/Modal";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup";
+import {Form, FormField} from "../../../stemjs/ui/form/Form";
+import {RawCheckboxInput, Select, TextInput} from "../../../stemjs/ui/input/Input";
+import {Link} from "../../../stemjs/ui/primitives/Link";
+import {SortableTable} from "../../../stemjs/ui/table/SortableTable";
+import {Panel} from "../../../stemjs/ui/UIPrimitives";
+import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea";
+import {Level} from "../../../stemjs/ui/Constants";
+import {Ajax} from "../../../stemjs/base/Ajax";
+import {StemDate} from "../../../stemjs/time/Date";
+import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
+import {FAIcon} from "../../../stemjs/ui/FontAwesome.jsx";
+import {GlobalStyle} from "../../../stemjs/ui/GlobalStyle.js";
 
-import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
-import {Language} from "../../localization/js/state/LanguageStore.js";
-import {ArticleStore} from "./state/ArticleStore";
+import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
+import {Language} from "../../localization/js/state/LanguageStore.ts";
+import {Article} from "./state/Article.ts";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
@@ -175,7 +170,7 @@ class CreateArticleModal extends ActionModal {
         }
         this.createArticleButton.postJSON("/create_article/", request).then(
             (data) => {
-                this.options.parent.table.addArticle(ArticleStore.get(data.article.id));
+                this.options.parent.table.addArticle(Article.get(data.article.id));
                 this.hide();
             },
             (error) => {
@@ -318,7 +313,7 @@ class ArticleTable extends SortableTable {
             cellStyle: cellStyle
         }, {
             value: article => <ArticleOwnerSpan article={article} />,
-            rawValue: article => PublicUserStore.get(article.userCreatedId).username,
+            rawValue: article => PublicUser.get(article.userCreatedId).username,
             headerName: "Author",
             headerStyle: headerStyle,
             cellStyle: cellStyle
@@ -409,7 +404,7 @@ class ArticleManager extends Panel {
             </div>;
         }
 
-        this.options.articles = ArticleStore.all();
+        this.options.articles = Article.all();
 
         return [
             <div className="pull-left">
@@ -454,7 +449,7 @@ class ArticleTranslationManager extends Panel {
 
         Ajax.getJSON("/article/" + this.options.baseArticle.id + "/get_translations/", {}).then(
             () => {
-                for (let article of ArticleStore.all()) {
+                for (let article of Article.all()) {
                     if (article.baseArticleId === this.options.baseArticle.id) {
                         this.table.options.articles.push(article);
                     }

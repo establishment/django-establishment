@@ -1,8 +1,8 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {TimePassedSpan} from "../../../stemjs/src/ui/misc/TimePassedSpan.jsx";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer.js";
-import {UserNotificationStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan.jsx";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer.js";
+import {UserNotification} from "../../../csaaccounts/js/state/UserStore";
 import {Emoji} from "../../../csabase/js/ui/EmojiUI.jsx";
 
 class Notification extends UI.Element {
@@ -135,12 +135,12 @@ class NotificationsList extends UI.Element {
 
     onMount() {
         this.getStoredNotifications();
-        for (let notification of UserNotificationStore.all().sort((x, y) => {
+        for (let notification of UserNotification.all().sort((x, y) => {
             return x.dateCreated - y.dateCreated;
         })) {
             this.handleNewNotification(notification);
         }
-        this.attachCreateListener(UserNotificationStore, (notification) => {
+        this.attachCreateListener(UserNotification, (notification) => {
             this.handleNewNotification(notification);
         });
     }

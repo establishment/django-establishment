@@ -1,21 +1,21 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Level, Orientation} from "../../../stemjs/src/ui/Constants.js";
-import {SortableTable} from "../../../stemjs/src/ui/table/SortableTable.jsx";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {SectionDivider} from "../../../stemjs/src/ui/section-divider/SectionDivider.jsx";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {TableRow} from "../../../stemjs/src/ui/table/Table.jsx";
-import {ActionModal} from "../../../stemjs/src/ui/modal/Modal.jsx";
-import {FormField} from "../../../stemjs/src/ui/form/Form.jsx";
-import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
-import {TextArea} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {Language} from "../../localization/js/state/LanguageStore.js";
-import {EmailGatewayStore} from "state/EmailGatewayStore.js";
-import {EmailCampaignStore} from "state/EmailCampaignStore.js";
-import {EmailTemplateStore} from "state/EmailTemplateStore.js";
-import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Level, Orientation} from "../../../stemjs/ui/Constants.js";
+import {SortableTable} from "../../../stemjs/ui/table/SortableTable.jsx";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {SectionDivider} from "../../../stemjs/ui/section-divider/SectionDivider.jsx";
+import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {TableRow} from "../../../stemjs/ui/table/Table.jsx";
+import {ActionModal} from "../../../stemjs/ui/modal/Modal.jsx";
+import {FormField} from "../../../stemjs/ui/form/Form.jsx";
+import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {Select} from "../../../stemjs/ui/input/Input.jsx";
+import {TextArea} from "../../../stemjs/ui/input/Input.jsx";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {Language} from "../../localization/js/state/LanguageStore.ts";
+import {EmailGateway} from "state/EmailGatewayStore";
+import {EmailCampaign} from "state/EmailCampaignStore";
+import {EmailTemplate} from "state/EmailTemplateStore";
+import {autoredraw} from "../../../stemjs/decorators/AutoRedraw.js";
 
 class EmailTemplateModal extends ActionModal {
     constructor(options) {
@@ -58,13 +58,13 @@ class EmailTemplateModal extends ActionModal {
                 <TextInput value={templateValues.subject || ""} ref="subjectInput"/>
             </FormField>,
             <FormField label="Campaign" ref="campaignIdField" style={{margin: "initial"}}>
-                <Select ref="campaignSelect" options={EmailCampaignStore.all()} selected={EmailCampaignStore.get(templateValues.campaignId)}/>
+                <Select ref="campaignSelect" options={EmailCampaign.all()} selected={EmailCampaign.get(templateValues.campaignId)}/>
             </FormField>,
             <FormField label="Language" ref="languageIdField" style={{margin: "initial"}}>
                 <Select ref="languageSelect" options={Language.all()} selected={Language.get(templateValues.languageId)}/>
             </FormField>,
             <FormField label="Gateway" ref="gatewayIdField" style={{margin: "initial"}}>
-                <Select ref="gatewaySelect" options={EmailGatewayStore.all()} selected={EmailGatewayStore.get(templateValues.gatewayId)}/>
+                <Select ref="gatewaySelect" options={EmailGateway.all()} selected={EmailGateway.get(templateValues.gatewayId)}/>
             </FormField>,
             <FormField label="Html" ref="htmlField" inline={false} style={{margin: "initial"}}>
             </FormField>,
@@ -218,14 +218,14 @@ class EmailTemplateTableRow extends TableRow {
 }
 
 
-@autoredraw(EmailTemplateStore)
+@autoredraw(EmailTemplate)
 class EmailTemplateTable extends SortableTable {
     getRowClass() {
         return EmailTemplateTableRow;
     }
 
     getEntries() {
-        return EmailTemplateStore.all();
+        return EmailTemplate.all();
     }
 
     getDefaultColumns() {
@@ -251,7 +251,7 @@ class EmailTemplateTable extends SortableTable {
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: template => EmailCampaignStore.get(template.campaignId).name,
+            value: template => EmailCampaign.get(template.campaignId).name,
             headerName: UI.T("Campaign"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
@@ -261,7 +261,7 @@ class EmailTemplateTable extends SortableTable {
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: template => EmailGatewayStore.get(template.gatewayId).name,
+            value: template => EmailGateway.get(template.gatewayId).name,
             headerName: UI.T("Gateway"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
@@ -288,9 +288,9 @@ export class EmailTemplateWidget extends Panel {
     onMount() {
         super.onMount();
 
-        EmailGatewayStore.registerStreams();
-        EmailCampaignStore.registerStreams();
-        EmailTemplateStore.registerStreams();
+        EmailGateway.registerStreams();
+        EmailCampaign.registerStreams();
+        EmailTemplate.registerStreams();
 
         this.addTemplateButton.addClickListener(() => {
             const addTemplateModal = <AddEmailTemplateModal template={this.options.entry} />;

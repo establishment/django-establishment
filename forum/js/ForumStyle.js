@@ -1,5 +1,5 @@
-import {styleRule} from "../../../stemjs/src/decorators/Style.js";
-import {StyleSheet} from "../../../stemjs/src/ui/Style.js";
+import {styleRule} from "../../../stemjs/decorators/Style.js";
+import {StyleSheet} from "../../../stemjs/ui/Style.js";
 
 const colors = {
     // BLUE: "#20232d",

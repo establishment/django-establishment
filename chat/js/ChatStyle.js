@@ -1,4 +1,4 @@
-import {StyleSheet, styleRule} from "ui/UI";
+import {StyleSheet, styleRule} from "../../../stemjs/ui/Style";
 
 
 export class ChatStyle extends StyleSheet {

@@ -1,5 +1,5 @@
-import {TerminalRoute} from "../../../stemjs/src/ui/Router.jsx";
-import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
+import {TerminalRoute} from "../../../stemjs/ui/Router.jsx";
+import {StateDependentElement} from "../../../stemjs/ui/StateDependentElement.jsx";
 
 import {AdminDocumentationPanel} from "./AdminDocumentationPanel.jsx";
 import {DocumentationPanel} from "./DocumentationPanel.jsx";

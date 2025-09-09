@@ -1,13 +1,23 @@
-import {UI, TabArea, Panel, Switcher, Theme, registerStyle, styleRule, Level, RowList, CardPanel, Table, RawCheckboxInput} from "../../../stemjs/src/ui/All.js";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
-import {ColorGenerator} from "../../../stemjs/src/ui/Color.js";
-import {MarkupRenderer} from "../../../stemjs/src/markup/MarkupRenderer.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
+import {Panel} from "../../../stemjs/ui/UIPrimitives";
+import {CardPanel} from "../../../stemjs/ui/CardPanel";
+import {Switcher} from "../../../stemjs/ui/Switcher";
+import {Theme, registerStyle} from "../../../stemjs/ui/style/Theme";
+import {styleRule} from "../../../stemjs/decorators/Style";
+import {Level} from "../../../stemjs/ui/Constants";
+import {RowList} from "../../../stemjs/ui/RowList";
+import {Table} from "../../../stemjs/ui/table/Table";
+import {RawCheckboxInput} from "../../../stemjs/ui/input/Input";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {StateDependentElement} from "../../../stemjs/ui/StateDependentElement";
+import {ColorGenerator} from "../../../stemjs/ui/Color";
+import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
 
-import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
-import {QuestionnaireStore, QuestionnaireQuestion} from "./state/QuestionnaireStore.js";
-import {PieChartSVG} from "./charts/PieChart.jsx";
-import {QuestionPage, QuestionnaireStyle} from "./QuestionnairePanel.jsx";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle";
+import {Questionnaire, QuestionnaireQuestion} from "./state/QuestionnaireStore";
+import {PieChartSVG} from "./charts/PieChart";
+import {QuestionPage, QuestionnaireStyle} from "./QuestionnairePanel";
 
 
 class QuestionnaireAnswersStyle extends QuestionnaireStyle {
@@ -195,7 +205,7 @@ class QuestionnaireSummaryWidget extends UI.Element {
     }
 
     getQuestionnaire() {
-        return QuestionnaireStore.get(this.options.questionnaireId);
+        return Questionnaire.get(this.options.questionnaireId);
     }
 
     respectsFilters(instance) {
@@ -289,7 +299,7 @@ class QuestionnaireResponsesWidget extends UI.Element {
     }
 
     getQuestionnaire() {
-        return QuestionnaireStore.get(this.options.questionnaireId);
+        return Questionnaire.get(this.options.questionnaireId);
     }
 
     setOptions(options) {

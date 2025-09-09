@@ -1,10 +1,10 @@
-import {composeURL} from "../../../../stemjs/src/base/Fetch.js";
-import {SocialAppStore} from "../../../socialaccount/js/state/SocialAppStore.js";
+import {composeURL} from "../../../../stemjs/base/Fetch.js";
+import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
 import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager.js";
 
 class GithubManager extends SocialAccountManager {
     constructor() {
-        super(SocialAppStore.getSocialAppByName("Github"), {
+        super(SocialApp.getSocialAppByName("Github"), {
             loginWindowOptions: "height=600,width=800,scrollbars=yes",
         });
     }

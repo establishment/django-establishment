@@ -1,5 +1,5 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {PublicUserStore} from "../../../csaaccounts/js/state/UserStore.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 
 class UserHandle extends UI.Element {
     setOptions(options) {
@@ -8,7 +8,7 @@ class UserHandle extends UI.Element {
         super.setOptions(options);
 
         this.options.color = this.options.color || "#2089b5";
-        this.setUser(PublicUserStore.get(this.options.userId));
+        this.setUser(PublicUser.get(this.options.userId));
     }
 
     setUser(user) {
@@ -27,7 +27,7 @@ class UserHandle extends UI.Element {
     render() {
         let handle;
         if (!this.user) {
-            PublicUserStore.fetch(this.options.userId, (user) => {
+            PublicUser.fetchSync(this.options.userId, (user) => {
                 this.setUser(user);
                 this.redraw();
             });

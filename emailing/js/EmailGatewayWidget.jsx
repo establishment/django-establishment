@@ -1,18 +1,18 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Level} from "../../../stemjs/src/ui/Constants.js";
-import {SortableTable} from "../../../stemjs/src/ui/table/SortableTable.jsx";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {ActionModal} from "../../../stemjs/src/ui/modal/Modal.jsx";
-import {FormField} from "../../../stemjs/src/ui/form/Form.jsx";
-import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {NumberInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {RawCheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {PasswordInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {TableRow} from "../../../stemjs/src/ui/table/Table.jsx";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {EmailGatewayStore} from "./state/EmailGatewayStore.js";
-import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Level} from "../../../stemjs/ui/Constants.js";
+import {SortableTable} from "../../../stemjs/ui/table/SortableTable.jsx";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {ActionModal} from "../../../stemjs/ui/modal/Modal.jsx";
+import {FormField} from "../../../stemjs/ui/form/Form.jsx";
+import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {NumberInput} from "../../../stemjs/ui/input/Input.jsx";
+import {RawCheckboxInput} from "../../../stemjs/ui/input/Input.jsx";
+import {PasswordInput} from "../../../stemjs/ui/input/Input.jsx";
+import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {TableRow} from "../../../stemjs/ui/table/Table.jsx";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {EmailGateway} from "./state/EmailGatewayStore";
+import {autoredraw} from "../../../stemjs/decorators/AutoRedraw.js";
 
 class EmailGatewayModal extends ActionModal {
     constructor(options) {
@@ -173,14 +173,14 @@ class EmailGatewayTableRow extends TableRow {
 }
 
 
-@autoredraw(EmailGatewayStore)
+@autoredraw(EmailGateway)
 class EmailGatewayTable extends SortableTable {
     getRowClass() {
         return EmailGatewayTableRow;
     }
 
     getEntries() {
-        return EmailGatewayStore.all();
+        return EmailGateway.all();
     }
 
     getDefaultColumns() {
@@ -246,7 +246,7 @@ class EmailGatewayWidget extends Panel {
     }
 
     onMount() {
-        EmailGatewayStore.registerStreams();
+        EmailGateway.registerStreams();
         this.addGatewayButton.addClickListener(() => {
             const addGatewayModal = <AddEmailGatewayModal />;
             addGatewayModal.show();

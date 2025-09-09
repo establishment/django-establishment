@@ -1,18 +1,19 @@
-import {Ajax} from "../../../../stemjs/src/base/Ajax.js";
-import {NOOP_FUNCTION} from "../../../../stemjs/src/base/Utils.js";
-import {StoreObject, GenericObjectStore} from "../../../../stemjs/src/state/Store.js";
+import {Ajax} from "../../../../stemjs/base/Ajax.js";
+import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils.js";
+import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 
-import {PublicUserStore} from "../../../../csaaccounts/js/state/UserStore.js";
-import {MessageThreadStore, MessageInstanceStore} from "../../../chat/js/state/MessageThreadStore.js";
-import {GlobalState} from "../../../../stemjs/src/state/State.js";
+import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
+import {MessageThread, MessageInstance} from "../../../chat/js/state/MessageThreadStore.js";
+import {GlobalState} from "../../../../stemjs/state/State.js";
 
-class Forum extends StoreObject {
+@globalStore
+export class Forum extends BaseStore("forum") {
     constructor() {
         super(...arguments);
         this.forumThreads = new Map();
         // TODO: not appropriate to register to streams here
         GlobalState.registerStream(this.getStreamName());
-        ForumThreadStore.addDeleteListener((forumThread) => {
+        ForumThread.addDeleteListener((forumThread) => {
             if (forumThread.parentId === this.id && this.forumThreads.has(forumThread.id)) {
                 this.deleteForumThread(forumThread);
             }
@@ -42,9 +43,9 @@ class Forum extends StoreObject {
     }
 }
 
-var ForumStore = new GenericObjectStore("forum", Forum);
 
-class ForumThread extends StoreObject {
+@globalStore
+export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum", "messageinstance"]}) {
     constructor(obj) {
         super(obj);
         let parent = this.getParent();
@@ -52,7 +53,7 @@ class ForumThread extends StoreObject {
     }
 
     getAuthor() {
-        return PublicUserStore.get(this.authorId);
+        return PublicUser.get(this.authorId);
     }
 
     isPinned() {
@@ -68,7 +69,7 @@ class ForumThread extends StoreObject {
     }
 
     getContentMessage() {
-        return MessageInstanceStore.get(this.contentMessageId);
+        return MessageInstance.get(this.contentMessageId);
     }
 
     getVotesBalance() {
@@ -80,11 +81,11 @@ class ForumThread extends StoreObject {
     }
 
     getParent() {
-        return ForumStore.get(this.parentId);
+        return Forum.get(this.parentId);
     }
 
     getMessageThread() {
-        return MessageThreadStore.get(this.messageThreadId);
+        return MessageThread.get(this.messageThreadId);
     }
 
     getTimeAdded() {
@@ -121,10 +122,3 @@ class ForumThread extends StoreObject {
         return this.getMessageThread() != null && this.getNumReplies() === this.getMessageThread().getNumMessages() - 1;
     }
 }
-
-const ForumThreadStore = new GenericObjectStore("forumthread", ForumThread, {
-    dependencies: ["forum", "messageinstance"]
-});
-
-
-export {ForumStore, ForumThreadStore};

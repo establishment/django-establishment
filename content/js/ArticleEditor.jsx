@@ -1,23 +1,18 @@
-import {
-    ActionModal,
-    Button,
-    ButtonGroup,
-    RawCheckboxInput,
-    Form,
-    FormField,
-    Link,
-    Panel,
-    Select,
-    TabArea,
-    TemporaryMessageArea,
-    TextInput,
-    Level,
-    UI,
-} from "../../../stemjs/src/ui/All.js";
-import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton";
-import {Language} from "../../localization/js/state/LanguageStore.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {ActionModal} from "../../../stemjs/ui/modal/Modal";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup.jsx";
+import {Form, FormField} from "../../../stemjs/ui/form/Form";
+import {RawCheckboxInput, TextInput, Select} from "../../../stemjs/ui/input/Input";
+import {Link} from "../../../stemjs/ui/primitives/Link";
+import {Panel} from "../../../stemjs/ui/UIPrimitives";
+import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
+import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea";
+import {Level} from "../../../stemjs/ui/Constants";
+import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
+import {Language} from "../../localization/js/state/LanguageStore.ts";
 
-import {ArticleStore} from "./state/ArticleStore";
+import {Article} from "./state/Article.ts";
 import {ArticleTranslationManager} from "./ArticleManager";
 import {ArticleRenderer} from "./ArticleRenderer";
 import {MarkupEditor} from "./markup/MarkupEditor";
@@ -82,7 +77,7 @@ class ArticleEditor extends Panel {
     }
 
     getArticle() {
-        return ArticleStore.get(this.options.articleId);
+        return Article.get(this.options.articleId);
     }
 
     initializeVersioning() {

@@ -1,13 +1,22 @@
-import {UI, Switcher, TextArea, Button, ButtonGroup, Panel, InfiniteScrollable, registerStyle, Level, Size} from "ui/All";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {Pluginable} from "../../../stemjs/src/base/Plugin.js";
-import {GlobalState} from "../../../stemjs/src/state/State.js";
-import {StemDate, isDifferentDay} from "../../../stemjs/src/time/Time.js";
-import {AjaxButton} from "../../../stemjs/src/ui/button/AjaxButton.jsx";
-import {ButtonStyle} from "../../../stemjs/src/ui/button/ButtonStyle.js";
-import {InputStyle} from "../../../stemjs/src/ui/input/Style.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Switcher} from "../../../stemjs/ui/Switcher";
+import {TextArea} from "../../../stemjs/ui/input/Input";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup";
+import {Panel} from "../../../stemjs/ui/UIPrimitives";
+import {InfiniteScrollable} from "../../../stemjs/ui/misc/Scrollable";
+import {registerStyle} from "../../../stemjs/ui/style/Theme";
+import {Level, Size} from "../../../stemjs/ui/Constants";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {Pluginable} from "../../../stemjs/base/Plugin.js";
+import {GlobalState} from "../../../stemjs/state/State.js";
+import {StemDate, TimeUnit} from "../../../stemjs/time/Time.js";
+import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton.jsx";
+import {ButtonStyle} from "../../../stemjs/ui/button/ButtonStyle.js";
+import {InputStyle} from "../../../stemjs/ui/input/Style.js";
 
-import {MessageThreadStore, MessageInstanceStore, GroupChatStore} from "./state/MessageThreadStore.js";
+import {MessageThread, MessageInstance} from "./state/MessageThreadStore";
+import {GroupChat} from "./state/ChatStore.js";
 import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 import {ChatMarkupRenderer} from "./ChatMarkupRenderer.jsx";
@@ -166,7 +175,7 @@ class GroupChatMessage extends EditableMessage {
 
     shouldShowDayTimestamp() {
         let lastMessage = this.options.message.getPreviousMessage();
-        return !lastMessage || isDifferentDay(lastMessage.timeAdded, this.options.message.timeAdded);
+        return !lastMessage || new StemDate(lastMessage.timeAdded).isSame(this.options.message.timeAdded, TimeUnit.DAY);
     }
 
     render() {
@@ -235,7 +244,7 @@ class PrivateChatMessage extends Panel {
 
     shouldShowDayTimestamp() {
         let lastMessage = this.options.message.getPreviousMessage();
-        return !lastMessage || isDifferentDay(lastMessage.timeAdded, this.options.message.timeAdded);
+        return !lastMessage || new StemDate(lastMessage.timeAdded).isSame(this.options.message.timeAdded, TimeUnit.DAY);
     }
 
     isOwnMessage() {
@@ -368,8 +377,8 @@ let ChatWidget = (ChatMessageClass) => {
         }
 
         createVirtualMessage(request, message) {
-            let virtualId = this.messageThread.getMaxMessageId() + "-" + MessageInstanceStore.generateVirtualId() + "-" + Math.random();
-            let virtualMessageInstance = MessageInstanceStore.createVirtualMessageInstance(message, this.messageThread, virtualId);
+            let virtualId = this.messageThread.getMaxMessageId() + "-" + MessageInstance.generateVirtualId() + "-" + Math.random();
+            let virtualMessageInstance = MessageInstance.createVirtualMessageInstance(message, this.messageThread, virtualId);
             request.virtualId = virtualId;
             return virtualMessageInstance;
         }
@@ -405,7 +414,7 @@ let ChatWidget = (ChatMessageClass) => {
                     return;
                 }
                 if (virtualMessageInstance?.hasTemporaryId()) {
-                    MessageInstanceStore.applyUpdateObjectId(virtualMessageInstance, response.messageId);
+                    MessageInstance.applyUpdateObjectId(virtualMessageInstance, response.messageId);
                     GlobalState.importState(response.state);
                 }
             } catch (error) {
@@ -616,7 +625,7 @@ let ChatWidget = (ChatMessageClass) => {
 
             this.attachListener(this.messageThread, "newMessage", (event) => {
                 //console.log("Received chat message: ", event);
-                let messageInstance = MessageInstanceStore.get(event.data.id);
+                let messageInstance = MessageInstance.get(event.data.id);
 
                 // We calculate before adding new message
                 let messageWindowScrollTop = this.messageWindow.node.scrollTop;
@@ -725,7 +734,7 @@ class VotableChatMessage extends GroupChatMessage {
 
 class VotableGroupChatWidget extends ChatWidget(VotableChatMessage) {
     setOptions(options) {
-        options.messageThread = options.messageThread || MessageThreadStore.get(GroupChatStore.get(options.chatId).messageThreadId);
+        options.messageThread = options.messageThread || MessageThread.get(GroupChat.get(options.chatId).messageThreadId);
         super.setOptions(options);
         this.options.baseRequest = {
             chatId: this.options.chatId,

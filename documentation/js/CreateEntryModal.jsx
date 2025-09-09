@@ -1,11 +1,11 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {ActionModal, ActionModalButton} from "../../../stemjs/src/ui/modal/Modal.jsx";
-import {Form, FormField} from "../../../stemjs/src/ui/form/Form.jsx";
-import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {ActionModal, ActionModalButton} from "../../../stemjs/ui/modal/Modal.jsx";
+import {Form, FormField} from "../../../stemjs/ui/form/Form.jsx";
+import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {Select} from "../../../stemjs/ui/input/Input.jsx";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
 
-import {DocumentationEntryStore} from "./state/DocumentationStore.js";
+import {DocumentationEntry} from "./state/DocumentationStore.js";
 
 export class EditEntryModal extends ActionModal {
     getTitle() {
@@ -64,7 +64,7 @@ export class EditEntryModal extends ActionModal {
         if (!data.name) {
             return "Name cannot be empty.";
         }
-        for (let entry of DocumentationEntryStore.all()) {
+        for (let entry of DocumentationEntry.all()) {
             if (entry === this.getEntry()) {
                 continue;
             }
@@ -109,7 +109,7 @@ export class CreateEntryModal extends EditEntryModal {
     }
 
     getParentInput() {
-        let entries = DocumentationEntryStore.all();
+        let entries = DocumentationEntry.all();
         entries.push({
             toString: () => {
                 return "No Parent"

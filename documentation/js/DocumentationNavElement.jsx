@@ -1,7 +1,7 @@
-import {Dispatcher} from "../../../stemjs/src/base/Dispatcher.js";
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Draggable} from "../../../stemjs/src/ui/Draggable.js";
-import {FACollapseIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
+import {Dispatcher} from "../../../stemjs/base/Dispatcher.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Draggable} from "../../../stemjs/ui/Draggable.js";
+import {FACollapseIcon} from "../../../stemjs/ui/FontAwesome.jsx";
 
 import {EditEntryModal} from "./CreateEntryModal.jsx";
 import {DocumentationStyle} from "./DocumentationStyle.js";

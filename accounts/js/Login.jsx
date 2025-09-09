@@ -1,16 +1,16 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {registerStyle, Theme} from "../../../stemjs/src/ui/style/Theme.js";
-import {ensure} from "../../../stemjs/src/base/Require.js";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {Switcher} from "../../../stemjs/src/ui/Switcher.jsx";
-import {Link} from "../../../stemjs/src/ui/primitives/Link.jsx";
-import {EmailInput, PasswordInput, Select, SubmitInput, TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {BasicTabTitle} from "../../../stemjs/src/ui/tabs/TabArea.jsx";
-import {TemporaryMessageArea} from "../../../stemjs/src/ui/misc/TemporaryMessageArea.jsx";
-import {FAIcon} from "../../../stemjs/src/ui/FontAwesome.jsx";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {registerStyle, Theme} from "../../../stemjs/ui/style/Theme.js";
+import {ensure} from "../../../stemjs/base/Require.js";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {Switcher} from "../../../stemjs/ui/Switcher.jsx";
+import {Link} from "../../../stemjs/ui/primitives/Link.jsx";
+import {EmailInput, PasswordInput, Select, SubmitInput, TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {BasicTabTitle} from "../../../stemjs/ui/tabs/TabArea.jsx";
+import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea.jsx";
+import {FAIcon} from "../../../stemjs/ui/FontAwesome.jsx";
 
-import {CountryStore} from "../../localization/js/state/CountryStore.js";
-import {SocialAppStore} from "../../socialaccount/js/state/SocialAppStore.js";
+import {Country} from "../../localization/js/state/CountryStore.js";
+import {SocialApp} from "../../socialaccount/js/state/SocialAppStore";
 import {LoginStyle} from "./LoginStyle";
 import {ThirdPartyLogin} from "./thirt-party/ThirdPartyLogin.jsx";
 
@@ -90,7 +90,7 @@ export class LoginWidget extends UI.Element {
     }
 
     getThirdPartyLogin() {
-        const socialApps = SocialAppStore.all();
+        const socialApps = SocialApp.all();
 
         return (socialApps.length > 0) && [
             this.getHorizontalLine(),
@@ -202,7 +202,7 @@ export class RegisterWidget extends UI.Element {
         return [
             <div style={{width: "100%", marginBottom: "20px"}}>
                 <FAIcon icon="flag" style={this.styleSheet.fontAwesomeIcon} />
-                <Select ref="countrySelect" options={CountryStore.allWithNone("Don't set country")}
+                <Select ref="countrySelect" options={Country.allWithNone("Don't set country")}
                         className={this.styleSheet.countrySelect} />
                 <div style={{clear: "both"}}/>
             </div>
@@ -350,7 +350,7 @@ class NormalLogin extends UI.Element {
 
 
 @registerStyle(LoginStyle)
-class LoginTabButton extends UI.Primitive(BasicTabTitle, "div") {
+class LoginTabButton extends UI.Primitive("div", BasicTabTitle) {
     getDefaultOptions() {
         return {
             children: [UI.T("Log In")]
@@ -366,7 +366,7 @@ class LoginTabButton extends UI.Primitive(BasicTabTitle, "div") {
 }
 
 @registerStyle(LoginStyle)
-class RegisterTabButton extends UI.Primitive(BasicTabTitle, "div") {
+class RegisterTabButton extends UI.Primitive("div", BasicTabTitle) {
     getDefaultOptions() {
         return {
             children: [UI.T("Register")]

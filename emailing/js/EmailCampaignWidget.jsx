@@ -1,18 +1,18 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Level} from "../../../stemjs/src/ui/Constants.js";
-import {SortableTable} from "../../../stemjs/src/ui/table/SortableTable.jsx";
-import {Button} from "../../../stemjs/src/ui/button/Button.jsx";
-import {FormField} from "../../../stemjs/src/ui/form/Form.jsx";
-import {TextInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {RawCheckboxInput} from "../../../stemjs/src/ui/input/Input.jsx";
-import {Select} from "../../../stemjs/src/ui/input/Input.jsx";
-import {ActionModal} from "../../../stemjs/src/ui/modal/Modal.jsx";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {TableRow} from "../../../stemjs/src/ui/table/Table.jsx";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {EmailGatewayStore} from "./state/EmailGatewayStore.js";
-import {EmailCampaignStore} from "./state/EmailCampaignStore.js";
-import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Level} from "../../../stemjs/ui/Constants.js";
+import {SortableTable} from "../../../stemjs/ui/table/SortableTable.jsx";
+import {Button} from "../../../stemjs/ui/button/Button.jsx";
+import {FormField} from "../../../stemjs/ui/form/Form.jsx";
+import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
+import {RawCheckboxInput} from "../../../stemjs/ui/input/Input.jsx";
+import {Select} from "../../../stemjs/ui/input/Input.jsx";
+import {ActionModal} from "../../../stemjs/ui/modal/Modal.jsx";
+import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {TableRow} from "../../../stemjs/ui/table/Table.jsx";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {EmailGateway} from "./state/EmailGatewayStore";
+import {EmailCampaign} from "./state/EmailCampaignStore";
+import {autoredraw} from "../../../stemjs/decorators/AutoRedraw.js";
 
 
 class GenericConfirmModal extends ActionModal {
@@ -144,7 +144,7 @@ class EmailCampaignModal extends ActionModal {
                 <TextInput value={campaignValues.fromAddress || ""} ref="fromAddressInput"/>
             </FormField>,
             <FormField label="Gateway" ref="gatewayIdField">
-                <Select ref="gatewaySelect" options={EmailGatewayStore.all()} selected={EmailGatewayStore.get(campaignValues.gatewayId)}/>
+                <Select ref="gatewaySelect" options={EmailGateway.all()} selected={EmailGateway.get(campaignValues.gatewayId)}/>
             </FormField>,
             <FormField label="Is newsletter" ref="isNewsletterField">
                 <RawCheckboxInput value={campaignValues.isNewsletter || ""} ref="isNewsletterInput"/>
@@ -245,14 +245,14 @@ class EmailCampaignTableRow extends TableRow {
 }
 
 
-@autoredraw(EmailCampaignStore)
+@autoredraw(EmailCampaign)
 class EmailCampaignTable extends SortableTable {
     getRowClass() {
         return EmailCampaignTableRow;
     }
 
     getEntries() {
-        return EmailCampaignStore.all();
+        return EmailCampaign.all();
     }
 
     getDefaultColumns() {
@@ -300,7 +300,7 @@ class EmailCampaignTable extends SortableTable {
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: campaign => (campaign.gatewayId && EmailGatewayStore.get(campaign.gatewayId).name) || "default",
+            value: campaign => (campaign.gatewayId && EmailGateway.get(campaign.gatewayId).name) || "default",
             headerName: UI.T("Gateway"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
@@ -349,8 +349,8 @@ class EmailCampaignWidget extends Panel {
     onMount() {
         super.onMount();
 
-        EmailGatewayStore.registerStreams();
-        EmailCampaignStore.registerStreams();
+        EmailGateway.registerStreams();
+        EmailCampaign.registerStreams();
 
         this.addCampaignButton.addClickListener(() => {
             const addCampaignModal = <AddEmailCampaignModal campaign={this.options.entry} />;

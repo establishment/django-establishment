@@ -1,19 +1,19 @@
-import {UI} from "../../../stemjs/src/ui/UIBase.js";
-import {Panel} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {Link} from "../../../stemjs/src/ui/UIPrimitives.jsx";
-import {Route} from "../../../stemjs/src/ui/Router.jsx";
-import {registerStyle} from "../../../stemjs/src/ui/style/Theme.js";
-import {TimePassedSpan} from "../../../stemjs/src/ui/misc/TimePassedSpan.jsx";
-import {Ajax} from "../../../stemjs/src/base/Ajax.js";
-import {slugify} from "../../../stemjs/src/base/Utils.js";
-import {StateDependentElement} from "../../../stemjs/src/ui/StateDependentElement.jsx";
+import {UI} from "../../../stemjs/ui/UIBase.js";
+import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {Link} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {Route} from "../../../stemjs/ui/Router.jsx";
+import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
+import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan.jsx";
+import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {slugify} from "../../../stemjs/base/Utils.js";
+import {StateDependentElement} from "../../../stemjs/ui/StateDependentElement.jsx";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer.jsx";
-import {ForumStore, ForumThreadStore} from "./state/ForumStore.js";
+import {Forum, ForumThread} from "./state/ForumStore.js";
 import {ForumThreadPanel, CreateForumThreadButton} from "./ForumThread.jsx";
 import {ForumThreadHeaderStyle, ForumThreadPreviewStyle, ForumThreadBubbleStyle, ForumPanelStyle} from "./ForumStyle.js";
-import {autoredraw} from "../../../stemjs/src/decorators/AutoRedraw.js";
+import {autoredraw} from "../../../stemjs/decorators/AutoRedraw.js";
 
 
 @registerStyle(ForumThreadHeaderStyle)
@@ -283,15 +283,15 @@ export class ForumPanel extends Panel {
     }
 
     onMount() {
-        this.attachListener(ForumThreadStore, "create", () => this.redraw());
-        this.attachListener(ForumThreadStore, "delete", () => this.redraw());
+        this.attachListener(ForumThread, "create", () => this.redraw());
+        this.attachListener(ForumThread, "delete", () => this.redraw());
     }
 }
 
 export class DelayedForumPanel extends StateDependentElement(ForumPanel) {
     importState(data) {
         super.importState(data);
-        this.options.forum = ForumStore.get(this.options.forumId);
+        this.options.forum = Forum.get(this.options.forumId);
     }
 }
 
@@ -311,7 +311,7 @@ export class DelayedForumThreadPanel extends StateDependentElement(ForumThreadPa
 
     importState(data) {
         super.importState(data);
-        this.options.forumThread = ForumThreadStore.get(this.options.forumThreadId);
+        this.options.forumThread = ForumThread.get(this.options.forumThreadId);
     }
 }
 
@@ -321,7 +321,7 @@ export class ForumRoute extends Route {
             new Route(["%s", "%s"], (options) => {
                 const forumThreadId = options.args[options.args.length - 2];
 
-                const forumThread = ForumThreadStore.get(forumThreadId);
+                const forumThread = ForumThread.get(forumThreadId);
 
                 if (forumThread) {
                     return <ForumThreadPanel forumThread={forumThread} />;
