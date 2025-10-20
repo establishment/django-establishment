@@ -80,7 +80,7 @@ class TypedJSONField(JSONField):
         return normalize_schemas(self.raw_schema)
 
     def from_db_value(self, value: Any, expression: Any, connection: Any) -> Any:
-        value = super().from_db_value(value, expression, connection)  # type: ignore
+        value = super().from_db_value(value, expression, connection)
         return enforce_schema_for_value(value, self.schemas)
 
     # Enforce that every assignment to the field is checked by the Pydantic schema.
