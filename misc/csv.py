@@ -7,7 +7,7 @@ from io import StringIO
 from typing import TypeVar, Union, Callable, Any, Generic, Iterable, IO
 
 T = TypeVar("T")
-CSVColumnList = list[Union[str, tuple[str, Union[str, Callable[[T], Any]]]]]
+CSVColumnList = list[Union[str, tuple[str, Union[str, Callable[[T], Any]]], "CSVColumnHandler[T]"]]
 
 
 def make_loader(attr_name: str) -> Callable[[T], Any]:
