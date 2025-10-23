@@ -73,7 +73,7 @@ class TypedJSONField(JSONField):
         kwargs["schema"] = self.schemas
         kwargs.pop("decoder", None)
         kwargs.pop("encoder", None)
-        return name, path, args, kwargs
+        return name, path, list(args), kwargs
 
     @cached_property
     def schemas(self) -> list[type[BaseModel]]:

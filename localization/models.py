@@ -61,8 +61,7 @@ class Jurisdiction(models.Model):
 
 
 class TranslationKey(models.Model):
-    # TODO: WTF, unique="True", what is this?
-    value = models.CharField(max_length=4096, unique="True")
+    value = models.CharField(max_length=4096, unique=True)
     comment = models.CharField(max_length=4096, null=True, blank=True)
 
     class Meta:

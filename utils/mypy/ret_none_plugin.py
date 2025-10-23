@@ -1,8 +1,8 @@
-from typing import Union
+from typing import Union, Callable, Optional
 
 from mypy.plugin import Plugin, MethodSigContext, FunctionSigContext
-from mypy.suggestions import is_explicit_any
-from mypy.types import AnyType, Type, NoneType
+from mypy.suggestions import is_implicit_any
+from mypy.types import Type, NoneType
 
 
 class RetNonePlugin(Plugin):
@@ -16,15 +16,15 @@ class RetNonePlugin(Plugin):
         "__call__",
     ]
 
-    def get_hook(self, fullname: str):
+    def get_hook(self, fullname: str) -> Optional[Callable[[Union[FunctionSigContext, MethodSigContext]], Type]]:
         if any(ignore in fullname for ignore in self.IGNORE_LIST):
             return None
 
         def analyze_for_none_returns(context: Union[FunctionSigContext, MethodSigContext]) -> Type:
             signature = context.default_signature
-            if not isinstance(signature.ret_type, AnyType) or is_explicit_any(signature.ret_type):
-                return signature
-            return signature.copy_modified(ret_type=NoneType(), implicit=False)
+            if is_implicit_any(signature.ret_type):
+                return signature.copy_modified(ret_type=NoneType())
+            return signature
 
         return analyze_for_none_returns
 

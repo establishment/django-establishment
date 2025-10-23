@@ -1,12 +1,14 @@
 import re
 from datetime import datetime
+from typing import Optional
 
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-from establishment.accounts.models import ReactionableMixin
+from establishment.accounts.models import ReactionableMixin, UserGroup
 from establishment.chat.errors import ChatError
+from establishment.utils.errors import APIError
 from establishment.utils.errors_deprecated import BaseError
 from establishment.funnel.nodews_meta import NodeWSMeta
 from establishment.funnel.stream import register_stream_handler, StreamObjectMixin
@@ -355,17 +357,17 @@ class GroupChat(StreamObjectMixin):
     class Meta:
         db_table = "GroupChat"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "GroupChat-" + str(self.id) + " " + self.title + " Group-" + str(self.group_id)
 
-    def get_stream_name(self):
+    def get_stream_name(self) -> str:
         return self.message_thread.stream_name
 
-    def get_desired_stream_name(self):
+    def get_desired_stream_name(self) -> str:
         return "messagethread-groupchat-" + str(self.id) + "-m-" + str(self.message_thread_id)
 
     @classmethod
-    def create(cls, title, group, messages_editable=True):
+    def create(cls, title: str, group: UserGroup, messages_editable: bool=True):
         message_thread = MessageThread(stream_name="invalid", messages_editable=messages_editable, metadata=dict())
         message_thread.save()
         group_chat = GroupChat(title=title, message_thread=message_thread, group=group)
@@ -375,25 +377,25 @@ class GroupChat(StreamObjectMixin):
         return group_chat
 
     @classmethod
-    def matches_stream_name(cls, stream_name):
+    def matches_stream_name(cls, stream_name: str) -> bool:
         return cls.stream_name_pattern.match(stream_name) is not None
 
     @classmethod
-    def can_subscribe(cls, user, stream_name):
+    def can_subscribe(cls, user, stream_name: str) -> tuple[bool, str]:
         result, reason = cls.guest_can_subscribe(stream_name)
         if (user is None) or (result is True):
             return result, reason
         return False, "DAFUQ?!"
 
     @classmethod
-    def guest_can_subscribe(cls, stream_name):
+    def guest_can_subscribe(cls, stream_name: str) -> tuple[bool, str]:
         return cls.matches_stream_name(stream_name), "It matches stream name so should be just fine!"
 
     @classmethod
     def get_message_thread_id(cls, stream_name):
         return int(cls.stream_name_pattern.split(stream_name)[2])
 
-    def can_post(self, user, message):
+    def can_post(self, user, message: str) -> tuple[bool, bool | APIError]:
         if user.chat_muted:
             return False, BaseError.NOT_ALLOWED
         if self.message_thread.muted:
@@ -423,7 +425,7 @@ class GroupChat(StreamObjectMixin):
             "maxMessageSize": self.max_message_size,
         }
 
-    def add_to_state(self, state, last_message_id=None, show_hidden=False):
+    def add_to_state(self, state: State, last_message_id: Optional[int]=None, show_hidden: bool=False):
         state.add(self)
         message_thread_summary = MessageThreadSummary(self.message_thread, last_id=last_message_id, show_hidden=show_hidden)
         message_thread_summary.add_to_state(state)

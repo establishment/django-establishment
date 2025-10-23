@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
             name='TranslationKey',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.CharField(max_length=4096, unique='True')),
+                ('value', models.CharField(max_length=4096, unique=True)),
                 ('comment', models.CharField(blank=True, max_length=4096, null=True)),
             ],
             options={
