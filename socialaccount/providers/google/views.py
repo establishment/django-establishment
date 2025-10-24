@@ -46,6 +46,9 @@ def google_complete_login(request, app, token):
     user_info_response.raise_for_status()
     user_data = user_info_response.json()
 
+    if "id" in user_data and "sub" not in user_data:
+        user_data["sub"] = user_data["id"]
+
     return provider.social_login_from_response(request, user_data)
 
 
