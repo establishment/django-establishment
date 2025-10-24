@@ -1,7 +1,7 @@
 import logging
+from datetime import datetime, timedelta
 
 import requests
-from oauth2client import client
 
 from establishment.socialaccount.errors import SocialAccountError
 from establishment.socialaccount.helpers import complete_social_login
@@ -14,11 +14,32 @@ logger = logging.getLogger("django")
 
 def google_complete_login(request, app, token):
     provider = GoogleProvider.get_instance()
-    credentials = client.credentials_from_code(app.client_id, app.secret_key, provider.get_default_scope(), token.token)
-    token.expires_at = credentials.token_expiry
-    if credentials.refresh_token:
-        token.token_secret = credentials.refresh_token
-    return provider.social_login_from_response(request, credentials.id_token)
+
+    token_response = requests.post(
+        "https://oauth2.googleapis.com/token",
+        data={
+            "code": token.token,
+            "client_id": app.client_id,
+            "client_secret": app.secret_key,
+            "redirect_uri": "postmessage",
+            "grant_type": "authorization_code",
+        },
+        timeout=10
+    )
+    token_response.raise_for_status()
+    token_data = token_response.json()
+
+    access_token = token_data.get("access_token")
+    refresh_token = token_data.get("refresh_token")
+    expires_in = token_data.get("expires_in", 3600)
+    id_token = token_data.get("id_token")
+
+    token.token = access_token
+    token.expires_at = datetime.now() + timedelta(seconds=expires_in)
+    if refresh_token:
+        token.token_secret = refresh_token
+
+    return provider.social_login_from_response(request, id_token)
 
 
 @ajax_required
