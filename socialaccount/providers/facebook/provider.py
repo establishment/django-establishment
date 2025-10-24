@@ -4,7 +4,7 @@ from django.utils.crypto import get_random_string
 from establishment.socialaccount.providers.base import ProviderAccount, AuthAction
 from establishment.socialaccount.providers.oauth2.provider import OAuth2Provider
 
-GRAPH_API_VERSION = getattr(settings, "SOCIAL_ACCOUNT_PROVIDERS", {}).get("facebook",  {}).get("VERSION", "v17.0")
+GRAPH_API_VERSION = getattr(settings, "SOCIAL_ACCOUNT_PROVIDERS", {}).get("facebook",  {}).get("VERSION", "v23.0")
 GRAPH_API_URL = "https://graph.facebook.com/" + GRAPH_API_VERSION
 
 NONCE_SESSION_KEY = "accounts_facebook_nonce"

@@ -14,7 +14,8 @@ logger = logging.getLogger("django")
 def github_complete_login(request, token):
     provider = GithubProvider.get_instance()
     response = requests.get(GITHUB_QUERY_LINK,
-                            headers={"Authorization": "token {}".format(token.token)})
+                            headers={"Authorization": "token {}".format(token.token)},
+                            timeout=10)
     response.raise_for_status()
     return provider.social_login_from_response(request, response.json())
 
@@ -28,9 +29,12 @@ def login_by_token(request):
                                  params={"client_id": app.client_id,
                                          "client_secret": app.secret_key,
                                          "code": code},
-                                 headers={"Accept": "application/json"}).json()
+                                 headers={"Accept": "application/json"},
+                                 timeout=10)
+        response.raise_for_status()
+        response_data = response.json()
 
-        access_token = response["access_token"]
+        access_token = response_data["access_token"]
 
         token = SocialToken(app=app, token=access_token)
         login = github_complete_login(request, token)
@@ -38,6 +42,9 @@ def login_by_token(request):
         login.state = SocialLogin.state_from_request(request)
         complete_social_login(request, login)
         return render(request, "account/autoclose.html", None)
-    except requests.RequestException:
-        logger.exception("Error in getting token from github!")
-        return SocialAccountError.INVALID_SOCIAL_TOKEN
+    except requests.RequestException as e:
+        logger.exception("Error accessing Github user profile")
+        return SocialAccountError.INVALID_SOCIAL_ACCOUNT
+    except Exception as e:
+        logger.exception("Invalid github token")
+    return SocialAccountError.INVALID_SOCIAL_TOKEN

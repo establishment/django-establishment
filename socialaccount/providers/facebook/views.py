@@ -30,7 +30,8 @@ def fb_complete_login(request, app, token):
             "fields": ",".join(provider.get_fields()),
             "access_token": token.token,
             "appsecret_proof": compute_appsecret_proof(app, token)
-        })
+        },
+        timeout=10)
     resp.raise_for_status()
     return provider.social_login_from_response(request, resp.json())
 
@@ -44,19 +45,29 @@ def login_by_token(request):
         app = provider.get_app(request)
         access_token = data["accessToken"]
         if login_options.get("auth_type") == "reauthenticate":
-            info = requests.get(GRAPH_API_URL + "/oauth/access_token_info",
-                                params={"client_id": app.client_id,
-                                        "access_token": access_token}).json()
+            info = requests.get(
+                GRAPH_API_URL + "/oauth/access_token_info",
+                params={
+                    "client_id": app.client_id,
+                    "access_token": access_token
+                },
+                timeout=10
+            ).json()
             nonce = provider.get_nonce(request, pop=True)
             ok = nonce and nonce == info.get("auth_nonce")
         else:
             ok = True
         if ok and provider.get_settings().get("EXCHANGE_TOKEN"):
-            resp = requests.get(GRAPH_API_URL + "/oauth/access_token",
-                                params={"grant_type": "fb_exchange_token",
-                                        "client_id": app.client_id,
-                                        "client_secret": app.secret_key,
-                                        "fb_exchange_token": access_token}).json()
+            resp = requests.get(
+                GRAPH_API_URL + "/oauth/access_token",
+                params={
+                    "grant_type": "fb_exchange_token",
+                    "client_id": app.client_id,
+                    "client_secret": app.secret_key,
+                    "fb_exchange_token": access_token
+                },
+                timeout=10
+            ).json()
             access_token = resp["access_token"]
         if ok:
             token = SocialToken(app=app, token=access_token)
@@ -68,4 +79,6 @@ def login_by_token(request):
     except requests.RequestException as e:
         logger.exception("Error accessing FB user profile")
         return SocialAccountError.INVALID_SOCIAL_ACCOUNT
+    except Exception as e:
+        logger.exception("Invalid facebook token")
     return SocialAccountError.INVALID_SOCIAL_TOKEN
