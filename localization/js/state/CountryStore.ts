@@ -6,6 +6,7 @@ import {StoreId} from "../../../../stemjs/state/State";
 export class Country extends BaseStore("Country") {
     declare name: string;
     declare isoCode: string;
+    declare phonePrefix?: string;
 
     toString(): string {
         return this.name;
@@ -19,10 +20,14 @@ export class Country extends BaseStore("Country") {
         return "flag_" + this.getIsoCode().toLowerCase();
     }
 
+    static all() {
+        return super.all<Country>().sort(COUNTRY_COMPARATOR);
+    }
+
     static allWithNone(noneName: string = "None") {
          return [
             NO_COUNTRY_PLACEHOLDER(noneName),
-            ...Array.from(this.all()).sort(COUNTRY_COMPARATOR)
+            this.all()
         ];
     }
 
