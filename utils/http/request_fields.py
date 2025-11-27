@@ -44,7 +44,7 @@ def edit_object_from_request(obj: DjangoModelT,
                 raise KeyError(f"Invalid request foreign key field name: {key}")
             # We'll access the object here, to verify that we're actually allowed to access it.
             obj_to_set = value.get()
-            value_to_set = int(value)  # Ideally we'd want to get the primary key here
+            value_to_set = str(value)  # Get the primary key as a string
 
         if fields is not None and key not in fields:
             raise ValidationError(f"Field not editable: {key}")
@@ -72,10 +72,13 @@ def edit_object_from_request(obj: DjangoModelT,
     return State(obj)
 
 
-class ObjectId(Generic[DjangoModelT], int):
+class ObjectId(Generic[DjangoModelT], str):
     model_class: type[DjangoModelT]
     request: BaseRequest
     field_name: str
+
+    def __new__(cls, value: str | int):
+        return str.__new__(cls, str(value))
 
     @classmethod
     def __class_getitem__(cls, model_class: type[Model]):
@@ -89,8 +92,11 @@ class ObjectId(Generic[DjangoModelT], int):
 
     @classmethod
     def __get_pydantic_json_schema__(cls, schema: core_schema.JsonSchema, handler: GetJsonSchemaHandler) -> JsonSchemaValue:
-        # Use the same schema that would be used for `int`
-        return handler(core_schema.int_schema())
+        # Accept both int and string IDs
+        return handler(core_schema.union_schema([
+            core_schema.int_schema(),
+            core_schema.str_schema(),
+        ]))
 
     @classmethod
     def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> CoreSchema:
@@ -102,10 +108,6 @@ class ObjectId(Generic[DjangoModelT], int):
             return None
         if not isinstance(input_value, (str, int)):
             raise TypeError("Invalid value type. Valid types are int and string.")
-        try:
-            input_value = int(input_value)
-        except ValueError:
-            raise ValueError("Invalid id")
         return cls(input_value)
 
     def set_request(self, request: BaseRequest, field_name: str):
