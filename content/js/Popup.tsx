@@ -1,14 +1,36 @@
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, UIElement} from "../../../stemjs/ui/UIBase";
 import {Device} from "../../../stemjs/base/Device";
 import {FloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow";
-import {Direction} from "../../../stemjs/ui/Constants";
+import {Direction, DirectionType} from "../../../stemjs/ui/Constants";
 import {Panel} from "../../../stemjs/ui/UIPrimitives";
 import {Button} from "../../../stemjs/ui/button/Button";
+import {Point} from "../../../stemjs/numerics/StemMath";
+
+interface BasePopupOptions {
+    x?: number;
+    y?: number;
+    contentPadding?: string;
+    contentStyle?: any;
+    arrowDirection?: DirectionType;
+    arrowColor?: string;
+    backgroundColor?: string;
+    style?: any;
+    children?: any;
+    target?: HTMLElement | UIElement;
+    bodyPlaced?: boolean;
+}
+
 
 export class BasePopup extends FloatingWindow {
-    static bodyPopups = new Set();
+    static bodyPopups = new Set<BasePopup>();
+    declare options: BasePopupOptions;
+    target?: HTMLElement;
+    popupArrow?: Panel;
+    popupArrowOutline?: Panel;
 
-    getDefaultOptions() {
+    [key: string]: any;
+
+    getDefaultOptions(): BasePopupOptions {
         let options = super.getDefaultOptions();
         options.x = 0;
         options.y = 0;
@@ -20,7 +42,7 @@ export class BasePopup extends FloatingWindow {
         return options;
     }
 
-    setOptions(options) {
+    setOptions(options: BasePopupOptions): void {
         super.setOptions(options);
         this.options.style = Object.assign({
             boxShadow: "0px 0px 4px rgba(0,0,0,0.5)",
@@ -37,7 +59,7 @@ export class BasePopup extends FloatingWindow {
         this.createArrowStyle();
     }
 
-    setContent(content) {
+    setContent(content: any): void {
         this.options.children = content;
         this.redraw();
     }
@@ -48,7 +70,7 @@ export class BasePopup extends FloatingWindow {
             </div>;
     }
 
-    createArrowStyle() {
+    createArrowStyle(): void {
         let baseArrowOutline = {
             "left": "50%",
             "z-index": "-3",
@@ -147,7 +169,7 @@ export class BasePopup extends FloatingWindow {
         this.setStyle("top", top + "px");
     }
 
-    setParent(parent) {
+    setParent(parent: HTMLElement | UIElement): void {
         let newParent;
         if (parent instanceof HTMLElement) {
             newParent = parent;
@@ -166,7 +188,7 @@ export class BasePopup extends FloatingWindow {
         }
     }
 
-    setCenter(center, manual=false) {
+    setCenter(center: Point, manual: boolean = false): void {
         this.options.x = center.x;
         this.options.y = center.y;
         if (manual) {
@@ -178,17 +200,17 @@ export class BasePopup extends FloatingWindow {
         }
     }
 
-    static clearBodyPopups() {
+    static clearBodyPopups(): void {
         for (const popup of this.bodyPopups) {
             popup.hide();
         }
         this.bodyPopups.clear();
     }
 
-    onUnmount() {
+    onUnmount(): void {
         super.onUnmount();
         if (this.options.bodyPlaced && this.target) {
-            this.constructor.bodyPopups.delete(this);
+            (this.constructor as typeof BasePopup).bodyPopups.delete(this);
         }
     }
 
@@ -206,13 +228,23 @@ export class BasePopup extends FloatingWindow {
         // Set the Popup inside the parent
         this.bindInsideParent();
         if (this.options.bodyPlaced && this.target) {
-            this.constructor.bodyPopups.add(this);
+            (this.constructor as typeof BasePopup).bodyPopups.add(this);
         }
     }
 }
 
+interface PopupOptions extends BasePopupOptions {
+    titleFontSize?: string;
+    contentFontSize?: string;
+    title?: string;
+}
+
 export class Popup extends BasePopup {
-    getDefaultOptions() {
+    declare options: PopupOptions;
+    titleArea?: Panel;
+    closeButton?: Button;
+
+    getDefaultOptions(): PopupOptions {
         let options = super.getDefaultOptions();
         options.titleFontSize = "12pt";
         options.contentFontSize = "10pt";
@@ -235,7 +267,7 @@ export class Popup extends BasePopup {
         ];
     }
 
-    setTitle(newTitle) {
+    setTitle(newTitle: string): void {
         this.options.title = newTitle;
         this.redraw();
     }
@@ -246,12 +278,12 @@ export class Popup extends BasePopup {
         ];
     }
 
-    bindWindowListeners() {
+    bindWindowListeners(): void {
         this.addClickListener((event) => {
             event.stopPropagation();
         });
 
-        let documentListener = () => {
+        let documentListener = (): void => {
             this.hide();
             if (!Device.supportsEvent("click")) {
                 document.removeEventListener("touchstart", documentListener);
@@ -267,19 +299,19 @@ export class Popup extends BasePopup {
 
     }
 
-    show() {
+    show(): void {
         super.show();
         this.bindWindowListeners();
     }
 
-    redraw() {
+    redraw(): void {
         if (this.isInDocument()) {
             this.bindInsideParent();
         }
         super.redraw();
     }
 
-    onMount() {
+    onMount(): void {
         super.onMount();
 
         // fake a click event that will propagate to window and trigger

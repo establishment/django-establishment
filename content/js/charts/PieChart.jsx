@@ -1,7 +1,7 @@
 import {UI} from "../../../../stemjs/ui/UIBase.js";
 import {Transition} from "../../../../stemjs/ui/Transition.js";
 import {SVG} from "../../../../stemjs/ui/svg/SVGBase.js";
-import * as math from "../../../../stemjs/numerics/math.js";
+import * as math from "../../../../stemjs/numerics/StemMath.ts";
 import {SVGRoot} from "../../../../stemjs/ui/svg/SVGPrimitives";
 import {makeOpacityTransition} from "../../../../stemjs/ui/svg/Animations";
 
