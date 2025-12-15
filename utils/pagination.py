@@ -18,9 +18,13 @@ def paginate_to_state(objects: QuerySet[T],
                       page_query: PageQuery,
                       wrapper: Optional[Callable[[T], Optional[StateObjectList]]] = None,
                       bulk_wrapper: Optional[Callable[[QuerySet[T]], Optional[StateObjectList]]] = None,
-                      extra: Optional[dict] = None) -> State:
+                      extra: Optional[dict] = None,
+                      state: Optional[State] = None) -> State:
     paginated_objects = paginate_entries(objects, page_query)
-    state = State(extra=extra)
+    if state is None:
+        state = State(extra=extra)
+    else:
+        state.add_extra(extra)
     if wrapper is not None:
         for obj in paginated_objects:
             state.add(wrapper(obj))
