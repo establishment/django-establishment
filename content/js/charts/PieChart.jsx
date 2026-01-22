@@ -83,9 +83,9 @@ class PieChartSector extends SVG.Group {
         return new Transition({
             func: (t) => {
                 this.path.setPath(this.getPath(t * extra));
-                let middlePoint = this.getMiddlePoint(t * extra);
                 if (this.options.displayPercents) {
-                    this.label.setPosition(middlePoint.x, middlePoint.y);
+                    const middlePoint = this.getMiddlePoint(t * extra);
+                    this.label.setPosition(middlePoint);
                 }
             },
             duration: duration,
