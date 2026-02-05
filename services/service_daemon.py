@@ -70,6 +70,9 @@ class ServiceDaemon(Daemon):
     def setup_logging(self):
         from django.conf import settings
 
+        if "handlers" not in settings.LOGGING:
+            return
+
         logging_handler_name = "rolling_file_" + self.name
 
         settings.LOGGING["handlers"][logging_handler_name] = {
