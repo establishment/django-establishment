@@ -84,8 +84,13 @@ class ServiceDaemon(Daemon):
            "backupCount": 5,
         }
 
+        handlers = [logging_handler_name]
+        for optional_handler in ["redis_handler", "mail_admins"]:
+            if optional_handler in settings.LOGGING["handlers"]:
+                handlers.append(optional_handler)
+
         settings.LOGGING["loggers"][self.name] = {
-           "handlers": [logging_handler_name, "redis_handler", "mail_admins"],
+           "handlers": handlers,
            "level": "DEBUG",
            "propagate": True,
         }
