@@ -215,7 +215,6 @@ def send_feedback(request):
     mail_admins(
         "Feedback from %s (%s)" % (name, user_feedback.sender_email),
         message,
-        user_feedback.sender_email
     )
 
     return {"success": True, "feedbackId": user_feedback.id}

@@ -41,7 +41,7 @@ def enforce_schema_for_value(value: Any, schemas: list[type[BaseModel]]) -> Opti
     last_error: Optional[Exception] = None
     for schema in schemas:
         try:
-            return schema.parse_obj(value)
+            return schema.model_validate(value)
         except pydantic.ValidationError as exc:
             last_error = exc
     # If no schema matched, raise the last error
@@ -63,7 +63,7 @@ class TypedJSONField(JSONField):
         class TypedJSONEncoder(DjangoJSONEncoder):
             def encode(self, obj: Any) -> Any:
                 if obj is not None and isinstance(obj, BaseModel):
-                    return obj.json(exclude_unset=True)
+                    return obj.model_dump_json(exclude_unset=True)
                 return super().encode(obj)
 
         self.encoder = TypedJSONEncoder
