@@ -67,9 +67,9 @@ class Daemon:
         sys.stdout.flush()
         sys.stderr.flush()
         si = open(os.devnull, "r")
-        log_dir = os.path.join(cur_dir, "log")
-        os.makedirs(log_dir, exist_ok=True)
-        so = open(os.path.join(log_dir, self.name + "-out.txt"), "a+")
+        logs_dir = os.path.join(cur_dir, "logs")
+        os.makedirs(logs_dir, exist_ok=True)
+        so = open(os.path.join(logs_dir, self.name + "-out.txt"), "a+")
         se = so
 
         os.dup2(si.fileno(), sys.stdin.fileno())
