@@ -173,7 +173,7 @@ class StreamObjectMixin(models.Model):
         return False
 
     def meta_to_json(self, include_many_to_many=False, rename=None, exclude=None, include=None, exclude_none=True) -> dict[str, Any]:
-        json_obj = dict()
+        json_obj: dict[str, Any] = dict()
 
         # add all fields
         for meta_field in self._meta.get_fields():

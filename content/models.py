@@ -220,7 +220,7 @@ class Questionnaire(StreamObjectMixin):
             QuestionnaireQuestionOption.objects.create(question=question, answer=choice)
         return question
 
-    def add_to_state(self, state: State, user: AbstractStreamObjectUser = None):
+    def add_to_state(self, state: State, user: Optional[AbstractStreamObjectUser] = None):
         # Questionnaire itself
         state.add(self)
         for question in self.questions.all().prefetch_related("options"):
@@ -250,7 +250,7 @@ class QuestionnaireQuestion(StreamObjectMixin):
     def __str__(self) -> str:
         return self.questionnaire.name + ": " + self.text
 
-    def add_to_state(self, state: State, user: AbstractStreamObjectUser = None):
+    def add_to_state(self, state: State, user: Optional[AbstractStreamObjectUser] = None):
         state.add(self)
         state.add(self.options.all())
 
@@ -280,7 +280,7 @@ class QuestionnaireInstance(StreamObjectMixin):
     def __str__(self) -> str:
         return str(self.user) + "'s answer to " + self.questionnaire.name
 
-    def add_to_state(self, state: State, user: AbstractStreamObjectUser = None):
+    def add_to_state(self, state: State, user: Optional[AbstractStreamObjectUser] = None):
         state.add(self)
         state.add(self.question_answers.all())
 

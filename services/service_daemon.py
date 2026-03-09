@@ -20,7 +20,7 @@ class ServiceDaemon(Daemon):
             pidfile = "." + service_name + "_daemon.pid"
 
         self.service_name = service_name
-        self.background_thread_handlers = []
+        self.background_thread_handlers: list[ThreadIntervalHandler] = []
         super().__init__(service_name, pidfile)
 
     def setup(self):

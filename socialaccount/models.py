@@ -13,7 +13,7 @@ from establishment.misc.util import import_module_attribute
 
 
 class SocialProvider(models.Model):
-    instance_cache = dict()
+    instance_cache: dict[int, "SocialProvider"] = dict()
     name_cache = None
 
     name = models.CharField(max_length=50, unique=True)

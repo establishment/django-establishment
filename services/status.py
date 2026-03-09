@@ -10,19 +10,19 @@ from establishment.funnel.redis_stream import RedisStreamPublisher
 
 
 class ServiceStatus(object):
-    log_info = {}
+    log_info: dict[str, Any] = {}
 
-    lock = None
-    status = None
-    stats = {}
-    mac_address = None
-    machine_address = None
-    pid = None
-    service_name = None
-    update_interval = None
-    status_stream = None
-    init_time = None
-    machine_id = None
+    lock: Optional[threading.Lock] = None
+    status: Optional[dict[str, Any]] = None
+    stats: dict[str, Any] = {}
+    mac_address: Optional[str] = None
+    machine_address: Optional[str] = None
+    pid: Optional[int] = None
+    service_name: Optional[str] = None
+    update_interval: Optional[float] = None
+    status_stream: Optional[RedisStreamPublisher] = None
+    init_time: Optional[float] = None
+    machine_id: Optional[int] = None
 
     @classmethod
     def init(cls, name: str, update_interval: float = 2.0):
@@ -99,7 +99,7 @@ class ServiceStatus(object):
 
     @classmethod
     def publish_status(cls, lifecycle: Optional[str] = None):
-        temp_status = {}
+        temp_status: dict[str, Any] = {}
 
         # Create a thread-safe copy of the status object
         with cls.lock:

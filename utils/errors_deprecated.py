@@ -29,7 +29,7 @@ def get_error(message: str, error_code: Optional[int] = None) -> OldAPIError:
 
 
 class InheritorSetMeta(type):
-    __inheritors__ = set()
+    __inheritors__: set[type] = set()
 
     def __new__(cls, name, bases, dct):
         new_class = super().__new__(cls, name, bases, dct)

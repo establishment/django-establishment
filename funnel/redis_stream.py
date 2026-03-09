@@ -90,7 +90,7 @@ class RedisStreamPublisher(object):
 
     @classmethod
     def publish_to_stream(cls, stream_name: str, message: Any, serializer_class=StreamJSONEncoder,
-                          connection: Optional[StrictRedis] = None, persistence: bool = True, raw: bool = False, expire_time: int = None) -> str:
+                          connection: Optional[StrictRedis] = None, persistence: bool = True, raw: bool = False, expire_time: Optional[int] = None) -> str:
         if connection is None:
             connection = cls.get_global_connection()
         original_message = message
@@ -318,7 +318,7 @@ class RedisQueue(object):
 class RedisMutex(object):
     keep_alive_thread = None
     acquired_mutexes_mutex = threading.Lock()
-    acquired_mutexes = set()
+    acquired_mutexes: set[str] = set()
 
     @classmethod
     def keep_alive_thread_worker(cls):
