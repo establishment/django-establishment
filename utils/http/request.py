@@ -1,11 +1,22 @@
 import json
 from typing import Any, Union, TypeVar, Optional, Self
 
+from django.http import HttpRequest
+
 from django.http import QueryDict
 from pydantic import BaseModel
 
 from establishment.utils.convert import to_camel_case, to_snake_case
 from establishment.utils.errors import ValidationError
+
+
+# Replaces the removed Django request.is_ajax() — also accepts the legacy
+# Prototype.js / Dojo header value and content-type fallback for older clients.
+def is_ajax(request: HttpRequest) -> bool:
+    x_requested_with = request.headers.get("x-requested-with", "")
+    if x_requested_with.lower() == "xmlhttprequest":
+        return True
+    return request.content_type == "application/json"
 
 
 # The contents of this entire file is dependent on seeing how pydantic model schemas work.

@@ -4,6 +4,7 @@ File to keep basic view classes (for instance for ajax requests, etc.)
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 
 from establishment.funnel.encoder import StreamJSONEncoder
+from establishment.utils.http.request import is_ajax
 
 
 class HTTPRenderer(object):
@@ -44,7 +45,7 @@ def login_required(function=None):
     def _decorator(view_func):
         def _wrapped_view(request, *args, **kwargs):
             if not request.user.is_authenticated:
-                if request.is_ajax():
+                if is_ajax(request):
                     from establishment.utils.errors_deprecated import BaseError
                     return BaseError.USER_NOT_AUTHENTICATED
                 return global_renderer.render_error_message(request, "Please login", "You need to login to continue."
@@ -62,7 +63,7 @@ def superuser_required(function=None):
     def _decorator(view_func):
         def _wrapped_view(request, *args, **kwargs):
             if not request.user.is_superuser:
-                if request.is_ajax():
+                if is_ajax(request):
                     from establishment.utils.errors_deprecated import BaseError
                     return BaseError.NOT_ALLOWED
                 raise Http404()
@@ -82,7 +83,7 @@ def login_required_ajax(function=None):
     """
     def _decorator(view_func):
         def _wrapped_view(request, *args, **kwargs):
-            if not request.is_ajax():
+            if not is_ajax(request):
                 return HttpResponseBadRequest()
             if not request.user.is_authenticated:
                 from establishment.utils.errors_deprecated import BaseError
@@ -99,7 +100,7 @@ def login_required_ajax(function=None):
 def ajax_required(function=None):
     def _decorator(view_func):
         def _wrapped_view(request, *args, **kwargs):
-            if not request.is_ajax():
+            if not is_ajax(request):
                 return HttpResponseBadRequest()
             return view_func(request, *args, **kwargs)
         return _wrapped_view
@@ -113,7 +114,7 @@ def ajax_required(function=None):
 def single_page_app(function):
     def _decorator(view_func):
         def _wrapped_view(request, *args, **kwargs):
-            if not request.is_ajax():
+            if not is_ajax(request):
                 return global_renderer.render_single_page_app(request)
             return view_func(request, *args, **kwargs)
         return _wrapped_view

@@ -7,6 +7,7 @@ from django.utils.text import slugify
 
 from establishment.blog.models import BlogEntry
 from establishment.content.models import Article
+from establishment.utils.http.request import is_ajax
 from establishment.utils.errors_deprecated import BaseError
 from establishment.webapp.base_views import ajax_required, superuser_required, single_page_app
 from establishment.utils.state import State
@@ -20,7 +21,7 @@ def get_blog_state(request):
     if not request.user.is_superuser:
         blog_posts = blog_posts.filter(visible=True)
 
-    if request.is_ajax() and "lastDate" in request.GET:
+    if is_ajax(request) and "lastDate" in request.GET:
         last_date = datetime.datetime.fromtimestamp(float(request.GET["lastDate"]))
         blog_posts = blog_posts.filter(article__date_created__lt=last_date)
 
