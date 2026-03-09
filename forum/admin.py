@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django import urls
+from django.utils.html import format_html
 
 from establishment.forum.models import Forum, ForumThread
 
@@ -11,8 +12,7 @@ class ForumAdmin(admin.ModelAdmin):
 
     def link_to_parent(self, obj):
         link = urls.reverse("admin:forum_forum_change", args=[obj.parent_id]) #model name has to be lowercase
-        return u'<a href="%s">%s</a>' % (link, "Forum-" + str(obj.parent_id))
-    link_to_parent.allow_tags = True
+        return format_html('<a href="{}">Forum-{}</a>', link, obj.parent_id)
 
 
 class ForumThreadAdmin(admin.ModelAdmin):
@@ -23,13 +23,11 @@ class ForumThreadAdmin(admin.ModelAdmin):
 
     def link_to_parent_forum(self, obj):
         link = urls.reverse("admin:forum_forum_change", args=[obj.parent_id]) #model name has to be lowercase
-        return u'<a href="%s">%s</a>' % (link, "Forum-" + str(obj.parent_id))
-    link_to_parent_forum.allow_tags = True
+        return format_html('<a href="{}">Forum-{}</a>', link, obj.parent_id)
 
     def link_to_message_thread(self, obj):
         link = urls.reverse("admin:chat_messagethread_change", args=[obj.message_thread_id]) #model name has to be lowercase
-        return u'<a href="%s">%s</a>' % (link, "MessageThread-" + str(obj.message_thread_id))
-    link_to_message_thread.allow_tags = True
+        return format_html('<a href="{}">MessageThread-{}</a>', link, obj.message_thread_id)
 
 
 admin.site.register(Forum, ForumAdmin)
