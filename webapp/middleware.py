@@ -1,3 +1,4 @@
+from establishment.utils.http.request import is_ajax
 from establishment.webapp.base_views import JSONResponse
 
 
@@ -65,7 +66,7 @@ class AdminOnlyMiddleware(object):
 
     def __call__(self, request):
         if not request.user.is_authenticated or not request.user.is_superuser:
-            if request.is_ajax():
+            if is_ajax(request):
                 from establishment.accounts.views import user_login_view
                 return user_login_view(request)
             else:
