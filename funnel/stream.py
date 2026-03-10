@@ -244,11 +244,11 @@ class StreamObjectMixin(models.Model):
         return self.can_be_edited_by_user(user)
 
     def edit_from_dict(self, data_dict, rename=None, trusted: bool = False, publish_event: bool = True, event_type: str = "update",
-                       event_extra: Optional[dict] = None) -> dict[str, Any]:
+                       event_extra: Optional[dict] = None) -> Optional[dict[str, Any]]:
         updated_fields = self.update_from_dict(data_dict, rename)
 
         if len(updated_fields) == 0 and event_extra is None:
-            return
+            return None
 
         if not trusted:
             # TODO: have a better validation flow

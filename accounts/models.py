@@ -2,6 +2,7 @@ from __future__ import annotations
 import datetime
 import json
 import uuid
+from typing import Self
 
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
