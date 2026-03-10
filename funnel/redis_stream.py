@@ -235,7 +235,7 @@ class RedisPriorityQueue(object):
         self.name = name
         self.redis_connection = StrictRedis(**connection_info)
 
-    def push(self, score: int, value: str):
+    def push(self, score: float, value: str):
         """
         Adds the string 'value' in queue with priority 'score'
         :return: true if the element was added and false if it already exists
@@ -545,12 +545,12 @@ class CachedRedisStreamPublisher(RedisStreamPublisher):
                 self.store_cache[cache_key] = message
                 return False
 
-    def publish(self, message: Any) -> bool:
+    def publish(self, message: Any) -> str:
         if self.check_and_update_cache(message):
-            return True
+            return ""
         return super().publish(message)
 
-    def publish_json(self, message: Any) -> bool:
+    def publish_json(self, message: Any) -> str:
         if self.check_and_update_cache(message):
-            return True
+            return ""
         return super().publish_json(message)
