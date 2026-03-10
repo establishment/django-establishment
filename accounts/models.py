@@ -597,16 +597,16 @@ class UserGroup(OwnerUserMixin):
         return group
 
     @classmethod
-    def get_group(cls, group_name, default_owner_id):
+    def get_group(cls, group_name, default_owner_id) -> Self:
         # This method is here for future cache-ing support
         return cls.get_group_raw(group_name, default_owner_id)
 
     @classmethod
-    def get_group_by_id(cls, group_id):
+    def get_group_by_id(cls, group_id) -> Self:
         # This method is here for future cache-ing support
         return cls.objects.get(id=group_id)
 
-    def has_user(self, user):
+    def has_user(self, user) -> bool:
         return self.members.filter(user=user).exists()
 
     def add_user(self, user) -> UserGroupMember:
