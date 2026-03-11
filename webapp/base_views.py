@@ -1,6 +1,8 @@
 """
 File to keep basic view classes (for instance for ajax requests, etc.)
 """
+from typing import Any
+
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 
 from establishment.funnel.encoder import StreamJSONEncoder
@@ -8,7 +10,8 @@ from establishment.utils.http.request import is_ajax
 
 
 class HTTPRenderer(object):
-    pass
+    render_single_page_app: Any
+    render_error_message: Any
 
 
 global_renderer = HTTPRenderer()

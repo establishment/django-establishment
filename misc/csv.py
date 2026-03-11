@@ -4,10 +4,11 @@ from __future__ import annotations
 import csv
 import sys
 from io import StringIO
+from collections.abc import Sequence
 from typing import TypeVar, Union, Callable, Any, Generic, Iterable, IO
 
 T = TypeVar("T")
-CSVColumnList = list[Union[str, tuple[str, Union[str, Callable[[T], Any]]], "CSVColumnHandler[T]"]]
+CSVColumnList = Sequence[Union[str, tuple[str, Union[str, Callable[[T], Any]]], "CSVColumnHandler[T]"]]
 
 
 def make_loader(attr_name: str) -> Callable[[T], Any]:

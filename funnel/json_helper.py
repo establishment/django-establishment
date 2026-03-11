@@ -2,7 +2,7 @@ orda = ord('a')
 ordA = ord('A')
 
 
-def to_camel_case(txt):
+def to_camel_case(txt: str) -> str:
     capitalise_next = False
     new_txt = ""
 

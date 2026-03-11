@@ -114,19 +114,19 @@ class RedisStreamPublisher(object):
         return original_message
 
     @classmethod
-    def get_stream_id_counter(cls, stream_name):
+    def get_stream_id_counter(cls, stream_name: str) -> str:
         return "meta-" + stream_name + "-id-counter"
 
     @classmethod
-    def get_stream_message_id_prefix(cls, stream_name):
+    def get_stream_message_id_prefix(cls, stream_name: str) -> str:
         return "meta-" + stream_name + "-msg-id-"
 
     @classmethod
-    def format_message_with_id(cls, message, message_id):
+    def format_message_with_id(cls, message: str, message_id: int) -> str:
         return "i " + str(message_id) + " " + message
 
     @classmethod
-    def format_message_vanilla(cls, message):
+    def format_message_vanilla(cls, message: str) -> str:
         return "v " + message
 
 
@@ -247,7 +247,7 @@ class RedisPriorityQueue(object):
         Removes the first element in queue
         :return: true if an element was removed, false if the queue was empty
         """
-        return len(self.redis_connection.zremrangebyrank(self.name, 0, 0)) > 0
+        return self.redis_connection.zremrangebyrank(self.name, 0, 0) > 0
 
     def get(self) -> Optional[str]:
         """
@@ -487,7 +487,7 @@ class RedisStreamSubscriber(object):
         self.connection = connection
         self.subscription = connection.pubsub()
 
-    def parse_response(self):
+    def parse_response(self) -> list:
         return self.subscription.parse_response()
 
     def next_message(self) -> tuple[Optional[bytes], Optional[bytes]]:

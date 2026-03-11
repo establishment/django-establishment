@@ -103,7 +103,7 @@ class StreamObjectMixin(models.Model):
         return name
 
     @classmethod
-    def get_meta_key(cls, meta_field, rename):
+    def get_meta_key(cls, meta_field, rename) -> str:
         return cls.get_key_name(cls.get_object_key_from_meta_field(meta_field), rename)
 
     def get_field_value(self, meta_field):
@@ -213,7 +213,7 @@ class StreamObjectMixin(models.Model):
         key = self.get_meta_key(meta_field, rename)
         return (key in json_dict) and self.set_field_value(meta_field, json_dict[key])
 
-    def update_from_dict(self, data_dict, rename=None):
+    def update_from_dict(self, data_dict, rename=None) -> list[str]:
         json_dict = to_json_dict(data_dict)
         updated_fields = []
 

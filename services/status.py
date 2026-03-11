@@ -23,6 +23,7 @@ class ServiceStatus(object):
     status_stream: Optional[RedisStreamPublisher] = None
     init_time: Optional[float] = None
     machine_id: Optional[int] = None
+    background_thread_handler: Optional[ThreadHandler] = None
 
     @classmethod
     def init(cls, name: str, update_interval: float = 2.0):
@@ -99,6 +100,8 @@ class ServiceStatus(object):
 
     @classmethod
     def publish_status(cls, lifecycle: Optional[str] = None):
+        assert cls.lock is not None and cls.status is not None and cls.status_stream is not None
+        assert cls.update_interval is not None and cls.init_time is not None
         temp_status: dict[str, Any] = {}
 
         # Create a thread-safe copy of the status object
