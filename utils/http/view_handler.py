@@ -135,7 +135,7 @@ class ViewSet:
             self.add_view_config_defaults(view_config)
 
             view = self.make_view(view_config, view_func)
-            if view.dev_only and not settings.ENABLE_DEV_ROUTES:
+            if view.dev_only and not getattr(settings, "ENABLE_DEV_ROUTES", False):
                 continue
 
             url_path: str = view.url_path
@@ -162,5 +162,5 @@ class ViewSet:
 
         return urlpatterns
 
-    def build_path(self, path_url: str = "") -> partial[Any]:
+    def build_path(self, path_url: str = ""):
         return path(path_url, include(self.build_url_patterns()))

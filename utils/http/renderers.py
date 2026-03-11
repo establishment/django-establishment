@@ -58,7 +58,7 @@ def normalize_to_primitive_type(obj: Any) -> Any:
         return obj.to_json()
     if DefaultSerializer.can_serialize(obj):
         return DefaultSerializer.serialize(obj)
-    if dataclasses.is_dataclass(obj):
+    if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
         return dataclasses.asdict(obj)
 
     if isinstance(obj, bytes):
