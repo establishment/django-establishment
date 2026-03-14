@@ -1,5 +1,6 @@
-from typing import Any
+from typing import Any, Optional
 
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 
 from establishment.content.models import Article
@@ -23,6 +24,6 @@ class BlogEntry(Commentable):
         rez["lastActive"] = self.get_discussion_last_activity()
         return rez
 
-    def add_to_state(self, state: State):
+    def add_to_state(self, state: State, user: Optional[AbstractBaseUser] = None):
         state.add(self)
         state.add(self.article)
