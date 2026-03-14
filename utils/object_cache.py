@@ -75,7 +75,7 @@ class ObjectStore(Generic[StateObjectT]):
 class DBObjectStore(ObjectStore[DjangoModelT]):
     def get_raw(self, id: IdType) -> tuple[DjangoModelT, float]:
         if not self.has(id):
-            self.add(self.object_class.objects.get(id=id))
+            self.add(self.object_class.objects.get(id=id))  # type: ignore[attr-defined]
         return self.cache[id]
 
     def get(self, id: IdType, max_age: Optional[float] = None) -> DjangoModelT:
@@ -91,7 +91,7 @@ class DBObjectStore(ObjectStore[DjangoModelT]):
         for (obj, age) in self.cache.values():
             if python_query(obj):
                 return obj, age
-        obj = self.object_class.objects.get(db_query)
+        obj = self.object_class.objects.get(db_query)  # type: ignore[attr-defined]
         self.add(obj)
         return self.cache[obj.pk]
 

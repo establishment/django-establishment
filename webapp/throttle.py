@@ -54,7 +54,7 @@ class ActionThrottler(object):
     def clear(self):
         redis_connection.delete(self.key_name)
 
-    @classmethod
+    @classmethod  # type: ignore[no-redef]
     def increm_or_raise(cls, error, timeframe, limit):
         cls(error.__name__, timeframe, limit).increm_or_raise()
 

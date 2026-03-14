@@ -119,12 +119,12 @@ class ObjectId(Generic[DjangoModelT], str):
         return Q()
 
     def queryset(self) -> QuerySet[DjangoModelT]:
-        return self.model_class.objects.filter(self.context_query(), pk=self)
+        return self.model_class.objects.filter(self.context_query(), pk=self)  # type: ignore[attr-defined]
 
     def get(self, *args: Q, **kwargs: Any) -> DjangoModelT:
         try:
             return self.queryset().get(*args, **kwargs)
-        except self.model_class.DoesNotExist:
+        except self.model_class.DoesNotExist:  # type: ignore[attr-defined]
             raise NotFound(detail={
                 self.field_name: f"{State.get_object_name(self.model_class)} not found"
             })

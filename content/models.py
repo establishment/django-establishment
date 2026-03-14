@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Any, Self, Optional
 
 from django.conf import settings
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 from django.db import transaction
 from django.http.request import HttpRequest
@@ -220,7 +221,7 @@ class Questionnaire(StreamObjectMixin):
             QuestionnaireQuestionOption.objects.create(question=question, answer=choice)
         return question
 
-    def add_to_state(self, state: State, user: Optional[AbstractStreamObjectUser] = None):
+    def add_to_state(self, state: State, user: Optional[AbstractBaseUser] = None):
         # Questionnaire itself
         state.add(self)
         for question in self.questions.all().prefetch_related("options"):
@@ -250,7 +251,7 @@ class QuestionnaireQuestion(StreamObjectMixin):
     def __str__(self) -> str:
         return self.questionnaire.name + ": " + self.text
 
-    def add_to_state(self, state: State, user: Optional[AbstractStreamObjectUser] = None):
+    def add_to_state(self, state: State, user: Optional[AbstractBaseUser] = None):
         state.add(self)
         state.add(self.options.all())
 
@@ -280,7 +281,7 @@ class QuestionnaireInstance(StreamObjectMixin):
     def __str__(self) -> str:
         return str(self.user) + "'s answer to " + self.questionnaire.name
 
-    def add_to_state(self, state: State, user: Optional[AbstractStreamObjectUser] = None):
+    def add_to_state(self, state: State, user: Optional[AbstractBaseUser] = None):
         state.add(self)
         state.add(self.question_answers.all())
 

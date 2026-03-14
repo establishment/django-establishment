@@ -237,12 +237,13 @@ class AbstractStreamObjectUser(AbstractBaseUser, SuperuserPermissionsMixin, Stre
         return full_name.strip()
 
     def get_short_name(self) -> str:
-        if not self.username:
+        # TODO Looks like we don't have username here
+        if not self.username:  # type: ignore[attr-defined]
             return self.get_full_name()
-        return self.username
+        return self.username  # type: ignore[attr-defined]
 
     def get_all_emails(self) -> list[str]:
-        return list(self.emails.all().order_by("-primary")) + list(self.unverified_emails.all())
+        return list(self.emails.all().order_by("-primary")) + list(self.unverified_emails.all())  # type: ignore[attr-defined]
 
     # TODO: consider localization
     def email_user(self, subject, message, from_email=None, **kwargs):

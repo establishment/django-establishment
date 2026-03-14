@@ -425,7 +425,7 @@ class GroupChat(StreamObjectMixin):
             "maxMessageSize": self.max_message_size,
         }
 
-    def add_to_state(self, state: State, last_message_id: Optional[int]=None, show_hidden: bool=False):
+    def add_to_state(self, state: State, last_message_id: Optional[int]=None, show_hidden: bool=False):  # type: ignore[override]
         state.add(self)
         message_thread_summary = MessageThreadSummary(self.message_thread, last_id=last_message_id, show_hidden=show_hidden)
         message_thread_summary.add_to_state(state)

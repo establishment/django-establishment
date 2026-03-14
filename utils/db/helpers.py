@@ -20,7 +20,7 @@ DBObject = TypeVar("DBObject", bound=Model)
 
 def lock_db_object(obj: DBObject) -> DBObject:
     model = obj._meta.model
-    model_manager = model.objects
+    model_manager = model.objects  # type: ignore[attr-defined]
     if issubclass(model, PermissionFilterSoftDeletionMixin):
         model_manager = model.all_unfiltered_objects
     elif issubclass(model, SoftDeletionMixin):
