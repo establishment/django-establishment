@@ -20,9 +20,7 @@ export class Country extends BaseStore("Country") {
         return "flag_" + this.getIsoCode().toLowerCase();
     }
 
-    static all() {
-        return super.all<Country>().sort(COUNTRY_COMPARATOR);
-    }
+    static comparator = (a: Country, b: Country): number => a.name > b.name ? 1 : -1;
 
     static allWithNone(noneName: string = "None") {
          return [
@@ -36,7 +34,7 @@ export class Country extends BaseStore("Country") {
         for (const countryId of countriesIds) {
             countries.push(this.get(countryId));
         }
-        const result = countries.filter(isNotNull).sort(COUNTRY_COMPARATOR);
+        const result = countries.filter(isNotNull).sort(Country.comparator);
         if (allCountries) {
             result.unshift(ALL_COUNTRIES_PLACEHOLDER);
         }
@@ -46,10 +44,3 @@ export class Country extends BaseStore("Country") {
 
 const ALL_COUNTRIES_PLACEHOLDER = new Country({id: 0, name: "All Countries", isCode: "-"});
 const NO_COUNTRY_PLACEHOLDER = (noneName: string) => new Country({id: -1, name: noneName, isoCode: "-"});
-
-const COUNTRY_COMPARATOR = (a: Country, b: Country): number => {
-    if (a.name > b.name) {
-        return 1;
-    }
-    return -1;
-};
