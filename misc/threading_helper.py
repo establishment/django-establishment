@@ -53,7 +53,7 @@ class ThreadIntervalHandler(ThreadHandler):
         self.worker = worker
         self.signaler = kwargs.pop("signaler", False)
         self.terminate_on_exception = kwargs.pop("terminate_on_exception", False)
-        self.logger = kwargs.get("logger") or logging.getLogger("django")
+        self.logger = kwargs.pop("logger", None) or logging.getLogger("django")
         self.is_working = False
 
         super().__init__(name, self.background, *args, **kwargs)

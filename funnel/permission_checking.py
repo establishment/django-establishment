@@ -46,7 +46,7 @@ def user_can_subscribe_to_stream(user: AbstractStreamObjectUser, stream_name: st
         return False, "Invalid stream name"
 
     # Any user is allowed to subscribe to the global stream and their own
-    if stream_name == "global-events" or (user.is_authenticated and stream_name.startswith("user-" + str(user.id) + "-")):
+    if stream_name == "global-events" or (user.is_authenticated and stream_name in (str(user.id), "user-" + str(user.id) + "-events")):
         return True, "Default streams"
 
     stream_handler = get_stream_handler(stream_name)
