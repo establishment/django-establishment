@@ -100,7 +100,7 @@ class ObjectId(Generic[DjangoModelT], str):
 
     @classmethod
     def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> CoreSchema:
-        return core_schema.general_plain_validator_function(cls.validate)
+        return core_schema.general_plain_validator_function(cls.validate)  # type: ignore[return-value]
 
     @classmethod
     def validate(cls, input_value: Any, validation_info: ValidationInfo) -> Optional[ObjectId[DjangoModelT]]:
