@@ -20,6 +20,14 @@ export class Country extends BaseStore("Country") {
         return "flag_" + this.getIsoCode().toLowerCase();
     }
 
+    getUnicodeEmoji(): string {
+        return this.isoCode
+            .toUpperCase()
+            .split("")
+            .map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65))
+            .join("");
+    }
+
     static comparator = (a: Country, b: Country): number => a.name > b.name ? 1 : -1;
 
     static allWithNone(noneName: string = "None") {
