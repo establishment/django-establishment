@@ -125,7 +125,7 @@ class SerializerFieldDescriptor(Generic[T]):
 
 # TODO: rename this
 class DefaultSerializer:
-    special_members: set[str] = {"serializer_include", "serializer_exclude"}
+    special_members: set[str] = {"serializer_include", "serializer_exclude", "serializer_disabled"}
     cached_values: dict[Any, list[SerializerFieldDescriptor]] = {}
 
     @classmethod
@@ -205,8 +205,16 @@ class DefaultSerializer:
         if model_class in cls.cached_values:
             return cls.cached_values[model_class]
 
+        serializer_disabled = cls.get_model_class_special_member(model_class, "serializer_disabled")
         serializer_include = cls.get_model_class_special_member(model_class, "serializer_include")
         serializer_exclude = cls.get_model_class_special_member(model_class, "serializer_exclude")
+
+        if serializer_disabled and (serializer_include is not None or serializer_exclude is not None):
+            raise RuntimeError(
+                f"{model_class.__name__} has serializer_disabled=True but also defines "
+                f"serializer_include or serializer_exclude. Remove the conflicting options."
+            )
+
         include_set = cls.make_include_set(model_class, serializer_include, serializer_exclude)
 
         cls.cached_values[model_class] = include_set
@@ -222,12 +230,21 @@ class DefaultSerializer:
         if obj is None:
             return None
 
+        if getattr(obj.__class__, "serializer_disabled", False):
+            raise RuntimeError(
+                f"{obj.__class__.__name__} has serializer_disabled=True and cannot be serialized. "
+                f"Use a ProxyObject wrapper instead."
+            )
+
         to_json = getattr(obj, "to_json", None)
         if to_json is not None and callable(to_json):
             return to_json()
 
-        include_set = cls.include_set_for_class(obj.__class__)
+        return cls.serialize_fields(obj)
 
+    @classmethod
+    def serialize_fields(cls, obj: SerializableObject) -> dict[str, Any]:
+        include_set = cls.include_set_for_class(obj.__class__)
         return {
             field.name: field.getter(obj) for field in include_set
         }
