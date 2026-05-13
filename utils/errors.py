@@ -11,6 +11,7 @@ class APIError(Exception):
     code: int = 0
     default_message: str = "API Error"
     is_warning: bool = False
+    http_status: ClassVar[int] = 400
     state: Optional[State]
 
     def __init__(self,
@@ -45,16 +46,19 @@ class ParseError(APIError):
 class AuthenticationFailed(APIError):
     code = 1003
     default_message = "Incorrect authentication credentials"
+    http_status = 401
 
 
 class NotAuthenticated(APIError):
     code = 1004
     default_message = "Authentication credentials were not provided"
+    http_status = 401
 
 
 class PermissionDenied(APIError):
     code = 1005
     default_message = "You do not have permission to perform this action"
+    http_status = 403
 
 
 action_not_allowed_in_session = PermissionDenied(message="This action is not permitted in this session")
@@ -63,6 +67,7 @@ action_not_allowed_in_session = PermissionDenied(message="This action is not per
 class NotFound(APIError):
     code = 1006
     default_message = "Object not found"
+    http_status = 404
     INVALID_MERCHANT: ClassVar[APIError]
 
 
@@ -76,32 +81,38 @@ object_not_found = NotFound(message="Object not found")
 class HTTPMethodNotAllowed(APIError):
     code = 1007
     default_message = "HTTP Method not allowed for this path"
+    http_status = 405
 
 
 class FunctionalityNotSupported(APIError):
     code = 1008
     default_message = "Functionality not supported"
+    http_status = 501
 
 
 class UnsupportedMediaType(APIError):
     code = 1009
     default_message = "Unsupported media type in request"
+    http_status = 415
 
 
 class Throttled(APIError):
     code = 1010
     default_message = "Too many requests, try again later"
+    http_status = 429
 
 
 # TODO @Mihai this should be another error
 class ServiceUnavailableError(APIError):
     code = 1011
     default_message = "Service temporarily unavailable; try again in a few moments"
+    http_status = 503
 
 
 class InternalServerError(APIError):
     code = 1012
     default_message = "Internal server error"
+    http_status = 500
 
 
 class BadRequest(APIError):
