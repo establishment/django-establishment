@@ -23,6 +23,7 @@ def parse_user_agent(user_agent_string: Optional[str]) -> Optional[UserAgent]:
 class DeviceInfo(BaseModel):
     type: DeviceTypeEnum = DeviceTypeEnum.UNKNOWN
     os: Optional[str] = None
+    os_version: Optional[str] = None
     browser: Optional[str] = None
     # TODO Optionally this can actually include the user agent
 
@@ -59,5 +60,6 @@ def format_device(user_agent_string: Optional[str]) -> DeviceInfo:
     return DeviceInfo(
         type=get_device_type(user_agent),
         os=get_option_or_unknown(user_agent.os.family, oss),
+        os_version=user_agent.os.version_string or None,
         browser=get_option_or_unknown(user_agent.browser.family, browsers),
     )
