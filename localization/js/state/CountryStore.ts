@@ -38,7 +38,7 @@ export class Country extends BaseStore("Country") {
     }
 
     static getCountriesFromIds(countriesIds: Iterable<StoreId>, allCountries: boolean = true) {
-        const countries: (Country | null)[] = [];
+        const countries: (Country | undefined)[] = [];
         for (const countryId of countriesIds) {
             countries.push(this.get(countryId));
         }
