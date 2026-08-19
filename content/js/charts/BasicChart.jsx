@@ -1,5 +1,5 @@
 import {UI} from "../../../../stemjs/ui/UIBase.js";
-import {SVG} from "../../../../stemjs/ui/svg/SVGBase.js";
+import {SVGText} from "../../../../stemjs/ui/svg/SVGText.js";
 import {Direction} from "../../../../stemjs/ui/Constants.js";
 import {uniqueId} from "../../../../stemjs/base/Utils.js";
 import {StemDate} from "../../../../stemjs/time/Date.js";
@@ -11,12 +11,12 @@ import {BasePointPlot} from "./PointPlot.jsx";
 import {scaleLinear, scaleTime} from "d3-scale";
 import {select} from "d3-selection";
 import {zoom, zoomIdentity} from "d3-zoom";
-import {SVGRoot} from "../../../../stemjs/ui/svg/SVGPrimitives.js";
+import {SVGRoot, SVGGroup, SVGLine, SVGRect} from "../../../../stemjs/ui/svg/SVGPrimitives.js";
 
 
 // TODO: This file desperately needs a refactoring.
 
-export class AxisTick extends SVG.Group {
+export class AxisTick extends SVGGroup {
     getDefaultOptions() {
         return {
             gridLineLength: 0,
@@ -46,7 +46,7 @@ export class AxisTick extends SVG.Group {
                 x: -1 * (this.options.labelPadding + this.options.axisLineLength)
             });
         }
-        return <SVG.Text ref={this.refLink("label")} {...labelOptions}/>;
+        return <SVGText ref={this.refLink("label")} {...labelOptions}/>;
     }
 
     getGridLine() {
@@ -66,7 +66,7 @@ export class AxisTick extends SVG.Group {
                 x2: this.options.chartOptions.width
             });
         }
-        return <SVG.Line ref={this.refLink("gridLine")} {...gridLineOptions}/>;
+        return <SVGLine ref={this.refLink("gridLine")} {...gridLineOptions}/>;
     }
 
     getAxisLine() {
@@ -80,7 +80,7 @@ export class AxisTick extends SVG.Group {
                 x2: -1 * this.options.axisLineLength
             });
         }
-        return <SVG.Line ref={this.refLink("axisLine")} {...axisLineOptions}/>
+        return <SVGLine ref={this.refLink("axisLine")} {...axisLineOptions}/>
     }
 
     render() {
@@ -108,7 +108,7 @@ export class AxisTick extends SVG.Group {
     }
 }
 
-export class BasicAxis extends SVG.Group {
+export class BasicAxis extends SVGGroup {
     getDefaultOptions() {
         return {
             labelFormatFunction: (x) => {return x;}
@@ -128,7 +128,7 @@ export class BasicAxis extends SVG.Group {
             });
             this.axisLength = this.options.chartOptions.height;
         }
-        return <SVG.Line ref={this.refLink("axisLine")} {...axisLineOptions}/>;
+        return <SVGLine ref={this.refLink("axisLine")} {...axisLineOptions}/>;
     }
 
     getTicks() {
@@ -164,7 +164,7 @@ export class BasicAxis extends SVG.Group {
     }
 }
 
-export class BasicChart extends SVG.Group {
+export class BasicChart extends SVGGroup {
     getDefaultOptions() {
         return {
             enableZoom: true,
@@ -252,7 +252,7 @@ export class BasicChart extends SVG.Group {
     }
 
     getBackground() {
-        return <SVG.Group ref={this.refLink("background")}/>;
+        return <SVGGroup ref={this.refLink("background")}/>;
     }
 
     getAxes() {
@@ -263,12 +263,12 @@ export class BasicChart extends SVG.Group {
     }
 
     render() {
-        let interactiveLayer = <SVG.Rect ref={this.refLink("interactiveLayer")} height={this.options.chartOptions.height}
+        let interactiveLayer = <SVGRect ref={this.refLink("interactiveLayer")} height={this.options.chartOptions.height}
                                              width={this.options.chartOptions.width} style={{cursor: this.options.cursorStyle}} opacity={0}/>;
         // Add a clipPath
         let clipPathDef = <defs ref="defs">
                 <clipPath id={"chartClipPath" + uniqueId(this)}>
-                    <SVG.Rect width={this.options.chartOptions.width} height={this.options.chartOptions.height}/>
+                    <SVGRect width={this.options.chartOptions.width} height={this.options.chartOptions.height}/>
                 </clipPath>
             </defs>;
         this.clipPath = "url(#chartClipPath" + uniqueId(this) + ")";

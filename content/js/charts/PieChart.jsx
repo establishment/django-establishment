@@ -1,11 +1,11 @@
 import {UI} from "../../../../stemjs/ui/UIBase.js";
 import {Transition} from "../../../../stemjs/ui/Transition.js";
-import {SVG} from "../../../../stemjs/ui/svg/SVGBase.js";
+import {SVGText} from "../../../../stemjs/ui/svg/SVGText.js";
 import * as math from "../../../../stemjs/numerics/StemMath.ts";
-import {SVGRoot} from "../../../../stemjs/ui/svg/SVGPrimitives";
+import {SVGRoot, SVGGroup, SVGPath} from "../../../../stemjs/ui/svg/SVGPrimitives.js";
 import {makeOpacityTransition} from "../../../../stemjs/ui/svg/Animations";
 
-class PieChartSector extends SVG.Group {
+class PieChartSector extends SVGGroup {
     getDefaultOptions() {
         return {
             startOpacity: 0.65,
@@ -94,10 +94,10 @@ class PieChartSector extends SVG.Group {
 
     render() {
         let children = [
-            <SVG.Path ref="path" d={this.getPath()} fill={this.options.pathFill}/>
+            <SVGPath ref="path" d={this.getPath()} fill={this.options.pathFill}/>
         ];
         if (this.options.displayPercents) {
-            children.push(<SVG.Text ref="label"
+            children.push(<SVGText ref="label"
                          text={this.options.label || ((this.options.percent * 100).toFixed(1) + "%")}
                          {...this.getMiddlePoint()}
                          color="white"
@@ -124,7 +124,7 @@ class PieChartSector extends SVG.Group {
     }
 }
 
-export class PieChart extends SVG.Group {
+export class PieChart extends SVGGroup {
     getDefaultOptions() {
         return {
             innerRadius: 40,
