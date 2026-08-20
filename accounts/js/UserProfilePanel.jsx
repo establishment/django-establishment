@@ -1,11 +1,10 @@
 import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea.jsx";
 
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
 
-class ProfilePanel extends Panel {
+class ProfilePanel extends UI.Element {
     render() {
         let infos = [
             <p>Username: <UserHandle style={{display:"inline"}} userId={this.options.user.id}/></p>

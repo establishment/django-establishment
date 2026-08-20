@@ -3,7 +3,6 @@ import {Button} from "../../../stemjs/ui/button/Button.jsx";
 import {ActionModal, ActionModalButton} from "../../../stemjs/ui/modal/Modal.jsx";
 import {Input} from "../../../stemjs/ui/input/Input.jsx";
 import {Link} from "../../../stemjs/ui/primitives/Link.jsx";
-import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
 import {Router} from "../../../stemjs/ui/Router.jsx";
 import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan.jsx";
 import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
@@ -208,7 +207,7 @@ class ForumThreadReply extends UI.Element {
 }
 
 @registerStyle(ForumThreadPanelStyle)
-class ForumThreadPanel extends Panel {
+class ForumThreadPanel extends UI.Element {
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.mainClass);
     }

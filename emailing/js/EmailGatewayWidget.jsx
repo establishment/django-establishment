@@ -8,7 +8,6 @@ import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
 import {NumberInput} from "../../../stemjs/ui/input/Input.jsx";
 import {RawCheckboxInput} from "../../../stemjs/ui/input/Input.jsx";
 import {PasswordInput} from "../../../stemjs/ui/input/Input.jsx";
-import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
 import {TableRow} from "../../../stemjs/ui/table/Table.jsx";
 import {Ajax} from "../../../stemjs/base/Ajax.js";
 import {EmailGateway} from "./state/EmailGatewayStore";
@@ -238,7 +237,7 @@ class EmailGatewayTable extends SortableTable {
 }
 
 
-class EmailGatewayWidget extends Panel {
+class EmailGatewayWidget extends UI.Element {
     render() {
         return [<EmailGatewayTable />,
                 <Button level={Level.SUCCESS} ref="addGatewayButton">Add Gateway</Button>,

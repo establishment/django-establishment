@@ -7,7 +7,6 @@ import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
 import {FileInput} from "../../../stemjs/ui/input/Input.jsx";
 import {RawCheckboxInput} from "../../../stemjs/ui/input/Input.jsx";
 import {TextArea} from "../../../stemjs/ui/input/Input.jsx";
-import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
 import {Level} from "../../../stemjs/ui/Constants.js";
 import {Select} from "../../../stemjs/ui/input/Input.jsx";
 import {FileSaver} from "../../../stemjs/base/FileSaver.js";
@@ -142,7 +141,7 @@ class TranslationEntryTable extends Table {
     }
 }
 
-class TranslationEntryManager extends Panel {
+class TranslationEntryManager extends UI.Element {
     setOptions(options) {
         super.setOptions(options);
         this.language = Language.get(1);
@@ -525,7 +524,7 @@ class TranslationKeyTable extends Table {
     }
 }
 
-class TranslationKeyManager extends Panel {
+class TranslationKeyManager extends UI.Element {
     render() {
         let style = {
             display: "inline-block",
@@ -615,7 +614,7 @@ class TranslationKeyManager extends Panel {
     }
 }
 
-class TranslationManager extends Panel {
+class TranslationManager extends UI.Element {
     getUrlPrefix(urlPart) {
         let url = "/manage/translation/";
         if (urlPart) {

@@ -6,7 +6,6 @@ import {Form, FormField} from "../../../stemjs/ui/form/Form";
 import {RawCheckboxInput, Select, TextInput} from "../../../stemjs/ui/input/Input";
 import {Link} from "../../../stemjs/ui/primitives/Link";
 import {SortableTable} from "../../../stemjs/ui/table/SortableTable";
-import {Panel} from "../../../stemjs/ui/UIPrimitives";
 import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea";
 import {Level} from "../../../stemjs/ui/Constants";
 import {Ajax} from "../../../stemjs/base/Ajax";
@@ -376,7 +375,7 @@ class ArticleTable extends SortableTable {
     }
 }
 
-class ArticleManager extends Panel {
+class ArticleManager extends UI.Element {
     getDefaultOptions() {
         return {
             title: "Article manager",
@@ -416,7 +415,7 @@ class ArticleManager extends Panel {
     }
 }
 
-class ArticleTranslationManager extends Panel {
+class ArticleTranslationManager extends UI.Element {
     getDefaultOptions() {
         return {
             title: "Translation manager"

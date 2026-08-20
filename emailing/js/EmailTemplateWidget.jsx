@@ -3,7 +3,6 @@ import {Level, Orientation} from "../../../stemjs/ui/Constants.js";
 import {SortableTable} from "../../../stemjs/ui/table/SortableTable.jsx";
 import {Button} from "../../../stemjs/ui/button/Button.jsx";
 import {SectionDivider} from "../../../stemjs/ui/section-divider/SectionDivider.jsx";
-import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
 import {TableRow} from "../../../stemjs/ui/table/Table.jsx";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal.jsx";
 import {FormField} from "../../../stemjs/ui/form/Form.jsx";
@@ -73,7 +72,7 @@ class EmailTemplateModal extends ActionModal {
                     <TextArea value={templateValues.html || ""} ref="htmlInput" style={{height: "100%", width: "100%", resize: "none"}}/>
                 </div>
                 <div style={{width: "50%", height: "100%", overflow: "auto", position: "relative"}}>
-                  <Panel ref="htmlRenderer" style={{height: "100%", position: "absolute"}}/>
+                  <UI.Element ref="htmlRenderer" style={{height: "100%", position: "absolute"}}/>
                 </div>
             </SectionDivider>,
         ];
@@ -278,7 +277,7 @@ class EmailTemplateTable extends SortableTable {
 }
 
 
-export class EmailTemplateWidget extends Panel {
+export class EmailTemplateWidget extends UI.Element {
     render() {
         return [<EmailTemplateTable />,
             <Button level={Level.SUCCESS} ref="addTemplateButton">Add Template</Button>

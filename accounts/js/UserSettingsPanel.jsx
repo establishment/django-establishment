@@ -4,7 +4,6 @@ import {FormField, Form} from "../../../stemjs/ui/form/Form.jsx";
 import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
 import {PasswordInput} from "../../../stemjs/ui/input/Input.jsx";
 import {EmailInput} from "../../../stemjs/ui/input/Input.jsx";
-import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
 import {Label} from "../../../stemjs/ui/SimpleElements.jsx";
 import {Select} from "../../../stemjs/ui/input/Input.jsx";
 import {RawCheckboxInput} from "../../../stemjs/ui/input/Input.jsx";
@@ -19,7 +18,7 @@ import {FacebookManager} from "./thirt-party/FacebookManager.js";
 import {GoogleManager} from "./thirt-party/GoogleManager.js";
 
 
-export class GeneralInformationPanel extends Panel {
+export class GeneralInformationPanel extends UI.Element {
     getFormFields() {
         return [
             <FormField ref="firstNameFormField" label="First Name">
@@ -104,7 +103,7 @@ export class GeneralInformationPanel extends Panel {
 }
 
 
-export class SecuritySettingsPanel extends Panel {
+export class SecuritySettingsPanel extends UI.Element {
     render() {
         return [
             <h3>{UI.T("Password")}</h3>,
@@ -177,7 +176,7 @@ export class SecuritySettingsPanel extends Panel {
 }
 
 
-export class EmailPanel extends Panel {
+export class EmailPanel extends UI.Element {
     render() {
         let emails = this.options.user.emails.slice();
 
@@ -333,7 +332,7 @@ export class EmailPanel extends Panel {
 }
 
 
-export class SocialAccountsPanel extends Panel {
+export class SocialAccountsPanel extends UI.Element {
     constructor(options) {
         super(options);
         // Ensure Social managers are initialized
@@ -408,7 +407,7 @@ export class SocialAccountsPanel extends Panel {
 }
 
 
-export class UserSettingsPanel extends Panel {
+export class UserSettingsPanel extends UI.Element {
     extraNodeAttributes(attr) {
         super.extraNodeAttributes(attr);
         attr.setStyle({
@@ -434,8 +433,8 @@ export class UserSettingsPanel extends Panel {
     }
 
     showUrlTab(tabName) {
-        if (this[tabName + "Panel"]) {
-            this[tabName + "Panel"].dispatch("show");
+        if (this[tabName + "UI.Element"]) {
+            this[tabName + "UI.Element"].dispatch("show");
         } else {
             this["generalPanel"].dispatch("show");
         }

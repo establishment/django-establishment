@@ -5,7 +5,6 @@ import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup.jsx";
 import {Form, FormField} from "../../../stemjs/ui/form/Form";
 import {RawCheckboxInput, TextInput, Select} from "../../../stemjs/ui/input/Input";
 import {Link} from "../../../stemjs/ui/primitives/Link";
-import {Panel} from "../../../stemjs/ui/UIPrimitives";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea";
 import {Level} from "../../../stemjs/ui/Constants";
@@ -70,7 +69,7 @@ class DeleteArticleModal extends ActionModal {
     }
 }
 
-class ArticleEditor extends Panel {
+class ArticleEditor extends UI.Element {
     setOptions(options) {
         super.setOptions(options);
 
@@ -116,14 +115,14 @@ class ArticleEditor extends Panel {
                 <Link href={"/article/" + this.getArticle().baseArticleId + "/edit/"} value="Go to base article" />
             </FormField>;
         } else {
-            translationsPanel = <Panel title="Translations">
+            translationsPanel = <UI.Element title="Translations">
                 <ArticleTranslationManager title={"Translations for " + this.getArticle().name}
                                     baseArticle={this.getArticle()}/>
-            </Panel>
+            </UI.Element>
         }
         let ownershipPanel = null;
         if (USER.isSuperUser) {
-            ownershipPanel = <Panel title="Ownership">
+            ownershipPanel = <UI.Element title="Ownership">
                 <Form style={{marginTop: "10px"}}>
                     <FormField ref="ownerFormField" label="Author ID">
                         <TextInput ref="ownerFormInput"  value={this.getArticle().userCreatedId}/>
@@ -136,27 +135,27 @@ class ArticleEditor extends Panel {
                                statusOptions={["Transfer ownership", {icon: "spinner fa-spin", label:" transfering ownership ..."}, "Transfer ownership", "Failed"]}
                         />
                 <TemporaryMessageArea ref="setOwnerMessageArea"/>
-            </Panel>
+            </UI.Element>
         }
 
         let revisionsPanel;
         if (ArticleEditor.DiffWidgetClass) {
             let DiffWidgetClass = ArticleEditor.DiffWidgetClass;
-                revisionsPanel = <Panel title="Revisions" style={{height: "100%", display: "flex", flexDirection: "column"}}>
-                <Panel>
+                revisionsPanel = <UI.Element title="Revisions" style={{height: "100%", display: "flex", flexDirection: "column"}}>
+                <UI.Element>
                     <Select ref="leftTextSelector" options={this.versionsLabels}/>
                     <Select style={{float:"right", marginRight:"25px"}} ref="rightTextSelector" options={this.versionsLabels}/>
-                </Panel>
+                </UI.Element>
                 <DiffWidgetClass ref="diffWidget" leftEditable={this.leftEditable} rightEditable={this.rightEditable}
                                  leftTextValue={this.versions[2]} arrows={this.arrows} rightTextValue={this.versions[1]}
                                      style={{flex:"1", height: "calc(100% - 100px)", width: "calc(100% - 100px)"}} />
-            </Panel>;
+            </UI.Element>;
         }
 
         return [
             <h3>{this.getArticle().name + " Id=" + this.options.articleId}</h3>,
                 <TabArea ref="tabArea" variableHeightPanels style={{flex: "1", height: "100%", display: "flex", flexDirection: "column"}}>
-                <Panel title="Edit" active style={{height: "100%", overflow: "hidden"}}>
+                <UI.Element title="Edit" active style={{height: "100%", overflow: "hidden"}}>
                     <AjaxButton
                         style={{zIndex: 2, position: "relative"}}
                         ref="saveMarkupButton" level={Level.INFO} onClick={() => {
@@ -171,9 +170,9 @@ class ArticleEditor extends Panel {
                     <TemporaryMessageArea ref="saveMarkupMessageArea"/>
                     <ArticleMarkupEditor style={{height: "100%", marginTop: "-31px", display: "flex", flexDirection: "column"}}
                                          ref="markupEditor" article={this.getArticle()} />
-                </Panel>
+                </UI.Element>
                 {revisionsPanel}
-                <Panel title="Summary">
+                <UI.Element title="Summary">
                     <Form style={{marginTop: "10px"}}>
                         <FormField ref="articleNameFormField" label="Article name">
                             <TextInput ref="articleNameFormInput"  value={this.getArticle().name}/>
@@ -209,7 +208,7 @@ class ArticleEditor extends Panel {
                                style={{marginLeft: "3px"}}
                                onClick={() => this.deleteArticleModal.show()}/>
                     <TemporaryMessageArea ref="saveOptionsMessageArea"/>
-                </Panel>
+                </UI.Element>
                 {translationsPanel}
                 {ownershipPanel}
             </TabArea>

@@ -1,6 +1,5 @@
 import {UI} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
-import {Panel} from "../../../stemjs/ui/UIPrimitives";
 import {CardPanel} from "../../../stemjs/ui/CardPanel";
 import {Switcher} from "../../../stemjs/ui/Switcher";
 import {Theme, registerStyle} from "../../../stemjs/ui/style/Theme";
@@ -357,12 +356,12 @@ export class QuestionnaireAnswersPanel extends UI.Element {
     render() {
         return [
             <TabArea>
-                <Panel title={UI.T("Summary")} style={{paddingTop: "10px"}}>
+                <UI.Element title={UI.T("Summary")} style={{paddingTop: "10px"}}>
                     <QuestionnaireSummaryWidget questionnaireId={this.options.questionnaireId} ref="questionnaireSummary"/>
-                </Panel>
-                <Panel title={UI.T("Responses")}>
+                </UI.Element>
+                <UI.Element title={UI.T("Responses")}>
                     <QuestionnaireResponsesWidget questionnaireId={this.options.questionnaireId} ref="questionnaireResponses"/>
-                </Panel>
+                </UI.Element>
             </TabArea>
         ];
     }

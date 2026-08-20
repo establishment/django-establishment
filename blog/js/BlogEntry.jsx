@@ -1,11 +1,10 @@
 import {UI} from "../../../stemjs/ui/UIBase";
-import {Panel} from "../../../stemjs/ui/UIPrimitives";
 
 import {ArticleRenderer} from "ArticleRenderer";
 import {BlogEntry} from "state/BlogStore";
 
 // TODO: this should support a summary mode and a full mode
-class BlogEntry extends Panel {
+class BlogEntry extends UI.Element {
     getBlogEntry() {
         return BlogEntry.get(this.blogEntryId);
     }

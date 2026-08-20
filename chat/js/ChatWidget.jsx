@@ -3,7 +3,6 @@ import {Switcher} from "../../../stemjs/ui/Switcher";
 import {TextArea} from "../../../stemjs/ui/input/Input";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup";
-import {Panel} from "../../../stemjs/ui/UIPrimitives";
 import {InfiniteScrollable} from "../../../stemjs/ui/misc/Scrollable";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {Level, Size} from "../../../stemjs/ui/Constants";
@@ -230,7 +229,7 @@ class GroupChatMessage extends EditableMessage {
 
 
 @registerStyle(ChatStyle)
-class PrivateChatMessage extends Panel {
+class PrivateChatMessage extends UI.Element {
     setOptions(options) {
         super.setOptions(options);
         this.message = options.message;
@@ -338,7 +337,7 @@ class ChatMessageScrollSection extends InfiniteScrollable {
 
 let ChatWidget = (ChatMessageClass) => {
     @registerStyle(ChatStyle)
-    class ChatWidgetClass extends Pluginable(Panel) {
+    class ChatWidgetClass extends Pluginable(UI.Element) {
         getDefaultOptions(options) {
             return {
                 dateTimestamps: true,

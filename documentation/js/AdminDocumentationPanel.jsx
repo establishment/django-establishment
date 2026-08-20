@@ -1,6 +1,5 @@
 import {UI} from "../../../stemjs/ui/UIBase.js";
 import {Button} from "../../../stemjs/ui/button/Button.jsx";
-import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
 import {getOffset} from "../../../stemjs/ui/Utils.js";
 import {Level, Size} from "../../../stemjs/ui/Constants.js";
 import {ArticleSwitcher} from "../../content/js/ArticleRenderer.jsx";
@@ -39,8 +38,8 @@ export class AdminDocumentationPanel extends DocumentationPanel {
     render() {
         const documentationEntry = this.getDocumentationEntry();
         return [
-            <Panel orientation={Orientation.HORIZONTAL} className={this.styleSheet.panel} key="container">
-                <Panel ref="navPanel" className={this.styleSheet.navPanel}>
+            <UI.Element orientation={Orientation.HORIZONTAL} className={this.styleSheet.panel} key="container">
+                <UI.Element ref="navPanel" className={this.styleSheet.navPanel}>
                     <div style={{maxHeight: "90%", overflowY: "auto"}} key="navigationContainer">
                         <DraggableDocumentationNavElement
                             ref="root"
@@ -59,16 +58,16 @@ export class AdminDocumentationPanel extends DocumentationPanel {
                                         level={Level.PRIMARY} size={Size.EXTRA_LARGE}
                                         style={{marginLeft: "50px", padding: "16px 22px"}} />
                     </div>
-                </Panel>
-                <Panel className={this.styleSheet.article}>
+                </UI.Element>
+                <UI.Element className={this.styleSheet.article}>
                     <ArticleSwitcher
                         ref="articleSwitcher"
                         initialArticle={documentationEntry.getArticle()}
                         lazyRender
                         showEditButton={true}
                         className={this.styleSheet.articleSwitcher}/>
-                </Panel>
-           </Panel>
+                </UI.Element>
+           </UI.Element>
         ]
     }
 

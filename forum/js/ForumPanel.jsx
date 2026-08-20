@@ -1,5 +1,4 @@
 import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
 import {Link} from "../../../stemjs/ui/UIPrimitives.jsx";
 import {Route} from "../../../stemjs/ui/Router.jsx";
 import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
@@ -247,7 +246,7 @@ export class ForumThreadList extends UI.Element {
 }
 
 @registerStyle(ForumPanelStyle)
-export class ForumPanel extends Panel {
+export class ForumPanel extends UI.Element {
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.mainClass);
     }

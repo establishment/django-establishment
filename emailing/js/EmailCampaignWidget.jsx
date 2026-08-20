@@ -7,7 +7,6 @@ import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
 import {RawCheckboxInput} from "../../../stemjs/ui/input/Input.jsx";
 import {Select} from "../../../stemjs/ui/input/Input.jsx";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal.jsx";
-import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
 import {TableRow} from "../../../stemjs/ui/table/Table.jsx";
 import {Ajax} from "../../../stemjs/base/Ajax.js";
 import {EmailGateway} from "./state/EmailGatewayStore";
@@ -339,7 +338,7 @@ class EmailCampaignTable extends SortableTable {
 }
 
 
-class EmailCampaignWidget extends Panel {
+class EmailCampaignWidget extends UI.Element {
     render() {
         return [<EmailCampaignTable />,
             <Button level={Level.SUCCESS} ref="addCampaignButton">Add Campaign</Button>

@@ -1,6 +1,5 @@
 import {UI} from "../../../stemjs/ui/UIBase.js";
 import {Orientation} from "../../../stemjs/ui/Constants.js";
-import {Panel} from "../../../stemjs/ui/UIPrimitives.jsx";
 import {Router} from "../../../stemjs/ui/Router.jsx";
 import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
 import {Dispatcher} from "../../../stemjs/base/Dispatcher.js";
@@ -28,19 +27,19 @@ class DocumentationPanel extends UI.Element {
     render() {
         const documentationEntry = this.getDocumentationEntry();
         return [
-            <Panel orientation={Orientation.HORIZONTAL} className={this.styleSheet.panel}>
-                <Panel ref="navPanel" className={this.styleSheet.navPanel}>
+            <UI.Element orientation={Orientation.HORIZONTAL} className={this.styleSheet.panel}>
+                <UI.Element ref="navPanel" className={this.styleSheet.navPanel}>
                     <SimpleDocumentationNavElement
                         documentationEntry={documentationEntry}
                         isRoot={true} panel={this}
                         level={0} documentationSwitchDispatcher={this.documentationSwitchDispatcher}
                     />
-                </Panel>
-                <Panel className={this.styleSheet.article}>
+                </UI.Element>
+                <UI.Element className={this.styleSheet.article}>
                     <ArticleSwitcher ref="articleSwitcher" className={this.styleSheet.articleSwitcher}
                                      initialArticle={documentationEntry.getArticle()} lazyRender />
-                </Panel>
-           </Panel>
+                </UI.Element>
+           </UI.Element>
         ]
     }
 

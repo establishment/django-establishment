@@ -1,12 +1,11 @@
 import {UI, UIElement} from "../../../stemjs/ui/UIBase";
 import {Device} from "../../../stemjs/base/Device";
-import {FloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow";
+import {FloatingWindow, FloatingWindowOptions} from "../../../stemjs/ui/modal/FloatingWindow";
 import {Direction, DirectionType} from "../../../stemjs/ui/Constants";
-import {Panel} from "../../../stemjs/ui/UIPrimitives";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {Point} from "../../../stemjs/numerics/StemMath";
 
-interface BasePopupOptions {
+interface BasePopupOptions extends FloatingWindowOptions {
     x?: number;
     y?: number;
     contentPadding?: string;
@@ -21,25 +20,25 @@ interface BasePopupOptions {
 }
 
 
-export class BasePopup extends FloatingWindow {
+export class BasePopup extends FloatingWindow<BasePopupOptions> {
     static bodyPopups = new Set<BasePopup>();
-    declare options: BasePopupOptions;
     target?: HTMLElement;
-    popupArrow?: Panel;
-    popupArrowOutline?: Panel;
+    popupArrow?: UIElement;
+    popupArrowOutline?: UIElement;
 
     [key: string]: any;
 
-    getDefaultOptions(): BasePopupOptions {
-        let options = super.getDefaultOptions();
-        options.x = 0;
-        options.y = 0;
-        options.contentPadding = "7px";
-        options.contentStyle = {};
-        options.arrowDirection = Direction.UP;
-        options.arrowColor = "white";
-        options.backgroundColor = "white";
-        return options;
+    getDefaultOptions(): Partial<BasePopupOptions> {
+        return {
+            ...super.getDefaultOptions(),
+            x: 0,
+            y: 0,
+            contentPadding: "7px",
+            contentStyle: {},
+            arrowDirection: Direction.UP,
+            arrowColor: "white",
+            backgroundColor: "white",
+        };
     }
 
     setOptions(options: BasePopupOptions): void {
@@ -115,8 +114,8 @@ export class BasePopup extends FloatingWindow {
     getArrow() {
         let direction = this.options.arrowDirection;
         return [
-            <Panel ref="popupArrow" style={this["arrow" + direction]}/>,
-            <Panel ref="popupArrowOutline" style={this["arrow" + direction + "Outline"]} />
+            <UIElement ref="popupArrow" style={this["arrow" + direction]}/>,
+            <UIElement ref="popupArrowOutline" style={this["arrow" + direction + "Outline"]} />
         ];
     }
 
@@ -236,20 +235,20 @@ export class BasePopup extends FloatingWindow {
 interface PopupOptions extends BasePopupOptions {
     titleFontSize?: string;
     contentFontSize?: string;
-    title?: string;
 }
 
 export class Popup extends BasePopup {
     declare options: PopupOptions;
-    titleArea?: Panel;
+    titleArea?: UIElement;
     closeButton?: Button;
 
-    getDefaultOptions(): PopupOptions {
-        let options = super.getDefaultOptions();
-        options.titleFontSize = "12pt";
-        options.contentFontSize = "10pt";
-        options.arrowColor = "#F3F3F3";
-        return options;
+    getDefaultOptions(): Partial<PopupOptions> {
+        return {
+            ...super.getDefaultOptions(),
+            titleFontSize: "12pt",
+            contentFontSize: "10pt",
+            arrowColor: "#F3F3F3",
+        };
     }
 
     getContent() {
@@ -258,11 +257,11 @@ export class Popup extends BasePopup {
             fontSize: this.options.contentFontSize
         }, contentArea.options.style || {});
 
-        return [<Panel ref="titleArea" style={{backgroundColor: "#F3F3F3", paddingLeft: "20px", fontSize: this.options.titleFontSize,
+        return [<UIElement ref="titleArea" style={{backgroundColor: "#F3F3F3", paddingLeft: "20px", fontSize: this.options.titleFontSize,
                 fontWeight:"bold", paddingTop: "6px", paddingBottom: "6px", textAlign: "center",
                 borderBottom: "1px solid #BEBEBE"}}>
                 {this.getTitleAreaContent()}
-            </Panel>,
+            </UIElement>,
             contentArea,
         ];
     }

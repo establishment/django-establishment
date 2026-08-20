@@ -5,11 +5,10 @@ import {MarkupRenderer} from "../../../../stemjs/markup/MarkupRenderer.js";
 import {TextArea} from "../../../../stemjs/ui/input/Input";
 import {SectionDivider} from "../../../../stemjs/ui/section-divider/SectionDivider.jsx";
 import {Orientation} from "../../../../stemjs/ui/Constants.js";
-import {Panel} from "../../../../stemjs/ui/UIPrimitives.jsx";
 import {RawCheckboxInput} from "../../../../stemjs/ui/input/Input";
 
 
-class MarkupEditor extends Panel {
+class MarkupEditor extends UI.Element {
     getDefaultOptions() {
         return {
             showButtons: true
@@ -58,12 +57,12 @@ class MarkupEditor extends Panel {
             <SectionDivider ref="sectionDivider" orientation={Orientation.HORIZONTAL}
                             style={{textAlign: "initial", height: "100%", width: "100%", display:"inline-block",
                                     overflow: "hidden"}}>
-                <Panel ref="editorPanel" style={{width: "50%", height: "100%", overflow: "hidden"}}>
+                <UI.Element ref="editorPanel" style={{width: "50%", height: "100%", overflow: "hidden"}}>
                     {this.getEditor()}
-                </Panel>
-                <Panel ref="rendererPanel" style={{width: "50%", height: "100%", overflow: "auto", padding: "10px"}}>
+                </UI.Element>
+                <UI.Element ref="rendererPanel" style={{width: "50%", height: "100%", overflow: "auto", padding: "10px"}}>
                     {this.getMarkupRenderer()}
-                </Panel>
+                </UI.Element>
             </SectionDivider>
         ]
     }
