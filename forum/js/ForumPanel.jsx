@@ -1,5 +1,5 @@
 import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Link} from "../../../stemjs/ui/UIPrimitives.jsx";
+import {Link} from "../../../stemjs/ui/primitives/Link.js";
 import {Route} from "../../../stemjs/ui/Router.jsx";
 import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
 import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan.jsx";
