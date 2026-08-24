@@ -6,7 +6,8 @@ import {StemDate} from "../../../stemjs/time/Date";
 import {ServerTime} from "../../../stemjs/time/Time";
 import {ViewportMeta} from "../../../stemjs/ui/ViewportMeta";
 
-import {WebsocketSubscriber} from "../../../stemjs/websocket/client/WebsocketSubscriber";
+// Wires the websocket transport into GlobalState.registerStream
+import "../../../stemjs/websocket/client/WebsocketSubscriber";
 import {ErrorHandlers} from "./ErrorHandlers";
 import {GlobalStyleSheet} from "./GlobalStyleSheet";
 import {FetchOptions, XHRPromise} from "../../../stemjs/base/Fetch";
@@ -85,17 +86,12 @@ export class EstablishmentApp extends StemApp {
     }
 
     static registerWebsocketStreams(): void {
-        // TODO: first check if websockets are enabled
-        (GlobalState as any).registerStream = function (streamName: string): void {
-            WebsocketSubscriber.addListener(streamName, GlobalState.applyEventWrapper);
-        };
-
         //Register on the global event stream
-        (GlobalState as any).registerStream("global-events");
+        GlobalState.registerStream("global-events");
 
         //Register on the user event stream
         if (self.USER?.id) {
-            (GlobalState as any).registerStream("user-" + self.USER.id + "-events");
+            GlobalState.registerStream("user-" + self.USER.id + "-events");
         }
     }
 
