@@ -1,10 +1,10 @@
-import {Dispatcher} from "../../../stemjs/base/Dispatcher.js";
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Draggable} from "../../../stemjs/ui/Draggable.js";
-import {FACollapseIcon} from "../../../stemjs/ui/FontAwesome.jsx";
+import {Dispatcher} from "../../../stemjs/base/Dispatcher";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Draggable} from "../../../stemjs/ui/Draggable";
+import {FACollapseIcon} from "../../../stemjs/ui/FontAwesome";
 
-import {EditEntryModal} from "./CreateEntryModal.jsx";
-import {DocumentationStyle} from "./DocumentationStyle.js";
+import {EditEntryModal} from "./CreateEntryModal";
+import {DocumentationStyle} from "./DocumentationStyle";
 
 
 class CollapseIconClass extends FACollapseIcon {

@@ -1,6 +1,6 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
+import {UI} from "../../../stemjs/ui/UIBase";
 
-import {BasePopup} from "./Popup.jsx";
+import {BasePopup} from "./Popup";
 
 
 export class PopupSpan extends UI.Primitive("span") {

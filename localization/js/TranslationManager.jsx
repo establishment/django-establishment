@@ -1,20 +1,20 @@
 // TODO: this whole file needs a refactoring
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {TabArea} from "../../../stemjs/ui/tabs/TabArea.jsx";
-import {Table, TableRow} from "../../../stemjs/ui/table/Table.jsx";
-import {Button} from "../../../stemjs/ui/button/Button.jsx";
-import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
-import {FileInput} from "../../../stemjs/ui/input/Input.jsx";
-import {RawCheckboxInput} from "../../../stemjs/ui/input/Input.jsx";
-import {TextArea} from "../../../stemjs/ui/input/Input.jsx";
-import {Level} from "../../../stemjs/ui/Constants.js";
-import {Select} from "../../../stemjs/ui/input/Input.jsx";
-import {FileSaver} from "../../../stemjs/base/FileSaver.js";
-import {Ajax} from "../../../stemjs/base/Ajax.js";
-import {NOOP_FUNCTION} from "../../../stemjs/base/Utils.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
+import {Table, TableRow} from "../../../stemjs/ui/table/Table";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {TextInput} from "../../../stemjs/ui/input/Input";
+import {FileInput} from "../../../stemjs/ui/input/Input";
+import {RawCheckboxInput} from "../../../stemjs/ui/input/Input";
+import {TextArea} from "../../../stemjs/ui/input/Input";
+import {Level} from "../../../stemjs/ui/Constants";
+import {Select} from "../../../stemjs/ui/input/Input";
+import {FileSaver} from "../../../stemjs/base/FileSaver";
+import {Ajax} from "../../../stemjs/base/Ajax";
+import {NOOP_FUNCTION} from "../../../stemjs/base/Utils";
 
-import {TranslationKey, TranslationEntry} from "./state/TranslationStore.js";
-import {Language} from "./state/LanguageStore.ts";
+import {TranslationKey, TranslationEntry} from "./state/TranslationStore";
+import {Language} from "./state/LanguageStore";
 
 function ajaxCall(request, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
     Ajax.postJSON("/edit_translation/", request).then(onSuccess, onError);

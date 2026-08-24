@@ -1,8 +1,8 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
-import {MarkupClassMap} from "../../../stemjs/markup/MarkupRenderer.js";
-import {ArticleRenderer} from "../../content/js/ArticleRenderer.jsx";
-import {BlogArticleRendererStyle} from "./BlogStyle.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {registerStyle} from "../../../stemjs/ui/style/Theme";
+import {MarkupClassMap} from "../../../stemjs/markup/MarkupRenderer";
+import {ArticleRenderer} from "../../content/js/ArticleRenderer";
+import {BlogArticleRendererStyle} from "./BlogStyle";
 
 // TODO move this to the regular markup class
 @registerStyle(BlogArticleRendererStyle)

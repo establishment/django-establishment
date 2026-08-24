@@ -1,14 +1,14 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Button} from "../../../stemjs/ui/button/Button.jsx";
-import {getOffset} from "../../../stemjs/ui/Utils.js";
-import {Level, Size} from "../../../stemjs/ui/Constants.js";
-import {ArticleSwitcher} from "../../content/js/ArticleRenderer.jsx";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {getOffset} from "../../../stemjs/ui/Utils";
+import {Level, Size} from "../../../stemjs/ui/Constants";
+import {ArticleSwitcher} from "../../content/js/ArticleRenderer";
 
-import {Ajax} from "../../../stemjs/base/Ajax.js";
-import {DocumentationEntry} from "./state/DocumentationStore.js";
-import {CreateEntryButton} from "./CreateEntryModal.jsx";
-import {DocumentationPanel} from "./DocumentationPanel.jsx";
-import {DraggableDocumentationNavElement, dragAndDropHandler} from "./DocumentationNavElement.jsx";
+import {Ajax} from "../../../stemjs/base/Ajax";
+import {DocumentationEntry} from "./state/DocumentationStore";
+import {CreateEntryButton} from "./CreateEntryModal";
+import {DocumentationPanel} from "./DocumentationPanel";
+import {DraggableDocumentationNavElement, dragAndDropHandler} from "./DocumentationNavElement";
 
 
 export class AdminDocumentationPanel extends DocumentationPanel {

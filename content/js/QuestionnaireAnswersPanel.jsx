@@ -8,7 +8,7 @@ import {Level} from "../../../stemjs/ui/Constants";
 import {RowList} from "../../../stemjs/ui/RowList";
 import {Table} from "../../../stemjs/ui/table/Table";
 import {RawCheckboxInput} from "../../../stemjs/ui/input/Input";
-import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {Ajax} from "../../../stemjs/base/Ajax";
 import {StateDependentElement} from "../../../stemjs/ui/StateDependentElement";
 import {ColorGenerator} from "../../../stemjs/ui/Color";
 import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";

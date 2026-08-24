@@ -7,18 +7,18 @@ import {Modal} from "../../../stemjs/ui/modal/Modal";
 import {Form, FormField, FormGroup} from "../../../stemjs/ui/form/Form";
 import {TextInput, RawCheckboxInput} from "../../../stemjs/ui/input/Input";
 import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea";
-import {Ajax} from "../../../stemjs/base/Ajax.js";
-import {slugify} from "../../../stemjs/base/Utils.js";
-import {MarkupEditor} from "../../content/js/markup/MarkupEditor.jsx";
-import {StemDate} from "../../../stemjs/time/Date.js";
-import {StateDependentElement} from "../../../stemjs/ui/StateDependentElement.jsx";
-import {Theme} from "../../../stemjs/ui/style/Theme.js";
-import {ArticleEditor} from "../../content/js/ArticleEditor.jsx";
-import {AsyncCommentThread} from "../../chat/js/CommentWidget.jsx";
-import {BlogEntry} from "./state/BlogStore.js";
-import {BlogArticleRenderer} from "./BlogArticleRenderer.jsx";
-import {BlogStyle} from "./BlogStyle.js";
-import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
+import {Ajax} from "../../../stemjs/base/Ajax";
+import {slugify} from "../../../stemjs/base/Utils";
+import {MarkupEditor} from "../../content/js/markup/MarkupEditor";
+import {StemDate} from "../../../stemjs/time/Date";
+import {StateDependentElement} from "../../../stemjs/ui/StateDependentElement";
+import {Theme} from "../../../stemjs/ui/style/Theme";
+import {ArticleEditor} from "../../content/js/ArticleEditor";
+import {AsyncCommentThread} from "../../chat/js/CommentWidget";
+import {BlogEntry} from "./state/BlogStore";
+import {BlogArticleRenderer} from "./BlogArticleRenderer";
+import {BlogStyle} from "./BlogStyle";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 
 
 export class BlogEntryEditModal extends Modal {

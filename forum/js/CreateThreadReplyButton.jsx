@@ -1,13 +1,13 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Button} from "../../../stemjs/ui/button/Button.jsx";
-import {registerStyle} from "../../../stemjs/ui/style/Theme.ts";
-import {Level, Size} from "../../../stemjs/ui/Constants.ts";
-import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {registerStyle} from "../../../stemjs/ui/style/Theme";
+import {Level, Size} from "../../../stemjs/ui/Constants";
+import {Ajax} from "../../../stemjs/base/Ajax";
 
-import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";
-import {LoginModal} from "../../accounts/js/LoginModal.jsx";
-import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer.jsx";
-import {ForumButtonStyle} from "./ForumStyle.js";
+import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal";
+import {LoginModal} from "../../accounts/js/LoginModal";
+import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer";
+import {ForumButtonStyle} from "./ForumStyle";
 
 @registerStyle(ForumButtonStyle)
 class CreateThreadReplyButton extends Button {

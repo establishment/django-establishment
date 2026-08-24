@@ -1,10 +1,10 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {registerStyle} from "../../../stemjs/ui/style/Theme.ts";
-import {Orientation, VoteStatus} from "../../../stemjs/ui/Constants.ts";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {registerStyle} from "../../../stemjs/ui/style/Theme";
+import {Orientation, VoteStatus} from "../../../stemjs/ui/Constants";
 
-import {LoginModal} from "../../accounts/js/LoginModal.jsx";
-import {UserReactionCollection} from "../../accounts/js/state/UserReaction.ts";
-import {VotingWidgetStyle} from "./VotingWidgetStyle.js";
+import {LoginModal} from "../../accounts/js/LoginModal";
+import {UserReactionCollection} from "../../accounts/js/state/UserReaction";
+import {VotingWidgetStyle} from "./VotingWidgetStyle";
 
 class VotingWidget extends UI.Element {
     setOptions(options) {

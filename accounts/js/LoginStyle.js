@@ -1,4 +1,4 @@
-import {StyleSheet, styleRule} from "../../../stemjs/ui/Style.js";
+import {StyleSheet, styleRule} from "../../../stemjs/ui/Style";
 import {Device} from "../../../stemjs/base/Device";
 
 

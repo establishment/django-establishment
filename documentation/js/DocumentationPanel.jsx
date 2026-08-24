@@ -1,13 +1,13 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Orientation} from "../../../stemjs/ui/Constants.js";
-import {Router} from "../../../stemjs/ui/Router.jsx";
-import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
-import {Dispatcher} from "../../../stemjs/base/Dispatcher.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Orientation} from "../../../stemjs/ui/Constants";
+import {Router} from "../../../stemjs/ui/Router";
+import {registerStyle} from "../../../stemjs/ui/style/Theme";
+import {Dispatcher} from "../../../stemjs/base/Dispatcher";
 
-import {ArticleSwitcher} from "../../content/js/ArticleRenderer.jsx";
-import {DocumentationEntry} from "./state/DocumentationStore.js";
-import {SimpleDocumentationNavElement} from "./DocumentationNavElement.jsx";
-import {DocumentationStyle} from "./DocumentationStyle.js";
+import {ArticleSwitcher} from "../../content/js/ArticleRenderer";
+import {DocumentationEntry} from "./state/DocumentationStore";
+import {SimpleDocumentationNavElement} from "./DocumentationNavElement";
+import {DocumentationStyle} from "./DocumentationStyle";
 
 @registerStyle(DocumentationStyle)
 class DocumentationPanel extends UI.Element {

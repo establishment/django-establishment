@@ -1,17 +1,17 @@
-import {UI} from "../../../../stemjs/ui/UIBase.js";
-import {SVGText} from "../../../../stemjs/ui/svg/SVGText.js";
-import {Direction} from "../../../../stemjs/ui/Constants.js";
-import {uniqueId} from "../../../../stemjs/base/Utils.js";
-import {StemDate} from "../../../../stemjs/time/Date.js";
-import {LinePlot} from "./LinePlot.jsx";
-import {BasePointPlot} from "./PointPlot.jsx";
+import {UI} from "../../../../stemjs/ui/UIBase";
+import {SVGText} from "../../../../stemjs/ui/svg/SVGText";
+import {Direction} from "../../../../stemjs/ui/Constants";
+import {uniqueId} from "../../../../stemjs/base/Utils";
+import {StemDate} from "../../../../stemjs/time/Date";
+import {LinePlot} from "./LinePlot";
+import {BasePointPlot} from "./PointPlot";
 
 // TODO: write own custom Scale
 // TODO: maybe import as some of these d3 functions
 import {scaleLinear, scaleTime} from "d3-scale";
 import {select} from "d3-selection";
 import {zoom, zoomIdentity} from "d3-zoom";
-import {SVGRoot, SVGGroup, SVGLine, SVGRect} from "../../../../stemjs/ui/svg/SVGPrimitives.js";
+import {SVGRoot, SVGGroup, SVGLine, SVGRect} from "../../../../stemjs/ui/svg/SVGPrimitives";
 
 
 // TODO: This file desperately needs a refactoring.

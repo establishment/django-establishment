@@ -1,4 +1,4 @@
-import {globalStore, BaseStore} from "../../../../stemjs/state/Store.js";
+import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {GlobalState} from "../../../../stemjs/state/State";
 
 @globalStore

@@ -1,6 +1,6 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Modal} from "../../../stemjs/ui/modal/Modal.jsx";
-import {Login} from "./Login.jsx";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Modal} from "../../../stemjs/ui/modal/Modal";
+import {Login} from "./Login";
 import {Device} from "../../../stemjs/base/Device";
 
 class LoginModal extends Modal {

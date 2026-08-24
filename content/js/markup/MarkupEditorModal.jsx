@@ -1,11 +1,11 @@
-import {UI} from "../../../../stemjs/ui/UIBase.js";
-import {Link} from "../../../../stemjs/ui/primitives/Link.jsx";
-import {Modal} from "../../../../stemjs/ui/modal/Modal.jsx";
-import {Button} from "../../../../stemjs/ui/button/Button.jsx";
-import {Level, Direction} from "../../../../stemjs/ui/Constants.js";
-import {MarkupEditor} from "./MarkupEditor.jsx";
-import {BasePopup} from "../Popup.jsx";
-import {Emoji} from "../../../../csabase/js/ui/EmojiUI.jsx";
+import {UI} from "../../../../stemjs/ui/UIBase";
+import {Link} from "../../../../stemjs/ui/primitives/Link";
+import {Modal} from "../../../../stemjs/ui/modal/Modal";
+import {Button} from "../../../../stemjs/ui/button/Button";
+import {Level, Direction} from "../../../../stemjs/ui/Constants";
+import {MarkupEditor} from "./MarkupEditor";
+import {BasePopup} from "../Popup";
+import {Emoji} from "../../../../csabase/js/ui/EmojiUI";
 
 class ClickableEmote extends Emoji {
     redraw() {

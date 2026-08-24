@@ -1,8 +1,8 @@
-import {UI} from "../../../../stemjs/ui/UIBase.js";
-import {Transition} from "../../../../stemjs/ui/Transition.js";
-import {SVGText} from "../../../../stemjs/ui/svg/SVGText.js";
-import * as math from "../../../../stemjs/numerics/StemMath.ts";
-import {SVGRoot, SVGGroup, SVGPath} from "../../../../stemjs/ui/svg/SVGPrimitives.js";
+import {UI} from "../../../../stemjs/ui/UIBase";
+import {Transition} from "../../../../stemjs/ui/Transition";
+import {SVGText} from "../../../../stemjs/ui/svg/SVGText";
+import * as math from "../../../../stemjs/numerics/StemMath";
+import {SVGRoot, SVGGroup, SVGPath} from "../../../../stemjs/ui/svg/SVGPrimitives";
 import {makeOpacityTransition} from "../../../../stemjs/ui/svg/Animations";
 
 class PieChartSector extends SVGGroup {

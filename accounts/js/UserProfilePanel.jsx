@@ -1,8 +1,8 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {TabArea} from "../../../stemjs/ui/tabs/TabArea.jsx";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
-import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 
 class ProfilePanel extends UI.Element {
     render() {

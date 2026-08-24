@@ -1,6 +1,6 @@
-import {Ajax} from "../../../../stemjs/base/Ajax.js";
+import {Ajax} from "../../../../stemjs/base/Ajax";
 import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
-import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager.js";
+import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager";
 
 class FacebookManager extends SocialAccountManager {
     constructor() {

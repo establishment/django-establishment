@@ -1,4 +1,4 @@
-import {UI} from "../../../../stemjs/ui/UIBase.js";
+import {UI} from "../../../../stemjs/ui/UIBase";
 import katex from "../../static/katex/katex.mjs"; // TODO upgrade Katex dependency
 
 export class Latex extends UI.Element {

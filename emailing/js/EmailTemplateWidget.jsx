@@ -1,20 +1,20 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Level, Orientation} from "../../../stemjs/ui/Constants.js";
-import {SortableTable} from "../../../stemjs/ui/table/SortableTable.jsx";
-import {Button} from "../../../stemjs/ui/button/Button.jsx";
-import {SectionDivider} from "../../../stemjs/ui/section-divider/SectionDivider.jsx";
-import {TableRow} from "../../../stemjs/ui/table/Table.jsx";
-import {ActionModal} from "../../../stemjs/ui/modal/Modal.jsx";
-import {FormField} from "../../../stemjs/ui/form/Form.jsx";
-import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
-import {Select} from "../../../stemjs/ui/input/Input.jsx";
-import {TextArea} from "../../../stemjs/ui/input/Input.jsx";
-import {Ajax} from "../../../stemjs/base/Ajax.js";
-import {Language} from "../../localization/js/state/LanguageStore.ts";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Level, Orientation} from "../../../stemjs/ui/Constants";
+import {SortableTable} from "../../../stemjs/ui/table/SortableTable";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {SectionDivider} from "../../../stemjs/ui/section-divider/SectionDivider";
+import {TableRow} from "../../../stemjs/ui/table/Table";
+import {ActionModal} from "../../../stemjs/ui/modal/Modal";
+import {FormField} from "../../../stemjs/ui/form/Form";
+import {TextInput} from "../../../stemjs/ui/input/Input";
+import {Select} from "../../../stemjs/ui/input/Input";
+import {TextArea} from "../../../stemjs/ui/input/Input";
+import {Ajax} from "../../../stemjs/base/Ajax";
+import {Language} from "../../localization/js/state/LanguageStore";
 import {EmailGateway} from "state/EmailGatewayStore";
 import {EmailCampaign} from "state/EmailCampaignStore";
 import {EmailTemplate} from "state/EmailTemplateStore";
-import {autoredraw} from "../../../stemjs/decorators/AutoRedraw.js";
+import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 
 class EmailTemplateModal extends ActionModal {
     constructor(options) {

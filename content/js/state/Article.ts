@@ -2,7 +2,7 @@ import {FetchStoreMixin} from "../../../../stemjs/state/mixins/FetchStoreMixin";
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 
 import {User} from "../../../../csaaccounts/js/state/UserStore";
-import {Language} from "../../../localization/js/state/LanguageStore.js";
+import {Language} from "../../../localization/js/state/LanguageStore";
 import {StoreId} from "../../../../stemjs/state/State";
 
 @globalStore

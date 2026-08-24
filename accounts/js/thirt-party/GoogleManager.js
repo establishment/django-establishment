@@ -1,8 +1,8 @@
-import {Ajax} from "../../../../stemjs/base/Ajax.js";
-import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils.js";
+import {Ajax} from "../../../../stemjs/base/Ajax";
+import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 
 import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
-import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager.js";
+import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager";
 
 class GoogleManager extends SocialAccountManager {
     constructor() {

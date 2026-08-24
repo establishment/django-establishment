@@ -7,22 +7,22 @@ import {Modal, ActionModal} from "../../../stemjs/ui/modal/Modal";
 import {FormField} from "../../../stemjs/ui/form/Form";
 import {StaticCodeHighlighter} from "../../../stemjs/ui/CodeEditor";
 
-import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
-import {Ajax} from "../../../stemjs/base/Ajax.js";
-import {GlobalState} from "../../../stemjs/state/State.js";
-import {StemDate} from "../../../stemjs/time/Date.js";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle";
+import {Ajax} from "../../../stemjs/base/Ajax";
+import {GlobalState} from "../../../stemjs/state/State";
+import {StemDate} from "../../../stemjs/time/Date";
 
 
-import {FAIcon} from "../../../stemjs/ui/FontAwesome.jsx";
-import {Level, Size} from "../../../stemjs/ui/Constants.js";
+import {FAIcon} from "../../../stemjs/ui/FontAwesome";
+import {Level, Size} from "../../../stemjs/ui/Constants";
 
-import {CommandInstance, CommandRun} from "./state/CommandStore.js";
-import {Popup} from "../../content/js/Popup.jsx";
+import {CommandInstance, CommandRun} from "./state/CommandStore";
+import {Popup} from "../../content/js/Popup";
 
-import {autoredraw} from "../../../stemjs/decorators/AutoRedraw.js";
+import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 
 // TODO: This is CSAcademy dependency. Fix this!!
-import {Formatter} from "../../../csabase/js/util.ts";
+import {Formatter} from "../../../csabase/js/util";
 
 
 @autoredraw

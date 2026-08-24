@@ -1,20 +1,20 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Level} from "../../../stemjs/ui/Constants.js";
-import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan.jsx";
-import {Switcher} from "../../../stemjs/ui/Switcher.jsx";
-import {TextArea} from "../../../stemjs/ui/input/Input.jsx";
-import {Button} from "../../../stemjs/ui/button/Button.jsx";
-import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
-import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Level} from "../../../stemjs/ui/Constants";
+import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan";
+import {Switcher} from "../../../stemjs/ui/Switcher";
+import {TextArea} from "../../../stemjs/ui/input/Input";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {registerStyle} from "../../../stemjs/ui/style/Theme";
+import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
 
-import {GroupChat} from "./state/ChatStore.js";
+import {GroupChat} from "./state/ChatStore";
 import {ChatMessageScrollSection, ChatWidget, EditableMessage} from "ChatWidget";
-import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
-import {LoginModal} from "../../accounts/js/LoginModal.jsx";
-import {CommentVotingWidgetWithThumbs} from "./VotingWidget.jsx";
-import {BlogStyle} from "../../blog/js/BlogStyle.js";
-import {CommentWidgetStyle} from "./CommentWidgetStyle.js";
-import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton.jsx";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle";
+import {LoginModal} from "../../accounts/js/LoginModal";
+import {CommentVotingWidgetWithThumbs} from "./VotingWidget";
+import {BlogStyle} from "../../blog/js/BlogStyle";
+import {CommentWidgetStyle} from "./CommentWidgetStyle";
+import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
 
 
 class ThreadMessage extends EditableMessage {

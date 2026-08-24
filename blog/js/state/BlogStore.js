@@ -1,5 +1,5 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
-import {Article} from "../../../content/js/state/Article.ts";
+import {Article} from "../../../content/js/state/Article";
 
 @globalStore
 export class BlogEntry extends BaseStore("BlogEntry", {dependencies: ["Article"]}) {

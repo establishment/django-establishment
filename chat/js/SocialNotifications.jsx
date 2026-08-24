@@ -1,9 +1,9 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan.jsx";
-import {Ajax} from "../../../stemjs/base/Ajax.js";
-import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan";
+import {Ajax} from "../../../stemjs/base/Ajax";
+import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
 import {UserNotification} from "../../../csaaccounts/js/state/UserStore";
-import {Emoji} from "../../../csabase/js/ui/EmojiUI.jsx";
+import {Emoji} from "../../../csabase/js/ui/EmojiUI";
 
 class Notification extends UI.Element {
     getNodeType() {

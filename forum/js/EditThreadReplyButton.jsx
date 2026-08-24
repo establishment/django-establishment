@@ -1,9 +1,9 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Button} from "../../../stemjs/ui/button/Button.jsx";
-import {Level} from "../../../stemjs/ui/Constants.ts";
-import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal.jsx";
-import {LoginModal} from "../../accounts/js/LoginModal.jsx";
-import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer.jsx";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {Level} from "../../../stemjs/ui/Constants";
+import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal";
+import {LoginModal} from "../../accounts/js/LoginModal";
+import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer";
 
 
 class EditThreadReplyButton extends Button {

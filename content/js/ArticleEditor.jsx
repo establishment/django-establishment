@@ -1,7 +1,7 @@
 import {UI} from "../../../stemjs/ui/UIBase";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal";
 import {Button} from "../../../stemjs/ui/button/Button";
-import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup.jsx";
+import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup";
 import {Form, FormField} from "../../../stemjs/ui/form/Form";
 import {RawCheckboxInput, TextInput, Select} from "../../../stemjs/ui/input/Input";
 import {Link} from "../../../stemjs/ui/primitives/Link";
@@ -9,9 +9,9 @@ import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea";
 import {Level} from "../../../stemjs/ui/Constants";
 import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
-import {Language} from "../../localization/js/state/LanguageStore.ts";
+import {Language} from "../../localization/js/state/LanguageStore";
 
-import {Article} from "./state/Article.ts";
+import {Article} from "./state/Article";
 import {ArticleTranslationManager} from "./ArticleManager";
 import {ArticleRenderer} from "./ArticleRenderer";
 import {MarkupEditor} from "./markup/MarkupEditor";

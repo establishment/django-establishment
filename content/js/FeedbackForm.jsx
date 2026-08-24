@@ -1,10 +1,10 @@
-import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {Ajax} from "../../../stemjs/base/Ajax";
 import {UI} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {styleRule, StyleSheet} from "../../../stemjs/decorators/Style";
 import {Form} from "../../../stemjs/ui/form/Form";
 import {Input, EmailInput, TextArea, SubmitInput} from "../../../stemjs/ui/input/Input";
-import {enhance} from "../../../stemjs/ui/Color.js";
+import {enhance} from "../../../stemjs/ui/Color";
 
 
 export class FeedbackFormStyle extends StyleSheet {

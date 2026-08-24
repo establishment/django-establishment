@@ -1,22 +1,22 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {TabArea} from "../../../stemjs/ui/tabs/TabArea.jsx";
-import {FormField, Form} from "../../../stemjs/ui/form/Form.jsx";
-import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
-import {PasswordInput} from "../../../stemjs/ui/input/Input.jsx";
-import {EmailInput} from "../../../stemjs/ui/input/Input.jsx";
-import {Label} from "../../../stemjs/ui/SimpleElements.jsx";
-import {Select} from "../../../stemjs/ui/input/Input.jsx";
-import {RawCheckboxInput} from "../../../stemjs/ui/input/Input.jsx";
-import {Ajax} from "../../../stemjs/base/Ajax.js";
-import {multikeySort} from "../../../stemjs/base/Utils.js";
-import {Button} from "../../../stemjs/ui/button/Button.jsx";
-import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton.jsx";
-import {GlobalStyle} from "../../../stemjs/ui/GlobalStyle.js";
-import {Level, Size} from "../../../stemjs/ui/Constants.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
+import {FormField, Form} from "../../../stemjs/ui/form/Form";
+import {TextInput} from "../../../stemjs/ui/input/Input";
+import {PasswordInput} from "../../../stemjs/ui/input/Input";
+import {EmailInput} from "../../../stemjs/ui/input/Input";
+import {Label} from "../../../stemjs/ui/SimpleElements";
+import {Select} from "../../../stemjs/ui/input/Input";
+import {RawCheckboxInput} from "../../../stemjs/ui/input/Input";
+import {Ajax} from "../../../stemjs/base/Ajax";
+import {multikeySort} from "../../../stemjs/base/Utils";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
+import {GlobalStyle} from "../../../stemjs/ui/GlobalStyle";
+import {Level, Size} from "../../../stemjs/ui/Constants";
 
 import {User} from "../../../csaaccounts/js/state/UserStore";
-import {FacebookManager} from "./thirt-party/FacebookManager.js";
-import {GoogleManager} from "./thirt-party/GoogleManager.js";
+import {FacebookManager} from "./thirt-party/FacebookManager";
+import {GoogleManager} from "./thirt-party/GoogleManager";
 
 
 export class GeneralInformationPanel extends UI.Element {

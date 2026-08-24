@@ -1,20 +1,20 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Level, Size} from "../../../stemjs/ui/Constants.js";
-import {Route, Router} from "../../../stemjs/ui/Router.jsx";
-import {Link} from "../../../stemjs/ui/primitives/Link.jsx";
-import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
-import {Button} from "../../../stemjs/ui/button/Button.jsx";
-import {VolatileFloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow.jsx";
-import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
-import {Ajax} from "../../../stemjs/base/Ajax.js";
-import {StemDate} from "../../../stemjs/time/Date.js";
-import {FAIcon} from "../../../stemjs/ui/FontAwesome.jsx";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Level, Size} from "../../../stemjs/ui/Constants";
+import {Route, Router} from "../../../stemjs/ui/Router";
+import {Link} from "../../../stemjs/ui/primitives/Link";
+import {TextInput} from "../../../stemjs/ui/input/Input";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {VolatileFloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow";
+import {registerStyle} from "../../../stemjs/ui/style/Theme";
+import {Ajax} from "../../../stemjs/base/Ajax";
+import {StemDate} from "../../../stemjs/time/Date";
+import {FAIcon} from "../../../stemjs/ui/FontAwesome";
 
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
-import {MessagesPanelListStyle} from "./SocialNotificationsStyle.js";
-import {PrivateChatWidget} from "./ChatWidget.jsx";
-import {PrivateChat} from "./state/ChatStore.js";
-import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
+import {MessagesPanelListStyle} from "./SocialNotificationsStyle";
+import {PrivateChatWidget} from "./ChatWidget";
+import {PrivateChat} from "./state/ChatStore";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 
 
 const formatMiniMessageLastTime = (timeStamp) => {

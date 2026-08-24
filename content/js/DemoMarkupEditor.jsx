@@ -1,7 +1,7 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
+import {UI} from "../../../stemjs/ui/UIBase";
 
-import {Article} from "./state/Article.ts";
-import {MarkupEditor} from "./markup/MarkupEditor.jsx";
+import {Article} from "./state/Article";
+import {MarkupEditor} from "./markup/MarkupEditor";
 
 
 // TODO: should probably be in a modal component

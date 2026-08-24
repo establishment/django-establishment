@@ -1,10 +1,10 @@
-import {UI} from "../../../../stemjs/ui/UIBase.js";
-import {MarkupRenderer} from "../../../../stemjs/markup/MarkupRenderer.js";
+import {UI} from "../../../../stemjs/ui/UIBase";
+import {MarkupRenderer} from "../../../../stemjs/markup/MarkupRenderer";
 
 
 import {TextArea} from "../../../../stemjs/ui/input/Input";
-import {SectionDivider} from "../../../../stemjs/ui/section-divider/SectionDivider.jsx";
-import {Orientation} from "../../../../stemjs/ui/Constants.js";
+import {SectionDivider} from "../../../../stemjs/ui/section-divider/SectionDivider";
+import {Orientation} from "../../../../stemjs/ui/Constants";
 import {RawCheckboxInput} from "../../../../stemjs/ui/input/Input";
 
 

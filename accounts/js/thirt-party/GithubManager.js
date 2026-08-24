@@ -1,6 +1,6 @@
-import {composeURL} from "../../../../stemjs/base/Fetch.js";
+import {composeURL} from "../../../../stemjs/base/Fetch";
 import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
-import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager.js";
+import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager";
 
 class GithubManager extends SocialAccountManager {
     constructor() {

@@ -3,7 +3,7 @@ import {Button} from "../../../stemjs/ui/button/Button";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 import {Ajax} from "../../../stemjs/base/Ajax";
 
-import {UserGroup, UserGroupMember} from "./state/UserGroup.js";
+import {UserGroup, UserGroupMember} from "./state/UserGroup";
 import {UserHandle} from "UserHandle";
 import {UserInputField} from "UsersAutocompletion";
 

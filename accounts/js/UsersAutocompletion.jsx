@@ -1,15 +1,15 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Ajax} from "../../../stemjs/base/Ajax.js";
-import {Dispatchable} from "../../../stemjs/base/Dispatcher.js";
-import {VolatileFloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow.jsx";
-import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
-import {getOffset, getComputedStyle} from "../../../stemjs/ui/Utils.js";
-import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea.jsx";
-import {Button} from "../../../stemjs/ui/button/Button.jsx";
-import {Direction, Level, Size} from "../../../stemjs/ui/Constants.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Ajax} from "../../../stemjs/base/Ajax";
+import {Dispatchable} from "../../../stemjs/base/Dispatcher";
+import {VolatileFloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow";
+import {TextInput} from "../../../stemjs/ui/input/Input";
+import {getOffset, getComputedStyle} from "../../../stemjs/ui/Utils";
+import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {Direction, Level, Size} from "../../../stemjs/ui/Constants";
 
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
-import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
+import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 
 
 export class AbstractUsernameAutocomplete extends Dispatchable {

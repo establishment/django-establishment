@@ -1,9 +1,9 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Link} from "../../../stemjs/ui/primitives/Link.jsx";
-import {FormField} from "../../../stemjs/ui/form/Form.jsx";
-import {PasswordInput} from "../../../stemjs/ui/input/Input.jsx";
-import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton.jsx";
-import {Level} from "../../../stemjs/ui/Constants.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Link} from "../../../stemjs/ui/primitives/Link";
+import {FormField} from "../../../stemjs/ui/form/Form";
+import {PasswordInput} from "../../../stemjs/ui/input/Input";
+import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
+import {Level} from "../../../stemjs/ui/Constants";
 
 class PasswordResetFromKey extends UI.Element {
     render() {

@@ -1,5 +1,5 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
-import {GlobalState} from "../../../../stemjs/state/State.js";
+import {GlobalState} from "../../../../stemjs/state/State";
 
 @globalStore
 export class EmailTemplate extends BaseStore("EmailTemplate") {

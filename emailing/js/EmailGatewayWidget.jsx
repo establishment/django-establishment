@@ -1,17 +1,17 @@
-import {UI} from "../../../stemjs/ui/UIBase.js";
-import {Level} from "../../../stemjs/ui/Constants.js";
-import {SortableTable} from "../../../stemjs/ui/table/SortableTable.jsx";
-import {Button} from "../../../stemjs/ui/button/Button.jsx";
-import {ActionModal} from "../../../stemjs/ui/modal/Modal.jsx";
-import {FormField} from "../../../stemjs/ui/form/Form.jsx";
-import {TextInput} from "../../../stemjs/ui/input/Input.jsx";
-import {NumberInput} from "../../../stemjs/ui/input/Input.jsx";
-import {RawCheckboxInput} from "../../../stemjs/ui/input/Input.jsx";
-import {PasswordInput} from "../../../stemjs/ui/input/Input.jsx";
-import {TableRow} from "../../../stemjs/ui/table/Table.jsx";
-import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {UI} from "../../../stemjs/ui/UIBase";
+import {Level} from "../../../stemjs/ui/Constants";
+import {SortableTable} from "../../../stemjs/ui/table/SortableTable";
+import {Button} from "../../../stemjs/ui/button/Button";
+import {ActionModal} from "../../../stemjs/ui/modal/Modal";
+import {FormField} from "../../../stemjs/ui/form/Form";
+import {TextInput} from "../../../stemjs/ui/input/Input";
+import {NumberInput} from "../../../stemjs/ui/input/Input";
+import {RawCheckboxInput} from "../../../stemjs/ui/input/Input";
+import {PasswordInput} from "../../../stemjs/ui/input/Input";
+import {TableRow} from "../../../stemjs/ui/table/Table";
+import {Ajax} from "../../../stemjs/base/Ajax";
 import {EmailGateway} from "./state/EmailGatewayStore";
-import {autoredraw} from "../../../stemjs/decorators/AutoRedraw.js";
+import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 
 class EmailGatewayModal extends ActionModal {
     constructor(options) {

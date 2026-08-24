@@ -4,7 +4,7 @@ import {Switcher} from "../../../stemjs/ui/Switcher";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {MarkupRenderer, MarkupClassMap} from "../../../stemjs/markup/MarkupRenderer";
 import {Language} from "../../localization/js/state/LanguageStore";
-import {Article} from "./state/Article.js";
+import {Article} from "./state/Article";
 import {ensure} from "../../../stemjs/base/Require";
 
 
