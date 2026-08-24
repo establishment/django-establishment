@@ -4,7 +4,7 @@ import {Route} from "../../../stemjs/ui/Router.jsx";
 import {registerStyle} from "../../../stemjs/ui/style/Theme.js";
 import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan.jsx";
 import {Ajax} from "../../../stemjs/base/Ajax.js";
-import {slugify} from "../../../stemjs/base/Utils.js";
+import {slugify, multikeySort} from "../../../stemjs/base/Utils.js";
 import {StateDependentElement} from "../../../stemjs/ui/StateDependentElement.jsx";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle.jsx";
@@ -208,20 +208,11 @@ export class ForumThreadList extends UI.Element {
     }
 
     render() {
-        let forumThreads = Array.from(this.options.forum.getForumThreads());
-
-        forumThreads.sort((a, b) => {
-            if (a.isPinned() && b.isPinned()) {
-                return b.getPinIndex() - a.getPinIndex();
-            }
-            if (a.isPinned()) {
-                return -1;
-            }
-            if (b.isPinned()) {
-                return 1;
-            }
-            return b.lastActive - a.lastActive;
-        });
+        // Pinned threads come first, ordered among themselves by pin index rather than by activity
+        const forumThreads = multikeySort(this.options.forum.getForumThreads(), forumThread => {
+            const isPinned = forumThread.isPinned();
+            return [isPinned, isPinned ? forumThread.getPinIndex() : forumThread.lastActive];
+        }, {desc: true});
 
         let result = [];
         let color = 1;

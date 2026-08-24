@@ -87,7 +87,7 @@ export class EstablishmentApp extends StemApp {
     static registerWebsocketStreams(): void {
         // TODO: first check if websockets are enabled
         (GlobalState as any).registerStream = function (streamName: string): void {
-            WebsocketSubscriber.addListener(streamName, (GlobalState as any).applyEventWrapper);
+            WebsocketSubscriber.addListener(streamName, GlobalState.applyEventWrapper);
         };
 
         //Register on the global event stream

@@ -8,6 +8,7 @@ import {Label} from "../../../stemjs/ui/SimpleElements.jsx";
 import {Select} from "../../../stemjs/ui/input/Input.jsx";
 import {RawCheckboxInput} from "../../../stemjs/ui/input/Input.jsx";
 import {Ajax} from "../../../stemjs/base/Ajax.js";
+import {multikeySort} from "../../../stemjs/base/Utils.js";
 import {Button} from "../../../stemjs/ui/button/Button.jsx";
 import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton.jsx";
 import {GlobalStyle} from "../../../stemjs/ui/GlobalStyle.js";
@@ -178,12 +179,7 @@ export class SecuritySettingsPanel extends UI.Element {
 
 export class EmailPanel extends UI.Element {
     render() {
-        let emails = this.options.user.emails.slice();
-
-        emails.sort((a, b) => {
-            return a.verified == b.verified ? b.primary - a.primary : b.verified - a.verified;
-        });
-
+        const emails = multikeySort(this.options.user.emails, email => [email.verified, email.primary], {desc: true});
 
         let emailForms = [];
         for (let email of emails) {
