@@ -171,7 +171,6 @@ export class ForumThreadBubble extends UI.Element {
 
     getThreadActivity() {
         let threadActivity = this.getForumThread().getLastActive();
-        /* TODO @mihaic, this should support custom color option (but I didn't want to change stem files on my own). check UIPrimitives.jsx line 400 */
         return [
             <div className={this.styleSheet.threadActivity}>
                 <TimePassedSpan timeStamp={threadActivity} />

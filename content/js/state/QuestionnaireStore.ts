@@ -1,5 +1,6 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {StoreId} from "../../../../stemjs/state/State";
+import {multikeySort} from "../../../../stemjs/base/Utils";
 
 
 @globalStore
@@ -8,9 +9,7 @@ export class Questionnaire extends BaseStore("questionnaire") {
     questions: QuestionnaireQuestion[] = [];
 
     getQuestions(): QuestionnaireQuestion[] {
-        return this.questions.sort(
-            (a, b) => a.priority === b.priority ? a.id - b.id : a.priority - b.priority
-        );
+        return multikeySort(this.questions, question => [question.priority, question.id]);
     }
 
     addQuestion(question: QuestionnaireQuestion): void {
@@ -54,9 +53,7 @@ export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {d
     }
 
     getOptions(): QuestionnaireQuestionOption[] {
-        return this.options.sort(
-            (a, b) => a.priority === b.priority ? a.id - b.id : a.priority - b.priority
-        );
+        return multikeySort(this.options, option => [option.priority, option.id]);
     }
 
     getCurrentUserResponse(): QuestionnaireQuestionResponse | null {

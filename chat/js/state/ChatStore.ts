@@ -22,7 +22,7 @@ export class GroupChat extends FetchStoreMixin("GroupChat", {
     fetchURL: "/chat/group_chat_state/",
     maxFetchObjectCount: 1,
 }, BaseChatObject) {
-    static getFetchRequestData(entries: [StoreId, FetchJob[]][]) {
+    static getFetchRequestData(entries: [StoreId, FetchJob<any>[]][]) {
         return {
             chatId: entries.map(entry => entry[0])[0],
         };

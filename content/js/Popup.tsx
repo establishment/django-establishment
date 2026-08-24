@@ -1,4 +1,4 @@
-import {UI, UIElement} from "../../../stemjs/ui/UIBase";
+import {StyleObject, UI, UIElement} from "../../../stemjs/ui/UIBase";
 import {Device} from "../../../stemjs/base/Device";
 import {FloatingWindow, FloatingWindowOptions} from "../../../stemjs/ui/modal/FloatingWindow";
 import {Direction, DirectionType} from "../../../stemjs/ui/Constants";
@@ -130,8 +130,8 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
             this.options.x = this.target.offsetWidth / 2;
             this.options.y = (this.options.arrowDirection === Direction.UP ? this.target.offsetHeight : 0);
         }
-        let left = parseFloat(this.options.x);
-        let top = parseFloat(this.options.y) + (this.options.arrowDirection === Direction.UP ? 11 : - this.getHeight() - 11);
+        let left = parseFloat(String(this.options.x));
+        let top = parseFloat(String(this.options.y)) + (this.options.arrowDirection === Direction.UP ? 11 : - this.getHeight() - 11);
         let arrowMargin = -11;
         left -= this.getWidth() / 2;
         if (this.options.bodyPlaced && this.target) {
@@ -140,13 +140,15 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
             top += rect.top;
         }
         if (this.target && !this.options.bodyPlaced) {
-            if (this.node.offsetParent && !this.options.bodyPlaced) {
-                let left2 = left + this.node.offsetParent.offsetLeft;
+            const offsetParent = this.node.offsetParent as HTMLElement;
+            const offsetContainer = offsetParent?.offsetParent as HTMLElement;
+            if (offsetParent && !this.options.bodyPlaced) {
+                let left2 = left + offsetParent.offsetLeft;
                 if (left2 < 0) {
                     left -= left2 - 2;
                     arrowMargin += left2 + 2;
-                } else if (left2 + this.getWidth() > this.node.offsetParent.offsetParent.offsetWidth) {
-                    let delta = this.node.offsetParent.offsetParent.offsetWidth - (left2 + this.getWidth());
+                } else if (offsetContainer && left2 + this.getWidth() > offsetContainer.offsetWidth) {
+                    let delta = offsetContainer.offsetWidth - (left2 + this.getWidth());
                     arrowMargin -= delta - 2;
                     left += delta - 2;
                 }
@@ -209,7 +211,7 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
     onUnmount(): void {
         super.onUnmount();
         if (this.options.bodyPlaced && this.target) {
-            (this.constructor as typeof BasePopup).bodyPopups.delete(this);
+            this.constructor.bodyPopups.delete(this);
         }
     }
 
@@ -227,7 +229,7 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
         // Set the Popup inside the parent
         this.bindInsideParent();
         if (this.options.bodyPlaced && this.target) {
-            (this.constructor as typeof BasePopup).bodyPopups.add(this);
+            this.constructor.bodyPopups.add(this);
         }
     }
 }
@@ -303,11 +305,11 @@ export class Popup extends BasePopup {
         this.bindWindowListeners();
     }
 
-    redraw(): void {
+    redraw(): boolean {
         if (this.isInDocument()) {
             this.bindInsideParent();
         }
-        super.redraw();
+        return super.redraw();
     }
 
     onMount(): void {
@@ -327,7 +329,7 @@ export class Popup extends BasePopup {
             this.hide();
             this.closeButton.node.blur();
         });
-        let closeButtonColor = this.closeButton.options.style.color;
+        let closeButtonColor = (this.closeButton.options.style as StyleObject).color;
         this.closeButton.addNodeListener("mouseover", () => {
             this.closeButton.setStyle("color", "#0082AD");
         });

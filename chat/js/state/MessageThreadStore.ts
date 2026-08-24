@@ -95,7 +95,8 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
             currentId += 1;
         }
         for (let message of this.getMessageThread()!.getMessages()) {
-            if (message.id < currentId && (!ans || ans.id < message.id)) {
+            const messageId = message.getNormalizedId();
+            if (messageId < currentId && (!ans || ans.getNormalizedId() < messageId)) {
                 ans = message;
             }
         }
@@ -185,7 +186,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
             temporaryId: temporaryId,
             id: "temp-" + temporaryId,
             timeAdded: ServerTime.now().toUnix(),
-            userId: parseInt(USER.id),
+            userId: parseInt(String(USER.id)),
             messageThreadId: messageThread.id,
             meta: {},
         };
@@ -262,9 +263,9 @@ export class MessageThread extends BaseStore("MessageThread") {
         // TODO: should be also as iterable
         let messages = Array.from(this.messages.values());
         if (orderDescending) {
-            return messages.sort((a, b) => {return b.id - a.id});
+            return messages.sort((a, b) => b.getNormalizedId() - a.getNormalizedId());
         }
-        return messages.sort((a, b) => {return a.id - b.id});
+        return messages.sort((a, b) => a.getNormalizedId() - b.getNormalizedId());
     }
 
     getNumMessages(): number {
