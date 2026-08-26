@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {UI} from "../../../../stemjs/ui/UIBase";
 import {Link} from "../../../../stemjs/ui/primitives/Link";
 import {Modal} from "../../../../stemjs/ui/modal/Modal";

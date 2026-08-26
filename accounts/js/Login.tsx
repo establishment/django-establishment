@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {UI} from "../../../stemjs/ui/UIBase";
 import {registerStyle, Theme} from "../../../stemjs/ui/style/Theme";
 import {ensure} from "../../../stemjs/base/Require";

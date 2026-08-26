@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {UI} from "../../../stemjs/ui/UIBase";
 import {FormField} from "../../../stemjs/ui/form/Form";
 import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";

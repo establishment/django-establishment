@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {UI} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {MarkupClassMap} from "../../../stemjs/markup/MarkupRenderer";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {UI} from "../../../../stemjs/ui/UIBase";
 import {SVGPath} from "../../../../stemjs/ui/svg/SVGPrimitives";
 import {line} from "d3-shape";

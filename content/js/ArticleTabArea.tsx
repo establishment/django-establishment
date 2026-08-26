@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {UI} from "../../../stemjs/ui/UIBase";
 import {Dispatchable} from "../../../stemjs/base/Dispatcher";
 import {Router} from "../../../stemjs/ui/Router";

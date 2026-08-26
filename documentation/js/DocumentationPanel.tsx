@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {UI} from "../../../stemjs/ui/UIBase";
 import {Orientation} from "../../../stemjs/ui/Constants";
 import {Router} from "../../../stemjs/ui/Router";

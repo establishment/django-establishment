@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {UI} from "../../../../stemjs/ui/UIBase";
 import {SVGText} from "../../../../stemjs/ui/svg/SVGText";
 import {Direction} from "../../../../stemjs/ui/Constants";

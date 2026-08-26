@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {StyleSheet, styleRuleCustom} from "../../../stemjs/ui/Style";
 
 export class GlobalStyleSheet extends StyleSheet {

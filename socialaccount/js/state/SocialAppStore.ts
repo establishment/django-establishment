@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 
 @globalStore

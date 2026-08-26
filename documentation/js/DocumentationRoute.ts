@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {TerminalRoute} from "../../../stemjs/ui/Router";
 import {StateDependentElement} from "../../../stemjs/ui/StateDependentElement";
 

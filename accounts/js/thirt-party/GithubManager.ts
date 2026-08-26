@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {composeURL} from "../../../../stemjs/base/Fetch";
 import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
 import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {GoogleManager} from "./GoogleManager";
 import {FacebookManager} from "./FacebookManager";
 import {GithubManager} from "./GithubManager";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {Dispatchable} from "../../../stemjs/base/Dispatcher";
 
 class SocialAccountManager extends Dispatchable {

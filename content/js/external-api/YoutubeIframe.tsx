@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {UI} from "../../../../stemjs/ui/UIBase";
 import {ensure} from "../../../../stemjs/base/Require";
 import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";

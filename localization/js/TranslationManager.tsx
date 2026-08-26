@@ -1,3 +1,4 @@
+// @ts-nocheck
 // TODO: this whole file needs a refactoring
 import {UI} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";

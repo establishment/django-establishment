@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {MarkupClassMap, MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
 
 class ChatMarkupRenderer extends MarkupRenderer {

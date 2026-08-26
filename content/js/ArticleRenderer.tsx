@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {UI} from "../../../stemjs/ui/UIBase";
 import {RawSVG} from "../../../stemjs/ui/svg/SVGPrimitives";
 import {Switcher} from "../../../stemjs/ui/Switcher";

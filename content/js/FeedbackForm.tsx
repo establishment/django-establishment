@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {UI} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";

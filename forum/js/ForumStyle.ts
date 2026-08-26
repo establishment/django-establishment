@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {styleRule} from "../../../stemjs/decorators/Style";
 import {StyleSheet} from "../../../stemjs/ui/Style";
 

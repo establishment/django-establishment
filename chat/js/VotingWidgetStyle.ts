@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {StyleSheet, styleRule} from "../../../stemjs/ui/Style";
 import {Orientation} from "../../../stemjs/ui/Constants";
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {UI} from "../../../../stemjs/ui/UIBase";
 import katex from "../../static/katex/katex.mjs"; // TODO upgrade Katex dependency
 

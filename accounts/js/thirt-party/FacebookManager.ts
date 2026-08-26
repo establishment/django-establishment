@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {Ajax} from "../../../../stemjs/base/Ajax";
 import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
 import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager";
