@@ -13,6 +13,9 @@ import {DraggableDocumentationNavElement, dragAndDropHandler} from "./Documentat
 
 
 export class AdminDocumentationPanel extends DocumentationPanel {
+    declare root: any;
+    declare trash: any;
+
     getBaseUrl() {
         return "/docs/edit/";
     }

@@ -4,7 +4,7 @@ import {FacebookManager} from "./FacebookManager";
 import {GithubManager} from "./GithubManager";
 import {registerStyle} from "../../../../stemjs/ui/style/Theme";
 import {LoginStyle} from "../LoginStyle";
-import {UI} from "../../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../../stemjs/ui/UIBase";
 import {FAIcon} from "../../../../stemjs/ui/FontAwesome";
 import {MakeIcon} from "../../../../stemjs/ui/SimpleElements";
 
@@ -29,8 +29,15 @@ export const THIRD_PARTY_LOGIN_HANDLERS = {
     },
 };
 
+export interface SocialConnectButtonOptions {
+    loginElement?: any;
+    specificInfo?: any;
+}
+
 @registerStyle(LoginStyle)
 class SocialConnectButton extends UI.Primitive("button") {
+    declare options: ElementOptions<SocialConnectButtonOptions>;
+
     extraNodeAttributes(attr) {
         let {specificInfo} = this.options;
 
@@ -65,8 +72,14 @@ class SocialConnectButton extends UI.Primitive("button") {
 }
 
 
+export interface ThirdPartyLoginOptions {
+    loginElement?: any;
+}
+
 @registerStyle(LoginStyle)
 export class ThirdPartyLogin extends UI.Element {
+    declare options: ElementOptions<ThirdPartyLoginOptions>;
+
     getConnectWith() {
         return <div style={this.styleSheet.connectWith}>
             {UI.T("or connect with")}

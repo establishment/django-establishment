@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Level} from "../../../stemjs/ui/Constants";
 import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan";
 import {Switcher} from "../../../stemjs/ui/Switcher";
@@ -19,6 +19,8 @@ import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
 
 
 class ThreadMessage extends EditableMessage {
+    declare contentSwitcher: any;
+
     getDefaultOptions() {
         return Object.assign({}, super.getDefaultOptions(), {
             deletable: false,
@@ -96,6 +98,8 @@ class ToggleLogin extends UI.Primitive("span") {
 
 @registerStyle(BlogStyle)
 class BlogCommentWidget extends ChatWidget(ThreadMessage) {
+    declare chatInput: any;
+
     getDefaultOptions() {
         return Object.assign({}, super.getDefaultOptions(), {
             entryComparator: (a, b) => {
@@ -177,6 +181,8 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
 
 @registerStyle(BlogStyle)
 class CommentWidget extends BlogCommentWidget {
+    declare key: any;
+
     setOptions(options) {
         super.setOptions(options);
 
@@ -224,7 +230,13 @@ class CommentWidget extends BlogCommentWidget {
     }
 }
 
+export interface AsyncCommentThreadOptions {
+    chatId?: any;
+}
+
 class AsyncCommentThread extends UI.Element {
+    declare options: ElementOptions<AsyncCommentThreadOptions>;
+
     getMessageThread() {
         let groupChat = GroupChat.get(this.options.chatId);
         return groupChat && groupChat.getMessageThread();

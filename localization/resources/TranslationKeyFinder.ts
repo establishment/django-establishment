@@ -1,4 +1,3 @@
-// @ts-nocheck
 var fs = require("fs");
 
 let translationKeyMap = new Map();

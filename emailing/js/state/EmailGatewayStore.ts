@@ -1,9 +1,10 @@
-// @ts-nocheck
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {GlobalState} from "../../../../stemjs/state/State";
 
 @globalStore
 export class EmailGateway extends BaseStore("EmailGateway") {
+    declare name: string;
+
     toString() {
         return this.name;
     }

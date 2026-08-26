@@ -1,8 +1,11 @@
-// @ts-nocheck
 import {UI} from "../../../stemjs/ui/UIBase";
-import {ActionModal, ActionModalButton} from "../../../stemjs/ui/modal/Modal";
+import {ActionModal, ActionModalButton, type ActionModalOptions} from "../../../stemjs/ui/modal/Modal";
 
-class DeleteThreadReplyModal extends ActionModal {
+interface DeleteThreadReplyModalOptions extends ActionModalOptions {
+    messageInstance?: any;
+}
+
+class DeleteThreadReplyModal extends ActionModal<DeleteThreadReplyModalOptions> {
     getTitle() {
         return UI.T("Delete message");
     }

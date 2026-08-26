@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {Orientation, VoteStatus} from "../../../stemjs/ui/Constants";
 
@@ -7,7 +7,20 @@ import {LoginModal} from "../../accounts/js/LoginModal";
 import {UserReactionCollection} from "../../accounts/js/state/UserReaction";
 import {VotingWidgetStyle} from "./VotingWidgetStyle";
 
+export interface VotingWidgetOptions {
+    balanceColor?: any;
+    dislikeColor?: any;
+    likeColor?: any;
+    notVoteColor?: any;
+    orientation?: any;
+    size?: any;
+    userVote?: any;
+    votesBalance?: any;
+}
+
 class VotingWidget extends UI.Element {
+    declare options: ElementOptions<VotingWidgetOptions>;
+
     setOptions(options) {
         options = Object.assign({
             votesBalance: 0,
@@ -85,7 +98,16 @@ class VotingWidget extends UI.Element {
     }
 }
 
+export interface CommentVotingWidgetOptions {
+    message?: any;
+    target?: any;
+}
+
 class CommentVotingWidget extends VotingWidget {
+    declare options: ExtendedOptions<VotingWidget, CommentVotingWidgetOptions>;
+    declare dislikeButton: any;
+    declare likeButton: any;
+
     getVotesBalance() {
         return this.options.message.getVotesBalance();
     }
@@ -158,8 +180,16 @@ class CommentVotingWidget extends VotingWidget {
 }
 
 // TODO: rewrite
+export interface CommentVotingWidgetWithThumbsOptions {
+    dislikeColor?: any;
+    likeColor?: any;
+    message?: any;
+}
+
 @registerStyle(VotingWidgetStyle)
 class CommentVotingWidgetWithThumbs extends CommentVotingWidget {
+    declare options: ExtendedOptions<CommentVotingWidget, CommentVotingWidgetWithThumbsOptions>;
+
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.container);
     }

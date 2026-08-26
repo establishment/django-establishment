@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {MarkupClassMap} from "../../../stemjs/markup/MarkupRenderer";
 import {ArticleRenderer} from "../../content/js/ArticleRenderer";
@@ -15,8 +15,15 @@ export class BlogArticleRenderer extends ArticleRenderer {
 }
 
 
+export interface BlogQuoteOptions {
+    source?: any;
+    value?: any;
+}
+
 @registerStyle(BlogArticleRendererStyle)
 export class BlogQuote extends UI.Element {
+    declare options: ElementOptions<BlogQuoteOptions>;
+
     extraNodeAttributes(attr) {
         attr.setStyle({
             marginTop: 20,

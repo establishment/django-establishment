@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {Select, TextInput, RawCheckboxInput, NumberInput} from "../../../stemjs/ui/input/Input";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {Table} from "../../../stemjs/ui/table/Table";
@@ -26,8 +26,14 @@ import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 import {Formatter} from "../../../csabase/js/util";
 
 
+export interface CommandRunStatusOptions {
+    commandRun?: any;
+}
+
 @autoredraw
 class CommandRunStatus extends UI.Element {
+    declare options: ElementOptions<CommandRunStatusOptions>;
+
     render() {
         switch (this.options.commandRun.status) {
             case 0: {
@@ -46,7 +52,15 @@ class CommandRunStatus extends UI.Element {
     }
 }
 
+export interface CommandRunDetailsModalOptions {
+    commandRun?: any;
+}
+
 class CommandRunDetailsModal extends Modal {
+    declare options: ExtendedOptions<Modal, CommandRunDetailsModalOptions>;
+    declare logger: any;
+    declare resultField: any;
+
     render() {
         let children = [
             <h2>Command run #{this.options.commandRun.id}</h2>,
@@ -102,7 +116,13 @@ class CommandRunDetailsModal extends Modal {
     }
 }
 
+export interface CommandRunDetailsOptions {
+    commandRun?: any;
+}
+
 class CommandRunDetails extends UI.Element {
+    declare options: ElementOptions<CommandRunDetailsOptions>;
+
     extraNodeAttributes(attr) {
         attr.setStyle("cursor", "pointer");
         attr.setStyle("text-decoration", "underline");
@@ -119,8 +139,15 @@ class CommandRunDetails extends UI.Element {
     }
 }
 
+export interface CommandRunDurationOptions {
+    commandRun?: any;
+}
+
 @autoredraw
 class CommandRunDuration extends UI.Primitive("span") {
+    declare options: ElementOptions<CommandRunDurationOptions>;
+    declare intervalId: any;
+
     render() {
         if (this.options.commandRun.status === 0) {
             return "-";
@@ -186,7 +213,16 @@ class PastCommandsTable extends Table {
     }
 }
 
+export interface AutoFormFieldHelperOptions {
+    description?: any;
+}
+
 class AutoFormFieldHelper extends UI.Element {
+    declare options: ElementOptions<AutoFormFieldHelperOptions>;
+    declare container: any;
+    declare popup: any;
+    declare span: any;
+
     render() {
         return [
             <span ref="container" style={{position: "relative", overflow: "hidden", "cursor": "pointer",}}>
@@ -236,7 +272,18 @@ class AutoFormFieldSelectOption {
     }
 }
 
+export interface AutoFormFieldOptions {
+    choices?: any;
+    description?: any;
+    initialValue?: any;
+    longName?: any;
+    shortName?: any;
+    type?: any;
+}
+
 class AutoFormField extends UI.Element {
+    declare options: ElementOptions<AutoFormFieldOptions>;
+
     fieldType = {
         "text": 1,
         "number": 2,
@@ -302,7 +349,13 @@ class AutoFormField extends UI.Element {
 }
 
 
+export interface CommandRunCreationModalOptions {
+    commandInstance?: any;
+}
+
 class CommandRunCreationModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, CommandRunCreationModalOptions>;
+
     getTitle() {
         return this.options.commandInstance.name;
     }
@@ -356,6 +409,11 @@ function runCommand(json, callback) {
 }
 
 class CommandManager extends UI.Element {
+    declare commandSelect: any;
+    declare descriptionArea: any;
+    declare pastCommandsTable: any;
+    declare runCommandButton: any;
+
     extraNodeAttributes(attr) {
         attr.setStyle("margin-left", "15%");
         attr.setStyle("margin-right", "15%");

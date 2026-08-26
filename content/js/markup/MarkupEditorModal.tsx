@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {Link} from "../../../../stemjs/ui/primitives/Link";
 import {Modal} from "../../../../stemjs/ui/modal/Modal";
 import {Button} from "../../../../stemjs/ui/button/Button";
@@ -8,7 +8,15 @@ import {MarkupEditor} from "./MarkupEditor";
 import {BasePopup} from "../Popup";
 import {Emoji} from "../../../../csabase/js/ui/EmojiUI";
 
+export interface ClickableEmoteOptions {
+    afterClick?: any;
+    textBox?: any;
+}
+
 class ClickableEmote extends Emoji {
+    declare options: ExtendedOptions<Emoji, ClickableEmoteOptions>;
+    declare redrawTimeout: any;
+
     redraw() {
         this.redrawTimeout = setTimeout(()=> super.redraw());
     }
@@ -36,7 +44,14 @@ class ClickableEmoji extends ClickableEmote {
     }
 }
 
+export interface EmojiButtonOptions {
+    getTextBox?: any;
+}
+
 class EmojiButton extends Button {
+    declare options: ExtendedOptions<Button, EmojiButtonOptions>;
+    declare emojiPopup: any;
+
     getPopup() {
         const textBox = this.options.getTextBox();
         const afterClick = () => this.closePopup();
@@ -79,7 +94,18 @@ class EmojiButton extends Button {
     }
 }
 
+export interface MarkupEditorModalOptions {
+    classMap?: any;
+    hideCallback?: any;
+    showCallback?: any;
+}
+
 class MarkupEditorModal extends Modal {
+    declare doneButton: any;
+    declare markupEditor: any;
+
+    declare options: ExtendedOptions<Modal, MarkupEditorModalOptions>;
+
     getDefaultOptions() {
         return Object.assign(super.getDefaultOptions(), {
             height: "85%",

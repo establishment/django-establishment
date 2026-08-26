@@ -1,12 +1,18 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
 import {UserNotification} from "../../../csaaccounts/js/state/UserStore";
 import {Emoji} from "../../../csabase/js/ui/EmojiUI";
 
+export interface NotificationOptions {
+    notification?: any;
+}
+
 class Notification extends UI.Element {
+    declare options: ElementOptions<NotificationOptions>;
+
     getNodeType() {
         return "li";
     }
@@ -32,7 +38,13 @@ class Notification extends UI.Element {
     }
 }
 
+export interface RatingNotificationOptions {
+    notification?: any;
+}
+
 class RatingNotification extends Notification {
+    declare options: ExtendedOptions<Notification, RatingNotificationOptions>;
+
     getNotificationClass() {
         return "ratingNotification";
     }
@@ -50,7 +62,13 @@ class RatingNotification extends Notification {
     }
 }
 
+export interface AnnouncementNotificationOptions {
+    notification?: any;
+}
+
 class AnnouncementNotification extends Notification {
+    declare options: ExtendedOptions<Notification, AnnouncementNotificationOptions>;
+
     getNotificationClass() {
         return "announcementNotification";
     }
@@ -60,7 +78,16 @@ class AnnouncementNotification extends Notification {
     }
 }
 
+export interface NotificationsListOptions {
+    icon?: any;
+}
+
 class NotificationsList extends UI.Element {
+    declare options: ElementOptions<NotificationsListOptions>;
+    declare displayedNotifications: any;
+    declare notificationsCount: any;
+    declare unreadNotificationsCount: any;
+
     extraNodeAttributes(attr) {
         attr.setStyle({
             height: "100%",

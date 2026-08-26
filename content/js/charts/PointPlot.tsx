@@ -1,8 +1,18 @@
 // @ts-nocheck
-import {UI} from "../../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {SVGCircle, SVGGroup} from "../../../../stemjs/ui/svg/SVGPrimitives";
 
+export interface PointPlotElementOptions {
+    data?: any;
+    xAxisScale?: any;
+    xCoordinateAlias?: any;
+    yAxisScale?: any;
+    yCoordinateAlias?: any;
+}
+
 export class PointPlotElement extends SVGCircle {
+    declare options: ExtendedOptions<SVGCircle, PointPlotElementOptions>;
+
     getDefaultOptions() {
         return {
             center: {x: 0, y: 0},
@@ -24,7 +34,17 @@ export class PointPlotElement extends SVGCircle {
     }
 }
 
+export interface PointPlotOptions {
+    chart?: any;
+    data?: any;
+    plotOptions?: any;
+}
+
 export const PointPlot = (PointPlotElementClass) => class PointPlot extends SVGGroup {
+    declare options: ExtendedOptions<SVGGroup, PointPlotOptions>;
+    declare points: any;
+    declare pointsData: any;
+
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
         attr.setAttribute("clip-path", this.options.chart.clipPath);

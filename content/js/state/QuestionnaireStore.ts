@@ -83,6 +83,8 @@ export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestio
 
 @globalStore
 export class QuestionnaireInstance extends BaseStore("QuestionnaireInstance", {dependencies: ["Questionnaire", "QuestionnaireQuestion", "QuestionnaireQuestionOption"]}) {
+    declare dateSubmitted: any;
+
     declare questionnaireId: number;
     declare userId: number;
     questionResponses: Map<StoreId, QuestionnaireQuestionResponse> = new Map();

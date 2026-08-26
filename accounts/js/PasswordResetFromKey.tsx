@@ -1,12 +1,21 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Link} from "../../../stemjs/ui/primitives/Link";
 import {FormField} from "../../../stemjs/ui/form/Form";
 import {PasswordInput} from "../../../stemjs/ui/input/Input";
 import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
 import {Level} from "../../../stemjs/ui/Constants";
 
+export interface PasswordResetFromKeyOptions {
+    tokenFail?: any;
+}
+
 class PasswordResetFromKey extends UI.Element {
+    declare options: ElementOptions<PasswordResetFromKeyOptions>;
+    declare passwordFormField: any;
+    declare passwordInput: any;
+    declare setPasswordButton: any;
+
     render() {
         if (this.options.tokenFail) {
             return [

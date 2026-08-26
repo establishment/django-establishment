@@ -1,12 +1,19 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {Dispatchable} from "../../../stemjs/base/Dispatcher";
 import {Router} from "../../../stemjs/ui/Router";
 import {TabArea, BasicTabTitle} from "../../../stemjs/ui/tabs/TabArea";
 import {ArticleSwitcher} from "./ArticleRenderer";
 
 
+export interface ArticleTabAreaOptions {
+    path?: any;
+}
+
 class ArticleTabArea extends TabArea {
+    declare options: ExtendedOptions<TabArea, ArticleTabAreaOptions>;
+    declare switcherArea: any;
+
     getDefaultOptions() {
         return {
             autoActive: false,

@@ -1,6 +1,6 @@
 // @ts-nocheck
 // TODO: this whole file needs a refactoring
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {Table, TableRow} from "../../../stemjs/ui/table/Table";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -21,7 +21,16 @@ function ajaxCall(request, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
     Ajax.postJSON("/edit_translation/", request).then(onSuccess, onError);
 }
 
+export interface TranslationEntryTableRowOptions {
+    entryInput?: any;
+    saveButton?: any;
+}
+
 class TranslationEntryTableRow extends TableRow {
+    declare options: ExtendedOptions<TableRow, TranslationEntryTableRowOptions>;
+    declare entryInput: any;
+    declare saveButton: any;
+
     setOptions(options) {
         super.setOptions(options);
         this.options.saveButton = this.saveButton;
@@ -72,7 +81,13 @@ class TranslationEntryTableRow extends TableRow {
     }
 }
 
+export interface TranslationEntryTableOptions {
+    language?: any;
+}
+
 class TranslationEntryTable extends Table {
+    declare options: ExtendedOptions<Table, TranslationEntryTableOptions>;
+
     getRowClass() {
         return TranslationEntryTableRow;
     }
@@ -143,6 +158,14 @@ class TranslationEntryTable extends Table {
 }
 
 class TranslationEntryManager extends UI.Element {
+    declare exportButton: any;
+    declare importButton: any;
+    declare language: any;
+    declare languageSelect: any;
+    declare saveAllButton: any;
+    declare translationTable: any;
+    declare uploadFile: any;
+
     setOptions(options) {
         super.setOptions(options);
         this.language = Language.get(1);
@@ -366,6 +389,13 @@ class TranslationEntryManager extends UI.Element {
 }
 
 class TranslationKeyTableRow extends TableRow {
+    declare deleteButton: any;
+    declare oldTextElementValue: any;
+    declare renameButton: any;
+    declare renameState: any;
+    declare textElement: any;
+    declare textInput: any;
+
     setOptions(options) {
         super.setOptions(options);
     }
@@ -454,6 +484,9 @@ class TranslationKeyTableRow extends TableRow {
 }
 
 class TranslationKeyTable extends Table {
+    declare changed: any;
+    declare editable: any;
+
     setOptions(options) {
         super.setOptions(options);
         this.editable = false;
@@ -526,6 +559,13 @@ class TranslationKeyTable extends Table {
 }
 
 class TranslationKeyManager extends UI.Element {
+    declare addStatus: any;
+    declare changed: any;
+    declare editableCheckbox: any;
+    declare saveButton: any;
+    declare table: any;
+    declare textArea: any;
+
     render() {
         let style = {
             display: "inline-block",
@@ -616,6 +656,11 @@ class TranslationKeyManager extends UI.Element {
 }
 
 class TranslationManager extends UI.Element {
+    declare entryManager: any;
+    declare initialUrlParts: any;
+    declare keyManager: any;
+    declare tabArea: any;
+
     getUrlPrefix(urlPart) {
         let url = "/manage/translation/";
         if (urlPart) {

@@ -9,6 +9,8 @@ import {GlobalState} from "../../../../stemjs/state/State";
 
 @globalStore
 export class Forum extends BaseStore("forum") {
+    declare forumThreads: any;
+
     constructor() {
         super(...arguments);
         this.forumThreads = new Map();
@@ -47,6 +49,18 @@ export class Forum extends BaseStore("forum") {
 
 @globalStore
 export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum", "messageinstance"]}) {
+    declare authorId: any;
+    declare contentMessageId: any;
+    declare hidden: any;
+    declare lastActive: any;
+    declare messageThreadId: any;
+    declare numMessages: any;
+    declare parentId: any;
+    declare pinnedIndex: any;
+    declare timeAdded: any;
+    declare title: any;
+    declare votesBalance: any;
+
     constructor(obj) {
         super(obj);
         let parent = this.getParent();

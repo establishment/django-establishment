@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Level, Orientation} from "../../../stemjs/ui/Constants";
 import {SortableTable} from "../../../stemjs/ui/table/SortableTable";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -17,7 +17,20 @@ import {EmailCampaign} from "state/EmailCampaignStore";
 import {EmailTemplate} from "state/EmailTemplateStore";
 import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 
+export interface EmailTemplateModalOptions {
+    template?: any;
+}
+
 class EmailTemplateModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, EmailTemplateModalOptions>;
+    declare campaignSelect: any;
+    declare fields: any;
+    declare gatewaySelect: any;
+    declare htmlInput: any;
+    declare htmlRenderer: any;
+    declare languageSelect: any;
+    declare subjectInput: any;
+
     constructor(options) {
         super(options);
         this.fields = ["subject", "html", "campaignId", "languageId", "gatewayId"];
@@ -152,7 +165,13 @@ class EditEmailTemplateModal extends EmailTemplateModal {
 }
 
 
+export interface GenericConfirmModalOptions {
+    template?: any;
+}
+
 class GenericConfirmModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, GenericConfirmModalOptions>;
+
     constructor(options) {
         super(options);
     }
@@ -203,6 +222,9 @@ class DeleteTemplateConfirmModal extends GenericConfirmModal {
 
 
 class EmailTemplateTableRow extends TableRow {
+    declare deleteTemplateButton: any;
+    declare editTemplateButton: any;
+
     onMount() {
         super.onMount();
         this.deleteTemplateButton.addClickListener(() => {
@@ -278,7 +300,14 @@ class EmailTemplateTable extends SortableTable {
 }
 
 
+export interface EmailTemplateWidgetOptions {
+    entry?: any;
+}
+
 export class EmailTemplateWidget extends UI.Element {
+    declare options: ElementOptions<EmailTemplateWidgetOptions>;
+    declare addTemplateButton: any;
+
     render() {
         return [<EmailTemplateTable />,
             <Button level={Level.SUCCESS} ref="addTemplateButton">Add Template</Button>

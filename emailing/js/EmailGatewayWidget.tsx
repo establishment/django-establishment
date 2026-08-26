@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {Level} from "../../../stemjs/ui/Constants";
 import {SortableTable} from "../../../stemjs/ui/table/SortableTable";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -14,7 +14,20 @@ import {Ajax} from "../../../stemjs/base/Ajax";
 import {EmailGateway} from "./state/EmailGatewayStore";
 import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 
+export interface EmailGatewayModalOptions {
+    gateway?: any;
+}
+
 class EmailGatewayModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, EmailGatewayModalOptions>;
+    declare fields: any;
+    declare hostInput: any;
+    declare nameInput: any;
+    declare passwordInput: any;
+    declare portInput: any;
+    declare useTLSInput: any;
+    declare usernameInput: any;
+
     constructor(options) {
         super(options);
         this.fields = ["name", "host", "port", "useTLS", "username"];
@@ -108,7 +121,13 @@ class EditEmailGatewayModal extends EmailGatewayModal {
 }
 
 
+export interface GenericConfirmModalOptions {
+    gateway?: any;
+}
+
 class GenericConfirmModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, GenericConfirmModalOptions>;
+
     constructor(options) {
         super(options);
     }
@@ -159,6 +178,9 @@ class DeleteGatewayConfirmModal extends GenericConfirmModal {
 
 
 class EmailGatewayTableRow extends TableRow {
+    declare deleteGatewayButton: any;
+    declare editGatewayButton: any;
+
     onMount() {
         super.onMount();
         this.deleteGatewayButton.addClickListener(() => {
@@ -239,6 +261,8 @@ class EmailGatewayTable extends SortableTable {
 
 
 class EmailGatewayWidget extends UI.Element {
+    declare addGatewayButton: any;
+
     render() {
         return [<EmailGatewayTable />,
                 <Button level={Level.SUCCESS} ref="addGatewayButton">Add Gateway</Button>,

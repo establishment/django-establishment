@@ -1,8 +1,10 @@
-// @ts-nocheck
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 
 @globalStore
 export class SocialApp extends BaseStore("SocialApp") {
+    declare name: string;
+    declare clientId: string;
+
     getClientId() {
         return this.clientId;
     }

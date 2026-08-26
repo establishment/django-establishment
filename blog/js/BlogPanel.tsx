@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Level} from "../../../stemjs/ui/Constants";
 import {Route, Router} from "../../../stemjs/ui/Router";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -22,7 +22,16 @@ import {BlogStyle} from "./BlogStyle";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 
 
+export interface BlogEntryEditModalOptions {
+    entryId?: any;
+}
+
 export class BlogEntryEditModal extends Modal {
+    declare options: ExtendedOptions<Modal, BlogEntryEditModalOptions>;
+    declare titleInput: any;
+    declare urlInput: any;
+    declare visibleCheckbox: any;
+
     getModalWindowStyle() {
         return Object.assign({}, super.getModalWindowStyle(), {
             margin: "0 auto",
@@ -104,6 +113,11 @@ export class BlogEntryEditModal extends Modal {
 }
 
 export class NewBlogEntryModal extends Modal {
+    declare postContentMarkup: any;
+    declare titleInput: any;
+    declare urlInput: any;
+    declare visibleCheckbox: any;
+
     render() {
         return [
             <h1>New Entry</h1>,
@@ -161,7 +175,13 @@ export class NewBlogEntryModal extends Modal {
     }
 }
 
+export interface BlogEntryPreviewOptions {
+    entryId?: any;
+}
+
 class BlogEntryPreview extends UI.Element {
+    declare options: ElementOptions<BlogEntryPreviewOptions>;
+
     extraNodeAttributes(attr) {
         attr.setStyle({
             position: "relative",
@@ -235,7 +255,13 @@ class BlogEntryPreview extends UI.Element {
     }
 }
 
+export interface BlogEntryViewOptions {
+    entryId?: any;
+}
+
 class BlogEntryView extends UI.Element {
+    declare options: ElementOptions<BlogEntryViewOptions>;
+
     get pageTitle() {
         return this.getBlogArticle().name;
     }
@@ -317,7 +343,14 @@ class BlogEntryView extends UI.Element {
     }
 }
 
+export interface BlogEntryListOptions {
+    finishedLoading?: any;
+}
+
 class BlogEntryList extends UI.Element {
+    declare options: ElementOptions<BlogEntryListOptions>;
+    declare loadMoreButton: any;
+
     extraNodeAttributes(attr) {
         attr.setStyle("paddingTop", "10px");
     }

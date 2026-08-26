@@ -1,12 +1,17 @@
-// @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 
 import {Article} from "./state/Article";
 import {MarkupEditor} from "./markup/MarkupEditor";
 
 
 // TODO: should probably be in a modal component
+export interface DemoMarkupEditorOptions {
+    articleId?: any;
+}
+
 export class DemoMarkupEditor extends UI.Element {
+    declare options: ElementOptions<DemoMarkupEditorOptions>;
+
     getArticle() {
         return Article.get(this.options.articleId);
     }

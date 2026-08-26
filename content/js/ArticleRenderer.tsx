@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {RawSVG} from "../../../stemjs/ui/svg/SVGPrimitives";
 import {Switcher} from "../../../stemjs/ui/Switcher";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -89,7 +89,16 @@ class RecursiveArticleRenderer extends ArticleRenderer {
     }
 }
 
+export interface ArticleSwitcherOptions {
+    initialArticle?: any;
+    initialArticleId?: any;
+    showEditButton?: any;
+}
+
 class ArticleSwitcher extends Switcher {
+    declare options: ExtendedOptions<Switcher, ArticleSwitcherOptions>;
+    declare articleChildMap: any;
+
     getDefaultOptions() {
         return Object.assign({}, super.getDefaultOptions(), {
             fullHeight: true,

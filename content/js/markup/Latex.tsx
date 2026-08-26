@@ -1,8 +1,13 @@
-// @ts-nocheck
-import {UI} from "../../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type HTMLTagType} from "../../../../stemjs/ui/UIBase";
 import katex from "../../static/katex/katex.mjs"; // TODO upgrade Katex dependency
 
+export interface LatexOptions {
+    value?: string;
+}
+
 export class Latex extends UI.Element {
+    declare options: ElementOptions<LatexOptions>;
+
     setOptions(options) {
         if (options.children?.length) {
             let value = "";
@@ -26,10 +31,11 @@ export class Latex extends UI.Element {
         }
     }
 
-    getNodeType() {
+    getNodeType(): HTMLTagType {
         return "span";
     }
     
+    // @ts-expect-error Overrides a boolean-returning redraw without returning - see the Backlog entry
     redraw() {
         super.redraw();
         this.node.innerHTML = katex.renderToString(this.options.value, {

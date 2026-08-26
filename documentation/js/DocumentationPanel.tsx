@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Orientation} from "../../../stemjs/ui/Constants";
 import {Router} from "../../../stemjs/ui/Router";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
@@ -10,8 +9,17 @@ import {DocumentationEntry} from "./state/DocumentationStore";
 import {SimpleDocumentationNavElement} from "./DocumentationNavElement";
 import {DocumentationStyle} from "./DocumentationStyle";
 
+export interface DocumentationPanelOptions {
+    documentationEntryId?: any;
+}
+
 @registerStyle(DocumentationStyle)
 class DocumentationPanel extends UI.Element {
+    declare options: ElementOptions<DocumentationPanelOptions>;
+    declare articleSwitcher: any;
+    declare documentationSwitchDispatcher: any;
+    declare initialUrlParts: any;
+
     constructor() {
         super(...arguments);
         this.documentationSwitchDispatcher = new Dispatcher();

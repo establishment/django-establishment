@@ -1,9 +1,17 @@
-// @ts-nocheck
-import {UI} from "../../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {SVGPath} from "../../../../stemjs/ui/svg/SVGPrimitives";
 import {line} from "d3-shape";
 
+export interface LinePlotOptions {
+    chart?: any;
+    data?: any;
+    plotOptions?: any;
+}
+
 class LinePlot extends SVGPath {
+    declare options: ExtendedOptions<SVGPath, LinePlotOptions>;
+    declare linePathGenerator: any;
+
     getDefaultOptions() {
         return {
             d: "",

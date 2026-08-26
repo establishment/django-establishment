@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 import {Route, Router} from "../../../stemjs/ui/Router";
 import {Link} from "../../../stemjs/ui/primitives/Link";
@@ -38,7 +38,16 @@ function getUserMessagesUrl(userId) {
     return "/messages/" + userId + "/";
 }
 
+export interface MiniMessageOptions {
+    hoverColor?: any;
+    backgroundColorActive?: any;
+    list?: any;
+    privateChatId?: any;
+}
+
 class MiniMessage extends UI.Element {
+    declare options: ElementOptions<MiniMessageOptions>;
+
     getDefaultOptions() {
         return {
             hoverColor: "rgba(0, 0, 0, .05)",
@@ -126,7 +135,16 @@ class MiniMessage extends UI.Element {
     }
 }
 
+export interface UserSearchInputOptions {
+    placeholder?: any;
+    textInputStyle?: any;
+}
+
 class UserSearchInput extends UI.Element {
+    declare options: ElementOptions<UserSearchInputOptions>;
+    declare input: any;
+    declare window: any;
+
     getDefaultOptions() {
         return {
             style: {
@@ -208,6 +226,10 @@ class UserSearchInput extends UI.Element {
 }
 
 class MessagesList extends UI.Element {
+    declare activeUserId: any;
+    declare miniMessages: any;
+    declare unreadMessages: any;
+
     constructor(options) {
         super(options);
         this.miniMessages = [];
@@ -266,6 +288,8 @@ class MessagesList extends UI.Element {
 }
 
 class IconMessagesList extends UI.Element {
+    declare messagesList: any;
+
     extraNodeAttributes(attr) {
         attr.setStyle({
             lineHeight: "normal",
@@ -302,6 +326,9 @@ class IconMessagesList extends UI.Element {
 
 @registerStyle(MessagesPanelListStyle)
 class MessagesPanelList extends UI.Element {
+    declare messagesList: any;
+    declare userSearchInput: any;
+
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.messagesPanelList);
     }
@@ -336,7 +363,14 @@ class MessagesPanelList extends UI.Element {
     }
 }
 
+export interface PrivateChatWidgetWrapperOptions {
+    userId?: any;
+}
+
 class PrivateChatWidgetWrapper extends UI.Element {
+    declare options: ElementOptions<PrivateChatWidgetWrapperOptions>;
+    declare chat: any;
+
     render() {
         const privateChat = PrivateChat.getChatWithUser(parseInt(this.options.userId));
         if (privateChat) {
@@ -375,6 +409,8 @@ class PrivateChatWidgetWrapper extends UI.Element {
 }
 
 class DelayedPrivateChat extends Router {
+    declare routes: any;
+
     getNoChat() {
         return <h3 style={{marginTop: "40px", textAlign: "center"}}>Click on a chat box to start a conversation.</h3>;
     }
@@ -390,6 +426,11 @@ class DelayedPrivateChat extends Router {
 }
 
 class MessagesPanel extends UI.Element {
+    declare chatWidget: any;
+    declare collapseButton: any;
+    declare collapsed: any;
+    declare messagesPanelList: any;
+
     extraNodeAttributes(attr) {
         super.extraNodeAttributes(attr);
         attr.setStyle({

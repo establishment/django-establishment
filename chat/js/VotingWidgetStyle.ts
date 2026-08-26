@@ -1,6 +1,16 @@
-// @ts-nocheck
-import {StyleSheet, styleRule} from "../../../stemjs/ui/Style";
+import {StyleSheet, styleRule, type StyleSheetOptions} from "../../../stemjs/ui/Style";
 import {Orientation} from "../../../stemjs/ui/Constants";
+
+// Merged rather than redeclared: StyleSheet initializes options itself, so a subclass field would
+// count as uninitialized for every rule that reads it
+interface VotingWidgetStyle {
+    options: StyleSheetOptions & {
+        likeColor?: string;
+        dislikeColor?: string;
+        notVoteColor?: string;
+        balanceColor?: string;
+    };
+}
 
 class VotingWidgetStyle extends StyleSheet {
     height = 40;

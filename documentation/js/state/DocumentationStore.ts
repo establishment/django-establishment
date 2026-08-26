@@ -1,10 +1,15 @@
-// @ts-nocheck
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {Article} from "../../../content/js/state/Article";
 
 
 @globalStore
 export class DocumentationEntry extends BaseStore("DocumentationEntry") {
+    declare articleId: any;
+    declare name: any;
+    declare parentId: any;
+    declare parentIndex: any;
+    declare urlName: any;
+
     getArticle() {
         let article = Article.get(this.articleId);
         return article && article.getTranslation();

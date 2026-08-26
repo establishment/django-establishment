@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {Ajax} from "../../../../stemjs/base/Ajax";
 import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 

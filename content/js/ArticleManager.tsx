@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup";
@@ -22,7 +22,16 @@ import {Article} from "./state/Article";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 
 
+export interface TransferOwnershipModalOptions {
+    article?: any;
+}
+
 class TransferOwnershipModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, TransferOwnershipModalOptions>;
+    declare messageArea: any;
+    declare ownerFormInput: any;
+    declare transferOwnershipButton: any;
+
     getActionName() {
         return "Transfer ownership";
     }
@@ -79,7 +88,16 @@ class TransferOwnershipModal extends ActionModal {
 }
 
 
+export interface DeleteArticleModalOptions {
+    article?: any;
+    parent?: any;
+}
+
 class DeleteArticleModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, DeleteArticleModalOptions>;
+    declare deleteArticleButton: any;
+    declare messageArea: any;
+
     getActionName() {
         return "Delete article";
     }
@@ -121,7 +139,19 @@ class DeleteArticleModal extends ActionModal {
     }
 }
 
+export interface CreateArticleModalOptions {
+    parent?: any;
+}
+
 class CreateArticleModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, CreateArticleModalOptions>;
+    declare articleNameInput: any;
+    declare createArticleButton: any;
+    declare dependencyInput: any;
+    declare languageSelect: any;
+    declare messageArea: any;
+    declare publicCheckbox: any;
+
     getActionName() {
         return "Create article";
     }
@@ -186,7 +216,13 @@ class CreateArticleModal extends ActionModal {
 }
 
 
+export interface AddTranslationModalOptions {
+    baseArticle?: any;
+}
+
 class AddTranslationModal extends CreateArticleModal {
+    declare options: ExtendedOptions<CreateArticleModal, AddTranslationModalOptions>;
+
     getActioName() {
         return "Add translation";
     }
@@ -226,7 +262,13 @@ class AddTranslationModal extends CreateArticleModal {
     }
 }
 
+export interface ArticleOwnerSpanOptions {
+    article?: any;
+}
+
 class ArticleOwnerSpan extends UI.Primitive("span") {
+    declare options: ElementOptions<ArticleOwnerSpanOptions>;
+
     getArticle() {
         return this.options.article;
     }
@@ -240,7 +282,13 @@ class ArticleOwnerSpan extends UI.Primitive("span") {
     }
 }
 
+export interface ArticlePublicSpanOptions {
+    article?: any;
+}
+
 class ArticlePublicSpan extends FAIcon {
+    declare options: ExtendedOptions<FAIcon, ArticlePublicSpanOptions>;
+
     getDefaultOptions() {
         return {
             size: "lg"
@@ -272,7 +320,14 @@ class ArticlePublicSpan extends FAIcon {
     }
 }
 
+export interface ArticleTableOptions {
+    articles?: any;
+    parent?: any;
+}
+
 class ArticleTable extends SortableTable {
+    declare options: ExtendedOptions<SortableTable, ArticleTableOptions>;
+
     setOptions(options) {
         super.setOptions(options);
         this.resetColumnSortingOrder();
@@ -376,7 +431,14 @@ class ArticleTable extends SortableTable {
     }
 }
 
+export interface ArticleManagerOptions {
+    articles?: any;
+    readOnly?: any;
+}
+
 class ArticleManager extends UI.Element {
+    declare options: ElementOptions<ArticleManagerOptions>;
+
     getDefaultOptions() {
         return {
             title: "Article manager",
@@ -416,7 +478,15 @@ class ArticleManager extends UI.Element {
     }
 }
 
+export interface ArticleTranslationManagerOptions {
+    baseArticle?: any;
+    readOnly?: any;
+}
+
 class ArticleTranslationManager extends UI.Element {
+    declare options: ElementOptions<ArticleTranslationManagerOptions>;
+    declare table: any;
+
     getDefaultOptions() {
         return {
             title: "Translation manager"

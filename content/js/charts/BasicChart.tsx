@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {SVGText} from "../../../../stemjs/ui/svg/SVGText";
 import {Direction} from "../../../../stemjs/ui/Constants";
 import {uniqueId} from "../../../../stemjs/base/Utils";
@@ -17,7 +17,26 @@ import {SVGRoot, SVGGroup, SVGLine, SVGRect} from "../../../../stemjs/ui/svg/SVG
 
 // TODO: This file desperately needs a refactoring.
 
+export interface AxisTickOptions {
+    gridLineLength?: any;
+    labelFontFamily?: any;
+    axisLineLength?: any;
+    chartOptions?: any;
+    gridLineStroke?: any;
+    label?: any;
+    labelPadding?: any;
+    labelStrokeWidth?: any;
+    orientation?: any;
+    scale?: any;
+    value?: any;
+}
+
 export class AxisTick extends SVGGroup {
+    declare gridLine: any;
+
+    declare options: ExtendedOptions<SVGGroup, AxisTickOptions>;
+    declare axisPosition: any;
+
     getDefaultOptions() {
         return {
             gridLineLength: 0,
@@ -109,7 +128,20 @@ export class AxisTick extends SVGGroup {
     }
 }
 
+export interface BasicAxisOptions {
+    chartOptions?: any;
+    labelFormatFunction?: any;
+    orientation?: any;
+    scale?: any;
+    ticks?: any;
+}
+
 export class BasicAxis extends SVGGroup {
+    declare options: ExtendedOptions<SVGGroup, BasicAxisOptions>;
+    declare axisLength: any;
+    declare tickValues: any;
+    declare ticks: any;
+
     getDefaultOptions() {
         return {
             labelFormatFunction: (x) => {return x;}
@@ -165,7 +197,37 @@ export class BasicAxis extends SVGGroup {
     }
 }
 
+export interface BasicChartOptions {
+    bottom?: any;
+    left?: any;
+    right?: any;
+    top?: any;
+    applyZoom?: any;
+    chartOptions?: any;
+    cursorStyle?: any;
+    domainPadding?: any;
+    enableZoom?: any;
+    margin?: any;
+    xAxisDomain?: any;
+    xAxisLabelFormatFunction?: any;
+    xAxisScaleType?: any;
+    yAxisDomain?: any;
+    yAxisLabelFormatFunction?: any;
+    yAxisScaleType?: any;
+}
+
 export class BasicChart extends SVGGroup {
+    declare interactiveLayer: any;
+
+    declare options: ExtendedOptions<SVGGroup, BasicChartOptions>;
+    declare _initialXScale: any;
+    declare _initialYScale: any;
+    declare clipPath: any;
+    declare xAxisOptions: any;
+    declare yAxisOptions: any;
+    declare zoomBehavior: any;
+    declare zoomListener: any;
+
     getDefaultOptions() {
         return {
             enableZoom: true,
@@ -320,7 +382,25 @@ export class BasicChart extends SVGGroup {
     }
 }
 
+export interface TimeChartOptions {
+    applyZoom?: any;
+    chartOptions?: any;
+    paddingXOnNoPoints?: any;
+    paddingYOnNoPoints?: any;
+    zoomScaleExtent?: any;
+}
+
 export class TimeChart extends BasicChart {
+    declare interactiveLayer: any;
+
+    declare options: ExtendedOptions<BasicChart, TimeChartOptions>;
+    declare _initialXScale: any;
+    declare _initialYScale: any;
+    declare xAxisOptions: any;
+    declare yAxisOptions: any;
+    declare zoomBehavior: any;
+    declare zoomListener: any;
+
     getDefaultOptions() {
         return Object.assign(super.getDefaultOptions(), {
             xAxisScaleType: "time",
@@ -444,7 +524,17 @@ export class TimeChart extends BasicChart {
     }
 }
 
+export interface ChartSVGOptions {
+    xDomain?: any;
+    yDomain?: any;
+}
+
 export class ChartSVG extends SVGRoot {
+    declare options: ExtendedOptions<SVGRoot, ChartSVGOptions>;
+    declare chartOptions: any;
+    declare data: any;
+    declare plotOptions: any;
+
     setOptions(options) {
         super.setOptions(options);
         this.chartOptions = {

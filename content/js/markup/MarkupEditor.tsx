@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../../stemjs/ui/UIBase";
 import {MarkupRenderer} from "../../../../stemjs/markup/MarkupRenderer";
 
 
@@ -9,7 +9,21 @@ import {Orientation} from "../../../../stemjs/ui/Constants";
 import {RawCheckboxInput} from "../../../../stemjs/ui/input/Input";
 
 
+export interface MarkupEditorOptions {
+    classMap?: any;
+    showButtons?: any;
+    value?: any;
+}
+
 class MarkupEditor extends UI.Element {
+    declare markupRenderer: any;
+
+    declare options: ElementOptions<MarkupEditorOptions>;
+    declare codeEditor: any;
+    declare editorPanel: any;
+    declare rendererPanel: any;
+    declare sectionDivider: any;
+
     getDefaultOptions() {
         return {
             showButtons: true

@@ -1,7 +1,12 @@
-// @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+
+export interface EmailConfirmedOptions {
+    confirmSuccess?: boolean;
+}
 
 class EmailConfirmed extends UI.Element {
+    declare options: ElementOptions<EmailConfirmedOptions>;
+
     extraNodeAttributes(attr) {
         attr.setStyle({
             textAlign: "center"

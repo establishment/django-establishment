@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 import {Ajax} from "../../../stemjs/base/Ajax";
@@ -9,7 +9,14 @@ import {UserHandle} from "UserHandle";
 import {UserInputField} from "UsersAutocompletion";
 
 
+export interface UserGroupMemberUIOptions {
+    member?: any;
+}
+
 export class UserGroupMemberUI extends UI.Element {
+    declare options: ElementOptions<UserGroupMemberUIOptions>;
+    declare destroyButton: any;
+
     extraNodeAttributes(attr) {
         attr.setStyle("margin-top", "5px");
     }
@@ -40,7 +47,14 @@ export class UserGroupMemberUI extends UI.Element {
 }
 
 
+export interface UserGroupEditorOptions {
+    groupId?: any;
+}
+
 export class UserGroupEditor extends UI.Element {
+    declare options: ElementOptions<UserGroupEditorOptions>;
+    declare addUserField: any;
+
     getGroup() {
         return UserGroup.get(this.options.groupId);
     }

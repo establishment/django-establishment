@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {ActionModal, ActionModalButton} from "../../../stemjs/ui/modal/Modal";
 import {Form, FormField} from "../../../stemjs/ui/form/Form";
 import {TextInput} from "../../../stemjs/ui/input/Input";
@@ -8,7 +8,17 @@ import {Ajax} from "../../../stemjs/base/Ajax";
 
 import {DocumentationEntry} from "./state/DocumentationStore";
 
+export interface EditEntryModalOptions {
+    entry?: any;
+}
+
 export class EditEntryModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, EditEntryModalOptions>;
+    declare articleIdInput: any;
+    declare nameInput: any;
+    declare parentIndexInput: any;
+    declare urlNameInput: any;
+
     getTitle() {
         return "Edit documentation entry";
     }
@@ -91,6 +101,8 @@ export class EditEntryModal extends ActionModal {
 }
 
 export class CreateEntryModal extends EditEntryModal {
+    declare parentInput: any;
+
     getTitle() {
         return "Create documentation entry";
     }

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import {Dispatcher} from "../../../stemjs/base/Dispatcher";
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Draggable} from "../../../stemjs/ui/Draggable";
 import {FACollapseIcon} from "../../../stemjs/ui/FontAwesome";
 
@@ -8,7 +8,13 @@ import {EditEntryModal} from "./CreateEntryModal";
 import {DocumentationStyle} from "./DocumentationStyle";
 
 
+export interface CollapseIconClassOptions {
+    parent?: any;
+}
+
 class CollapseIconClass extends FACollapseIcon {
+    declare options: ExtendedOptions<FACollapseIcon, CollapseIconClassOptions>;
+
     extraNodeAttributes(attr) {
         super.extraNodeAttributes(attr);
         if (!this.options.collapsed) {
@@ -26,7 +32,17 @@ class CollapseIconClass extends FACollapseIcon {
     }
 }
 
+export interface DocumentationNavElementContentOptions {
+    collapsed?: any;
+    documentationEntry?: any;
+    documentationSwitchDispatcher?: any;
+    shouldToggle?: any;
+}
+
 export class DocumentationNavElementContent extends UI.Element {
+    declare options: ElementOptions<DocumentationNavElementContentOptions>;
+    declare collapseIcon: any;
+
     extraNodeAttributes(attr) {
         attr.addClass(DocumentationStyle.getInstance().navElementDiv); // TODO: add this later
 
@@ -194,7 +210,21 @@ class DraggableDocumentationNavElementContent extends Draggable(DocumentationNav
     }
 }
 
+export interface DocumentationNavElementClassOptions {
+    collapsed?: any;
+    documentationEntry?: any;
+    documentationSwitchDispatcher?: any;
+    isRoot?: any;
+    level?: any;
+    panel?: any;
+}
+
 export const DocumentationNavElement = (ContentClass) => class DocumentationNavElementClass extends UI.Element {
+    declare options: ElementOptions<DocumentationNavElementClassOptions>;
+    declare subEntries: any;
+    declare subEntryArea: any;
+    declare titleElement: any;
+
     getDefaultOptions() {
         return {
             collapsed: true

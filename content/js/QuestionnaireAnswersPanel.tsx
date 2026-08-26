@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {CardPanel} from "../../../stemjs/ui/CardPanel";
 import {Switcher} from "../../../stemjs/ui/Switcher";
@@ -62,8 +62,16 @@ class QuestionnaireAnswersStyle extends QuestionnaireStyle {
 }
 
 
+export interface QuestionSummaryOptions {
+    instances?: any;
+    question?: any;
+    widget?: any;
+}
+
 @registerStyle(QuestionnaireAnswersStyle)
 class QuestionSummary extends UI.Element {
+    declare options: ElementOptions<QuestionSummaryOptions>;
+
     getInstanceResponse(instance) {
         return instance.getQuestionResponse(this.options.question.id);
     }
@@ -197,7 +205,14 @@ class QuestionSummary extends UI.Element {
 }
 
 
+export interface QuestionnaireSummaryWidgetOptions {
+    filters?: any;
+    questionnaireId?: any;
+}
+
 class QuestionnaireSummaryWidget extends UI.Element {
+    declare options: ElementOptions<QuestionnaireSummaryWidgetOptions>;
+
     getDefaultOptions() {
         return {
             filters: {}
@@ -255,6 +270,8 @@ class QuestionnaireSummaryWidget extends UI.Element {
 
 
 class QuestionnaireInstanceSwitcher extends Switcher {
+    declare instanceMap: any;
+
     getDefaultOptions() {
         return Object.assign(super.getDefaultOptions(), {
             lazyRender: true
@@ -282,7 +299,13 @@ class QuestionnaireInstanceSwitcher extends Switcher {
 }
 
 
+export interface FullInstancePageOptions {
+    instance?: any;
+}
+
 class FullInstancePage extends UI.Element {
+    declare options: ElementOptions<FullInstancePageOptions>;
+
     render() {
         return this.options.instance.getQuestionnaire().getQuestions().map(
             question => <QuestionPage question={question} instance={this.options.instance}
@@ -292,8 +315,16 @@ class FullInstancePage extends UI.Element {
 }
 
 
+export interface QuestionnaireResponsesWidgetOptions {
+    instances?: any;
+    questionnaireId?: any;
+}
+
 @registerStyle(QuestionnaireAnswersStyle)
 class QuestionnaireResponsesWidget extends UI.Element {
+    declare options: ElementOptions<QuestionnaireResponsesWidgetOptions>;
+    declare instanceSwitcher: any;
+
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.questionnaireResponseWidget);
     }
@@ -353,7 +384,15 @@ class QuestionnaireResponsesWidget extends UI.Element {
 }
 
 
+export interface QuestionnaireAnswersPanelOptions {
+    questionnaireId?: any;
+}
+
 export class QuestionnaireAnswersPanel extends UI.Element {
+    declare options: ElementOptions<QuestionnaireAnswersPanelOptions>;
+    declare questionnaireResponses: any;
+    declare questionnaireSummary: any;
+
     render() {
         return [
             <TabArea>
@@ -375,7 +414,15 @@ export class QuestionnaireAnswersPanel extends UI.Element {
 }
 
 
+export interface DelayedQuestionnaireAnswersPanelOptions {
+    error?: any;
+    loaded?: any;
+    questionnaireId?: any;
+}
+
 export class DelayedQuestionnaireAnswersPanel extends UI.Element {
+    declare options: ElementOptions<DelayedQuestionnaireAnswersPanelOptions>;
+
     getDefaultOptions() {
         return {
             style: {

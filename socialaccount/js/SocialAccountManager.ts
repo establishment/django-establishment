@@ -1,8 +1,25 @@
-// @ts-nocheck
 import {Dispatchable} from "../../../stemjs/base/Dispatcher";
 
+export interface SocialAccountManagerOptions {
+    loginWindowOptions?: string;
+    loginByTokenUrl?: string;
+}
+
+// Provided by every subclass - the statics below are only a shortcut through getInstance(). Merged in
+// rather than declared as fields, so a subclass can implement them as the methods they are.
+interface SocialAccountManager {
+    login(...args: any[]): void;
+    connect(...args: any[]): void;
+}
+
 class SocialAccountManager extends Dispatchable {
-    constructor(socialApp, options) {
+    declare socialApp: any;
+    declare options: SocialAccountManagerOptions;
+    declare loaded: boolean;
+    // Only ever constructed through a subclass, whose own constructor takes nothing
+    declare static _Global: SocialAccountManager;
+
+    constructor(socialApp?, options?) {
         super();
         this.socialApp = socialApp;
         this.options = options;

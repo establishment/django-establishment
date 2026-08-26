@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {registerStyle, Theme} from "../../../stemjs/ui/style/Theme";
 import {ensure} from "../../../stemjs/base/Require";
 import {Ajax} from "../../../stemjs/base/Ajax";
@@ -25,6 +25,10 @@ const accountsConfig = {
 
 @registerStyle(LoginStyle)
 export class LoginWidget extends UI.Element {
+    declare emailInput: any;
+    declare form: any;
+    declare loginErrorMessage: any;
+
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.loginWidget);
     }
@@ -147,6 +151,8 @@ export class LoginWidget extends UI.Element {
 
 
 class RecaptchaWidget extends UI.Element {
+    declare captchaId: any;
+
     render() {
         return <div key={Math.random()} />;
     }
@@ -175,6 +181,16 @@ class RecaptchaWidget extends UI.Element {
 
 @registerStyle(LoginStyle)
 export class RegisterWidget extends UI.Element {
+    declare countrySelect: any;
+    declare emailInput: any;
+    declare errorArea: any;
+    declare form: any;
+    declare getEmailInput: any;
+    declare getPasswordInput: any;
+    declare recaptchaWidget: any;
+    declare submitButton: any;
+    declare usernameInput: any;
+
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.registerWidget);
     }
@@ -283,6 +299,13 @@ RegisterWidget.prototype.getHorizontalLine = LoginWidget.prototype.getHorizontal
 // original name: LoginRegisterSystem
 @registerStyle(LoginStyle)
 class NormalLogin extends UI.Element {
+    declare loginButton: any;
+    declare loginWidget: any;
+    declare registerButton: any;
+    declare registerWidget: any;
+    declare state: any;
+    declare switcher: any;
+
     constructor() {
         super();
 
@@ -350,8 +373,14 @@ class NormalLogin extends UI.Element {
 }
 
 
+export interface LoginTabButtonOptions {
+    children?: any;
+}
+
 @registerStyle(LoginStyle)
 class LoginTabButton extends UI.Primitive("div", BasicTabTitle) {
+    declare options: ElementOptions<LoginTabButtonOptions>;
+
     getDefaultOptions() {
         return {
             children: [UI.T("Log In")]
@@ -366,8 +395,14 @@ class LoginTabButton extends UI.Primitive("div", BasicTabTitle) {
     }
 }
 
+export interface RegisterTabButtonOptions {
+    children?: any;
+}
+
 @registerStyle(LoginStyle)
 class RegisterTabButton extends UI.Primitive("div", BasicTabTitle) {
+    declare options: ElementOptions<RegisterTabButtonOptions>;
+
     getDefaultOptions() {
         return {
             children: [UI.T("Register")]

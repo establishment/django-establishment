@@ -1,10 +1,18 @@
-// @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 
 import {BasePopup} from "./Popup";
 
 
+export interface PopupSpanOptions {
+    popupContent?: any;
+    popupOptions?: any;
+}
+
 export class PopupSpan extends UI.Primitive("span") {
+    declare options: ElementOptions<PopupSpanOptions>;
+    declare content: any;
+    declare popup: any;
+
     getChildrenToRender() {
         return [
             <div ref="content">

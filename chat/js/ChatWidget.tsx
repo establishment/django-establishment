@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Switcher} from "../../../stemjs/ui/Switcher";
 import {TextArea} from "../../../stemjs/ui/input/Input";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -27,7 +27,14 @@ import {ChatStyle} from "./ChatStyle";
 ButtonStyle.getInstance().ensureFirstUpdate();
 InputStyle.getInstance().ensureFirstUpdate();
 
+export interface PreviewMarkupButtonOptions {
+    getValue?: any;
+    setValue?: any;
+}
+
 class PreviewMarkupButton extends Button {
+    declare options: ExtendedOptions<Button, PreviewMarkupButtonOptions>;
+
     setOptions(options) {
         if (!options.icon) {
             options.label = options.label || UI.T("Preview");
@@ -48,7 +55,20 @@ class PreviewMarkupButton extends Button {
     }
 }
 
+export interface EditableMessageOptions {
+    deletable?: any;
+}
+
 class EditableMessage extends UI.Element {
+    declare messageInput: any;
+
+    declare options: ElementOptions<EditableMessageOptions>;
+    declare content: any;
+    declare contentContainer: any;
+    declare contentSwitcher: any;
+    declare editContent: any;
+    declare message: any;
+
     getDefaultOptions() {
         return Object.assign({}, super.getDefaultOptions(), {
             deletable: true,
@@ -153,8 +173,16 @@ class EditableMessage extends UI.Element {
 }
 
 
+export interface GroupChatMessageOptions {
+    message?: any;
+}
+
 @registerStyle(ChatStyle)
 class GroupChatMessage extends EditableMessage {
+    declare options: ExtendedOptions<EditableMessage, GroupChatMessageOptions>;
+    declare contentSwitcher: any;
+    declare message: any;
+
     setOptions(options) {
         super.setOptions(options);
         if (this.message.hasTemporaryId()) {
@@ -229,8 +257,16 @@ class GroupChatMessage extends EditableMessage {
 }
 
 
+export interface PrivateChatMessageOptions {
+    message?: any;
+}
+
 @registerStyle(ChatStyle)
 class PrivateChatMessage extends UI.Element {
+    declare options: ElementOptions<PrivateChatMessageOptions>;
+    declare contentSwitcher: any;
+    declare message: any;
+
     setOptions(options) {
         super.setOptions(options);
         this.message = options.message;
@@ -724,7 +760,13 @@ class PrivateChatWidget extends ChatWidget(PrivateChatMessage) {
     }
 }
 
+export interface VotableChatMessageOptions {
+    message?: any;
+}
+
 class VotableChatMessage extends GroupChatMessage {
+    declare options: ExtendedOptions<GroupChatMessage, VotableChatMessageOptions>;
+
     render() {
         let result = super.render();
         result[1].options.children.push(<CommentVotingWidgetWithThumbs style={{display: "inline-block"}} message={this.options.message} />);

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {FormField, Form} from "../../../stemjs/ui/form/Form";
 import {TextInput} from "../../../stemjs/ui/input/Input";
@@ -20,7 +20,21 @@ import {FacebookManager} from "./thirt-party/FacebookManager";
 import {GoogleManager} from "./thirt-party/GoogleManager";
 
 
+export interface GeneralInformationPanelOptions {
+    user?: any;
+}
+
 export class GeneralInformationPanel extends UI.Element {
+    declare options: ElementOptions<GeneralInformationPanelOptions>;
+    declare displayNameSelect: any;
+    declare firstNameFormField: any;
+    declare firstNameFormInput: any;
+    declare lastNameFormField: any;
+    declare lastNameFormInput: any;
+    declare saveProfileButton: any;
+    declare userNameFormField: any;
+    declare userNameFormInput: any;
+
     getFormFields() {
         return [
             <FormField ref="firstNameFormField" label="First Name">
@@ -105,7 +119,20 @@ export class GeneralInformationPanel extends UI.Element {
 }
 
 
+export interface SecuritySettingsPanelOptions {
+    user?: any;
+}
+
 export class SecuritySettingsPanel extends UI.Element {
+    declare options: ElementOptions<SecuritySettingsPanelOptions>;
+    declare newPasswordGroup: any;
+    declare newPasswordGroup2: any;
+    declare newPasswordInput: any;
+    declare newPasswordInput2: any;
+    declare oldPasswordGroup: any;
+    declare oldPasswordInput: any;
+    declare setPasswordButton: any;
+
     render() {
         return [
             <h3>{UI.T("Password")}</h3>,
@@ -178,7 +205,17 @@ export class SecuritySettingsPanel extends UI.Element {
 }
 
 
+export interface EmailPanelOptions {
+    user?: any;
+}
+
 export class EmailPanel extends UI.Element {
+    declare options: ElementOptions<EmailPanelOptions>;
+    declare addEmailButton: any;
+    declare emailFormField: any;
+    declare emailFormInput: any;
+    declare emailSubscriptionCheckbox: any;
+
     render() {
         const emails = multikeySort(this.options.user.emails, email => [email.verified, email.primary], {desc: true});
 
@@ -329,7 +366,13 @@ export class EmailPanel extends UI.Element {
 }
 
 
+export interface SocialAccountsPanelOptions {
+    user?: any;
+}
+
 export class SocialAccountsPanel extends UI.Element {
+    declare options: ElementOptions<SocialAccountsPanelOptions>;
+
     constructor(options) {
         super(options);
         // Ensure Social managers are initialized
@@ -405,6 +448,9 @@ export class SocialAccountsPanel extends UI.Element {
 
 
 export class UserSettingsPanel extends UI.Element {
+    declare initialUrlParts: any;
+    declare tabArea: any;
+
     extraNodeAttributes(attr) {
         super.extraNodeAttributes(attr);
         attr.setStyle({

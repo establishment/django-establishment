@@ -1,9 +1,14 @@
-// @ts-nocheck
-import {UI} from "../../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {Table} from "../../../../stemjs/ui/table/Table";
 import {MarkupRenderer} from "../../../../stemjs/markup/MarkupRenderer";
 
+export interface MarkupTableOptions {
+    rows?: any[];
+}
+
 export class MarkupTable extends Table {
+    declare options: ExtendedOptions<Table, MarkupTableOptions>;
+
     setOptions(options) {
         options.columns = (options.columns || []).map((column) => ({
             ...column,

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {Level, Size} from "../../../stemjs/ui/Constants";
@@ -10,8 +10,15 @@ import {LoginModal} from "../../accounts/js/LoginModal";
 import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer";
 import {ForumButtonStyle} from "./ForumStyle";
 
+export interface CreateThreadReplyButtonOptions {
+    forumThreadId?: any;
+}
+
 @registerStyle(ForumButtonStyle)
 class CreateThreadReplyButton extends Button {
+    declare options: ExtendedOptions<Button, CreateThreadReplyButtonOptions>;
+    declare markupEditorModal: any;
+
     getDefaultOptions() {
         return {
             level: Level.PRIMARY,
@@ -41,7 +48,13 @@ class CreateThreadReplyButton extends Button {
     }
 }
 
+export interface CreateThreadReplyModalOptions {
+    forumThreadId?: any;
+}
+
 class CreateThreadReplyModal extends MarkupEditorModal {
+    declare options: ExtendedOptions<MarkupEditorModal, CreateThreadReplyModalOptions>;
+
     onMount() {
         super.onMount();
         this.doneButton.addClickListener(() => {

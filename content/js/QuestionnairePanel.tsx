@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {CallThrottler} from "../../../stemjs/base/CallModifier";
 import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
@@ -97,8 +97,20 @@ export class QuestionnaireStyle extends StyleSheet {
 }
 
 
+export interface QuestionPageOptions {
+    editable?: any;
+    instance?: any;
+    panel?: any;
+    question?: any;
+}
+
 @registerStyle(QuestionnaireStyle)
 export class QuestionPage extends UI.Element {
+    declare options: ElementOptions<QuestionPageOptions>;
+    declare ajaxThrottler: any;
+    declare otherChoice: any;
+    declare textArea: any;
+
     getDefaultOptions() {
         return {
             editable: true
@@ -244,6 +256,8 @@ export class QuestionPage extends UI.Element {
 
 
 class OrderedChildrenSwitcher extends Switcher {
+    declare childIndex: any;
+
     constructor() {
         super(...arguments);
         this.childIndex = 0;
@@ -271,8 +285,18 @@ class OrderedChildrenSwitcher extends Switcher {
 }
 
 
+export interface QuestionnairePanelOptions {
+    questionnaireId?: any;
+}
+
 @registerStyle(QuestionnaireStyle)
 export class QuestionnairePanel extends UI.Element {
+    declare options: ElementOptions<QuestionnairePanelOptions>;
+    declare backButton: any;
+    declare forwardButton: any;
+    declare progressArea: any;
+    declare questionPageSwitcher: any;
+
     getQuestionnaire() {
         return Questionnaire.get(this.options.questionnaireId);
     }
@@ -350,8 +374,16 @@ export class QuestionnairePanel extends UI.Element {
 }
 
 
+export interface DelayedQuestionnairePanelOptions {
+    error?: any;
+    loaded?: any;
+    questionnaireId?: any;
+}
+
 @registerStyle(QuestionnaireStyle)
 export class DelayedQuestionnairePanel extends UI.Element {
+    declare options: ElementOptions<DelayedQuestionnairePanelOptions>;
+
     isFinished() {
         return !!QuestionnaireInstance.getCurrentUserInstance(this.options.questionnaireId).dateSubmitted;
     }
@@ -387,7 +419,14 @@ export class DelayedQuestionnairePanel extends UI.Element {
 }
 
 
+export interface QuestionnaireModalOptions {
+    questionnaireId?: any;
+}
+
 export class QuestionnaireModal extends Modal {
+    declare options: ExtendedOptions<Modal, QuestionnaireModalOptions>;
+    declare questionnairePanel: any;
+
     render() {
         return <DelayedQuestionnairePanel questionnaireId={this.options.questionnaireId} ref="questionnairePanel"/>;
     }

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {Dispatchable} from "../../../stemjs/base/Dispatcher";
 import {VolatileFloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow";
@@ -14,6 +14,8 @@ import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 
 
 export class AbstractUsernameAutocomplete extends Dispatchable {
+    declare static usernamePrefixCache: any;
+
     static requestNewUsers(prefix, callback) {
         Ajax.getJSON(PublicUser.fetchURL, {
             usernamePrefix: prefix
@@ -51,7 +53,20 @@ export class AbstractUsernameAutocomplete extends Dispatchable {
     }
 }
 
+export interface AutocompleteWindowOptions {
+    direction?: any;
+    highlightColor?: any;
+    maxHeight?: any;
+    onChooseUser?: any;
+    userDivHeight?: any;
+    userIds?: any;
+}
+
 export class AutocompleteWindow extends VolatileFloatingWindow {
+    declare options: ExtendedOptions<VolatileFloatingWindow, AutocompleteWindowOptions>;
+    declare currentIndex: any;
+    declare userDivs: any;
+
     extraNodeAttributes(attr) {
         attr.setStyle("z-index", "9999");
     }
@@ -199,6 +214,11 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
 }
 
 export class UserInputField extends UI.Element {
+    declare duringAutocomplete: any;
+    declare errorArea: any;
+    declare submitButton: any;
+    declare usernameInput: any;
+
     render() {
         return [
             <TextInput ref="usernameInput" />,

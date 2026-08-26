@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {UI} from "../../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../../stemjs/ui/UIBase";
 import {ensure} from "../../../../stemjs/base/Require";
 import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 
@@ -13,7 +12,19 @@ const State = {
 };
 
 
+export interface YoutubeIframeOptions {
+    height?: any;
+    videoId?: any;
+    width?: any;
+}
+
 export class YoutubeIframe extends UI.Element {
+    declare options: ElementOptions<YoutubeIframeOptions>;
+    declare _delayedListeners: any;
+    declare player: any;
+    declare static _registeredCallbacks: any;
+    declare static youtubeAPI: any;
+
     static PLAYER_EVENTS = ["onReady", "onStateChange", "onPlaybackQualityChange", "onPlaybackRateChange", "onError", "onApiChange"];
     static YOUTUBE_API_STATE = State.NOT_STARTED;
 

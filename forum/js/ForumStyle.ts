@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {styleRule} from "../../../stemjs/decorators/Style";
 import {StyleSheet} from "../../../stemjs/ui/Style";
 
@@ -85,6 +84,7 @@ class ForumThreadPanelStyle extends StyleSheet {
     @styleRule
     backButton = {
         color: "#444",
+        // @ts-expect-error Reads undefined - the rule is fontSize; see the Backlog entry on defects
         fontSize: this.fontsize,
         textDecoration: "none",
         transition: ".15s",
@@ -295,6 +295,7 @@ export class ForumButtonStyle extends StyleSheet {
 class ForumThreadHeaderStyle extends StyleSheet {
     constructor() {
         super({
+            // @ts-expect-error Nothing reads updateOnResize - see the Backlog entry on defects
             updateOnResize: true,
         });
     }
@@ -443,6 +444,7 @@ class ForumThreadPreviewStyle extends StyleSheet {
 class ForumThreadBubbleStyle extends StyleSheet {
     constructor() {
         super({
+            // @ts-expect-error Nothing reads updateOnResize - see the Backlog entry on defects
             updateOnResize: true,
         });
     }

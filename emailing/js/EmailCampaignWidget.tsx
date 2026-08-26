@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Level} from "../../../stemjs/ui/Constants";
 import {SortableTable} from "../../../stemjs/ui/table/SortableTable";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -15,7 +15,13 @@ import {EmailCampaign} from "./state/EmailCampaignStore";
 import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 
 
+export interface GenericConfirmModalOptions {
+    campaign?: any;
+}
+
 class GenericConfirmModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, GenericConfirmModalOptions>;
+
     getBody() {
         return [
             <div>{this.getActionText()}</div>
@@ -82,7 +88,14 @@ class SendCampaignConfirmModal extends GenericConfirmModal {
 }
 
 
+export interface TestSendCampaignModalOptions {
+    campaign?: any;
+}
+
 class TestSendCampaignModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, TestSendCampaignModalOptions>;
+    declare receiverIdInput: any;
+
     constructor(options) {
         super(options);
     }
@@ -128,7 +141,18 @@ class TestSendCampaignModal extends ActionModal {
 }
 
 
+export interface EmailCampaignModalOptions {
+    campaign?: any;
+}
+
 class EmailCampaignModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, EmailCampaignModalOptions>;
+    declare fields: any;
+    declare fromAddressInput: any;
+    declare gatewaySelect: any;
+    declare isNewsletterInput: any;
+    declare nameInput: any;
+
     constructor(options) {
         super(options);
         this.fields = ["name", "fromAddress", "gatewayId", "isNewsletter"];
@@ -215,6 +239,12 @@ class EditEmailCampaignModal extends EmailCampaignModal {
 
 
 class EmailCampaignTableRow extends TableRow {
+    declare clearStatusCampaignButton: any;
+    declare deleteCampaignButton: any;
+    declare editCampaignButton: any;
+    declare sendCampaignButton: any;
+    declare testSendCampaignButton: any;
+
     onMount() {
         super.onMount();
         this.deleteCampaignButton.addClickListener(() => {
@@ -339,7 +369,14 @@ class EmailCampaignTable extends SortableTable {
 }
 
 
+export interface EmailCampaignWidgetOptions {
+    entry?: any;
+}
+
 class EmailCampaignWidget extends UI.Element {
+    declare options: ElementOptions<EmailCampaignWidgetOptions>;
+    declare addCampaignButton: any;
+
     render() {
         return [<EmailCampaignTable />,
             <Button level={Level.SUCCESS} ref="addCampaignButton">Add Campaign</Button>

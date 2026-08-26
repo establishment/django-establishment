@@ -1,8 +1,17 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 
+export interface UserHandleOptions {
+    color?: any;
+    userId?: any;
+}
+
 class UserHandle extends UI.Element {
+    declare options: ElementOptions<UserHandleOptions>;
+    declare handle: any;
+    declare user: any;
+
     setOptions(options) {
         options.userId = options.userId || options.id;
 

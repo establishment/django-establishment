@@ -1,12 +1,36 @@
 // @ts-nocheck
-import {UI} from "../../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {Transition} from "../../../../stemjs/ui/Transition";
 import {SVGText} from "../../../../stemjs/ui/svg/SVGText";
 import * as math from "../../../../stemjs/numerics/StemMath";
 import {SVGRoot, SVGGroup, SVGPath} from "../../../../stemjs/ui/svg/SVGPrimitives";
 import {makeOpacityTransition} from "../../../../stemjs/ui/svg/Animations";
 
+export interface PieChartSectorOptions {
+    displayPercent?: any;
+    angleSpan?: any;
+    center?: any;
+    displayPercents?: any;
+    endOpacity?: any;
+    hoverExpandRadius?: any;
+    hoverTime?: any;
+    innerRadius?: any;
+    label?: any;
+    mouseenterCallback?: any;
+    mouseoutCallback?: any;
+    outerRadius?: any;
+    pathFill?: any;
+    percent?: any;
+    spacing?: any;
+    startAngle?: any;
+    startOpacity?: any;
+}
+
 class PieChartSector extends SVGGroup {
+    declare options: ExtendedOptions<SVGGroup, PieChartSectorOptions>;
+    declare label: any;
+    declare path: any;
+
     getDefaultOptions() {
         return {
             startOpacity: 0.65,
@@ -125,7 +149,20 @@ class PieChartSector extends SVGGroup {
     }
 }
 
+export interface PieChartOptions {
+    center?: any;
+    hoverExpandRadius?: any;
+    innerRadius?: any;
+    outerRadius?: any;
+    sectorExtraOptions?: any;
+    sectors?: any;
+    spacing?: any;
+    startAngle?: any;
+}
+
 export class PieChart extends SVGGroup {
+    declare options: ExtendedOptions<SVGGroup, PieChartOptions>;
+
     getDefaultOptions() {
         return {
             innerRadius: 40,
@@ -169,7 +206,17 @@ export class PieChart extends SVGGroup {
     }
 }
 
+export interface PieChartSVGOptions {
+    hoverExpandRadius?: any;
+    innerRadius?: any;
+    outerRadius?: any;
+    sectorExtraOptions?: any;
+    sectors?: any;
+}
+
 export class PieChartSVG extends SVGRoot {
+    declare options: ExtendedOptions<SVGRoot, PieChartSVGOptions>;
+
     getDefaultOptions() {
         return {
             width: 240,

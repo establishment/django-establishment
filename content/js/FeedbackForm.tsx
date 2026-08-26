@@ -1,8 +1,9 @@
 // @ts-nocheck
 import {Ajax} from "../../../stemjs/base/Ajax";
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
-import {styleRule, StyleSheet} from "../../../stemjs/decorators/Style";
+import {styleRule} from "../../../stemjs/decorators/Style";
+import {StyleSheet} from "../../../stemjs/ui/Style";
 import {Form} from "../../../stemjs/ui/form/Form";
 import {Input, EmailInput, TextArea, SubmitInput} from "../../../stemjs/ui/input/Input";
 import {enhance} from "../../../stemjs/ui/Color";
@@ -154,8 +155,17 @@ export class FeedbackFormStyle extends StyleSheet {
 }
 
 
+export interface FeedbackFormOptions {
+    formState?: any;
+}
+
 @registerStyle(FeedbackFormStyle)
 export class FeedbackForm extends UI.Element {
+    declare options: ElementOptions<FeedbackFormOptions>;
+    declare emailInput: any;
+    declare messageInput: any;
+    declare nameInput: any;
+
     getDefaultOptions(options) {
         return {
             formState: 0,

@@ -10,6 +10,14 @@ export class Article extends FetchStoreMixin("Article", {
     fetchURL: "/fetch_article/",
     maxFetchObjectCount: 32,
 }) {
+    declare dateCreated: any;
+    declare dateModified: any;
+    declare dependency: any;
+    declare getName: any;
+    declare isPublic: any;
+    declare markup: any;
+    declare name: any;
+
     declare userCreatedId: number;
     declare baseArticleId?: number;
     declare languageId?: number;
@@ -58,6 +66,8 @@ export class Article extends FetchStoreMixin("Article", {
 
 @globalStore
 export class ArticleEdit extends BaseStore("articleedit", {dependencies: ["article"]}) {
+    declare content: any;
+
     declare articleId: number;
 
     getArticle(): Article | null {

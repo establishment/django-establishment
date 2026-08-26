@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup";
@@ -20,7 +20,14 @@ import {MarkupEditor} from "./markup/MarkupEditor";
 
 const deleteRedirectLink = "/";
 
+export interface ArticleMarkupEditorOptions {
+    article?: any;
+    value?: any;
+}
+
 class ArticleMarkupEditor extends MarkupEditor {
+    declare options: ExtendedOptions<MarkupEditor, ArticleMarkupEditorOptions>;
+
     setOptions(options) {
         super.setOptions(options);
         this.options.value = this.options.article.markup;
@@ -37,7 +44,15 @@ class ArticleMarkupEditor extends MarkupEditor {
 }
 
 
+export interface DeleteArticleModalOptions {
+    article?: any;
+}
+
 class DeleteArticleModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, DeleteArticleModalOptions>;
+    declare deleteArticleButton: any;
+    declare messageArea: any;
+
     getActionName() {
         return "Delete Article";
     }
@@ -70,7 +85,34 @@ class DeleteArticleModal extends ActionModal {
     }
 }
 
+export interface ArticleEditorOptions {
+    articleId?: any;
+}
+
 class ArticleEditor extends UI.Element {
+    declare options: ElementOptions<ArticleEditorOptions>;
+    declare articleNameFormInput: any;
+    declare deleteArticleModal: any;
+    declare dependencyFormInput: any;
+    declare diffWidget: any;
+    declare languageSelect: any;
+    declare leftEditable: any;
+    declare leftTextSelector: any;
+    declare markupEditor: any;
+    declare ownerFormInput: any;
+    declare publicCheckbox: any;
+    declare rightEditable: any;
+    declare rightTextSelector: any;
+    declare saveMarkupButton: any;
+    declare saveMarkupMessageArea: any;
+    declare saveOptionsButton: any;
+    declare saveOptionsMessageArea: any;
+    declare setOwnerButton: any;
+    declare setOwnerMessageArea: any;
+    declare tabArea: any;
+    declare versions: any;
+    declare versionsLabels: any;
+
     setOptions(options) {
         super.setOptions(options);
 

@@ -1,7 +1,8 @@
-// @ts-nocheck
 import {MarkupClassMap, MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
 
 class ChatMarkupRenderer extends MarkupRenderer {
+    declare static classMap: MarkupClassMap;
+
     setOptions(options) {
         options.classMap = this.constructor.classMap;
         super.setOptions(options);

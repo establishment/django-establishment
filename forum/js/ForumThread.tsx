@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {ActionModal, ActionModalButton} from "../../../stemjs/ui/modal/Modal";
 import {Input} from "../../../stemjs/ui/input/Input";
@@ -26,7 +26,14 @@ let forumThreadPanelStyle = ForumThreadPanelStyle.getInstance();
 ForumButtonStyle.getInstance(); // To ensure css importance order
 
 
+export interface CreateForumThreadModalOptions {
+    forumId?: any;
+}
+
 class CreateForumThreadModal extends MarkupEditorModal {
+    declare options: ExtendedOptions<MarkupEditorModal, CreateForumThreadModalOptions>;
+    declare titleInput: any;
+
     render() {
         let inputStyle = {
             "margin-bottom": "4px",
@@ -78,8 +85,14 @@ class CreateForumThreadModal extends MarkupEditorModal {
     }
 }
 
+export interface CreateForumThreadButtonOptions {
+    forumId?: any;
+}
+
 @registerStyle(ForumButtonStyle)
 class CreateForumThreadButton extends Button {
+    declare options: ExtendedOptions<Button, CreateForumThreadButtonOptions>;
+
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.button);
     }
@@ -112,7 +125,13 @@ class CreateForumThreadButton extends Button {
     }
 }
 
+export interface DeleteForumThreadModalOptions {
+    forumThread?: any;
+}
+
 class DeleteForumThreadModal extends ActionModal {
+    declare options: ExtendedOptions<ActionModal, DeleteForumThreadModalOptions>;
+
     getTitle() {
         return UI.T("Delete forum thread");
     }
@@ -136,7 +155,13 @@ class DeleteForumThreadModal extends ActionModal {
 
 let DeleteForumThreadButton = ActionModalButton(DeleteForumThreadModal);
 
+export interface ForumThreadReplyOptions {
+    messageInstance?: any;
+}
+
 class ForumThreadReply extends UI.Element {
+    declare options: ElementOptions<ForumThreadReplyOptions>;
+
     extraNodeAttributes(attr) {
         // attr.addClass(forumThreadReplyStyle.mainClass);
     }
@@ -207,8 +232,16 @@ class ForumThreadReply extends UI.Element {
     }
 }
 
+export interface ForumThreadPanelOptions {
+    forumThread?: any;
+}
+
 @registerStyle(ForumThreadPanelStyle)
 class ForumThreadPanel extends UI.Element {
+    declare content: any;
+
+    declare options: ElementOptions<ForumThreadPanelOptions>;
+
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.mainClass);
     }

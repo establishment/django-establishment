@@ -6,6 +6,10 @@ import {TextInput} from "../../../stemjs/ui/input/Input";
 import {Level} from "../../../stemjs/ui/Constants";
 
 class PasswordReset extends UI.Element {
+    declare emailFormField: any;
+    declare emailInput: any;
+    declare resetPasswordButton: any;
+
     render() {
         if (USER.isAuthenticated) {
             window.location.href = "/accounts/settings/";
