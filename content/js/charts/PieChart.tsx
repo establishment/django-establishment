@@ -8,7 +8,7 @@ import {makeOpacityTransition} from "../../../../stemjs/ui/svg/Animations";
 
 export interface PieChartSectorOptions {
     displayPercent?: any;
-    angleSpan?: any;
+    angleSpan?: number;
     center?: any;
     displayPercents?: any;
     endOpacity?: any;
@@ -20,7 +20,7 @@ export interface PieChartSectorOptions {
     mouseoutCallback?: any;
     outerRadius?: any;
     pathFill?: any;
-    percent?: any;
+    percent?: number;
     spacing?: any;
     startAngle?: any;
     startOpacity?: any;

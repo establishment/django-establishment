@@ -21,7 +21,7 @@ import {GoogleManager} from "./thirt-party/GoogleManager";
 
 
 export interface GeneralInformationPanelOptions {
-    user?: any;
+    user?: User;
 }
 
 export class GeneralInformationPanel extends UI.Element {
@@ -120,7 +120,7 @@ export class GeneralInformationPanel extends UI.Element {
 
 
 export interface SecuritySettingsPanelOptions {
-    user?: any;
+    user?: User;
 }
 
 export class SecuritySettingsPanel extends UI.Element {
@@ -206,7 +206,7 @@ export class SecuritySettingsPanel extends UI.Element {
 
 
 export interface EmailPanelOptions {
-    user?: any;
+    user?: User;
 }
 
 export class EmailPanel extends UI.Element {
@@ -367,7 +367,7 @@ export class EmailPanel extends UI.Element {
 
 
 export interface SocialAccountsPanelOptions {
-    user?: any;
+    user?: User;
 }
 
 export class SocialAccountsPanel extends UI.Element {

@@ -98,7 +98,7 @@ export class QuestionnaireStyle extends StyleSheet {
 
 
 export interface QuestionPageOptions {
-    editable?: any;
+    editable?: boolean;
     instance?: any;
     panel?: any;
     question?: any;

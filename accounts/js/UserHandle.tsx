@@ -3,7 +3,7 @@ import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 
 export interface UserHandleOptions {
-    color?: any;
+    color?: string;
     userId?: any;
 }
 

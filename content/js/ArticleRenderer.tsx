@@ -90,9 +90,9 @@ class RecursiveArticleRenderer extends ArticleRenderer {
 }
 
 export interface ArticleSwitcherOptions {
-    initialArticle?: any;
+    initialArticle?: Article;
     initialArticleId?: any;
-    showEditButton?: any;
+    showEditButton?: boolean;
 }
 
 class ArticleSwitcher extends Switcher {

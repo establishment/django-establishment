@@ -137,7 +137,7 @@ class MiniMessage extends UI.Element {
 
 export interface UserSearchInputOptions {
     placeholder?: any;
-    textInputStyle?: any;
+    textInputStyle?: string;
 }
 
 class UserSearchInput extends UI.Element {

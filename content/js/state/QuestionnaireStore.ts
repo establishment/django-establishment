@@ -24,6 +24,8 @@ export class Questionnaire extends BaseStore("questionnaire") {
 
 @globalStore
 export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {dependencies: ["Questionnaire"]}) {
+    declare otherChoice: any;
+
     static Type = {
         PLAIN_TEXT: 1,
         SINGLE_CHOICE: 2,
@@ -65,6 +67,8 @@ export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {d
 
 @globalStore
 export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestionOption", {dependencies: ["QuestionnaireQuestion"]}) {
+    declare answer: any;
+
     declare questionId: number;
     declare priority: number;
     declare text?: string;

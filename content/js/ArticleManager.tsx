@@ -479,7 +479,7 @@ class ArticleManager extends UI.Element {
 }
 
 export interface ArticleTranslationManagerOptions {
-    baseArticle?: any;
+    baseArticle?: Article;
     readOnly?: any;
 }
 

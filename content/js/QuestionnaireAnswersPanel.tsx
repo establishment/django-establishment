@@ -64,7 +64,7 @@ class QuestionnaireAnswersStyle extends QuestionnaireStyle {
 
 export interface QuestionSummaryOptions {
     instances?: any;
-    question?: any;
+    question?: QuestionnaireQuestion;
     widget?: any;
 }
 

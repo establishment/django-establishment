@@ -11,7 +11,7 @@ import {RawCheckboxInput} from "../../../../stemjs/ui/input/Input";
 
 export interface MarkupEditorOptions {
     classMap?: any;
-    showButtons?: any;
+    showButtons?: boolean;
     value?: any;
 }
 

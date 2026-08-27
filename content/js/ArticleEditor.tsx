@@ -21,7 +21,7 @@ import {MarkupEditor} from "./markup/MarkupEditor";
 const deleteRedirectLink = "/";
 
 export interface ArticleMarkupEditorOptions {
-    article?: any;
+    article?: Article;
     value?: any;
 }
 
@@ -45,7 +45,7 @@ class ArticleMarkupEditor extends MarkupEditor {
 
 
 export interface DeleteArticleModalOptions {
-    article?: any;
+    article?: Article;
 }
 
 class DeleteArticleModal extends ActionModal {
