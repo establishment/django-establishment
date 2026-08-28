@@ -438,7 +438,13 @@ export class QuestionnaireModal extends Modal {
 }
 
 
+export interface QuestionnaireButtonOptions {
+    questionnaireId?: any;
+}
+
 export class QuestionnaireButton extends ActionModalButton(QuestionnaireModal) {
+    declare options: ExtendedOptions<InstanceType<ReturnType<typeof ActionModalButton>>, QuestionnaireButtonOptions>;
+
     getDefaultOptions() {
         return {
             level: Level.PRIMARY,

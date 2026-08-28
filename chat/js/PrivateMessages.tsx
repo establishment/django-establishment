@@ -39,7 +39,6 @@ function getUserMessagesUrl(userId) {
 }
 
 export interface MiniMessageOptions {
-    hoverColor?: any;
     backgroundColorActive?: any;
     list?: any;
     privateChatId?: any;
@@ -50,7 +49,6 @@ class MiniMessage extends UI.Element {
 
     getDefaultOptions() {
         return {
-            hoverColor: "rgba(0, 0, 0, .05)",
             backgroundColorActive: "#3373b7"
         };
     }

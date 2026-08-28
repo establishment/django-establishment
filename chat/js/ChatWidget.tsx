@@ -83,7 +83,7 @@ class EditableMessage extends UI.Element {
     render() {
         return [<Button ref="editButton" onClick={() => this.toggleEditMode()}>{UI.T("Edit")}</Button>,
             <Switcher ref="contentSwitcher">
-                <span ref="contentContainer" style={{"white-space": "pre-line"}}>
+                <span ref="contentContainer" style={{whiteSpace: "pre-line"}}>
                     {this.message.hasMarkupEnabled() ?
                         <ChatMarkupRenderer ref={this.refLink("content")} value={this.message.getContent()}
                                            style={{height:"auto"}} /> :
@@ -97,7 +97,7 @@ class EditableMessage extends UI.Element {
     showEditMode() {
         if (!this.editContent) {
             let writingSectionStyle = {
-                "margin-top": "5px"
+                marginTop: "5px"
             };
             let chatInputStyle = {
                 overflow: "auto",
@@ -210,13 +210,13 @@ class GroupChatMessage extends EditableMessage {
         let editButton;
         if (this.message.userId === USER.id || USER.isSuperUser) {
         // if (USER.isSuperUser) {
-            editButton = <a style={Object.assign({"cursor": "pointer"}, this.styleSheet.timestamp)}
+            editButton = <a style={Object.assign({cursor: "pointer"}, this.styleSheet.timestamp)}
                             onClick={() => this.toggleEditMode()}>{UI.T("Edit")}</a>;
         }
 
         if (!this.contentSwitcher) {
             this.contentSwitcher = <Switcher>
-                <span ref="contentContainer" style={{"white-space": "pre-line"}}>
+                <span ref="contentContainer" style={{whiteSpace: "pre-line"}}>
                     {this.message.hasMarkupEnabled() ?
                         <ChatMarkupRenderer ref={this.refLink("content")} value={this.message.getContent()}
                                            style={{height:"auto"}} /> :
@@ -290,7 +290,7 @@ class PrivateChatMessage extends UI.Element {
     render() {
         if (!this.contentSwitcher) {
             this.contentSwitcher = <Switcher>
-                <span ref="contentContainer" style={{"white-space": "pre-line"}}>
+                <span ref="contentContainer" style={{whiteSpace: "pre-line"}}>
                     {this.message.hasMarkupEnabled() ?
                         <ChatMarkupRenderer ref={this.refLink("content")} value={this.message.getContent()}
                                            style={{height:"auto"}} /> :
@@ -372,317 +372,342 @@ class ChatMessageScrollSection extends InfiniteScrollable {
 }
 
 
-let ChatWidget = (ChatMessageClass) => {
-    @registerStyle(ChatStyle)
-    class ChatWidgetClass extends Pluginable(UI.Element) {
-        getDefaultOptions(options) {
-            return {
-                dateTimestamps: true,
-                renderMessage: (messageInstance) => {
-                    return <ChatMessageClass key={messageInstance.getNormalizedId()} message={messageInstance} />;
-                }
-            };
-        }
+export interface ChatWidgetBaseOptions {
+    baseRequest?: any;
+    extraHeightOffset?: any;
+    messageThread?: any;
+    plugins?: any;
+    renderMessage?: any;
+}
 
-        get messageThread() {
-            return this.options.messageThread;
-        }
+@registerStyle(ChatStyle)
+class ChatWidgetBase extends Pluginable(UI.Element) {
+    declare options: ExtendedOptions<InstanceType<ReturnType<typeof Pluginable>>, ChatWidgetClassOptions>;
 
-        setOptions(options) {
-            super.setOptions(options);
-            this.initializeShowLoadMoreButton();
-        }
+    getDefaultOptions(options) {
+        return {
+            dateTimestamps: true,
+        };
+    }
 
-        extraNodeAttributes(attr) {
-            super.extraNodeAttributes(attr);
-            attr.setStyle({
-                display: "flex",
-                flexDirection: "column",
-            });
-        }
+    get messageThread() {
+        return this.options.messageThread;
+    }
 
-        canOverwrite() {
-            return false;
-        }
+    setOptions(options) {
+        super.setOptions(options);
+        this.initializeShowLoadMoreButton();
+    }
 
-        initializeShowLoadMoreButton() {
-            // TODO: this is a shitty way of knowing if there are more messages!
-            if (this.messageThread.getNumMessages() >= 20) {
-                this.showLoadMoreButton = true;
-            }
-        }
+    extraNodeAttributes(attr) {
+        super.extraNodeAttributes(attr);
+        attr.setStyle({
+            display: "flex",
+            flexDirection: "column",
+        });
+    }
 
-        createVirtualMessage(request, message) {
-            let virtualId = this.messageThread.getMaxMessageId() + "-" + MessageInstance.generateVirtualId() + "-" + Math.random();
-            let virtualMessageInstance = MessageInstance.createVirtualMessageInstance(message, this.messageThread, virtualId);
-            request.virtualId = virtualId;
-            return virtualMessageInstance;
-        }
+    canOverwrite() {
+        return false;
+    }
 
-        async sendMessage(message) {
-            if (!USER.isAuthenticated) {
-                LoginModal.show();
-                return;
-            }
-            const request = {
-                ...this.options.baseRequest,
-            };
-
-            message = message || this.chatInput.getValue();
-            message = message.trim();
-
-            if (!message) {
-                return;
-            }
-            request.message = message;
-
-            // Create a virtual message to be drawn temporarily
-            const virtualMessageInstance = this.createVirtualMessage(request, message);
-            this.messageWindow.scrollToBottom();
-
-            this.chatInput.setValue("");
-            this.chatInput.dispatch("messageSent");
-
-            try {
-                const response = await Ajax.postJSON(this.getPostURL(), request, {disableStateImport: true});
-                if (response.error) {
-                    virtualMessageInstance.setPostError(response.error);
-                    return;
-                }
-                if (virtualMessageInstance?.hasTemporaryId()) {
-                    MessageInstance.applyUpdateObjectId(virtualMessageInstance, response.messageId);
-                    GlobalState.importState(response.state);
-                }
-            } catch (error) {
-                if (virtualMessageInstance) {
-                    virtualMessageInstance.setPostError(42);
-                }
-                console.log("Error in sending chat message:\n" + error.message);
-                console.log(error.stack);
-            }
-        }
-
-        saveScrollPosition() {
-            this.scrollPosition = this.messageWindow.node.scrollTop;
-            this.scrollPercent = this.scrollPosition / (this.messageWindow.node.scrollHeight - this.messageWindow.node.clientHeight);
-        }
-
-        applyScrollPosition() {
-            this.messageWindow.node.scrollTop = this.scrollPosition || this.messageWindow.node.scrollHeight;
-            this.chatInput.node.focus();
-        }
-
-        addResizeListeners() {
-            this.messageWindow.addNodeListener("scroll", () => {
-                let scrollTop = this.messageWindow.node.scrollTop;
-                if (scrollTop < 20) {
-                    this.loadMoreMessages();
-                }
-            });
-
-            this.addListener("hide", () => {this.saveScrollPosition();});
-            this.addListener("show", () => {this.applyScrollPosition();});
-
-            window.addEventListener("resize", () => {
-                this.saveScrollPosition();
-                this.setAdaptiveHeight();
-            });
-
-            this.addListener("resize", () => {
-                this.setAdaptiveHeight();
-                this.messageWindow.node.scrollTop = this.scrollPercent * (this.messageWindow.node.scrollHeight - this.messageWindow.node.clientHeight);
-            });
-        }
-
-        getDesiredHeight() {
-            if (this.options.style && this.options.style.height) {
-                return this.options.style.height;
-            }
-            let viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-            let navbarHeight = document.getElementById("navbar").offsetHeight; // use offsetHeight to accommodate padding and margin
-
-            let availableHeight = viewportHeight - navbarHeight - (this.options.extraHeightOffset || 25);
-            return Math.max(availableHeight || 0, 100) + "px"; // it needs at least 100px
-        }
-
-        setAdaptiveHeight() {
-            this.setStyle("height", this.getDesiredHeight());
-        }
-
-        setHeight(height) {
-            this.setStyle("height", height);
-        }
-
-        renderMessageView() {
-            let loadMoreButton;
-
-
-            if (this.showLoadMoreButton) {
-                loadMoreButton = (
-                    <div className="text-center">
-                        <AjaxButton ref={this.refLink("loadMoreButton")} onClick={() => {this.loadMoreMessages()}}
-                                       style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {icon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
-                        />
-                    </div>
-                );
-            }
-
-            return [
-                <ChatMessageScrollSection className={this.styleSheet.renderMessageView}
-                                          ref="messageWindow"
-                                          entryRenderer={this.options.renderMessage}
-                                          entries={this.messageThread.getMessages()}
-                                          staticTop={loadMoreButton} />
-            ];
-        }
-
-        getGetType() {
-            return "GET";
-        }
-
-        loadMoreMessages() {
-            // TODO: wrap this in something
-            if (this.outstandingRequest) {
-                return;
-            }
-            this.outstandingRequest = true;
-
-            const topMessage = this.messageWindow.getTopMessage();
-
-            let messageInstances = this.messageThread.getMessages();
-            let lastMessageId = 999999999;
-            if (messageInstances.length) {
-                lastMessageId = messageInstances[0].id;
-            }
-
-            let request = Object.assign({
-                lastMessageId: lastMessageId
-            }, this.options.baseRequest || {});
-
-            const oldScrollHeight = this.messageWindow.node.scrollHeight;
-
-            if (this.loadMoreButton) {
-                this.loadMoreButton.ajaxCall({
-                    url: this.getGetURL(),
-                    type: this.getGetType(),
-                    dataType: "json",
-                    data: request,
-                    complete: () => {
-                        //TODO(@Rocky): find out why this doesn't work
-                        this.outstandingRequest = false;
-                    }
-                }).then((data) => {
-                    const emptyData = !data.state || !data.state.MessageInstance;
-                    if (emptyData || data.state.MessageInstance.length < 20) {
-                        if (this.loadMoreButton) {
-                            this.loadMoreButton.hide();
-                        }
-                        this.showLoadMoreButton = false;
-
-                        if (emptyData) {
-                            return;
-                        }
-                    }
-
-                    let scrollDelta = 0;
-                    if (!topMessage.shouldShowDayTimestamp()) {
-                        scrollDelta += topMessage.dayTimestamp.getHeight();
-                        topMessage.dayTimestamp.addClass("hidden");
-                    }
-                    this.messageWindow.scrollToHeight(this.messageWindow.node.scrollHeight - oldScrollHeight - scrollDelta);
-
-                    this.outstandingRequest = false;
-                });
-            }
-        }
-
-        renderMessageBox() {
-            return <div ref="writingSection" className={this.styleSheet.renderMessage}>
-                <TextArea readOnly={this.messageThread.muted}
-                             ref="chatInput"
-                             placeholder="Type a message..."
-                             className={this.styleSheet.chatInput} />
-                <div style={{display: "flex", flexDirection: "column", height: "100%", position: "absolute", right: "0px", width: "50px"}}>
-                    <Button ref="sendMessageButton"
-                               icon="paper-plane"
-                               disabled={this.messageThread.muted}
-                               onClick={() => this.sendMessage()}
-                               className={this.styleSheet.messageBoxButton} />
-                    <PreviewMarkupButton ref="previewMessageButton"
-                                   getValue={() => {return this.chatInput.getValue();}}
-                                   setValue={(value) => {this.chatInput.setValue(value);this.chatInput.node.focus();}}
-                                   className={this.styleSheet.messageBoxButton}
-                                   icon="eye" />
-                </div>
-            </div>;
-        }
-
-        renderStatus() {
-            if (this.messageThread.muted) {
-                return [
-                    <h4 style={{color: "red", textAlign: "center"}}>This chat is currently turned off.</h4>
-                ];
-            } else {
-                if (USER.isSuperUser) {
-                    let userData = [];
-                    for (let userId of this.messageThread.online) {
-                        userData.push([
-                            <UserHandle id={parseInt(userId)}/>
-                        ]);
-                    }
-                    return userData;
-                }
-            }
-        }
-
-        render() {
-            return [
-                this.renderMessageView(),
-                this.renderMessageBox(),
-            ];
-        }
-
-        getDefaultPlugins() {
-            return ChatWidget.defaultPlugins || [];
-        }
-
-        onMount() {
-            super.onMount();
-
-            for (let plugin of (this.options.plugins || this.getDefaultPlugins())) {
-                this.registerPlugin(plugin);
-            }
-
-            this.attachChangeListener(this.messageThread, (event) => {
-                if (event.type === "muted") {
-                    this.redraw();
-                }
-            });
-
-            this.attachListener(this.messageThread, "newMessage", (event) => {
-                //console.log("Received chat message: ", event);
-                let messageInstance = MessageInstance.get(event.data.id);
-
-                // We calculate before adding new message
-                let messageWindowScrollTop = this.messageWindow.node.scrollTop;
-                let messageWindowscrollMax = this.messageWindow.node.scrollHeight - this.messageWindow.node.offsetHeight;
-                this.messageWindow.insertEntry(messageInstance);
-
-                // If we were at the bottom before message was appended, scroll automatically
-                if (messageWindowScrollTop + 20 > messageWindowscrollMax) {
-                    setTimeout(() => {
-                        this.messageWindow.scrollToBottom();
-                    }, 0);
-                }
-            });
-
-            this.addResizeListeners();
+    initializeShowLoadMoreButton() {
+        // TODO: this is a shitty way of knowing if there are more messages!
+        if (this.messageThread.getNumMessages() >= 20) {
+            this.showLoadMoreButton = true;
         }
     }
-    return ChatWidgetClass;
+
+    createVirtualMessage(request, message) {
+        let virtualId = this.messageThread.getMaxMessageId() + "-" + MessageInstance.generateVirtualId() + "-" + Math.random();
+        let virtualMessageInstance = MessageInstance.createVirtualMessageInstance(message, this.messageThread, virtualId);
+        request.virtualId = virtualId;
+        return virtualMessageInstance;
+    }
+
+    async sendMessage(message) {
+        if (!USER.isAuthenticated) {
+            LoginModal.show();
+            return;
+        }
+        const request = {
+            ...this.options.baseRequest,
+        };
+
+        message = message || this.chatInput.getValue();
+        message = message.trim();
+
+        if (!message) {
+            return;
+        }
+        request.message = message;
+
+        // Create a virtual message to be drawn temporarily
+        const virtualMessageInstance = this.createVirtualMessage(request, message);
+        this.messageWindow.scrollToBottom();
+
+        this.chatInput.setValue("");
+        this.chatInput.dispatch("messageSent");
+
+        try {
+            const response = await Ajax.postJSON(this.getPostURL(), request, {disableStateImport: true});
+            if (response.error) {
+                virtualMessageInstance.setPostError(response.error);
+                return;
+            }
+            if (virtualMessageInstance?.hasTemporaryId()) {
+                MessageInstance.applyUpdateObjectId(virtualMessageInstance, response.messageId);
+                GlobalState.importState(response.state);
+            }
+        } catch (error) {
+            if (virtualMessageInstance) {
+                virtualMessageInstance.setPostError(42);
+            }
+            console.log("Error in sending chat message:\n" + error.message);
+            console.log(error.stack);
+        }
+    }
+
+    saveScrollPosition() {
+        this.scrollPosition = this.messageWindow.node.scrollTop;
+        this.scrollPercent = this.scrollPosition / (this.messageWindow.node.scrollHeight - this.messageWindow.node.clientHeight);
+    }
+
+    applyScrollPosition() {
+        this.messageWindow.node.scrollTop = this.scrollPosition || this.messageWindow.node.scrollHeight;
+        this.chatInput.node.focus();
+    }
+
+    addResizeListeners() {
+        this.messageWindow.addNodeListener("scroll", () => {
+            let scrollTop = this.messageWindow.node.scrollTop;
+            if (scrollTop < 20) {
+                this.loadMoreMessages();
+            }
+        });
+
+        this.addListener("hide", () => {this.saveScrollPosition();});
+        this.addListener("show", () => {this.applyScrollPosition();});
+
+        window.addEventListener("resize", () => {
+            this.saveScrollPosition();
+            this.setAdaptiveHeight();
+        });
+
+        this.addListener("resize", () => {
+            this.setAdaptiveHeight();
+            this.messageWindow.node.scrollTop = this.scrollPercent * (this.messageWindow.node.scrollHeight - this.messageWindow.node.clientHeight);
+        });
+    }
+
+    getDesiredHeight() {
+        if (this.options.style && this.options.style.height) {
+            return this.options.style.height;
+        }
+        let viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+        let navbarHeight = document.getElementById("navbar").offsetHeight; // use offsetHeight to accommodate padding and margin
+
+        let availableHeight = viewportHeight - navbarHeight - (this.options.extraHeightOffset || 25);
+        return Math.max(availableHeight || 0, 100) + "px"; // it needs at least 100px
+    }
+
+    setAdaptiveHeight() {
+        this.setStyle("height", this.getDesiredHeight());
+    }
+
+    setHeight(height) {
+        this.setStyle("height", height);
+    }
+
+    renderMessageView() {
+        let loadMoreButton;
+
+
+        if (this.showLoadMoreButton) {
+            loadMoreButton = (
+                <div className="text-center">
+                    <AjaxButton ref={this.refLink("loadMoreButton")} onClick={() => {this.loadMoreMessages()}}
+                                   style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {icon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
+                    />
+                </div>
+            );
+        }
+
+        return [
+            <ChatMessageScrollSection className={this.styleSheet.renderMessageView}
+                                      ref="messageWindow"
+                                      entryRenderer={this.options.renderMessage}
+                                      entries={this.messageThread.getMessages()}
+                                      staticTop={loadMoreButton} />
+        ];
+    }
+
+    getGetType() {
+        return "GET";
+    }
+
+    loadMoreMessages() {
+        // TODO: wrap this in something
+        if (this.outstandingRequest) {
+            return;
+        }
+        this.outstandingRequest = true;
+
+        const topMessage = this.messageWindow.getTopMessage();
+
+        let messageInstances = this.messageThread.getMessages();
+        let lastMessageId = 999999999;
+        if (messageInstances.length) {
+            lastMessageId = messageInstances[0].id;
+        }
+
+        let request = Object.assign({
+            lastMessageId: lastMessageId
+        }, this.options.baseRequest || {});
+
+        const oldScrollHeight = this.messageWindow.node.scrollHeight;
+
+        if (this.loadMoreButton) {
+            this.loadMoreButton.ajaxCall({
+                url: this.getGetURL(),
+                type: this.getGetType(),
+                dataType: "json",
+                data: request,
+                complete: () => {
+                    //TODO(@Rocky): find out why this doesn't work
+                    this.outstandingRequest = false;
+                }
+            }).then((data) => {
+                const emptyData = !data.state || !data.state.MessageInstance;
+                if (emptyData || data.state.MessageInstance.length < 20) {
+                    if (this.loadMoreButton) {
+                        this.loadMoreButton.hide();
+                    }
+                    this.showLoadMoreButton = false;
+
+                    if (emptyData) {
+                        return;
+                    }
+                }
+
+                let scrollDelta = 0;
+                if (!topMessage.shouldShowDayTimestamp()) {
+                    scrollDelta += topMessage.dayTimestamp.getHeight();
+                    topMessage.dayTimestamp.addClass("hidden");
+                }
+                this.messageWindow.scrollToHeight(this.messageWindow.node.scrollHeight - oldScrollHeight - scrollDelta);
+
+                this.outstandingRequest = false;
+            });
+        }
+    }
+
+    renderMessageBox() {
+        return <div ref="writingSection" className={this.styleSheet.renderMessage}>
+            <TextArea readOnly={this.messageThread.muted}
+                         ref="chatInput"
+                         placeholder="Type a message..."
+                         className={this.styleSheet.chatInput} />
+            <div style={{display: "flex", flexDirection: "column", height: "100%", position: "absolute", right: "0px", width: "50px"}}>
+                <Button ref="sendMessageButton"
+                           icon="paper-plane"
+                           disabled={this.messageThread.muted}
+                           onClick={() => this.sendMessage()}
+                           className={this.styleSheet.messageBoxButton} />
+                <PreviewMarkupButton ref="previewMessageButton"
+                               getValue={() => {return this.chatInput.getValue();}}
+                               setValue={(value) => {this.chatInput.setValue(value);this.chatInput.node.focus();}}
+                               className={this.styleSheet.messageBoxButton}
+                               icon="eye" />
+            </div>
+        </div>;
+    }
+
+    renderStatus() {
+        if (this.messageThread.muted) {
+            return [
+                <h4 style={{color: "red", textAlign: "center"}}>This chat is currently turned off.</h4>
+            ];
+        } else {
+            if (USER.isSuperUser) {
+                let userData = [];
+                for (let userId of this.messageThread.online) {
+                    userData.push([
+                        <UserHandle id={parseInt(userId)}/>
+                    ]);
+                }
+                return userData;
+            }
+        }
+    }
+
+    render() {
+        return [
+            this.renderMessageView(),
+            this.renderMessageBox(),
+        ];
+    }
+
+    getDefaultPlugins() {
+        return ChatWidget.defaultPlugins || [];
+    }
+
+    onMount() {
+        super.onMount();
+
+        for (let plugin of (this.options.plugins || this.getDefaultPlugins())) {
+            this.registerPlugin(plugin);
+        }
+
+        this.attachChangeListener(this.messageThread, (event) => {
+            if (event.type === "muted") {
+                this.redraw();
+            }
+        });
+
+        this.attachListener(this.messageThread, "newMessage", (event) => {
+            //console.log("Received chat message: ", event);
+            let messageInstance = MessageInstance.get(event.data.id);
+
+            // We calculate before adding new message
+            let messageWindowScrollTop = this.messageWindow.node.scrollTop;
+            let messageWindowscrollMax = this.messageWindow.node.scrollHeight - this.messageWindow.node.offsetHeight;
+            this.messageWindow.insertEntry(messageInstance);
+
+            // If we were at the bottom before message was appended, scroll automatically
+            if (messageWindowScrollTop + 20 > messageWindowscrollMax) {
+                setTimeout(() => {
+                    this.messageWindow.scrollToBottom();
+                }, 0);
+            }
+        });
+
+        this.addResizeListeners();
+    }
+}
+
+// The class is hoisted out of the factory so that @registerStyle is visible at the top level: the
+// plugin appends a merged interface there, and it cannot reach a class declared inside a function.
+let ChatWidget = (ChatMessageClass) => class ChatWidgetClass extends ChatWidgetBase {
+    getDefaultOptions(options) {
+        return {
+            ...super.getDefaultOptions(options),
+            renderMessage: (messageInstance) => {
+                return <ChatMessageClass key={messageInstance.getNormalizedId()} message={messageInstance} />;
+            }
+        };
+    }
 };
 
+export interface GroupChatWidgetOptions {
+    baseRequest?: any;
+    chatId?: any;
+    renderMessage?: any;
+}
+
 class GroupChatWidget extends ChatWidget(GroupChatMessage) {
+    declare options: ExtendedOptions<InstanceType<ReturnType<typeof ChatWidget>>, GroupChatWidgetOptions>;
+
     setOptions(options) {
         super.setOptions(options);
         this.options.baseRequest = {
@@ -730,7 +755,13 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
     }
 }
 
+export interface PrivateChatWidgetOptions {
+    privateChat?: any;
+}
+
 class PrivateChatWidget extends ChatWidget(PrivateChatMessage) {
+    declare options: ExtendedOptions<InstanceType<ReturnType<typeof ChatWidget>>, PrivateChatWidgetOptions>;
+
     setOptions(options) {
         options = Object.assign({
             messageThread: options.privateChat.getMessageThread(),
@@ -774,7 +805,14 @@ class VotableChatMessage extends GroupChatMessage {
     }
 }
 
+export interface VotableGroupChatWidgetOptions {
+    baseRequest?: any;
+    chatId?: any;
+}
+
 class VotableGroupChatWidget extends ChatWidget(VotableChatMessage) {
+    declare options: ExtendedOptions<InstanceType<ReturnType<typeof ChatWidget>>, VotableGroupChatWidgetOptions>;
+
     setOptions(options) {
         options.messageThread = options.messageThread || MessageThread.get(GroupChat.get(options.chatId).messageThreadId);
         super.setOptions(options);

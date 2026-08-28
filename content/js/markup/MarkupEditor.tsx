@@ -1,6 +1,6 @@
 // @ts-nocheck
 import {UI, type ElementOptions} from "../../../../stemjs/ui/UIBase";
-import {MarkupRenderer} from "../../../../stemjs/markup/MarkupRenderer";
+import {MarkupRenderer, type MarkupRendererOptions} from "../../../../stemjs/markup/MarkupRenderer";
 
 
 import {TextArea} from "../../../../stemjs/ui/input/Input";
@@ -36,7 +36,7 @@ class MarkupEditor extends UI.Element {
     }
 
     getMarkupRenderer() {
-        let rendererOptions = {};
+        let rendererOptions: Partial<MarkupRendererOptions> = {};
         if (this.options.classMap) {
             rendererOptions.classMap = this.options.classMap;
         }

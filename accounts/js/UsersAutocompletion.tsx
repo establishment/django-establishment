@@ -106,11 +106,11 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
         this.userDivs = [];
         for (let userId of this.options.userIds) {
             this.userDivs.push(<div userId={userId} style={{
-                                                "padding": "0 5px",
-                                                "border": "1px solid grey",
-                                                "height": this.options.userDivHeight + "px",
-                                                "line-height": this.options.userDivHeight + "px",
-                                                "cursor": "pointer"
+                                                padding: "0 5px",
+                                                border: "1px solid grey",
+                                                height: this.options.userDivHeight + "px",
+                                                lineHeight: this.options.userDivHeight + "px",
+                                                cursor: "pointer"
                                     }} >
                 <UserHandle userId={userId} disableClick />
             </div>);

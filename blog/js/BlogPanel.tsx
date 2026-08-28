@@ -146,7 +146,7 @@ export class NewBlogEntryModal extends Modal {
     }
 
     addEntry() {
-        let data = {};
+        let data: {title?: string; urlName?: string; isVisible?: boolean; content?: string} = {};
 
         let title = this.titleInput.getValue();
         if (title) {
@@ -231,11 +231,11 @@ class BlogEntryPreview extends UI.Element {
             <div style={{height: "100%",}}>
                 <div style={{
                     boxShadow: "0px 0px 10px rgb(160, 162, 168)",
-                    "background-color": "#fff",
-                    "padding": "1% 4% 10px 4%",
-                    "margin": "0 auto",
-                    "width": "900px",
-                    "max-width": "100%",
+                    backgroundColor: "#fff",
+                    padding: "1% 4% 10px 4%",
+                    margin: "0 auto",
+                    width: "900px",
+                    maxWidth: "100%",
                     position: "relative"
                 }}>
                     <div style={styleSheet.writtenBy}>
@@ -244,7 +244,7 @@ class BlogEntryPreview extends UI.Element {
                     </div>
                     <div style={styleSheet.title}>
                         <Link href={this.getEntryURL()} value={article.name}
-                              style={{"text-decoration": "none", "color": "inherit"}}/>
+                              style={{textDecoration: "none", color: "inherit"}}/>
                     </div>
                     <BlogArticleRenderer article={article} style={styleSheet.blogArticleRenderer}/>
                     <div className={styleSheet.whiteOverlay}></div>
@@ -318,9 +318,9 @@ class BlogEntryView extends UI.Element {
 
         return [
             <div style={{
-                "background-color": "#fff",
-                "padding": "2% 5%",
-                "box-shadow": "rgb(160, 160, 160) 0px 3px 15px",
+                backgroundColor: "#fff",
+                padding: "2% 5%",
+                boxShadow: "rgb(160, 160, 160) 0px 3px 15px",
             }}>
                 {blogEntryEditButton}
                 <div style={styleSheet.writtenBy}>
@@ -330,8 +330,8 @@ class BlogEntryView extends UI.Element {
                 <div style={styleSheet.title}>{article.name}</div>
                 <BlogArticleRenderer style={styleSheet.article} article={article}/>
                 <div style={{
-                    "margin-top": "30px",
-                    "margin-bottom": "10px",
+                    marginTop: "30px",
+                    marginBottom: "10px",
                 }}>
                     <Link href="/blog/" style={styleSheet.link} value="Back to the Main Blog"/>
                 </div>

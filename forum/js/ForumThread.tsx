@@ -36,17 +36,17 @@ class CreateForumThreadModal extends MarkupEditorModal {
 
     render() {
         let inputStyle = {
-            "margin-bottom": "4px",
-            "border": "0",
-            //"border-radius": "4px",
-            //"border": "2px solid #dcdcdc",
-            "outline": "none",
-            "color": "#333",
-            "font-size": "14px",
-            "padding-left": "8px",
-            "width": "100%",
-            "text-align": "center",
-            "font-weight": "bold",
+            marginBottom: "4px",
+            border: "0",
+            //borderRadius: "4px",
+            //border: "2px solid #dcdcdc",
+            outline: "none",
+            color: "#333",
+            fontSize: "14px",
+            paddingLeft: "8px",
+            width: "100%",
+            textAlign: "center",
+            fontWeight: "bold",
         };
 
         return [
@@ -306,7 +306,7 @@ class ForumThreadPanel extends UI.Element {
     getNumReplies(postsLength) {
         return [
             <div className={this.styleSheet.numReplies}>
-                <span style={{"font-weight": "bold", }}>{postsLength}</span>
+                <span style={{fontWeight: "bold", }}>{postsLength}</span>
                 &nbsp;{"replies in this thread" + (postsLength == 0 ? ", be the first one to comment" : "")}
             </div>
         ];
@@ -314,7 +314,7 @@ class ForumThreadPanel extends UI.Element {
 
     getVoting() {
         return <div className={this.styleSheet.voting}>
-            <CommentVotingWidgetWithThumbs height={40} balanceColor={"#313534"} notVoteColor={"#313534"} message={this.getForumThread().getContentMessage()} style={{"margin-left": "0", }} />
+            <CommentVotingWidgetWithThumbs height={40} balanceColor={"#313534"} notVoteColor={"#313534"} message={this.getForumThread().getContentMessage()} style={{marginLeft: "0", }} />
         </div>;
     }
 

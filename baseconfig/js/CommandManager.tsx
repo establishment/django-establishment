@@ -225,7 +225,7 @@ class AutoFormFieldHelper extends UI.Element {
 
     render() {
         return [
-            <span ref="container" style={{position: "relative", overflow: "hidden", "cursor": "pointer",}}>
+            <span ref="container" style={{position: "relative", overflow: "hidden", cursor: "pointer",}}>
                     <FAIcon icon="question-circle" ref="span"/>
                 </span>
         ];

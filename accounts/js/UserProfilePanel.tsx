@@ -22,7 +22,7 @@ class ProfilePanel extends UI.Element {
         }
         return [
             <h3>General Info</h3>,
-            <div style={{"marginLeft": "50px"}}>
+            <div style={{marginLeft: "50px"}}>
                 {infos}
             </div>,
         ];

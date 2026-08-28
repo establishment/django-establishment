@@ -71,43 +71,43 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
 
     createArrowStyle(): void {
         let baseArrowOutline = {
-            "left": "50%",
-            "z-index": "-3",
-            "position": "absolute",
-            "width": "0",
-            "height": "0",
-            "border-left": "10px solid transparent",
-            "border-right": "10px solid transparent",
+            left: "50%",
+            zIndex: "-3",
+            position: "absolute",
+            width: "0",
+            height: "0",
+            borderLeft: "10px solid transparent",
+            borderRight: "10px solid transparent",
             marginLeft: "-11px"
         };
 
         this["arrow" + Direction.UP + "Outline"] = Object.assign({
-            "border-bottom": "10px solid #C8C8C8",
-            "margin-top": "-10.8px",
+            borderBottom: "10px solid #C8C8C8",
+            marginTop: "-10.8px",
             marginLeft: "-11px"
         }, baseArrowOutline);
 
         this["arrow" + Direction.DOWN + "Outline"] = Object.assign({
-            "border-top": "10px solid #C8C8C8",
-            "margin-top": "2px"
+            borderTop: "10px solid #C8C8C8",
+            marginTop: "2px"
         }, baseArrowOutline);
 
         let baseArrow = {
-            "left": "50%",
-            "position": "absolute",
-            "width": "0",
-            "height": "0",
-            "border-left": "10px solid transparent",
-            "border-right": "10px solid transparent",
+            left: "50%",
+            position: "absolute",
+            width: "0",
+            height: "0",
+            borderLeft: "10px solid transparent",
+            borderRight: "10px solid transparent",
         };
 
         this["arrow" + Direction.UP] = Object.assign({
-            "margin-top": "-10px",
-            "border-bottom": "10px solid " + this.options.arrowColor
+            marginTop: "-10px",
+            borderBottom: "10px solid " + this.options.arrowColor
         }, baseArrow);
 
         this["arrow" + Direction.DOWN] = Object.assign({
-            "border-top": "10px solid " + this.options.arrowColor
+            borderTop: "10px solid " + this.options.arrowColor
         }, baseArrow);
     }
 

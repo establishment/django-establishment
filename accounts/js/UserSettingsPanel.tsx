@@ -21,6 +21,7 @@ import {GoogleManager} from "./thirt-party/GoogleManager";
 
 
 export interface GeneralInformationPanelOptions {
+    tabHref?: any;
     user?: User;
 }
 
@@ -120,6 +121,7 @@ export class GeneralInformationPanel extends UI.Element {
 
 
 export interface SecuritySettingsPanelOptions {
+    tabHref?: any;
     user?: User;
 }
 
@@ -206,6 +208,7 @@ export class SecuritySettingsPanel extends UI.Element {
 
 
 export interface EmailPanelOptions {
+    tabHref?: any;
     user?: User;
 }
 
@@ -223,8 +226,8 @@ export class EmailPanel extends UI.Element {
         for (let email of emails) {
             let primaryLabel, verifiedLabel, unverifiedLabel;
             let primaryAction, removeAction, resendAction; // TODO: handle onclick
-            let labelStyle = {borderRadius: "10px", "margin-left": "5px"};
-            let actionStyle = {"margin-left": "7px"};
+            let labelStyle = {borderRadius: "10px", marginLeft: "5px"};
+            let actionStyle = {marginLeft: "7px"};
 
             let makePrimaryCallback = () => {
                 this.makePrimaryEmail(email.email);
@@ -367,6 +370,7 @@ export class EmailPanel extends UI.Element {
 
 
 export interface SocialAccountsPanelOptions {
+    tabHref?: any;
     user?: User;
 }
 
@@ -409,7 +413,7 @@ export class SocialAccountsPanel extends UI.Element {
                             <span> {"- " + account.platform}</span>
                         </label>
                         <div className="pull-right">
-                            <Button label="Remove" size={Size.SMALL} level={Level.DANGER} style={{"margin-top": "7px"}}
+                            <Button label="Remove" size={Size.SMALL} level={Level.DANGER} style={{marginTop: "7px"}}
                                        onClick={() => {this.removeSocialAccount(account.id)}} />
                         </div>
                     </div>

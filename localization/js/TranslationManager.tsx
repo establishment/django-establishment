@@ -1,6 +1,6 @@
 // @ts-nocheck
 // TODO: this whole file needs a refactoring
-import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {Table, TableRow} from "../../../stemjs/ui/table/Table";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -16,6 +16,7 @@ import {NOOP_FUNCTION} from "../../../stemjs/base/Utils";
 
 import {TranslationKey, TranslationEntry} from "./state/TranslationStore";
 import {Language} from "./state/LanguageStore";
+import {type StoreId} from "../../../stemjs/state/State";
 
 function ajaxCall(request, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
     Ajax.postJSON("/edit_translation/", request).then(onSuccess, onError);
@@ -157,7 +158,13 @@ class TranslationEntryTable extends Table {
     }
 }
 
+export interface TranslationEntryManagerOptions {
+    tabHref?: any;
+}
+
 class TranslationEntryManager extends UI.Element {
+    declare options: ElementOptions<TranslationEntryManagerOptions>;
+
     declare exportButton: any;
     declare importButton: any;
     declare language: any;
@@ -229,7 +236,7 @@ class TranslationEntryManager extends UI.Element {
             let entryNewValue = row.options.entryInput.getValue();
             let keyId = row.options.entry.key.id;
             let entry = row.options.entry.entry;
-            let change = {};
+            let change: {keyId?: StoreId; newValue?: string; languageId?: StoreId; entryId?: StoreId} = {};
             if (entryNewValue === "" && !entry) {
                 continue;
             }
@@ -558,7 +565,13 @@ class TranslationKeyTable extends Table {
     }
 }
 
+export interface TranslationKeyManagerOptions {
+    tabHref?: any;
+}
+
 class TranslationKeyManager extends UI.Element {
+    declare options: ElementOptions<TranslationKeyManagerOptions>;
+
     declare addStatus: any;
     declare changed: any;
     declare editableCheckbox: any;
@@ -573,7 +586,7 @@ class TranslationKeyManager extends UI.Element {
             resize: "none",
             height: "46px",
             width: "300px",
-            "vertical-align": "top"
+            verticalAlign: "top"
         };
 
         return [

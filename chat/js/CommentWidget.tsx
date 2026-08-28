@@ -32,7 +32,7 @@ class ThreadMessage extends EditableMessage {
 
         let editButton;
         if (this.message.userId === USER.id || USER.isSuperUser) {
-            editButton = <a style={Object.assign({"cursor": "pointer", padding: "0 10px", fontSize: "1.05em", lineHeight: "0px",})} onClick={() => this.toggleEditMode()}>
+            editButton = <a style={Object.assign({cursor: "pointer", padding: "0 10px", fontSize: "1.05em", lineHeight: "0px",})} onClick={() => this.toggleEditMode()}>
                 edit
             </a>;
         }

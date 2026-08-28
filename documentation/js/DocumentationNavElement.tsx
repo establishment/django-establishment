@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {Dispatcher} from "../../../stemjs/base/Dispatcher";
 import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Draggable} from "../../../stemjs/ui/Draggable";
@@ -108,7 +107,7 @@ export class DocumentationNavElementContent extends UI.Element {
 
         if (!this.options.shouldToggle) {
             alignTagsStyle = {
-                "padding-left": "12px",
+                paddingLeft: "12px",
             };
         }
 
@@ -135,7 +134,13 @@ export class DocumentationNavElementContent extends UI.Element {
 }
 
 export const dragAndDropHandler = new Dispatcher();
+export interface DraggableDocumentationNavElementContentOptions {
+    parent?: any;
+}
+
 class DraggableDocumentationNavElementContent extends Draggable(DocumentationNavElementContent) {
+    declare options: ExtendedOptions<InstanceType<ReturnType<typeof Draggable>>, DraggableDocumentationNavElementContentOptions>;
+
     getNodeAttributes() {
         let attr = super.getNodeAttributes();
         attr.setStyle("cursor", "pointer");
@@ -150,7 +155,7 @@ class DraggableDocumentationNavElementContent extends Draggable(DocumentationNav
         return [
             super.render(),
             <span className="fa fa-pencil-square-o" ref="editEntry"
-                  style={{"cursor": "pointer", "margin-right": "10px", "float": "right"}} />
+                  style={{cursor: "pointer", marginRight: "10px", float: "right"}} />
         ]
     }
 

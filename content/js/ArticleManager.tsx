@@ -89,7 +89,7 @@ class TransferOwnershipModal extends ActionModal {
 
 
 export interface DeleteArticleModalOptions {
-    article?: any;
+    article?: Article;
     parent?: any;
 }
 

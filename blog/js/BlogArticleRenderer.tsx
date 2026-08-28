@@ -36,12 +36,12 @@ export class BlogQuote extends UI.Element {
         return [
             <div className={this.styleSheet.quote}>
                 <div style={{
-                    "flex-grow": "1000000",
-                    "min-width": "10%",
-                    "display": "inline-block",
+                    flexGrow: "1000000",
+                    minWidth: "10%",
+                    display: "inline-block",
                 }}></div>
                 <div style={{
-                    "flex-grow": "1",
+                    flexGrow: "1",
                     display: "inline-block",
                 }}>
                     {value}

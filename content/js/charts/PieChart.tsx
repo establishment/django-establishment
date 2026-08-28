@@ -7,7 +7,6 @@ import {SVGRoot, SVGGroup, SVGPath} from "../../../../stemjs/ui/svg/SVGPrimitive
 import {makeOpacityTransition} from "../../../../stemjs/ui/svg/Animations";
 
 export interface PieChartSectorOptions {
-    displayPercent?: any;
     angleSpan?: number;
     center?: any;
     displayPercents?: any;
@@ -35,8 +34,7 @@ class PieChartSector extends SVGGroup {
         return {
             startOpacity: 0.65,
             endOpacity: 1,
-            hoverTime: 250,
-            displayPercent: true
+            hoverTime: 250
         };
     }
 
@@ -238,7 +236,6 @@ export class PieChartSVG extends SVGRoot {
             <PieChart center={{x: this.options.width / 2, y: this.options.height / 2}}
                       innerRadius={this.options.innerRadius}
                       outerRadius={this.options.outerRadius}
-                      hoverExpectedRadius={this.options.hoverExpandRadius}
                       sectorExtraOptions={this.options.sectorExtraOptions}
                       sectors={this.options.sectors}
             />

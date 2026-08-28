@@ -21,7 +21,7 @@ class ArticleRenderer extends MarkupRenderer {
             return <div className="text-left">
                 <a href={url} target="_blank">
                     <Button label={UI.T("Edit")}
-                               style={{"margin": "10px"}}/></a>
+                               style={{margin: "10px"}}/></a>
             </div>;
         }
     }

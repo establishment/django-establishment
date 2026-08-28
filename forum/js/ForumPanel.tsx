@@ -124,7 +124,7 @@ export class ForumThreadBubble extends UI.Element {
                         return "0";
                     }}}>
                     {pinned}
-                    <Link style={{"text-decoration": "none", "color": "inherit", "font-size": "14px", "text-align": "justify"}} href={this.getHref()}
+                    <Link style={{textDecoration: "none", color: "inherit", fontSize: "14px", textAlign: "justify"}} href={this.getHref()}
                         value={<span className={this.styleSheet.threadTitleSpan}>
                                 {this.getForumThread().getTitle()}
                                 </span>} />
@@ -138,7 +138,7 @@ export class ForumThreadBubble extends UI.Element {
         return [
             <span className={this.styleSheet.threadAuthor}>
                 <UserHandle id={this.getForumThread().authorId} style={{
-                    "line-height": "normal",
+                    lineHeight: "normal",
                     wordBreak: "break-word",
                 }} />
             </span>
@@ -149,8 +149,8 @@ export class ForumThreadBubble extends UI.Element {
         return [
             <div className={this.styleSheet.threadReplies}>
                 <Link style={{
-                    "text-decoration": "none",
-                    "color": "inherit",
+                    textDecoration: "none",
+                    color: "inherit",
                 }} href={this.getHref()} value={
                     <span className={this.styleSheet.threadRepliesSpan}>
                         {this.getForumThread().getNumReplies()}

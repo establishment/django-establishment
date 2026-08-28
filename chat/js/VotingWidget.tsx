@@ -1,6 +1,7 @@
 // @ts-nocheck
 import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
+import {type StyleObject} from "../../../stemjs/ui/Style";
 import {Orientation, VoteStatus} from "../../../stemjs/ui/Constants";
 
 import {LoginModal} from "../../accounts/js/LoginModal";
@@ -75,7 +76,7 @@ class VotingWidget extends UI.Element {
         let counterStyle = {
             fontSize: 18 * this.options.size + "px",
             fontWeight: "900",
-            "color": this.options.balanceColor,
+            color: this.options.balanceColor,
         };
 
         return [
@@ -203,8 +204,8 @@ class CommentVotingWidgetWithThumbs extends CommentVotingWidget {
     }
 
     render() {
-        let thumbsUpScoreStyle = {};
-        let thumbsDownScoreStyle = {};
+        let thumbsUpScoreStyle: StyleObject = {};
+        let thumbsDownScoreStyle: StyleObject = {};
 
         // TODO: remove duplicate code
         let likeButtonStyle = Object.assign({}, this.styleSheet.thumbsStyle);

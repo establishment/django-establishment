@@ -18,8 +18,6 @@ import {SVGRoot, SVGGroup, SVGLine, SVGRect} from "../../../../stemjs/ui/svg/SVG
 // TODO: This file desperately needs a refactoring.
 
 export interface AxisTickOptions {
-    gridLineLength?: any;
-    labelFontFamily?: any;
     axisLineLength?: any;
     chartOptions?: any;
     gridLineStroke?: any;
@@ -39,12 +37,10 @@ export class AxisTick extends SVGGroup {
 
     getDefaultOptions() {
         return {
-            gridLineLength: 0,
             axisLineLength: 6,
             gridLineStroke: "rgba(255, 255, 255, .7)",
             labelPadding: 6,
-            labelStrokeWidth: 0.5,
-            labelFontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif"
+            labelStrokeWidth: 0.5
         };
     }
 
@@ -198,10 +194,6 @@ export class BasicAxis extends SVGGroup {
 }
 
 export interface BasicChartOptions {
-    bottom?: any;
-    left?: any;
-    right?: any;
-    top?: any;
     applyZoom?: any;
     chartOptions?: any;
     cursorStyle?: any;
@@ -548,11 +540,11 @@ export class ChartSVG extends SVGRoot {
         };
         this.data = {
             points: [
-                {"x" : 30, "y" : 60, "label" : "A"},
-                {"x" : 100, "y" : 55, "label" : "C"},
-                {"x" : 130, "y" : 55, "label" : "E"},
-                {"x" : 115, "y" : 20, "label" : "D"},
-                {"x" : 75, "y" : 70, "label" : "B"},
+                {x : 30, y : 60, "label" : "A"},
+                {x : 100, y : 55, "label" : "C"},
+                {x : 130, y : 55, "label" : "E"},
+                {x : 115, y : 20, "label" : "D"},
+                {x : 75, y : 70, "label" : "B"},
             ]
         };
 

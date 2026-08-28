@@ -33,35 +33,35 @@ class BlogStyle extends StyleSheet {
 
     @styleRule
     blogEntryView = {
-        "margin": "0 auto",
-        "width": "900px",
-        "max-width": "100%",
-        // "padding-top": "50px",
-        // "padding-bottom": "50px",
+        margin: "0 auto",
+        width: "900px",
+        maxWidth: "100%",
+        // paddingTop: "50px",
+        // paddingBottom: "50px",
     };
 
     title = {
-        "font-size": this.titleFontSize,
-        "padding-top": "20px",
-        "padding-bottom": "10px",
-        "text-decoration": "italic",
-        "width": "100%",
-        "text-align": "center",
-        "word-wrap": "normal",
-        "line-height": "60px",
+        fontSize: this.titleFontSize,
+        paddingTop: "20px",
+        paddingBottom: "10px",
+        textDecoration: "italic",
+        width: "100%",
+        textAlign: "center",
+        wordWrap: "normal",
+        lineHeight: "60px",
     };
 
     writtenBy = {
-        "width": "100%",
-        "text-align": "left",
-        "padding-top": "20px",
-        "font-size": "1em",
-        "color": "#666",
+        width: "100%",
+        textAlign: "left",
+        paddingTop: "20px",
+        fontSize: "1em",
+        color: "#666",
     };
 
     article = {
-        "text-align": "justify",
-        "font-size": "17px",
+        textAlign: "justify",
+        fontSize: "17px",
     };
 
     link = {
@@ -75,8 +75,8 @@ class BlogStyle extends StyleSheet {
         overflow: "hidden",
         position: "relative",
         maxHeight: "180px",
-        "text-align": "justify",
-        "font-size": "17px",
+        textAlign: "justify",
+        fontSize: "17px",
         marginBottom: "25px",
     };
 
@@ -166,10 +166,10 @@ class BlogStyle extends StyleSheet {
 
 class BlogArticleRendererStyle extends StyleSheet {
     hStyle = {
-        "text-align": "center",
-        "margin-top": "30px",
-        "margin-bottom": "30px",
-        "width": "100%",
+        textAlign: "center",
+        marginTop: "30px",
+        marginBottom: "30px",
+        width: "100%",
     };
 
     @styleRule

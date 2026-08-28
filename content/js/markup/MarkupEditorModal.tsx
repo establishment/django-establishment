@@ -131,7 +131,7 @@ class MarkupEditorModal extends Modal {
     render() {
         return [
             <MarkupEditor ref={this.refLink("markupEditor")} classMap={this.options.classMap} showButtons={false} style={this.getMarkupEditorStyle()}/>,
-            <div ref={this.refLink("buttonPanel")} style={{"text-align": "center"}} >
+            <div ref={this.refLink("buttonPanel")} style={{textAlign: "center"}} >
                 <Button ref="graphExample" label="Graph"
                            onClick={() => {this.appendGraphExample()}} style={this.getButtonStyle()} className="pull-left"/>
                 <Button ref="submissionExample" label="Submission"
@@ -150,7 +150,7 @@ class MarkupEditorModal extends Modal {
             //</span>
             //<Button ref="userExample" label="User"
             //           onClick={() => {this.appendUserExample()}} style={this.getButtonStyle()} className="pull-left"/>
-            <div className="" style={{"position":"absolute", "width":"90%", "margin-top":"45px"}}>
+            <div className="" style={{position:"absolute", width:"90%", marginTop:"45px"}}>
                 <Link href="/about/#markup" value="More details here" />
             </div>
         ];
