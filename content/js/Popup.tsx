@@ -305,7 +305,7 @@ export class Popup extends BasePopup {
         this.bindWindowListeners();
     }
 
-    redraw(): boolean {
+    redraw(): boolean | void {
         if (this.isInDocument()) {
             this.bindInsideParent();
         }

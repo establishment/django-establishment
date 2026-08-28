@@ -35,7 +35,6 @@ export class Latex extends UI.Element {
         return "span";
     }
     
-    // @ts-expect-error Overrides a boolean-returning redraw without returning - see the Backlog entry
     redraw() {
         super.redraw();
         this.node.innerHTML = katex.renderToString(this.options.value, {

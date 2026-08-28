@@ -184,7 +184,7 @@ class CreateArticleModal extends ActionModal {
         ];
     }
 
-    createArticle(options) {
+    createArticle(options?) {
         let name = this.articleNameInput.getValue();
         let dependency = this.dependencyInput.getValue();
         let languageId = this.languageSelect.get().id;

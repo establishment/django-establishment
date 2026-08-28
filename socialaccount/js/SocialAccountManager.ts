@@ -50,7 +50,7 @@ class SocialAccountManager extends Dispatchable {
         this.getInstance().login(...arguments);
     }
 
-    static connect(callback, onError) {
+    static connect(callback?, onError?) {
         this.getInstance().connect(...arguments);
     }
 }

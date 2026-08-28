@@ -59,7 +59,7 @@ export class PrivateChat extends BaseStore("PrivateChat", {}, BaseChatObject) {
         return null;
     }
 
-    static fetchForUser(userId: StoreId, onSuccess: (chat: PrivateChat) => void, onError: (error: any) => void): void {
+    static fetchForUser(userId: StoreId, onSuccess: (chat: PrivateChat) => void, onError?: (error: any) => void): void {
         Ajax.postJSON("/chat/private_chat_state/", {
             userId: userId,
         }).then(

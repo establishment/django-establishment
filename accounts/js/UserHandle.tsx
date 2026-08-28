@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type HTMLTagType} from "../../../stemjs/ui/UIBase";
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 
 export interface UserHandleOptions {
@@ -25,7 +25,7 @@ class UserHandle extends UI.Element {
         this.user = user;
     }
 
-    getNodeType() {
+    getNodeType(): HTMLTagType {
         return "span";
     }
 

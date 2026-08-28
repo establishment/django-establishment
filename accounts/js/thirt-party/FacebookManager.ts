@@ -89,7 +89,7 @@ class FacebookManager extends SocialAccountManager {
         }
     }
 
-    handleProcess(nextUrl, action, process) {
+    handleProcess(nextUrl, action?, process?) {
         if (!this.loaded) {
             this.addListenerOnce("loaded", () => this.handleProcess(process));
             return;

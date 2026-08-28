@@ -425,7 +425,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
         return virtualMessageInstance;
     }
 
-    async sendMessage(message) {
+    async sendMessage(message?) {
         if (!USER.isAuthenticated) {
             LoginModal.show();
             return;

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions, type HTMLTagType} from "../../../stemjs/ui/UIBase";
 import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
@@ -13,7 +13,7 @@ export interface NotificationOptions {
 class Notification extends UI.Element {
     declare options: ElementOptions<NotificationOptions>;
 
-    getNodeType() {
+    getNodeType(): HTMLTagType {
         return "li";
     }
 

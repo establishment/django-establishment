@@ -181,7 +181,7 @@ class UserSearchInput extends UI.Element {
         ];
     }
 
-    updateList(listItems) {
+    updateList(listItems?) {
         if (!listItems) {
             this.window.options.children = "";
             this.window.redraw();

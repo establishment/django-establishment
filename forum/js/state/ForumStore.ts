@@ -35,7 +35,7 @@ export class Forum extends BaseStore("forum") {
         return forumThreads;
     }
 
-    addForumThread(forumThread, event) {
+    addForumThread(forumThread, event?) {
         this.forumThreads.set(forumThread.id, forumThread);
         this.dispatch("newForumThread", event);
     }
