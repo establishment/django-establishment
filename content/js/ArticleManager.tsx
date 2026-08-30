@@ -61,8 +61,7 @@ class TransferOwnershipModal extends ActionModal {
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
                 <AjaxButton ref="transferOwnershipButton" level={this.getActionLevel()} onClick={() => this.action()}
-                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                               statusOptions={[this.getActionName(), {icon: "spinner fa-spin", label:" transfering ownership ..."},
+                               statusOptions={[this.getActionName(), {faIcon: "spinner fa-spin", label:" transfering ownership ..."},
                                                this.getActionName(), "Failed"]}/>
             </ButtonGroup>
         ];
@@ -116,8 +115,7 @@ class DeleteArticleModal extends ActionModal {
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
                 <AjaxButton ref="deleteArticleButton" level={Level.DANGER} onClick={() => {this.deleteArticle()}}
-                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                               statusOptions={["Delete article", {icon: "spinner fa-spin", label:" deleting article ..."},
+                               statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."},
                                                "Delete article", "Failed"]}/>
             </ButtonGroup>
         ];
@@ -180,8 +178,7 @@ class CreateArticleModal extends ActionModal {
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
                 <AjaxButton ref="createArticleButton" level={Level.PRIMARY} onClick={() => {this.createArticle()}}
-                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                               statusOptions={["Create article", {icon: "spinner fa-spin", label:" creating article ..."},
+                               statusOptions={["Create article", {faIcon: "spinner fa-spin", label:" creating article ..."},
                                                "Create article", "Failed"]}/>
             </ButtonGroup>
         ];
@@ -258,8 +255,7 @@ class AddTranslationModal extends CreateArticleModal {
                                    baseArticleId: baseArticle.id,
                                    markup: baseArticle.markup
                                })}
-                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                               statusOptions={["Add translation", {icon: "spinner fa-spin", label:" creating translation article ..."},
+                               statusOptions={["Add translation", {faIcon: "spinner fa-spin", label:" creating translation article ..."},
                                                "Success", "Failed"]}/>
             </ButtonGroup>
         ];

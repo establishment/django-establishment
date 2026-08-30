@@ -255,8 +255,7 @@ export class BasicChart extends SVGGroup {
         } else if (padding.length === 4) {
             return padding;
         } else {
-            // @ts-expect-error There is no error() in scope - see the Backlog
-            error("BasicChart.normalizePadding receives invalid padding array: ", padding);
+            console.error("BasicChart.normalizePadding receives invalid padding array: ", padding);
             return null;
         }
     }
@@ -355,7 +354,6 @@ export class BasicChart extends SVGGroup {
                 this.redraw();
                 if (!event.sourceEvent) {
                     // Custom zoom event
-                    // @ts-expect-error d3-zoom keeps its transform on the node under this name
                     this.interactiveLayer.node.__zoom = event.transform;
                 }
             }
@@ -514,7 +512,6 @@ export class TimeChart extends BasicChart {
             x: this.options.chartOptions.width / 2 * (1 - factor),
             y: this.options.chartOptions.height / 2 * (1 - factor)
         };
-        // @ts-expect-error The plain object is given d3's ZoomTransform prototype so it carries its methods
         centerZoom.__proto__ = zoomIdentity.__proto__;
 
         zoomNode.dispatch("zoom", {

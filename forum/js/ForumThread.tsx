@@ -90,7 +90,6 @@ export interface CreateForumThreadButtonOptions {
 }
 
 @registerStyle(ForumButtonStyle)
-// @ts-expect-error The registered sheet is unrelated to the base's - see the Backlog
 class CreateForumThreadButton extends Button {
     declare options: ExtendedOptions<Button, CreateForumThreadButtonOptions>;
 

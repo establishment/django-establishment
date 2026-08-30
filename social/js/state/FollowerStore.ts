@@ -1,6 +1,5 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {type StoreId} from "../../../../stemjs/state/State";
-// @ts-expect-error Nothing has ever provided this module here - see the Backlog entry on defects this migration surfaced
 import {User} from "../../../../stemjs/state/UserStore";
 
 @globalStore

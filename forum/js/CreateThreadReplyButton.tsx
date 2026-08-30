@@ -14,7 +14,6 @@ export interface CreateThreadReplyButtonOptions {
 }
 
 @registerStyle(ForumButtonStyle)
-// @ts-expect-error The registered sheet is unrelated to the base's - see the Backlog
 class CreateThreadReplyButton extends Button {
     declare options: ExtendedOptions<Button, CreateThreadReplyButtonOptions>;
     declare markupEditorModal: any;

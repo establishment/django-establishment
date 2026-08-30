@@ -16,7 +16,6 @@ class GithubManager extends SocialAccountManager {
             client_id: this.getClientId(),
         };
 
-        // @ts-expect-error composeURL string-concatenates this, so a plain object reaches the URL as
         // [object Object] - see the Backlog entry on defects this migration surfaced
         const uri = composeURL(githubUri, rawParams);
         const githubWindow = window.open(uri, "githubWindow", this.options.loginWindowOptions);

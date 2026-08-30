@@ -9,7 +9,6 @@ export class DocumentationRoute extends TerminalRoute {
     constructor() {
         super("docs", StateDependentElement(DocumentationPanel), "Documentation");
         this.subroutes = [
-            // @ts-expect-error TerminalRoute takes no subroutes, so the [] lands on options and the title is
             // dropped - see the Backlog entry on defects this migration surfaced
             new TerminalRoute("edit", StateDependentElement(AdminDocumentationPanel), [], "Edit Documentation")
         ];

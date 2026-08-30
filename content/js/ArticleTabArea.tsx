@@ -63,7 +63,6 @@ class ArticleTabArea extends TabArea {
 
     setOptions(options) {
         super.setOptions(options);
-        // @ts-expect-error options.children is typed as what a caller may pass, not what is stored - Backlog item 15
         this.options.children = this.options.children.map(x => Object.assign(new Dispatchable(), x));
     }
 

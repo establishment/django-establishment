@@ -1,7 +1,7 @@
 import {UI} from "../../../stemjs/ui/UIBase";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {getOffset} from "../../../stemjs/ui/Utils";
-import {Level, Size} from "../../../stemjs/ui/Constants";
+import {Level, Orientation, Size} from "../../../stemjs/ui/Constants";
 import {ArticleSwitcher} from "../../content/js/ArticleRenderer";
 
 import {Ajax} from "../../../stemjs/base/Ajax";
@@ -38,7 +38,6 @@ export class AdminDocumentationPanel extends DocumentationPanel {
     render() {
         const documentationEntry = this.getDocumentationEntry();
         return [
-            // @ts-expect-error Orientation is never imported - see the Backlog
             <UI.Element orientation={Orientation.HORIZONTAL} className={this.styleSheet.panel} key="container">
                 <UI.Element ref="navPanel" className={this.styleSheet.navPanel}>
                     <div style={{maxHeight: "90%", overflowY: "auto"}} key="navigationContainer">

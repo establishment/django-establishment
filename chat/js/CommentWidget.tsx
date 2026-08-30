@@ -98,7 +98,6 @@ class ToggleLogin extends UI.Primitive("span") {
 
 
 @registerStyle(BlogStyle)
-// @ts-expect-error The registered sheet is unrelated to the base's - see the Backlog
 class BlogCommentWidget extends ChatWidget(ThreadMessage) {
     declare chatInput: TextArea;
 
@@ -121,8 +120,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
             loadMoreButton = (
                 <div className="text-center">
                     <AjaxButton ref={this.refLink("loadMoreButton")} onClick={() => {this.loadMoreMessages()}}
-                                // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                                style={this.commentWidgetStyle.loadMoreButton} statusOptions={["Load more messages", {icon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
+                                style={this.commentWidgetStyle.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>
             );

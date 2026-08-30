@@ -84,8 +84,7 @@ class ForumThreadPanelStyle extends StyleSheet {
     @styleRule
     backButton = {
         color: "#444",
-        // @ts-expect-error Reads undefined - the rule is fontSize; see the Backlog entry on defects
-        fontSize: this.fontsize,
+        fontSize: this.fontSize,
         textDecoration: "none",
         transition: ".15s",
         opacity: "1",

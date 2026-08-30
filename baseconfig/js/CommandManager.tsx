@@ -153,7 +153,6 @@ class CommandRunDuration extends UI.Primitive("span") {
         }
         let time;
         if (this.options.commandRun.status === 1) {
-            // @ts-expect-error Arithmetic on a date leans on valueOf, which TypeScript will not do without a leading +
             time = StemDate.now() / 1000 - this.options.commandRun.dateCreated;
         } else {
             time = this.options.commandRun.dateFinished - this.options.commandRun.dateCreated

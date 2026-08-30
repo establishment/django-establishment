@@ -239,8 +239,7 @@ class GroupChatMessage extends EditableMessage {
         let errorElement = null;
         if (this.message.postError) {
             errorElement = <span ref="errorArea" style={{marginLeft: "1rem"}} className="fa fa-warning"
-                                 // @ts-expect-error HTMLtitle reaches no attributes map; stem's name is domTitle - see the Backlog
-                                 HTMLTitle={"Error: " + this.message.postError}/>;
+                                 domTitle={"Error: " + this.message.postError}/>;
         }
 
         return [
@@ -314,8 +313,7 @@ class PrivateChatMessage extends UI.Element {
         let errorElement = null;
         if (this.message.postError) {
             errorElement = <span ref="errorArea" style={{marginLeft: "1rem"}} className="fa fa-warning"
-                                 // @ts-expect-error HTMLtitle reaches no attributes map; stem's name is domTitle - see the Backlog
-                                 HTMLTitle={"Error: " + this.message.postError}/>;
+                                 domTitle={"Error: " + this.message.postError}/>;
         }
 
         let content = [
@@ -530,8 +528,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
             loadMoreButton = (
                 <div className="text-center">
                     <AjaxButton ref={this.refLink("loadMoreButton")} onClick={() => {this.loadMoreMessages()}}
-                                   // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                                   style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {icon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
+                                   style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>
             );
@@ -749,8 +746,7 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
             loadMoreButton = (
                 <div className="text-center">
                     <AjaxButton ref={this.refLink("loadMoreButton")} onClick={() => {this.loadMoreMessages()}}
-                                   // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                                   style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {icon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
+                                   style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {faIcon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>
             );

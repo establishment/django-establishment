@@ -88,14 +88,12 @@ class FacebookManager extends SocialAccountManager {
             return;
         }
         FB.logout((response) => {
-            // @ts-expect-error nextUrl is in no scope here - see the Backlog
             this.onLogoutSuccess(response, nextUrl);
         });
     }
 
     onLogoutSuccess(response) {
         if (this.options.logoutUrl) {
-            // @ts-expect-error data is in no scope here - see the Backlog
             this.sendData(this.options.logoutUrl, data);
         }
     }

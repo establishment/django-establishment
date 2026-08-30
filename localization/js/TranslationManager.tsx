@@ -73,8 +73,7 @@ class TranslationEntryTableRow extends TableRow {
         };
         ajaxCall(request, () => {
             this.markUnchanged();
-        // @ts-expect-error The stray character is a typo - see the Backlog
-        });n
+        });
     }
 
     getEntryInput() {
@@ -268,7 +267,6 @@ class TranslationEntryManager extends UI.Element {
             let reader = new FileReader();
             let file = this.uploadFile.getFile();
             if (file.size > 1e8) {
-                // @ts-expect-error There is no fileWarningModal field - see the Backlog
                 this.fileWarningModal.show();
                 console.warn("File ", file.name, " too large. Skipping upload.");
                 this.uploadFile.setValue("");
@@ -285,7 +283,6 @@ class TranslationEntryManager extends UI.Element {
                 }
             };
             reader.onload = (e) => {
-                // @ts-expect-error currentTarget is the FileReader, whose result EventTarget does not declare
                 let text = e.currentTarget.result;
                 let error = false;
                 let errmsg = "";

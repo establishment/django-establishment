@@ -106,7 +106,6 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
     render() {
         this.userDivs = [];
         for (let userId of this.options.userIds) {
-            // @ts-expect-error userId is read back off the element's options, and is not a DOM attribute
             this.userDivs.push(<div userId={userId} style={{
                                                 padding: "0 5px",
                                                 border: "1px solid grey",

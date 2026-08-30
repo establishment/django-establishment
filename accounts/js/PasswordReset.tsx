@@ -26,8 +26,7 @@ class PasswordReset extends UI.Element {
             <FormField label=" ">
                 <div>
                     <AjaxButton ref="resetPasswordButton" level={Level.PRIMARY} onClick={() => this.sendPasswordReset()}
-                                   // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                                   statusOptions={["Send password reset email", {icon: "spinner fa-spin", label:" Sending..."}, "Email sent", "Email failed"]}/>
+                                   statusOptions={["Send password reset email", {faIcon: "spinner fa-spin", label:" Sending..."}, "Email sent", "Email failed"]}/>
                 </div>
             </FormField>
         ]

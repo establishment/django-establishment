@@ -13,7 +13,6 @@ export class Forum extends BaseStore("forum") {
     declare forumThreads: Map<any, any>;
 
     constructor() {
-        // @ts-expect-error `arguments` has no tuple type, and a rest parameter here would change the emitted constructor
         super(...arguments);
         this.forumThreads = new Map();
         // TODO: not appropriate to register to streams here

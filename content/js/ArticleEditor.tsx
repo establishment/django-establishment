@@ -65,8 +65,7 @@ class DeleteArticleModal extends ActionModal {
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
                 <AjaxButton ref="deleteArticleButton" level={Level.DANGER} onClick={() => {this.deleteArticle()}}
-                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                               statusOptions={["Delete article", {icon: "spinner fa-spin", label:" deleting article ..."},
+                               statusOptions={["Delete article", {faIcon: "spinner fa-spin", label:" deleting article ..."},
                                                "Delete article", "Failed"]}/>
             </ButtonGroup>
         ];
@@ -178,8 +177,7 @@ class ArticleEditor extends UI.Element {
                                 let newOwner = this.ownerFormInput.getValue();
                                 this.setOwner(newOwner);
                                }}
-                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                               statusOptions={["Transfer ownership", {icon: "spinner fa-spin", label:" transfering ownership ..."}, "Transfer ownership", "Failed"]}
+                               statusOptions={["Transfer ownership", {faIcon: "spinner fa-spin", label:" transfering ownership ..."}, "Transfer ownership", "Failed"]}
                         />
                 <TemporaryMessageArea ref="setOwnerMessageArea"/>
             </UI.Element>
@@ -194,7 +192,6 @@ class ArticleEditor extends UI.Element {
                     <Select style={{float:"right", marginRight:"25px"}} ref="rightTextSelector" options={this.versionsLabels}/>
                 </UI.Element>
                 <DiffWidgetClass ref="diffWidget" leftEditable={this.leftEditable} rightEditable={this.rightEditable}
-                                 // @ts-expect-error There is no arrows field - see the Backlog
                                  leftTextValue={this.versions[2]} arrows={this.arrows} rightTextValue={this.versions[1]}
                                      style={{flex:"1", height: "calc(100% - 100px)", width: "calc(100% - 100px)"}} />
             </UI.Element>;
@@ -211,8 +208,7 @@ class ArticleEditor extends UI.Element {
                         this.saveMarkup(content);
                     }}
                                 statusOptions={["Save", {
-                                    // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                                    icon: "spinner fa-spin",
+                                    faIcon: "spinner fa-spin",
                                     label: " saving ..."
                                 }, "Save", "Failed"]}
                     />
@@ -251,8 +247,7 @@ class ArticleEditor extends UI.Element {
                                    };
                                    this.saveOptions(options);
                                    }}
-                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                               statusOptions={["Save", {icon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
+                               statusOptions={["Save", {faIcon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
                         />
                     <Button ref="deleteArticleButton" level={Level.DANGER} label="Delete article"
                                style={{marginLeft: "3px"}}

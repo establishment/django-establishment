@@ -81,14 +81,12 @@ class VotingWidget extends UI.Element {
 
         return [
             <span className="fa fa-caret-up voteButton" ref="likeButton"
-                       // @ts-expect-error HTMLtitle reaches no attributes map; stem's name is domTitle - see the Backlog
-                       icon="caret-up" style={likeButtonStyle} HTMLtitle="Click to like"/>,
+                       style={likeButtonStyle} domTitle="Click to like"/>,
             <span ref="counterContainer" style={counterStyle}>
                 <UI.TextElement ref="counter" value={this.getVotesBalance() + ""}/>
             </span>,
             <span className="fa fa-caret-down voteButton" ref="dislikeButton"
-                       // @ts-expect-error HTMLtitle reaches no attributes map; stem's name is domTitle - see the Backlog
-                       icon="caret-down" style={dislikeButtonStyle} HTMLtitle="Click to dislike"/>,
+                       style={dislikeButtonStyle} domTitle="Click to dislike"/>,
         ];
     }
 
@@ -225,12 +223,10 @@ class CommentVotingWidgetWithThumbs extends CommentVotingWidget {
 
         return [
             <span className={this.styleSheet.displayStyle} style={thumbsUpScoreStyle}>{this.getNumLikes()}</span>,
-            // @ts-expect-error HTMLtitle reaches no attributes map; stem's name is domTitle - see the Backlog
-            <span className={"fa fa-thumbs-up voteButton " + this.styleSheet.displayStyle + " " + this.styleSheet.thumbsUpHoverStyle} ref="likeButton" icon="thumbs-up" style={likeButtonStyle} HTMLtitle="Click to like"/>,
+            <span className={"fa fa-thumbs-up voteButton " + this.styleSheet.displayStyle + " " + this.styleSheet.thumbsUpHoverStyle} ref="likeButton" style={likeButtonStyle} domTitle="Click to like"/>,
             <div className={this.styleSheet.padding} />,
             <span className={this.styleSheet.displayStyle} style={thumbsDownScoreStyle}>{this.getNumDislikes()}</span>,
-            // @ts-expect-error HTMLtitle reaches no attributes map; stem's name is domTitle - see the Backlog
-            <span className={"fa fa-thumbs-down voteButton " + this.styleSheet.displayStyle + " " + this.styleSheet.thumbsDownHoverStyle} ref="dislikeButton" icon="thumbs-down" style={dislikeButtonStyle} HTMLtitle="Click to dislike"/>,
+            <span className={"fa fa-thumbs-down voteButton " + this.styleSheet.displayStyle + " " + this.styleSheet.thumbsDownHoverStyle} ref="dislikeButton" style={dislikeButtonStyle} domTitle="Click to dislike"/>,
         ];
     }
 }

@@ -38,8 +38,7 @@ class PasswordResetFromKey extends UI.Element {
             <FormField label=" ">
                 <div>
                     <AjaxButton ref="setPasswordButton" level={Level.PRIMARY} onClick={() => this.setNewPassword()}
-                                   // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
-                                   statusOptions={["Set password", {icon: "spinner fa-spin", label:" Setting..."}, "Password set", "Password failed"]}/>
+                                   statusOptions={["Set password", {faIcon: "spinner fa-spin", label:" Setting..."}, "Password set", "Password failed"]}/>
                 </div>
             </FormField>
         ]
