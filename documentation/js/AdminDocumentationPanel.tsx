@@ -87,7 +87,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
             }
             return navElement;
         };
-        explore(this.root);
+        return explore(this.root);
     }
 
     modifyEntry(entry, newParent, nextSibling) {
@@ -202,9 +202,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
                     && entryNavElement.getDocumentationEntry().parentId) {
                 let parentEntry = DocumentationEntry.get(entryNavElement.getDocumentationEntry().parentId);
                 let parentEntryNavElement = this.getNavElement(parentEntry);
-                // @ts-expect-error getNavElement never returns its answer - see the Backlog
                 if (parentEntryNavElement && parentEntryNavElement.titleElement.options.shouldToggle) {
-                    // @ts-expect-error getNavElement never returns its answer - see the Backlog
                     parentEntryNavElement.titleElement.setCollapsed(false);
                 }
             }

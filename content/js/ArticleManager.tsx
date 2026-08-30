@@ -1,4 +1,4 @@
-import type {ColumnHandler, ColumnInput} from "../../../stemjs/base/ColumnHandler";
+import {type ColumnHandler, type ColumnInput} from "../../../stemjs/base/ColumnHandler";
 import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal";
 import {Button} from "../../../stemjs/ui/button/Button";

@@ -5,7 +5,7 @@ import {Button} from "../../../stemjs/ui/button/Button";
 import {MarkupRenderer, MarkupClassMap} from "../../../stemjs/markup/MarkupRenderer";
 import {Language} from "../../localization/js/state/LanguageStore";
 import {Article} from "./state/Article";
-import type {StoreId} from "../../../stemjs/state/State";
+import {type StoreId} from "../../../stemjs/state/State";
 import {ensure} from "../../../stemjs/base/Require";
 
 

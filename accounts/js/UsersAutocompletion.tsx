@@ -1,5 +1,5 @@
 import {UI, type ExtendedOptions, type PartialOptions, type UIElement} from "../../../stemjs/ui/UIBase";
-import type {StoreId} from "../../../stemjs/state/State";
+import {type StoreId} from "../../../stemjs/state/State";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {Dispatchable} from "../../../stemjs/base/Dispatcher";
 import {VolatileFloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow";

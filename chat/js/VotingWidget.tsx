@@ -1,7 +1,7 @@
 import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
-import type {StyleRuleObject} from "../../../stemjs/ui/Style";
-import type {RemoveHandle} from "../../../stemjs/base/Dispatcher";
+import {type StyleRuleObject} from "../../../stemjs/ui/Style";
+import {type RemoveHandle} from "../../../stemjs/base/Dispatcher";
 import {Orientation, VoteStatus} from "../../../stemjs/ui/Constants";
 
 import {LoginModal} from "../../accounts/js/LoginModal";

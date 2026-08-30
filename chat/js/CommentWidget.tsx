@@ -1,6 +1,6 @@
 import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
-import type {Constructor} from "../../../stemjs/base/Utils";
-import type {ChatPlugin} from "./ChatPlugin";
+import {type Constructor} from "../../../stemjs/base/Utils";
+import {type ChatPlugin} from "./ChatPlugin";
 import {Level} from "../../../stemjs/ui/Constants";
 import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan";
 import {Switcher} from "../../../stemjs/ui/Switcher";

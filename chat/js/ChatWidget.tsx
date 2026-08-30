@@ -1,5 +1,5 @@
-import type {Constructor} from "../../../stemjs/base/Utils";
-import type {ChatPlugin} from "./ChatPlugin";
+import {type Constructor} from "../../../stemjs/base/Utils";
+import {type ChatPlugin} from "./ChatPlugin";
 import {UI, type ExtendedOptions, type ElementOptions, type UIElement} from "../../../stemjs/ui/UIBase";
 import {Switcher} from "../../../stemjs/ui/Switcher";
 import {TextArea} from "../../../stemjs/ui/input/Input";

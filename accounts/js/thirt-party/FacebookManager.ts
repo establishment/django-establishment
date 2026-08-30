@@ -1,4 +1,4 @@
-import type {ExtendedOptions} from "../../../../stemjs/ui/UIBase";
+import {type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {Ajax} from "../../../../stemjs/base/Ajax";
 import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
 import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager";

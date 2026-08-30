@@ -18,7 +18,7 @@ import {EditThreadReplyButton} from "./EditThreadReplyButton";
 import {DeleteThreadReplyButton} from "./DeleteThreadReplyButton";
 import {CreateThreadReplyButton} from "./CreateThreadReplyButton";
 import {CommentVotingWidgetWithThumbs} from "../../chat/js/VotingWidget";
-import type {ForumThread as ForumThreadStoreObject} from "./state/ForumStore";
+import {type ForumThread as ForumThreadStoreObject} from "./state/ForumStore";
 import {ErrorHandlers} from "../../webapp/js/ErrorHandlers";
 import {ForumThreadPanelStyle, ForumButtonStyle} from "./ForumStyle";
 
