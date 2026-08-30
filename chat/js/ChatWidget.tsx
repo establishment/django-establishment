@@ -1,5 +1,6 @@
-// @ts-nocheck
-import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import type {Constructor} from "../../../stemjs/base/Utils";
+import type {ChatPlugin} from "./ChatPlugin";
+import {UI, type ExtendedOptions, type ElementOptions, type UIElement} from "../../../stemjs/ui/UIBase";
 import {Switcher} from "../../../stemjs/ui/Switcher";
 import {TextArea} from "../../../stemjs/ui/input/Input";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -60,12 +61,12 @@ export interface EditableMessageOptions {
 }
 
 class EditableMessage extends UI.Element {
-    declare messageInput: any;
+    declare messageInput: TextArea;
 
     declare options: ElementOptions<EditableMessageOptions>;
     declare content: any;
-    declare contentContainer: any;
-    declare contentSwitcher: any;
+    declare contentContainer: UIElement;
+    declare contentSwitcher: Switcher;
     declare editContent: any;
     declare message: any;
 
@@ -238,6 +239,7 @@ class GroupChatMessage extends EditableMessage {
         let errorElement = null;
         if (this.message.postError) {
             errorElement = <span ref="errorArea" style={{marginLeft: "1rem"}} className="fa fa-warning"
+                                 // @ts-expect-error HTMLtitle reaches no attributes map; stem's name is domTitle - see the Backlog
                                  HTMLTitle={"Error: " + this.message.postError}/>;
         }
 
@@ -312,6 +314,7 @@ class PrivateChatMessage extends UI.Element {
         let errorElement = null;
         if (this.message.postError) {
             errorElement = <span ref="errorArea" style={{marginLeft: "1rem"}} className="fa fa-warning"
+                                 // @ts-expect-error HTMLtitle reaches no attributes map; stem's name is domTitle - see the Backlog
                                  HTMLTitle={"Error: " + this.message.postError}/>;
         }
 
@@ -382,9 +385,9 @@ export interface ChatWidgetBaseOptions {
 
 @registerStyle(ChatStyle)
 class ChatWidgetBase extends Pluginable(UI.Element) {
-    declare options: ExtendedOptions<InstanceType<ReturnType<typeof Pluginable>>, ChatWidgetClassOptions>;
+    declare options: ExtendedOptions<InstanceType<ReturnType<typeof Pluginable>>, ChatWidgetBaseOptions>;
 
-    getDefaultOptions(options) {
+    getDefaultOptions(options?) {
         return {
             dateTimestamps: true,
         };
@@ -527,6 +530,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
             loadMoreButton = (
                 <div className="text-center">
                     <AjaxButton ref={this.refLink("loadMoreButton")} onClick={() => {this.loadMoreMessages()}}
+                                   // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                    style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {icon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>
@@ -688,7 +692,13 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
 
 // The class is hoisted out of the factory so that @registerStyle is visible at the top level: the
 // plugin appends a merged interface there, and it cannot reach a class declared inside a function.
-let ChatWidget = (ChatMessageClass) => class ChatWidgetClass extends ChatWidgetBase {
+// An embedder bolts defaultPlugins onto the factory itself; see CSAApp
+interface ChatWidgetFactory {
+    (ChatMessageClass: any): typeof ChatWidgetBase;
+    defaultPlugins?: Constructor<ChatPlugin>[];
+}
+
+let ChatWidget: ChatWidgetFactory = (ChatMessageClass) => class ChatWidgetClass extends ChatWidgetBase {
     getDefaultOptions(options) {
         return {
             ...super.getDefaultOptions(options),
@@ -739,6 +749,7 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
             loadMoreButton = (
                 <div className="text-center">
                     <AjaxButton ref={this.refLink("loadMoreButton")} onClick={() => {this.loadMoreMessages()}}
+                                   // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                    style={this.styleSheet.loadMoreButton} statusOptions={["Load more messages", {icon: "spinner fa-spin", label:" loading messages..."}, "Load more messages", "Failed"]}
                     />
                 </div>

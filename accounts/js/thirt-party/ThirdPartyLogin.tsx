@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {GoogleManager} from "./GoogleManager";
 import {FacebookManager} from "./FacebookManager";
 import {GithubManager} from "./GithubManager";
@@ -8,7 +7,15 @@ import {UI, type ElementOptions} from "../../../../stemjs/ui/UIBase";
 import {FAIcon} from "../../../../stemjs/ui/FontAwesome";
 import {MakeIcon} from "../../../../stemjs/ui/SimpleElements";
 
-export const THIRD_PARTY_LOGIN_HANDLERS = {
+// An embedder adds its own entries to the map below, and every read of it is by name
+export interface ThirdPartyLoginHandler {
+    name: string;
+    color: string;
+    icon: string;
+    loginManager: {getInstance(): any; login(...args: any[]): void};
+}
+
+export const THIRD_PARTY_LOGIN_HANDLERS: Record<string, ThirdPartyLoginHandler> = {
     Google: {
         name: "Google",
         color: "#de4b39",
@@ -73,6 +80,7 @@ class SocialConnectButton extends UI.Primitive("button") {
 
 
 export interface ThirdPartyLoginOptions {
+    socialApps?: any;
     loginElement?: any;
 }
 

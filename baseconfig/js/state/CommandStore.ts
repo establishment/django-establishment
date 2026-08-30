@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 
 @globalStore
@@ -34,6 +33,7 @@ export class CommandRun extends BaseStore("CommandRun") {
             };
             this.logEntries.entries.push(event.data);
         } else {
+            // @ts-expect-error No store class defines update, so this branch would throw - and nothing calls it
             super.update(event);
         }
     }

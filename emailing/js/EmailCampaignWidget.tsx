@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Level} from "../../../stemjs/ui/Constants";
 import {SortableTable} from "../../../stemjs/ui/table/SortableTable";
@@ -19,8 +18,11 @@ export interface GenericConfirmModalOptions {
     campaign?: any;
 }
 
-class GenericConfirmModal extends ActionModal {
+abstract class GenericConfirmModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, GenericConfirmModalOptions>;
+    abstract getActionText(): string;
+    abstract getAjaxAction(): string;
+
 
     getBody() {
         return [
@@ -94,7 +96,7 @@ export interface TestSendCampaignModalOptions {
 
 class TestSendCampaignModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, TestSendCampaignModalOptions>;
-    declare receiverIdInput: any;
+    declare receiverIdInput: TextInput;
 
     constructor(options) {
         super(options);
@@ -145,13 +147,15 @@ export interface EmailCampaignModalOptions {
     campaign?: any;
 }
 
-class EmailCampaignModal extends ActionModal {
+abstract class EmailCampaignModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, EmailCampaignModalOptions>;
+    abstract getAjaxAction(): string;
+
     declare fields: any;
-    declare fromAddressInput: any;
-    declare gatewaySelect: any;
-    declare isNewsletterInput: any;
-    declare nameInput: any;
+    declare fromAddressInput: TextInput;
+    declare gatewaySelect: Select<any>;
+    declare isNewsletterInput: RawCheckboxInput;
+    declare nameInput: TextInput;
 
     constructor(options) {
         super(options);
@@ -375,7 +379,7 @@ export interface EmailCampaignWidgetOptions {
 
 class EmailCampaignWidget extends UI.Element {
     declare options: ElementOptions<EmailCampaignWidgetOptions>;
-    declare addCampaignButton: any;
+    declare addCampaignButton: Button;
 
     render() {
         return [<EmailCampaignTable />,

@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions, type UIElement} from "../../../stemjs/ui/UIBase";
 import {Select, TextInput, RawCheckboxInput, NumberInput} from "../../../stemjs/ui/input/Input";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {Table} from "../../../stemjs/ui/table/Table";
@@ -58,8 +57,8 @@ export interface CommandRunDetailsModalOptions {
 
 class CommandRunDetailsModal extends Modal {
     declare options: ExtendedOptions<Modal, CommandRunDetailsModalOptions>;
-    declare logger: any;
-    declare resultField: any;
+    declare logger: StaticCodeHighlighter;
+    declare resultField: StaticCodeHighlighter;
 
     render() {
         let children = [
@@ -154,6 +153,7 @@ class CommandRunDuration extends UI.Primitive("span") {
         }
         let time;
         if (this.options.commandRun.status === 1) {
+            // @ts-expect-error Arithmetic on a date leans on valueOf, which TypeScript will not do without a leading +
             time = StemDate.now() / 1000 - this.options.commandRun.dateCreated;
         } else {
             time = this.options.commandRun.dateFinished - this.options.commandRun.dateCreated
@@ -219,9 +219,9 @@ export interface AutoFormFieldHelperOptions {
 
 class AutoFormFieldHelper extends UI.Element {
     declare options: ElementOptions<AutoFormFieldHelperOptions>;
-    declare container: any;
+    declare container: UIElement;
     declare popup: any;
-    declare span: any;
+    declare span: FAIcon;
 
     render() {
         return [
@@ -259,6 +259,9 @@ class AutoFormFieldHelper extends UI.Element {
 }
 
 class AutoFormFieldSelectOption {
+    declare key: any;
+    declare label: any;
+
     constructor(options) {
         Object.assign(this, options);
     }
@@ -409,10 +412,10 @@ function runCommand(json, callback) {
 }
 
 class CommandManager extends UI.Element {
-    declare commandSelect: any;
-    declare descriptionArea: any;
-    declare pastCommandsTable: any;
-    declare runCommandButton: any;
+    declare commandSelect: Select<any>;
+    declare descriptionArea: UIElement;
+    declare pastCommandsTable: PastCommandsTable;
+    declare runCommandButton: Button;
 
     extraNodeAttributes(attr) {
         attr.setStyle("margin-left", "15%");

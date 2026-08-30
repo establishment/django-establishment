@@ -1,4 +1,4 @@
-// @ts-nocheck
+import type {ColumnHandler, ColumnInput} from "../../../stemjs/base/ColumnHandler";
 import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -28,9 +28,9 @@ export interface TransferOwnershipModalOptions {
 
 class TransferOwnershipModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, TransferOwnershipModalOptions>;
-    declare messageArea: any;
-    declare ownerFormInput: any;
-    declare transferOwnershipButton: any;
+    declare messageArea: TemporaryMessageArea;
+    declare ownerFormInput: TextInput;
+    declare transferOwnershipButton: AjaxButton;
 
     getActionName() {
         return "Transfer ownership";
@@ -61,6 +61,7 @@ class TransferOwnershipModal extends ActionModal {
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
                 <AjaxButton ref="transferOwnershipButton" level={this.getActionLevel()} onClick={() => this.action()}
+                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                statusOptions={[this.getActionName(), {icon: "spinner fa-spin", label:" transfering ownership ..."},
                                                this.getActionName(), "Failed"]}/>
             </ButtonGroup>
@@ -95,8 +96,8 @@ export interface DeleteArticleModalOptions {
 
 class DeleteArticleModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, DeleteArticleModalOptions>;
-    declare deleteArticleButton: any;
-    declare messageArea: any;
+    declare deleteArticleButton: AjaxButton;
+    declare messageArea: TemporaryMessageArea;
 
     getActionName() {
         return "Delete article";
@@ -115,6 +116,7 @@ class DeleteArticleModal extends ActionModal {
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
                 <AjaxButton ref="deleteArticleButton" level={Level.DANGER} onClick={() => {this.deleteArticle()}}
+                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                statusOptions={["Delete article", {icon: "spinner fa-spin", label:" deleting article ..."},
                                                "Delete article", "Failed"]}/>
             </ButtonGroup>
@@ -145,12 +147,12 @@ export interface CreateArticleModalOptions {
 
 class CreateArticleModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, CreateArticleModalOptions>;
-    declare articleNameInput: any;
-    declare createArticleButton: any;
-    declare dependencyInput: any;
-    declare languageSelect: any;
-    declare messageArea: any;
-    declare publicCheckbox: any;
+    declare articleNameInput: TextInput;
+    declare createArticleButton: AjaxButton;
+    declare dependencyInput: TextInput;
+    declare languageSelect: Select<any>;
+    declare messageArea: TemporaryMessageArea;
+    declare publicCheckbox: RawCheckboxInput;
 
     getActionName() {
         return "Create article";
@@ -178,6 +180,7 @@ class CreateArticleModal extends ActionModal {
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
                 <AjaxButton ref="createArticleButton" level={Level.PRIMARY} onClick={() => {this.createArticle()}}
+                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                statusOptions={["Create article", {icon: "spinner fa-spin", label:" creating article ..."},
                                                "Create article", "Failed"]}/>
             </ButtonGroup>
@@ -255,6 +258,7 @@ class AddTranslationModal extends CreateArticleModal {
                                    baseArticleId: baseArticle.id,
                                    markup: baseArticle.markup
                                })}
+                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                statusOptions={["Add translation", {icon: "spinner fa-spin", label:" creating translation article ..."},
                                                "Success", "Failed"]}/>
             </ButtonGroup>
@@ -323,10 +327,13 @@ class ArticlePublicSpan extends FAIcon {
 export interface ArticleTableOptions {
     articles?: any;
     parent?: any;
+    // Table.setOptions maps these through ColumnHandler.mapColumns in place, so by the time
+    // resetColumnSortingOrder reads them back they are handlers rather than what a caller passed
+    columns?: ColumnHandler<any>[];
 }
 
 class ArticleTable extends SortableTable {
-    declare options: ExtendedOptions<SortableTable, ArticleTableOptions>;
+    declare options: ExtendedOptions<InstanceType<typeof SortableTable>, ArticleTableOptions>;
 
     setOptions(options) {
         super.setOptions(options);
@@ -360,7 +367,7 @@ class ArticleTable extends SortableTable {
             textAlign: "left",
             verticalAlign: "middle"
         };
-        let columns = [{
+        let columns: ColumnInput<any>[] = [{
             value: article => <Link href={"/article/" + article.id + "/edit/"} value={article.name} />,
             rawValue: article => article.name,
             headerName: "Article",

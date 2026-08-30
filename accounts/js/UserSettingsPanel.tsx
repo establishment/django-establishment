@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {FormField, Form} from "../../../stemjs/ui/form/Form";
@@ -25,16 +24,25 @@ export interface GeneralInformationPanelOptions {
     user?: User;
 }
 
+export interface SaveProfileRequest {
+    firstName: string;
+    lastName: string;
+    userName: string;
+    displayName: boolean;
+    // A subclass adds its own fields, and the whole object is posted
+    [key: string]: any;
+}
+
 export class GeneralInformationPanel extends UI.Element {
     declare options: ElementOptions<GeneralInformationPanelOptions>;
-    declare displayNameSelect: any;
-    declare firstNameFormField: any;
-    declare firstNameFormInput: any;
-    declare lastNameFormField: any;
-    declare lastNameFormInput: any;
-    declare saveProfileButton: any;
-    declare userNameFormField: any;
-    declare userNameFormInput: any;
+    declare displayNameSelect: Select<any>;
+    declare firstNameFormField: FormField;
+    declare firstNameFormInput: TextInput;
+    declare lastNameFormField: FormField;
+    declare lastNameFormInput: TextInput;
+    declare saveProfileButton: AjaxButton;
+    declare userNameFormField: FormField;
+    declare userNameFormInput: TextInput;
 
     getFormFields() {
         return [
@@ -62,6 +70,7 @@ export class GeneralInformationPanel extends UI.Element {
                 </Form>
                 <FormField label=" ">
                   <div><AjaxButton ref="saveProfileButton" level={Level.PRIMARY}
+                                   // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                    statusOptions={["Save changes", {icon: "spinner fa-spin", label:" Saving changes..."}, "Saved changes", "Save failed"]}/></div>
                 </FormField>
             </div>
@@ -78,7 +87,7 @@ export class GeneralInformationPanel extends UI.Element {
         });
     }
 
-    getSaveRequestData() {
+    getSaveRequestData(): SaveProfileRequest {
         let firstName = this.firstNameFormInput.getValue();
         let lastName = this.lastNameFormInput.getValue();
         let userName = this.userNameFormInput.getValue();
@@ -127,13 +136,13 @@ export interface SecuritySettingsPanelOptions {
 
 export class SecuritySettingsPanel extends UI.Element {
     declare options: ElementOptions<SecuritySettingsPanelOptions>;
-    declare newPasswordGroup: any;
-    declare newPasswordGroup2: any;
-    declare newPasswordInput: any;
-    declare newPasswordInput2: any;
-    declare oldPasswordGroup: any;
-    declare oldPasswordInput: any;
-    declare setPasswordButton: any;
+    declare newPasswordGroup: FormField;
+    declare newPasswordGroup2: FormField;
+    declare newPasswordInput: PasswordInput;
+    declare newPasswordInput2: PasswordInput;
+    declare oldPasswordGroup: FormField;
+    declare oldPasswordInput: PasswordInput;
+    declare setPasswordButton: AjaxButton;
 
     render() {
         return [
@@ -152,6 +161,7 @@ export class SecuritySettingsPanel extends UI.Element {
                 </Form>
                 <FormField label=" ">
                       <div><AjaxButton ref="setPasswordButton" level={Level.PRIMARY}
+                        // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                         statusOptions={["Set Password", {icon: "spinner fa-spin", label:" Setting Password..."}, "Password set", "Failed"]}/></div>
                 </FormField>
             </div>
@@ -214,10 +224,10 @@ export interface EmailPanelOptions {
 
 export class EmailPanel extends UI.Element {
     declare options: ElementOptions<EmailPanelOptions>;
-    declare addEmailButton: any;
-    declare emailFormField: any;
-    declare emailFormInput: any;
-    declare emailSubscriptionCheckbox: any;
+    declare addEmailButton: AjaxButton;
+    declare emailFormField: FormField;
+    declare emailFormInput: EmailInput;
+    declare emailSubscriptionCheckbox: RawCheckboxInput;
 
     render() {
         const emails = multikeySort(this.options.user.emails, email => [email.verified, email.primary], {desc: true});
@@ -292,6 +302,7 @@ export class EmailPanel extends UI.Element {
                     </FormField>
                     <FormField label=" ">
                       <div><AjaxButton ref="addEmailButton" onClick={() => {this.addEmail()}} level={Level.PRIMARY}
+                        // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                         statusOptions={["Add Email", {icon: "spinner fa-spin", label:" Adding Email..."}, "Email added", "Failed"]}/></div>
                     </FormField>
                 </Form>
@@ -453,7 +464,7 @@ export class SocialAccountsPanel extends UI.Element {
 
 export class UserSettingsPanel extends UI.Element {
     declare initialUrlParts: any;
-    declare tabArea: any;
+    declare tabArea: TabArea;
 
     extraNodeAttributes(attr) {
         super.extraNodeAttributes(attr);
@@ -506,6 +517,7 @@ export class UserSettingsPanel extends UI.Element {
 
     render() {
         return [
+            // @ts-expect-error Nothing reads variableHeightPanels - see the Backlog
             <TabArea ref="tabArea" variableHeightPanels>
                 {this.getPanels()}
             </TabArea>
@@ -514,6 +526,7 @@ export class UserSettingsPanel extends UI.Element {
 
     onMount() {
         this.setURL(this.initialUrlParts);
+        // @ts-expect-error initialUrlPars is a typo, so nothing is deleted - see the Backlog
         delete this.initialUrlPars;
     }
 }

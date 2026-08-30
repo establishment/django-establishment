@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Link} from "../../../stemjs/ui/primitives/Link";
 import {FormField} from "../../../stemjs/ui/form/Form";
@@ -12,9 +11,9 @@ export interface PasswordResetFromKeyOptions {
 
 class PasswordResetFromKey extends UI.Element {
     declare options: ElementOptions<PasswordResetFromKeyOptions>;
-    declare passwordFormField: any;
-    declare passwordInput: any;
-    declare setPasswordButton: any;
+    declare passwordFormField: FormField;
+    declare passwordInput: PasswordInput;
+    declare setPasswordButton: AjaxButton;
 
     render() {
         if (this.options.tokenFail) {
@@ -39,6 +38,7 @@ class PasswordResetFromKey extends UI.Element {
             <FormField label=" ">
                 <div>
                     <AjaxButton ref="setPasswordButton" level={Level.PRIMARY} onClick={() => this.setNewPassword()}
+                                   // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                    statusOptions={["Set password", {icon: "spinner fa-spin", label:" Setting..."}, "Password set", "Password failed"]}/>
                 </div>
             </FormField>

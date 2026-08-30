@@ -1,9 +1,18 @@
-// @ts-nocheck
+import type {ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {Ajax} from "../../../../stemjs/base/Ajax";
 import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
 import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager";
 
+export interface FacebookManagerOptions {
+    locale?: any;
+    loginOptions?: any;
+    logoutUrl?: any;
+    version?: any;
+}
+
 class FacebookManager extends SocialAccountManager {
+    declare options: ExtendedOptions<SocialAccountManager, FacebookManagerOptions>;
+
     constructor() {
         super(SocialApp.getSocialAppByName("Facebook"), {
             version: "v2.7",
@@ -79,12 +88,14 @@ class FacebookManager extends SocialAccountManager {
             return;
         }
         FB.logout((response) => {
+            // @ts-expect-error nextUrl is in no scope here - see the Backlog
             this.onLogoutSuccess(response, nextUrl);
         });
     }
 
     onLogoutSuccess(response) {
         if (this.options.logoutUrl) {
+            // @ts-expect-error data is in no scope here - see the Backlog
             this.sendData(this.options.logoutUrl, data);
         }
     }

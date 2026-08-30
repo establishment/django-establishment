@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type NumericSizeOptions} from "../../../../stemjs/ui/UIBase";
 import {Transition} from "../../../../stemjs/ui/Transition";
 import {SVGText} from "../../../../stemjs/ui/svg/SVGText";
 import * as math from "../../../../stemjs/numerics/StemMath";
@@ -27,8 +26,8 @@ export interface PieChartSectorOptions {
 
 class PieChartSector extends SVGGroup {
     declare options: ExtendedOptions<SVGGroup, PieChartSectorOptions>;
-    declare label: any;
-    declare path: any;
+    declare label: SVGText;
+    declare path: SVGPath;
 
     getDefaultOptions() {
         return {
@@ -204,7 +203,7 @@ export class PieChart extends SVGGroup {
     }
 }
 
-export interface PieChartSVGOptions {
+export interface PieChartSVGOptions extends NumericSizeOptions {
     hoverExpandRadius?: any;
     innerRadius?: any;
     outerRadius?: any;

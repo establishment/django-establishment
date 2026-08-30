@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {ActionModal, ActionModalButton} from "../../../stemjs/ui/modal/Modal";
 import {Form, FormField} from "../../../stemjs/ui/form/Form";
@@ -12,12 +11,25 @@ export interface EditEntryModalOptions {
     entry?: any;
 }
 
+// What the edit form posts, plus the parent the create form adds on top of it
+interface EntryRequest {
+    entryId: any;
+    urlName: string;
+    name: string;
+    articleId: number;
+    parentIndex: number;
+    parentId?: any;
+}
+
+// The "No Parent" choice the select needs, which is not a real entry
+type ParentChoice = DocumentationEntry | {toString(): string; id: number};
+
 export class EditEntryModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, EditEntryModalOptions>;
-    declare articleIdInput: any;
-    declare nameInput: any;
-    declare parentIndexInput: any;
-    declare urlNameInput: any;
+    declare articleIdInput: TextInput;
+    declare nameInput: TextInput;
+    declare parentIndexInput: TextInput;
+    declare urlNameInput: TextInput;
 
     getTitle() {
         return "Edit documentation entry";
@@ -37,7 +49,7 @@ export class EditEntryModal extends ActionModal {
         return "/docs/edit_entry/";
     }
 
-    getAjaxRequest() {
+    getAjaxRequest(): EntryRequest {
         return {
             entryId: this.getEntry().id,
             urlName: this.urlNameInput.getValue(),
@@ -101,7 +113,7 @@ export class EditEntryModal extends ActionModal {
 }
 
 export class CreateEntryModal extends EditEntryModal {
-    declare parentInput: any;
+    declare parentInput: Select<any>;
 
     getTitle() {
         return "Create documentation entry";
@@ -122,7 +134,7 @@ export class CreateEntryModal extends EditEntryModal {
     }
 
     getParentInput() {
-        let entries = DocumentationEntry.all();
+        let entries: ParentChoice[] = DocumentationEntry.all();
         entries.push({
             toString: () => {
                 return "No Parent"

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Link} from "../../../stemjs/ui/primitives/Link";
 import {Route} from "../../../stemjs/ui/Router";
@@ -78,7 +77,7 @@ export class ForumThreadPreview extends ChatMarkupRenderer {
 }
 
 export interface ForumThreadBubbleOptions {
-    forumThread?: any;
+    forumThread?: ForumThread;
 }
 
 @autoredraw
@@ -198,7 +197,7 @@ export class ForumThreadBubble extends UI.Element {
 }
 
 export interface ForumThreadListOptions {
-    forum?: any;
+    forum?: Forum;
 }
 
 export class ForumThreadList extends UI.Element {
@@ -232,8 +231,10 @@ export class ForumThreadList extends UI.Element {
         result.push(<ForumThreadHeader/>);
         let Bubble = this.getBubbleClass();
         for (let forumThread of forumThreads) {
+            // @ts-expect-error isPinned is not an option a bubble declares - see the Backlog
             result.push(<Bubble forumThread={forumThread} color={color} isPinned={forumThread.isPinned()}/>);
             if (!forumThread.isPinned()) {
+                // @ts-expect-error color starts at 0 and alternates through booleans, which the option then coerces
                 color = !color;
             }
         }
@@ -249,7 +250,7 @@ export class ForumThreadList extends UI.Element {
 }
 
 export interface ForumPanelOptions {
-    forum?: any;
+    forum?: Forum;
 }
 
 @registerStyle(ForumPanelStyle)

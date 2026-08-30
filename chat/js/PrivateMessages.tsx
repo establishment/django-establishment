@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type StyleObject} from "../../../stemjs/ui/UIBase";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 import {Route, Router} from "../../../stemjs/ui/Router";
 import {Link} from "../../../stemjs/ui/primitives/Link";
@@ -140,8 +139,8 @@ export interface UserSearchInputOptions {
 
 class UserSearchInput extends UI.Element {
     declare options: ElementOptions<UserSearchInputOptions>;
-    declare input: any;
-    declare window: any;
+    declare input: TextInput;
+    declare window: VolatileFloatingWindow;
 
     getDefaultOptions() {
         return {
@@ -286,7 +285,7 @@ class MessagesList extends UI.Element {
 }
 
 class IconMessagesList extends UI.Element {
-    declare messagesList: any;
+    declare messagesList: MessagesList;
 
     extraNodeAttributes(attr) {
         attr.setStyle({
@@ -324,8 +323,8 @@ class IconMessagesList extends UI.Element {
 
 @registerStyle(MessagesPanelListStyle)
 class MessagesPanelList extends UI.Element {
-    declare messagesList: any;
-    declare userSearchInput: any;
+    declare messagesList: MessagesList;
+    declare userSearchInput: UserSearchInput;
 
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.messagesPanelList);
@@ -363,16 +362,20 @@ class MessagesPanelList extends UI.Element {
 
 export interface PrivateChatWidgetWrapperOptions {
     userId?: any;
+    // Set by the fetch below, and read back on the redraw it triggers
+    privateChat?: any;
+    // Narrowed from the base's union: the widget's own height is copied out of it
+    style?: StyleObject;
 }
 
 class PrivateChatWidgetWrapper extends UI.Element {
     declare options: ElementOptions<PrivateChatWidgetWrapperOptions>;
-    declare chat: any;
+    declare chat: PrivateChatWidget;
 
     render() {
         const privateChat = PrivateChat.getChatWithUser(parseInt(this.options.userId));
         if (privateChat) {
-            let widgetStyle = {
+            let widgetStyle: StyleObject = {
                 marginLeft: "0px",
                 marginRight: "0px",
                 width: "100%",
@@ -424,10 +427,10 @@ class DelayedPrivateChat extends Router {
 }
 
 class MessagesPanel extends UI.Element {
-    declare chatWidget: any;
-    declare collapseButton: any;
+    declare chatWidget: DelayedPrivateChat;
+    declare collapseButton: Button;
     declare collapsed: any;
-    declare messagesPanelList: any;
+    declare messagesPanelList: MessagesPanelList;
 
     extraNodeAttributes(attr) {
         super.extraNodeAttributes(attr);

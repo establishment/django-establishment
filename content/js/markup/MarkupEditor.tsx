@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {UI, type ElementOptions} from "../../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type UIElement} from "../../../../stemjs/ui/UIBase";
 import {MarkupRenderer, type MarkupRendererOptions} from "../../../../stemjs/markup/MarkupRenderer";
 
 
@@ -16,13 +15,13 @@ export interface MarkupEditorOptions {
 }
 
 class MarkupEditor extends UI.Element {
-    declare markupRenderer: any;
+    declare markupRenderer: MarkupRenderer;
 
     declare options: ElementOptions<MarkupEditorOptions>;
-    declare codeEditor: any;
-    declare editorPanel: any;
-    declare rendererPanel: any;
-    declare sectionDivider: any;
+    declare codeEditor: TextArea;
+    declare editorPanel: UIElement;
+    declare rendererPanel: UIElement;
+    declare sectionDivider: SectionDivider;
 
     getDefaultOptions() {
         return {

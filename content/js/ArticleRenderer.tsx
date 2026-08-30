@@ -1,15 +1,27 @@
-// @ts-nocheck
-import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type UIElement} from "../../../stemjs/ui/UIBase";
 import {RawSVG} from "../../../stemjs/ui/svg/SVGPrimitives";
 import {Switcher} from "../../../stemjs/ui/Switcher";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {MarkupRenderer, MarkupClassMap} from "../../../stemjs/markup/MarkupRenderer";
 import {Language} from "../../localization/js/state/LanguageStore";
 import {Article} from "./state/Article";
+import type {StoreId} from "../../../stemjs/state/State";
 import {ensure} from "../../../stemjs/base/Require";
 
 
+export interface ArticleRendererOptions {
+    // Optional because RecursiveArticleRenderer renders from an id and fetches the article itself
+    article?: Article;
+    articleId?: StoreId;
+    showEditButton?: boolean;
+    editButtonUrl?: string;
+    liveLanguage?: boolean;
+}
+
 class ArticleRenderer extends MarkupRenderer {
+    declare options: ExtendedOptions<MarkupRenderer, ArticleRendererOptions>;
+    declare static markupClassMap: MarkupClassMap;
+
     setOptions(options) {
         options.classMap = options.classMap || this.constructor.markupClassMap;
         super.setOptions(options);
@@ -31,10 +43,6 @@ class ArticleRenderer extends MarkupRenderer {
             this.getEditButton(),
             super.render()
         ];
-    }
-
-    setArticle(article) {
-        this.updateOptions({ article });
     }
 
     getValue() {
@@ -97,7 +105,7 @@ export interface ArticleSwitcherOptions {
 
 class ArticleSwitcher extends Switcher {
     declare options: ExtendedOptions<Switcher, ArticleSwitcherOptions>;
-    declare articleChildMap: any;
+    declare articleChildMap: WeakMap<Article, UIElement>;
 
     getDefaultOptions() {
         return Object.assign({}, super.getDefaultOptions(), {

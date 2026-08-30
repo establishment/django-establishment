@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {GlobalStyle} from "../../../stemjs/ui/GlobalStyle";
@@ -8,9 +7,9 @@ import {EmailCampaignWidget} from "./EmailCampaignWidget";
 import {EmailTemplateWidget} from "./EmailTemplateWidget";
 
 class EmailManager extends UI.Element {
-    declare campaignsWidget: any;
+    declare campaignsWidget: EmailCampaignWidget;
     declare initialUrlParts: any;
-    declare tabArea: any;
+    declare tabArea: TabArea;
 
     extraNodeAttributes(attr) {
         super.extraNodeAttributes(attr);
@@ -35,6 +34,7 @@ class EmailManager extends UI.Element {
 
     render() {
         return [
+            // @ts-expect-error Nothing reads variableHeightPanels - see the Backlog
             <TabArea ref="tabArea" variableHeightPanels >
                 <EmailCampaignWidget ref="campaignsWidget" tabHref={this.getUrlPrefix("campaigns")} title="Campaigns" active/>
                 <EmailTemplateWidget ref="templatesWidget" tabHref={this.getUrlPrefix("templates")} title="Templates"/>
@@ -45,6 +45,7 @@ class EmailManager extends UI.Element {
 
     onMount() {
         this.setURL(this.initialUrlParts);
+        // @ts-expect-error initialUrlPars is a typo, so nothing is deleted - see the Backlog
         delete this.initialUrlPars;
     }
 

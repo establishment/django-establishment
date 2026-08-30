@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI} from "../../../stemjs/ui/UIBase";
 import {FormField} from "../../../stemjs/ui/form/Form";
 import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
@@ -6,9 +5,9 @@ import {TextInput} from "../../../stemjs/ui/input/Input";
 import {Level} from "../../../stemjs/ui/Constants";
 
 class PasswordReset extends UI.Element {
-    declare emailFormField: any;
-    declare emailInput: any;
-    declare resetPasswordButton: any;
+    declare emailFormField: FormField;
+    declare emailInput: TextInput;
+    declare resetPasswordButton: AjaxButton;
 
     render() {
         if (USER.isAuthenticated) {
@@ -27,6 +26,7 @@ class PasswordReset extends UI.Element {
             <FormField label=" ">
                 <div>
                     <AjaxButton ref="resetPasswordButton" level={Level.PRIMARY} onClick={() => this.sendPasswordReset()}
+                                   // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                    statusOptions={["Send password reset email", {icon: "spinner fa-spin", label:" Sending..."}, "Email sent", "Email failed"]}/>
                 </div>
             </FormField>

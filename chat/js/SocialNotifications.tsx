@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {UI, type ElementOptions, type ExtendedOptions, type HTMLTagType} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions, type HTMLTagType, type UIElement} from "../../../stemjs/ui/UIBase";
 import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
@@ -79,12 +78,16 @@ class AnnouncementNotification extends Notification {
 }
 
 export interface NotificationsListOptions {
+    children?: UIElement[];
     icon?: any;
 }
 
 class NotificationsList extends UI.Element {
+    // Filled in below the class, and looked up through this.constructor so a subclass can replace it
+    declare static NotificationClassMap: Map<any, any>;
+
     declare options: ElementOptions<NotificationsListOptions>;
-    declare displayedNotifications: any;
+    declare displayedNotifications: Set<unknown>;
     declare notificationsCount: any;
     declare unreadNotificationsCount: any;
 

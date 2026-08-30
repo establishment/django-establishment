@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {Link} from "../../../../stemjs/ui/primitives/Link";
 import {Modal} from "../../../../stemjs/ui/modal/Modal";
@@ -13,9 +12,10 @@ export interface ClickableEmoteOptions {
     textBox?: any;
 }
 
-class ClickableEmote extends Emoji {
+abstract class ClickableEmote extends Emoji {
     declare options: ExtendedOptions<Emoji, ClickableEmoteOptions>;
     declare redrawTimeout: any;
+    abstract getValueText(): string;
 
     redraw() {
         this.redrawTimeout = setTimeout(()=> super.redraw());
@@ -101,8 +101,8 @@ export interface MarkupEditorModalOptions {
 }
 
 class MarkupEditorModal extends Modal {
-    declare doneButton: any;
-    declare markupEditor: any;
+    declare doneButton: Button;
+    declare markupEditor: MarkupEditor;
 
     declare options: ExtendedOptions<Modal, MarkupEditorModalOptions>;
 

@@ -1,7 +1,7 @@
-// @ts-nocheck
 import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
-import {type StyleObject} from "../../../stemjs/ui/Style";
+import type {StyleRuleObject} from "../../../stemjs/ui/Style";
+import type {RemoveHandle} from "../../../stemjs/base/Dispatcher";
 import {Orientation, VoteStatus} from "../../../stemjs/ui/Constants";
 
 import {LoginModal} from "../../accounts/js/LoginModal";
@@ -81,11 +81,13 @@ class VotingWidget extends UI.Element {
 
         return [
             <span className="fa fa-caret-up voteButton" ref="likeButton"
+                       // @ts-expect-error HTMLtitle reaches no attributes map; stem's name is domTitle - see the Backlog
                        icon="caret-up" style={likeButtonStyle} HTMLtitle="Click to like"/>,
             <span ref="counterContainer" style={counterStyle}>
                 <UI.TextElement ref="counter" value={this.getVotesBalance() + ""}/>
             </span>,
             <span className="fa fa-caret-down voteButton" ref="dislikeButton"
+                       // @ts-expect-error HTMLtitle reaches no attributes map; stem's name is domTitle - see the Backlog
                        icon="caret-down" style={dislikeButtonStyle} HTMLtitle="Click to dislike"/>,
         ];
     }
@@ -132,10 +134,11 @@ class CommentVotingWidget extends VotingWidget {
             this.options.target = possibleTarget;
             return;
         }
+        // Only the fallback arm of a CleanupJob is a bare function; addEventListener answers with a handle
         let tempListener = this.attachEventListener(target, "createReactionCollection", () => {
             this.updateOptions({target: target.getReactionCollection()});
             this.setupListener();
-            tempListener.remove();
+            (tempListener as RemoveHandle).remove();
         });
     }
 
@@ -204,17 +207,17 @@ class CommentVotingWidgetWithThumbs extends CommentVotingWidget {
     }
 
     render() {
-        let thumbsUpScoreStyle: StyleObject = {};
-        let thumbsDownScoreStyle: StyleObject = {};
+        let thumbsUpScoreStyle: StyleRuleObject = {};
+        let thumbsDownScoreStyle: StyleRuleObject = {};
 
         // TODO: remove duplicate code
-        let likeButtonStyle = Object.assign({}, this.styleSheet.thumbsStyle);
+        let likeButtonStyle: StyleRuleObject = Object.assign({}, this.styleSheet.thumbsStyle);
         if (this.getUserVote() === VoteStatus.LIKE) {
             likeButtonStyle.color = thumbsUpScoreStyle.color = this.options.likeColor;
             thumbsUpScoreStyle.fontWeight = "bold";
         }
 
-        let dislikeButtonStyle = Object.assign({}, this.styleSheet.thumbsStyle);
+        let dislikeButtonStyle: StyleRuleObject = Object.assign({}, this.styleSheet.thumbsStyle);
         if (this.getUserVote() === VoteStatus.DISLIKE) {
             dislikeButtonStyle.color = thumbsDownScoreStyle.color = this.options.dislikeColor;
             thumbsDownScoreStyle.fontWeight = "bold";
@@ -222,9 +225,11 @@ class CommentVotingWidgetWithThumbs extends CommentVotingWidget {
 
         return [
             <span className={this.styleSheet.displayStyle} style={thumbsUpScoreStyle}>{this.getNumLikes()}</span>,
+            // @ts-expect-error HTMLtitle reaches no attributes map; stem's name is domTitle - see the Backlog
             <span className={"fa fa-thumbs-up voteButton " + this.styleSheet.displayStyle + " " + this.styleSheet.thumbsUpHoverStyle} ref="likeButton" icon="thumbs-up" style={likeButtonStyle} HTMLtitle="Click to like"/>,
             <div className={this.styleSheet.padding} />,
             <span className={this.styleSheet.displayStyle} style={thumbsDownScoreStyle}>{this.getNumDislikes()}</span>,
+            // @ts-expect-error HTMLtitle reaches no attributes map; stem's name is domTitle - see the Backlog
             <span className={"fa fa-thumbs-down voteButton " + this.styleSheet.displayStyle + " " + this.styleSheet.thumbsDownHoverStyle} ref="dislikeButton" icon="thumbs-down" style={dislikeButtonStyle} HTMLtitle="Click to dislike"/>,
         ];
     }

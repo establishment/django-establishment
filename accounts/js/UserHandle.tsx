@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ElementOptions, type HTMLTagType} from "../../../stemjs/ui/UIBase";
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 

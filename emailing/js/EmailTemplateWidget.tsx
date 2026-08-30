@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type UIElement} from "../../../stemjs/ui/UIBase";
 import {Level, Orientation} from "../../../stemjs/ui/Constants";
 import {SortableTable} from "../../../stemjs/ui/table/SortableTable";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -21,15 +20,17 @@ export interface EmailTemplateModalOptions {
     template?: any;
 }
 
-class EmailTemplateModal extends ActionModal {
+abstract class EmailTemplateModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, EmailTemplateModalOptions>;
-    declare campaignSelect: any;
+    abstract getAjaxAction(): string;
+
+    declare campaignSelect: Select<any>;
     declare fields: any;
-    declare gatewaySelect: any;
-    declare htmlInput: any;
-    declare htmlRenderer: any;
-    declare languageSelect: any;
-    declare subjectInput: any;
+    declare gatewaySelect: Select<any>;
+    declare htmlInput: TextArea;
+    declare htmlRenderer: UIElement;
+    declare languageSelect: Select<any>;
+    declare subjectInput: TextInput;
 
     constructor(options) {
         super(options);
@@ -169,8 +170,11 @@ export interface GenericConfirmModalOptions {
     template?: any;
 }
 
-class GenericConfirmModal extends ActionModal {
+abstract class GenericConfirmModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, GenericConfirmModalOptions>;
+    abstract getActionText(): string;
+    abstract getAjaxAction(): string;
+
 
     constructor(options) {
         super(options);
@@ -306,7 +310,7 @@ export interface EmailTemplateWidgetOptions {
 
 export class EmailTemplateWidget extends UI.Element {
     declare options: ElementOptions<EmailTemplateWidgetOptions>;
-    declare addTemplateButton: any;
+    declare addTemplateButton: Button;
 
     render() {
         return [<EmailTemplateTable />,

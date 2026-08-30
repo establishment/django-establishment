@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {CallThrottler} from "../../../stemjs/base/CallModifier";
@@ -203,7 +202,7 @@ export class QuestionPage extends UI.Element {
     }
 
     getResponseData() {
-        let response = {
+        let response: {questionnaireId: any; questionId: any; text?: string; choiceIds?: any[]} = {
             questionnaireId: this.options.question.questionnaireId,
             questionId: this.options.question.id
         };

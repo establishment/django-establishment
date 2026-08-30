@@ -1,5 +1,5 @@
 import {Dispatcher} from "../../../stemjs/base/Dispatcher";
-import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type UIElement} from "../../../stemjs/ui/UIBase";
 import {Draggable} from "../../../stemjs/ui/Draggable";
 import {FACollapseIcon} from "../../../stemjs/ui/FontAwesome";
 
@@ -40,7 +40,7 @@ export interface DocumentationNavElementContentOptions {
 
 export class DocumentationNavElementContent extends UI.Element {
     declare options: ElementOptions<DocumentationNavElementContentOptions>;
-    declare collapseIcon: any;
+    declare collapseIcon: CollapseIconClass;
 
     extraNodeAttributes(attr) {
         attr.addClass(DocumentationStyle.getInstance().navElementDiv); // TODO: add this later
@@ -227,7 +227,7 @@ export interface DocumentationNavElementClassOptions {
 export const DocumentationNavElement = (ContentClass) => class DocumentationNavElementClass extends UI.Element {
     declare options: ElementOptions<DocumentationNavElementClassOptions>;
     declare subEntries: any;
-    declare subEntryArea: any;
+    declare subEntryArea: UIElement;
     declare titleElement: any;
 
     getDefaultOptions() {

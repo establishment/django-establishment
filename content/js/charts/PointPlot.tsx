@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {SVGCircle, SVGGroup} from "../../../../stemjs/ui/svg/SVGPrimitives";
 

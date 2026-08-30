@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI} from "../../../stemjs/ui/UIBase";
 import {Modal} from "../../../stemjs/ui/modal/Modal";
 import {Login} from "./Login";

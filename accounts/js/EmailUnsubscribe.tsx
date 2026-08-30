@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Link} from "../../../stemjs/ui/primitives/Link";
 import {ButtonStyle} from "../../../stemjs/ui/button/ButtonStyle";

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI} from "../../../stemjs/ui/UIBase";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {getOffset} from "../../../stemjs/ui/Utils";
@@ -13,8 +12,8 @@ import {DraggableDocumentationNavElement, dragAndDropHandler} from "./Documentat
 
 
 export class AdminDocumentationPanel extends DocumentationPanel {
-    declare root: any;
-    declare trash: any;
+    declare root: InstanceType<typeof DraggableDocumentationNavElement>;
+    declare trash: Button;
 
     getBaseUrl() {
         return "/docs/edit/";
@@ -42,6 +41,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
     render() {
         const documentationEntry = this.getDocumentationEntry();
         return [
+            // @ts-expect-error Orientation is never imported - see the Backlog
             <UI.Element orientation={Orientation.HORIZONTAL} className={this.styleSheet.panel} key="container">
                 <UI.Element ref="navPanel" className={this.styleSheet.navPanel}>
                     <div style={{maxHeight: "90%", overflowY: "auto"}} key="navigationContainer">
@@ -208,7 +208,9 @@ export class AdminDocumentationPanel extends DocumentationPanel {
                     && entryNavElement.getDocumentationEntry().parentId) {
                 let parentEntry = DocumentationEntry.get(entryNavElement.getDocumentationEntry().parentId);
                 let parentEntryNavElement = this.getNavElement(parentEntry);
+                // @ts-expect-error getNavElement never returns its answer - see the Backlog
                 if (parentEntryNavElement && parentEntryNavElement.titleElement.options.shouldToggle) {
+                    // @ts-expect-error getNavElement never returns its answer - see the Backlog
                     parentEntryNavElement.titleElement.setCollapsed(false);
                 }
             }

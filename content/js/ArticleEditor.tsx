@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type UIElement} from "../../../stemjs/ui/UIBase";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup";
@@ -50,8 +49,8 @@ export interface DeleteArticleModalOptions {
 
 class DeleteArticleModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, DeleteArticleModalOptions>;
-    declare deleteArticleButton: any;
-    declare messageArea: any;
+    declare deleteArticleButton: AjaxButton;
+    declare messageArea: TemporaryMessageArea;
 
     getActionName() {
         return "Delete Article";
@@ -66,6 +65,7 @@ class DeleteArticleModal extends ActionModal {
             <ButtonGroup>
                 <Button label="Close" onClick={() => this.hide()}/>
                 <AjaxButton ref="deleteArticleButton" level={Level.DANGER} onClick={() => {this.deleteArticle()}}
+                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                statusOptions={["Delete article", {icon: "spinner fa-spin", label:" deleting article ..."},
                                                "Delete article", "Failed"]}/>
             </ButtonGroup>
@@ -90,26 +90,29 @@ export interface ArticleEditorOptions {
 }
 
 class ArticleEditor extends UI.Element {
+    // An embedder points this at its own diff widget; see CSAApp
+    declare static DiffWidgetClass?: any;
+
     declare options: ElementOptions<ArticleEditorOptions>;
-    declare articleNameFormInput: any;
+    declare articleNameFormInput: TextInput;
     declare deleteArticleModal: any;
-    declare dependencyFormInput: any;
+    declare dependencyFormInput: TextInput;
     declare diffWidget: any;
-    declare languageSelect: any;
+    declare languageSelect: Select<any>;
     declare leftEditable: any;
-    declare leftTextSelector: any;
-    declare markupEditor: any;
-    declare ownerFormInput: any;
-    declare publicCheckbox: any;
+    declare leftTextSelector: Select<any>;
+    declare markupEditor: ArticleMarkupEditor;
+    declare ownerFormInput: TextInput;
+    declare publicCheckbox: RawCheckboxInput;
     declare rightEditable: any;
-    declare rightTextSelector: any;
-    declare saveMarkupButton: any;
-    declare saveMarkupMessageArea: any;
-    declare saveOptionsButton: any;
-    declare saveOptionsMessageArea: any;
-    declare setOwnerButton: any;
-    declare setOwnerMessageArea: any;
-    declare tabArea: any;
+    declare rightTextSelector: Select<any>;
+    declare saveMarkupButton: AjaxButton;
+    declare saveMarkupMessageArea: TemporaryMessageArea;
+    declare saveOptionsButton: AjaxButton;
+    declare saveOptionsMessageArea: TemporaryMessageArea;
+    declare setOwnerButton: AjaxButton;
+    declare setOwnerMessageArea: TemporaryMessageArea;
+    declare tabArea: TabArea;
     declare versions: any;
     declare versionsLabels: any;
 
@@ -175,6 +178,7 @@ class ArticleEditor extends UI.Element {
                                 let newOwner = this.ownerFormInput.getValue();
                                 this.setOwner(newOwner);
                                }}
+                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                statusOptions={["Transfer ownership", {icon: "spinner fa-spin", label:" transfering ownership ..."}, "Transfer ownership", "Failed"]}
                         />
                 <TemporaryMessageArea ref="setOwnerMessageArea"/>
@@ -190,6 +194,7 @@ class ArticleEditor extends UI.Element {
                     <Select style={{float:"right", marginRight:"25px"}} ref="rightTextSelector" options={this.versionsLabels}/>
                 </UI.Element>
                 <DiffWidgetClass ref="diffWidget" leftEditable={this.leftEditable} rightEditable={this.rightEditable}
+                                 // @ts-expect-error There is no arrows field - see the Backlog
                                  leftTextValue={this.versions[2]} arrows={this.arrows} rightTextValue={this.versions[1]}
                                      style={{flex:"1", height: "calc(100% - 100px)", width: "calc(100% - 100px)"}} />
             </UI.Element>;
@@ -197,6 +202,7 @@ class ArticleEditor extends UI.Element {
 
         return [
             <h3>{this.getArticle().name + " Id=" + this.options.articleId}</h3>,
+                // @ts-expect-error Nothing reads variableHeightPanels - see the Backlog
                 <TabArea ref="tabArea" variableHeightPanels style={{flex: "1", height: "100%", display: "flex", flexDirection: "column"}}>
                 <UI.Element title="Edit" active style={{height: "100%", overflow: "hidden"}}>
                     <AjaxButton
@@ -206,6 +212,7 @@ class ArticleEditor extends UI.Element {
                         this.saveMarkup(content);
                     }}
                                 statusOptions={["Save", {
+                                    // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                     icon: "spinner fa-spin",
                                     label: " saving ..."
                                 }, "Save", "Failed"]}
@@ -245,6 +252,7 @@ class ArticleEditor extends UI.Element {
                                    };
                                    this.saveOptions(options);
                                    }}
+                               // @ts-expect-error StateButton.render forwards only faIcon, so this icon never renders - see the Backlog
                                statusOptions={["Save", {icon: "spinner fa-spin", label:" saveing ..."}, "Save", "Failed"]}
                         />
                     <Button ref="deleteArticleButton" level={Level.DANGER} label="Delete article"
@@ -330,7 +338,8 @@ class ArticleEditor extends UI.Element {
         this.deleteArticleModal = <DeleteArticleModal article={this.getArticle()}/>;
 
         if (ArticleEditor.DiffWidgetClass) {
-            this.tabArea.titleArea.children[1].addClickListener(() => {
+            // A tab title is a UIElement, which is more than the children array can say
+            (this.tabArea.titleArea.children[1] as UIElement).addClickListener(() => {
                 this.versions[0] = this.markupEditor.getValue();
                 this.setLeftIndex(this.leftTextSelector.getIndex());
                 this.setRightIndex(this.rightTextSelector.getIndex());

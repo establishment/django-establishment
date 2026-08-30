@@ -1,5 +1,5 @@
-// @ts-nocheck
-import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type PartialOptions, type UIElement} from "../../../stemjs/ui/UIBase";
+import type {StoreId} from "../../../stemjs/state/State";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {Dispatchable} from "../../../stemjs/base/Dispatcher";
 import {VolatileFloatingWindow} from "../../../stemjs/ui/modal/FloatingWindow";
@@ -14,7 +14,7 @@ import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 
 
 export class AbstractUsernameAutocomplete extends Dispatchable {
-    declare static usernamePrefixCache: any;
+    declare static usernamePrefixCache: Map<any, any>;
 
     static requestNewUsers(prefix, callback) {
         Ajax.getJSON(PublicUser.fetchURL, {
@@ -65,13 +65,14 @@ export interface AutocompleteWindowOptions {
 export class AutocompleteWindow extends VolatileFloatingWindow {
     declare options: ExtendedOptions<VolatileFloatingWindow, AutocompleteWindowOptions>;
     declare currentIndex: any;
-    declare userDivs: any;
+    // Each div carries the id it was rendered for, which getSelectedUserId reads back off it
+    declare userDivs: (UIElement & {options: {userId?: StoreId}})[];
 
     extraNodeAttributes(attr) {
         attr.setStyle("z-index", "9999");
     }
 
-    getDefaultOptions() {
+    getDefaultOptions(): PartialOptions<AutocompleteWindow> {
         return {
             direction: Direction.UP,
             userDivHeight: 25,
@@ -105,6 +106,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
     render() {
         this.userDivs = [];
         for (let userId of this.options.userIds) {
+            // @ts-expect-error userId is read back off the element's options, and is not a DOM attribute
             this.userDivs.push(<div userId={userId} style={{
                                                 padding: "0 5px",
                                                 border: "1px solid grey",
@@ -215,9 +217,9 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
 
 export class UserInputField extends UI.Element {
     declare duringAutocomplete: any;
-    declare errorArea: any;
-    declare submitButton: any;
-    declare usernameInput: any;
+    declare errorArea: TemporaryMessageArea;
+    declare submitButton: Button;
+    declare usernameInput: TextInput;
 
     render() {
         return [

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {ActionModal, ActionModalButton} from "../../../stemjs/ui/modal/Modal";
@@ -19,6 +18,7 @@ import {EditThreadReplyButton} from "./EditThreadReplyButton";
 import {DeleteThreadReplyButton} from "./DeleteThreadReplyButton";
 import {CreateThreadReplyButton} from "./CreateThreadReplyButton";
 import {CommentVotingWidgetWithThumbs} from "../../chat/js/VotingWidget";
+import type {ForumThread as ForumThreadStoreObject} from "./state/ForumStore";
 import {ErrorHandlers} from "../../webapp/js/ErrorHandlers";
 import {ForumThreadPanelStyle, ForumButtonStyle} from "./ForumStyle";
 
@@ -32,7 +32,7 @@ export interface CreateForumThreadModalOptions {
 
 class CreateForumThreadModal extends MarkupEditorModal {
     declare options: ExtendedOptions<MarkupEditorModal, CreateForumThreadModalOptions>;
-    declare titleInput: any;
+    declare titleInput: Input;
 
     render() {
         let inputStyle = {
@@ -90,6 +90,7 @@ export interface CreateForumThreadButtonOptions {
 }
 
 @registerStyle(ForumButtonStyle)
+// @ts-expect-error The registered sheet is unrelated to the base's - see the Backlog
 class CreateForumThreadButton extends Button {
     declare options: ExtendedOptions<Button, CreateForumThreadButtonOptions>;
 
@@ -186,6 +187,7 @@ class ForumThreadReply extends UI.Element {
                 icon={"pencil"}
                 level={Level.INFO}
                 messageInstance={messageInstance}
+                // @ts-expect-error Nothing reads forumThreadPanel - see the Backlog
                 forumThreadPanel={this}
                 className={forumThreadPanelStyle.editButton} />;
             editAndDeleteButtons = <div className={forumThreadPanelStyle.editDeleteButtons} style={{width: "auto",}}>
@@ -233,12 +235,12 @@ class ForumThreadReply extends UI.Element {
 }
 
 export interface ForumThreadPanelOptions {
-    forumThread?: any;
+    forumThread?: ForumThreadStoreObject;
 }
 
 @registerStyle(ForumThreadPanelStyle)
 class ForumThreadPanel extends UI.Element {
-    declare content: any;
+    declare content: ChatMarkupRenderer;
 
     declare options: ElementOptions<ForumThreadPanelOptions>;
 
@@ -384,6 +386,7 @@ class ForumThreadPanel extends UI.Element {
                             label={UI.T("REPLY")}
                             className={this.styleSheet.replyButton}
                             forumThreadId={forumThread.id}
+                            // @ts-expect-error Nothing reads forumThread, only forumThreadId - see the Backlog
                             forumThread={this.getForumThread()}
                             classMap={ChatMarkupRenderer.classMap}
                         />

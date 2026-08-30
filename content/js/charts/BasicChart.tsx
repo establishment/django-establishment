@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type UIElement} from "../../../../stemjs/ui/UIBase";
 import {SVGText} from "../../../../stemjs/ui/svg/SVGText";
 import {Direction} from "../../../../stemjs/ui/Constants";
 import {uniqueId} from "../../../../stemjs/base/Utils";
@@ -30,7 +29,7 @@ export interface AxisTickOptions {
 }
 
 export class AxisTick extends SVGGroup {
-    declare gridLine: any;
+    declare gridLine: SVGLine;
 
     declare options: ExtendedOptions<SVGGroup, AxisTickOptions>;
     declare axisPosition: any;
@@ -136,7 +135,7 @@ export class BasicAxis extends SVGGroup {
     declare options: ExtendedOptions<SVGGroup, BasicAxisOptions>;
     declare axisLength: any;
     declare tickValues: any;
-    declare ticks: any;
+    declare ticks: AxisTick[];
 
     getDefaultOptions() {
         return {
@@ -193,7 +192,11 @@ export class BasicAxis extends SVGGroup {
     }
 }
 
+// The chart writes itself onto each child in redraw, and every plot reads it back off its own options
+export type ChartChild = UIElement & {options: {chart?: BasicChart}};
+
 export interface BasicChartOptions {
+    children?: ChartChild[];
     applyZoom?: any;
     chartOptions?: any;
     cursorStyle?: any;
@@ -209,7 +212,7 @@ export interface BasicChartOptions {
 }
 
 export class BasicChart extends SVGGroup {
-    declare interactiveLayer: any;
+    declare interactiveLayer: SVGRect;
 
     declare options: ExtendedOptions<SVGGroup, BasicChartOptions>;
     declare _initialXScale: any;
@@ -252,6 +255,7 @@ export class BasicChart extends SVGGroup {
         } else if (padding.length === 4) {
             return padding;
         } else {
+            // @ts-expect-error There is no error() in scope - see the Backlog
             error("BasicChart.normalizePadding receives invalid padding array: ", padding);
             return null;
         }
@@ -330,7 +334,8 @@ export class BasicChart extends SVGGroup {
 
         this.translate(this.options.margin.left, this.options.margin.right);
 
-        return [this.getBackground(), ...this.getAxes(), interactiveLayer, ...super.render(), clipPathDef];
+        // The base's render answers with this element's own children, which are an array here
+        return [this.getBackground(), ...this.getAxes(), interactiveLayer, ...(super.render() as UIElement[]), clipPathDef];
     }
 
     redraw() {
@@ -350,6 +355,7 @@ export class BasicChart extends SVGGroup {
                 this.redraw();
                 if (!event.sourceEvent) {
                     // Custom zoom event
+                    // @ts-expect-error d3-zoom keeps its transform on the node under this name
                     this.interactiveLayer.node.__zoom = event.transform;
                 }
             }
@@ -508,6 +514,7 @@ export class TimeChart extends BasicChart {
             x: this.options.chartOptions.width / 2 * (1 - factor),
             y: this.options.chartOptions.height / 2 * (1 - factor)
         };
+        // @ts-expect-error The plain object is given d3's ZoomTransform prototype so it carries its methods
         centerZoom.__proto__ = zoomIdentity.__proto__;
 
         zoomNode.dispatch("zoom", {

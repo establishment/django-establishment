@@ -1,6 +1,5 @@
-// @ts-nocheck
 // TODO: this whole file needs a refactoring
-import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type UIElement} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {Table, TableRow} from "../../../stemjs/ui/table/Table";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -74,6 +73,7 @@ class TranslationEntryTableRow extends TableRow {
         };
         ajaxCall(request, () => {
             this.markUnchanged();
+        // @ts-expect-error The stray character is a typo - see the Backlog
         });n
     }
 
@@ -165,13 +165,13 @@ export interface TranslationEntryManagerOptions {
 class TranslationEntryManager extends UI.Element {
     declare options: ElementOptions<TranslationEntryManagerOptions>;
 
-    declare exportButton: any;
-    declare importButton: any;
+    declare exportButton: Button;
+    declare importButton: Button;
     declare language: any;
-    declare languageSelect: any;
-    declare saveAllButton: any;
-    declare translationTable: any;
-    declare uploadFile: any;
+    declare languageSelect: Select<any>;
+    declare saveAllButton: Button;
+    declare translationTable: TranslationEntryTable;
+    declare uploadFile: FileInput;
 
     setOptions(options) {
         super.setOptions(options);
@@ -275,6 +275,7 @@ class TranslationEntryManager extends UI.Element {
             let reader = new FileReader();
             let file = this.uploadFile.getFile();
             if (file.size > 1e8) {
+                // @ts-expect-error There is no fileWarningModal field - see the Backlog
                 this.fileWarningModal.show();
                 console.warn("File ", file.name, " too large. Skipping upload.");
                 this.uploadFile.setValue("");
@@ -291,6 +292,7 @@ class TranslationEntryManager extends UI.Element {
                 }
             };
             reader.onload = (e) => {
+                // @ts-expect-error currentTarget is the FileReader, whose result EventTarget does not declare
                 let text = e.currentTarget.result;
                 let error = false;
                 let errmsg = "";
@@ -316,7 +318,7 @@ class TranslationEntryManager extends UI.Element {
                                 break;
                             }
                             x.entryValue = x.entryValue.trim();
-                            let change = {
+                            let change: {keyId: any; newValue: string; languageId: any; entryId?: any} = {
                                 keyId: x.keyId,
                                 newValue: x.entryValue,
                                 languageId: this.language.id
@@ -574,10 +576,10 @@ class TranslationKeyManager extends UI.Element {
 
     declare addStatus: any;
     declare changed: any;
-    declare editableCheckbox: any;
-    declare saveButton: any;
-    declare table: any;
-    declare textArea: any;
+    declare editableCheckbox: RawCheckboxInput;
+    declare saveButton: Button;
+    declare table: TranslationKeyTable;
+    declare textArea: TextArea;
 
     render() {
         let style = {
@@ -669,10 +671,10 @@ class TranslationKeyManager extends UI.Element {
 }
 
 class TranslationManager extends UI.Element {
-    declare entryManager: any;
+    declare entryManager: TranslationEntryManager;
     declare initialUrlParts: any;
-    declare keyManager: any;
-    declare tabArea: any;
+    declare keyManager: TranslationKeyManager;
+    declare tabArea: TabArea;
 
     getUrlPrefix(urlPart) {
         let url = "/manage/translation/";
@@ -684,6 +686,7 @@ class TranslationManager extends UI.Element {
 
     render() {
         return [
+            // @ts-expect-error Nothing reads variableHeightPanels - see the Backlog
             <TabArea ref="tabArea" variableHeightPanels >
                 <TranslationKeyManager ref="keyManager" tabHref={this.getUrlPrefix("keys")} title="Edit keys" active/>
                 <TranslationEntryManager ref="entryManager" tabHref={this.getUrlPrefix("entries")} title="Edit entries"/>
@@ -707,7 +710,8 @@ class TranslationManager extends UI.Element {
 
         this.tabArea.titleArea.addClass("text-center");
 
-        this.tabArea.children[1].addClickListener(() => {
+        // A tab panel is a UIElement, which is more than the children array can say
+        (this.tabArea.children[1] as UIElement).addClickListener(() => {
             if (this.keyManager.hasChanged()) {
                 this.entryManager.redraw();
                 this.keyManager.setUnchanged();

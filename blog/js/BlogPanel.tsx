@@ -1,7 +1,6 @@
-// @ts-nocheck
 import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
 import {Level} from "../../../stemjs/ui/Constants";
-import {Route, Router} from "../../../stemjs/ui/Router";
+import {Route, Router, type RouteOptions} from "../../../stemjs/ui/Router";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {Link} from "../../../stemjs/ui/primitives/Link";
 import {Modal} from "../../../stemjs/ui/modal/Modal";
@@ -28,9 +27,9 @@ export interface BlogEntryEditModalOptions {
 
 export class BlogEntryEditModal extends Modal {
     declare options: ExtendedOptions<Modal, BlogEntryEditModalOptions>;
-    declare titleInput: any;
-    declare urlInput: any;
-    declare visibleCheckbox: any;
+    declare titleInput: TextInput;
+    declare urlInput: TextInput;
+    declare visibleCheckbox: RawCheckboxInput;
 
     getModalWindowStyle() {
         return Object.assign({}, super.getModalWindowStyle(), {
@@ -78,7 +77,7 @@ export class BlogEntryEditModal extends Modal {
         let title = this.titleInput.getValue();
         let urlName = this.urlInput.getValue();
 
-        let request = {
+        let request: {entryId: any; isVisible: boolean; title?: string; urlName?: string} = {
             entryId: this.options.entryId,
             isVisible: this.visibleCheckbox.getValue(),
         };
@@ -113,10 +112,10 @@ export class BlogEntryEditModal extends Modal {
 }
 
 export class NewBlogEntryModal extends Modal {
-    declare postContentMarkup: any;
-    declare titleInput: any;
-    declare urlInput: any;
-    declare visibleCheckbox: any;
+    declare postContentMarkup: MarkupEditor;
+    declare titleInput: TextInput;
+    declare urlInput: TextInput;
+    declare visibleCheckbox: RawCheckboxInput;
 
     render() {
         return [
@@ -349,7 +348,7 @@ export interface BlogEntryListOptions {
 
 class BlogEntryList extends UI.Element {
     declare options: ElementOptions<BlogEntryListOptions>;
-    declare loadMoreButton: any;
+    declare loadMoreButton: Button;
 
     extraNodeAttributes(attr) {
         attr.setStyle("paddingTop", "10px");
@@ -477,7 +476,7 @@ class BlogRoute extends Route {
         ]
     }
 
-    constructor(expr="blog", options={}) {
+    constructor(expr="blog", options: RouteOptions = {}) {
         options.title = options.title || "Blog";
         super(expr, DelayedBlogEntryList, [], options);
         this.subroutes = this.getSubroutes();

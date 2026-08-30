@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type UIChild, type UIElement} from "../../../stemjs/ui/UIBase";
 import {registerStyle, Theme} from "../../../stemjs/ui/style/Theme";
 import {ensure} from "../../../stemjs/base/Require";
 import {Ajax} from "../../../stemjs/base/Ajax";
@@ -25,9 +24,11 @@ const accountsConfig = {
 
 @registerStyle(LoginStyle)
 export class LoginWidget extends UI.Element {
-    declare emailInput: any;
-    declare form: any;
-    declare loginErrorMessage: any;
+    declare passwordInput: PasswordInput;
+
+    declare emailInput: EmailInput;
+    declare form: UIElement;
+    declare loginErrorMessage: TemporaryMessageArea;
 
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.loginWidget);
@@ -94,7 +95,7 @@ export class LoginWidget extends UI.Element {
         return <div className={this.styleSheet.horizontalLine} />;
     }
 
-    getThirdPartyLogin() {
+    getThirdPartyLogin(): UIChild {
         const socialApps = SocialApp.all();
 
         return (socialApps.length > 0) && [
@@ -181,15 +182,18 @@ class RecaptchaWidget extends UI.Element {
 
 @registerStyle(LoginStyle)
 export class RegisterWidget extends UI.Element {
-    declare countrySelect: any;
+    declare passwordInput: PasswordInput;
+
+    declare countrySelect: Select<any>;
     declare emailInput: any;
-    declare errorArea: any;
-    declare form: any;
+    declare errorArea: TemporaryMessageArea;
+    declare form: UIElement;
     declare getEmailInput: any;
     declare getPasswordInput: any;
+    declare getHorizontalLine: () => UIChild;
     declare recaptchaWidget: any;
-    declare submitButton: any;
-    declare usernameInput: any;
+    declare submitButton: SubmitInput;
+    declare usernameInput: TextInput;
 
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.registerWidget);
@@ -258,7 +262,7 @@ export class RegisterWidget extends UI.Element {
     sendRegistration() {
         this.submitButton.updateOptions({value: "Signing up..."});
 
-        const data = {
+        const data: {email: any; recaptchaKey: any; password: string; username?: string; countryId?: any} = {
             email: this.emailInput.getValue(),
             recaptchaKey: this.recaptchaWidget && this.recaptchaWidget.getResponse(),
             password: this.passwordInput.getValue(),
@@ -299,12 +303,12 @@ RegisterWidget.prototype.getHorizontalLine = LoginWidget.prototype.getHorizontal
 // original name: LoginRegisterSystem
 @registerStyle(LoginStyle)
 class NormalLogin extends UI.Element {
-    declare loginButton: any;
-    declare loginWidget: any;
-    declare registerButton: any;
-    declare registerWidget: any;
+    declare loginButton: UIElement;
+    declare loginWidget: LoginWidget;
+    declare registerButton: UIElement;
+    declare registerWidget: RegisterWidget;
     declare state: any;
-    declare switcher: any;
+    declare switcher: Switcher;
 
     constructor() {
         super();

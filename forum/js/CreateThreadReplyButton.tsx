@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
@@ -15,6 +14,7 @@ export interface CreateThreadReplyButtonOptions {
 }
 
 @registerStyle(ForumButtonStyle)
+// @ts-expect-error The registered sheet is unrelated to the base's - see the Backlog
 class CreateThreadReplyButton extends Button {
     declare options: ExtendedOptions<Button, CreateThreadReplyButtonOptions>;
     declare markupEditorModal: any;

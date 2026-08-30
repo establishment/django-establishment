@@ -16,8 +16,8 @@ export interface DocumentationPanelOptions {
 @registerStyle(DocumentationStyle)
 class DocumentationPanel extends UI.Element {
     declare options: ElementOptions<DocumentationPanelOptions>;
-    declare articleSwitcher: any;
-    declare documentationSwitchDispatcher: any;
+    declare articleSwitcher: ArticleSwitcher;
+    declare documentationSwitchDispatcher: Dispatcher;
     declare initialUrlParts: any;
 
     constructor() {

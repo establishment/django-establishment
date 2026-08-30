@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {Level} from "../../../stemjs/ui/Constants";
 import {SortableTable} from "../../../stemjs/ui/table/SortableTable";
@@ -18,15 +17,17 @@ export interface EmailGatewayModalOptions {
     gateway?: any;
 }
 
-class EmailGatewayModal extends ActionModal {
+abstract class EmailGatewayModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, EmailGatewayModalOptions>;
+    abstract getAjaxAction(): string;
+
     declare fields: any;
-    declare hostInput: any;
-    declare nameInput: any;
-    declare passwordInput: any;
-    declare portInput: any;
-    declare useTLSInput: any;
-    declare usernameInput: any;
+    declare hostInput: TextInput;
+    declare nameInput: TextInput;
+    declare passwordInput: PasswordInput;
+    declare portInput: NumberInput;
+    declare useTLSInput: RawCheckboxInput;
+    declare usernameInput: TextInput;
 
     constructor(options) {
         super(options);
@@ -125,8 +126,11 @@ export interface GenericConfirmModalOptions {
     gateway?: any;
 }
 
-class GenericConfirmModal extends ActionModal {
+abstract class GenericConfirmModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, GenericConfirmModalOptions>;
+    abstract getActionText(): string;
+    abstract getAjaxAction(): string;
+
 
     constructor(options) {
         super(options);
@@ -261,7 +265,7 @@ class EmailGatewayTable extends SortableTable {
 
 
 class EmailGatewayWidget extends UI.Element {
-    declare addGatewayButton: any;
+    declare addGatewayButton: Button;
 
     render() {
         return [<EmailGatewayTable />,

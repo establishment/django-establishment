@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {Ajax} from "../../../../stemjs/base/Ajax";
 import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
@@ -9,9 +8,12 @@ import {GlobalState} from "../../../../stemjs/state/State";
 
 @globalStore
 export class Forum extends BaseStore("forum") {
-    declare forumThreads: any;
+    declare name: any;
+
+    declare forumThreads: Map<any, any>;
 
     constructor() {
+        // @ts-expect-error `arguments` has no tuple type, and a rest parameter here would change the emitted constructor
         super(...arguments);
         this.forumThreads = new Map();
         // TODO: not appropriate to register to streams here
@@ -49,6 +51,8 @@ export class Forum extends BaseStore("forum") {
 
 @globalStore
 export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum", "messageinstance"]}) {
+    declare numViews: any;
+
     declare authorId: any;
     declare contentMessageId: any;
     declare hidden: any;

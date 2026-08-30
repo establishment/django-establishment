@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions, type UIElement} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {CardPanel} from "../../../stemjs/ui/CardPanel";
 import {Switcher} from "../../../stemjs/ui/Switcher";
@@ -15,10 +14,13 @@ import {ColorGenerator} from "../../../stemjs/ui/Color";
 import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
-import {Questionnaire, QuestionnaireQuestion} from "./state/QuestionnaireStore";
+import {Questionnaire, QuestionnaireQuestion, type QuestionnaireInstance, type QuestionnaireQuestionOption} from "./state/QuestionnaireStore";
 import {PieChartSVG} from "./charts/PieChart";
 import {QuestionPage, QuestionnaireStyle} from "./QuestionnairePanel";
 
+
+// A real option, or the "Other" stand-in the panel appends when the question allows one
+type QuestionOptionChoice = QuestionnaireQuestionOption | {id: number; answer: string};
 
 class QuestionnaireAnswersStyle extends QuestionnaireStyle {
     @styleRule
@@ -104,7 +106,7 @@ class QuestionSummary extends UI.Element {
     }
 
     getQuestionOptions() {
-        let options = [...this.options.question.getOptions()];
+        let options: QuestionOptionChoice[] = [...this.options.question.getOptions()];
         if (this.options.question.otherChoice) {
             options.push({id: 0, answer: "Other"});
         }
@@ -269,7 +271,13 @@ class QuestionnaireSummaryWidget extends UI.Element {
 }
 
 
+export interface QuestionnaireInstanceSwitcherOptions {
+    // Each child is a panel for one instance, and is looked up again by that instance's id
+    children?: UIElement<{instance: QuestionnaireInstance}>[];
+}
+
 class QuestionnaireInstanceSwitcher extends Switcher {
+    declare options: ExtendedOptions<Switcher, QuestionnaireInstanceSwitcherOptions>;
     declare instanceMap: any;
 
     getDefaultOptions() {

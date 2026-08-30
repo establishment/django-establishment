@@ -180,7 +180,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
         console.log("Post error: ", postError);
     }
 
-    static createVirtualMessageInstance(messageContent: string, messageThread: MessageThread, temporaryId: number): MessageInstance {
+    static createVirtualMessageInstance(messageContent: string, messageThread: MessageThread, temporaryId: StoreId): MessageInstance {
         let virtualMessageInstance = {
             content: messageContent,
             temporaryId: temporaryId,
