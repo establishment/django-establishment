@@ -9,8 +9,7 @@ export class DocumentationRoute extends TerminalRoute {
     constructor() {
         super("docs", StateDependentElement(DocumentationPanel), "Documentation");
         this.subroutes = [
-            // dropped - see the Backlog entry on defects this migration surfaced
-            new TerminalRoute("edit", StateDependentElement(AdminDocumentationPanel), [], "Edit Documentation")
+            new TerminalRoute("edit", StateDependentElement(AdminDocumentationPanel), "Edit Documentation")
         ];
     }
 
