@@ -1,5 +1,5 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
-import {StoreId} from "../../../../stemjs/state/State";
+import {type StoreId} from "../../../../stemjs/state/State";
 import {multikeySort} from "../../../../stemjs/base/Utils";
 
 

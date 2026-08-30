@@ -526,11 +526,9 @@ class ArticleTranslationManager extends UI.Element {
 
         Ajax.getJSON("/article/" + this.options.baseArticle.id + "/get_translations/", {}).then(
             () => {
-                for (let article of Article.all()) {
-                    if (article.baseArticleId === this.options.baseArticle.id) {
-                        this.table.options.articles.push(article);
-                    }
-                }
+                this.table.options.articles.push(
+                    ...Article.filter((article) => article.baseArticleId === this.options.baseArticle.id)
+                );
                 this.table.redraw();
             }
         );

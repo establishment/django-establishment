@@ -3,7 +3,7 @@ import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 
 import {User} from "../../../../csaaccounts/js/state/UserStore";
 import {Language} from "../../../localization/js/state/LanguageStore";
-import {StoreId} from "../../../../stemjs/state/State";
+import {type StoreId} from "../../../../stemjs/state/State";
 
 @globalStore
 export class Article extends FetchStoreMixin("Article", {

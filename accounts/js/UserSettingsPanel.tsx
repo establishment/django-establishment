@@ -517,8 +517,7 @@ export class UserSettingsPanel extends UI.Element {
 
     render() {
         return [
-            // @ts-expect-error Nothing reads variableHeightPanels - see the Backlog
-            <TabArea ref="tabArea" variableHeightPanels>
+            <TabArea ref="tabArea">
                 {this.getPanels()}
             </TabArea>
         ];
@@ -526,8 +525,7 @@ export class UserSettingsPanel extends UI.Element {
 
     onMount() {
         this.setURL(this.initialUrlParts);
-        // @ts-expect-error initialUrlPars is a typo, so nothing is deleted - see the Backlog
-        delete this.initialUrlPars;
+        delete this.initialUrlParts;
     }
 }
 

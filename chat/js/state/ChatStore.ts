@@ -1,6 +1,6 @@
-import {FetchStoreMixin, FetchJob} from "../../../../stemjs/state/mixins/FetchStoreMixin";
+import {FetchStoreMixin, type FetchJob} from "../../../../stemjs/state/mixins/FetchStoreMixin";
 import {BaseStore, globalStore, StoreObject} from "../../../../stemjs/state/Store";
-import {GlobalState, StoreEvent, StoreId} from "../../../../stemjs/state/State";
+import {GlobalState, type StoreEvent, type StoreId} from "../../../../stemjs/state/State";
 import {Ajax} from "../../../../stemjs/base/Ajax";
 import {MessageThread} from "./MessageThreadStore";
 

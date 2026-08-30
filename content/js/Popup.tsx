@@ -1,9 +1,9 @@
-import {StyleObject, UI, UIElement} from "../../../stemjs/ui/UIBase";
+import {type StyleObject, UI, UIElement} from "../../../stemjs/ui/UIBase";
 import {Device} from "../../../stemjs/base/Device";
-import {FloatingWindow, FloatingWindowOptions} from "../../../stemjs/ui/modal/FloatingWindow";
-import {Direction, DirectionType} from "../../../stemjs/ui/Constants";
+import {FloatingWindow, type FloatingWindowOptions} from "../../../stemjs/ui/modal/FloatingWindow";
+import {Direction, type DirectionType} from "../../../stemjs/ui/Constants";
 import {Button} from "../../../stemjs/ui/button/Button";
-import {Point} from "../../../stemjs/numerics/StemMath";
+import {type Point} from "../../../stemjs/numerics/StemMath";
 
 interface BasePopupOptions extends FloatingWindowOptions {
     x?: number;

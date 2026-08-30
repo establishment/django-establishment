@@ -129,11 +129,13 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
         }
 
         return [
-            <ChatMessageScrollSection ref="messageWindow"
-                                      entryRenderer={this.options.renderMessage}
-                                      entries={this.messageThread.getMessages(true)}
-                                      entryComparator={this.options.entryComparator}
-                                      staticTop={loadMoreButton} />
+            <ChatMessageScrollSection
+                ref="messageWindow"
+                entryRenderer={this.options.renderMessage}
+                entries={this.messageThread.getMessages(true)}
+                entryComparator={this.options.entryComparator}
+                staticTop={loadMoreButton}
+            />
         ];
     }
 

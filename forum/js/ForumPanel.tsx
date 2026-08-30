@@ -227,16 +227,10 @@ export class ForumThreadList extends UI.Element {
         }, {desc: true});
 
         let result = [];
-        let color = 1;
         result.push(<ForumThreadHeader/>);
         let Bubble = this.getBubbleClass();
         for (let forumThread of forumThreads) {
-            // @ts-expect-error isPinned is not an option a bubble declares - see the Backlog
-            result.push(<Bubble forumThread={forumThread} color={color} isPinned={forumThread.isPinned()}/>);
-            if (!forumThread.isPinned()) {
-                // @ts-expect-error color starts at 0 and alternates through booleans, which the option then coerces
-                color = !color;
-            }
+            result.push(<Bubble forumThread={forumThread}/>);
         }
         return result;
     }

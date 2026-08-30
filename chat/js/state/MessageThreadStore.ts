@@ -1,5 +1,5 @@
 import {Ajax} from "../../../../stemjs/base/Ajax";
-import {GlobalState, StoreEvent, StoreId} from "../../../../stemjs/state/State";
+import {GlobalState, type StoreEvent, type StoreId} from "../../../../stemjs/state/State";
 import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 import {BaseStore, globalStore} from "../../../../stemjs/state/Store";
 import {VirtualObjectStoreMixin} from "../../../../stemjs/state/mixins/VirtualObjectStoreMixin";

@@ -187,8 +187,6 @@ class ForumThreadReply extends UI.Element {
                 icon={"pencil"}
                 level={Level.INFO}
                 messageInstance={messageInstance}
-                // @ts-expect-error Nothing reads forumThreadPanel - see the Backlog
-                forumThreadPanel={this}
                 className={forumThreadPanelStyle.editButton} />;
             editAndDeleteButtons = <div className={forumThreadPanelStyle.editDeleteButtons} style={{width: "auto",}}>
                 {editMessage}
@@ -386,9 +384,6 @@ class ForumThreadPanel extends UI.Element {
                             label={UI.T("REPLY")}
                             className={this.styleSheet.replyButton}
                             forumThreadId={forumThread.id}
-                            // @ts-expect-error Nothing reads forumThread, only forumThreadId - see the Backlog
-                            forumThread={this.getForumThread()}
-                            classMap={ChatMarkupRenderer.classMap}
                         />
                     </div>
                 </div>

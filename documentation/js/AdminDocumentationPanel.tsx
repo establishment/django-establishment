@@ -20,14 +20,11 @@ export class AdminDocumentationPanel extends DocumentationPanel {
     }
 
     getDocumentationEntry() {
-        let documentationEntry = DocumentationEntry.get(1);
+        const documentationEntry = DocumentationEntry.get(1);
         documentationEntry.getEntries = function() {
-            let entries = [];
-            for (let documentationEntry of DocumentationEntry.all()) {
-                if ((documentationEntry.parentId === this.id || !documentationEntry.parentId) && documentationEntry.id !== this.id) {
-                    entries.push(documentationEntry);
-                }
-            }
+            const entries = DocumentationEntry.filter(
+                (entry) => (entry.parentId === this.id || !entry.parentId) && entry.id !== this.id
+            );
             entries.sort((a, b) => {
                 return a.getParentIndex() - b.getParentIndex();
             });
@@ -112,12 +109,9 @@ export class AdminDocumentationPanel extends DocumentationPanel {
                 parentIndex: 0
             });
         } else {
-            let newBrothers = [];
-            for (let docEntry of DocumentationEntry.all()) {
-                if (docEntry.parentId === newParent.id && docEntry !== entry) {
-                    newBrothers.push(docEntry);
-                }
-            }
+            const newBrothers = DocumentationEntry.filter(
+                (docEntry) => docEntry.parentId === newParent.id && docEntry !== entry
+            );
             newBrothers.sort((a, b) => {
                 return a.parentIndex - b.parentIndex;
             });

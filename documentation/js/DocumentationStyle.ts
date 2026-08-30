@@ -2,8 +2,7 @@ import {StyleSheet, styleRule} from "../../../stemjs/ui/Style";
 
 export class DocumentationStyle extends StyleSheet {
     constructor() {
-        // @ts-expect-error Nothing reads updateOnResize - see the Backlog entry on defects this migration surfaced
-        super({updateOnResize: true});
+        super({});
     }
 
     @styleRule

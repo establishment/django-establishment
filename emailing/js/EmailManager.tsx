@@ -34,8 +34,7 @@ class EmailManager extends UI.Element {
 
     render() {
         return [
-            // @ts-expect-error Nothing reads variableHeightPanels - see the Backlog
-            <TabArea ref="tabArea" variableHeightPanels >
+            <TabArea ref="tabArea">
                 <EmailCampaignWidget ref="campaignsWidget" tabHref={this.getUrlPrefix("campaigns")} title="Campaigns" active/>
                 <EmailTemplateWidget ref="templatesWidget" tabHref={this.getUrlPrefix("templates")} title="Templates"/>
                 <EmailGatewayWidget ref="gatewaysWidget" tabHref={this.getUrlPrefix("gateways")} title="Gateways"/>
@@ -45,8 +44,7 @@ class EmailManager extends UI.Element {
 
     onMount() {
         this.setURL(this.initialUrlParts);
-        // @ts-expect-error initialUrlPars is a typo, so nothing is deleted - see the Backlog
-        delete this.initialUrlPars;
+        delete this.initialUrlParts;
     }
 
     showUrlTab(urlPart) {

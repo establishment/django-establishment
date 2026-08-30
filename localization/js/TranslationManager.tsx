@@ -146,14 +146,11 @@ class TranslationEntryTable extends Table {
             }
         }
 
-        let result = [];
-        for (let key of TranslationKey.all()) {
-            result.push({
-                key,
-                entry: keyEntryMap.get(key.id),
-                language,
-            });
-        }
+        const result = TranslationKey.all().map((key) => ({
+            key,
+            entry: keyEntryMap.get(key.id),
+            language,
+        }));
         return result;
     }
 }
@@ -198,14 +195,10 @@ class TranslationEntryManager extends UI.Element {
     }
 
     getLanguageOptions() {
-        let ret = [];
-        for (let language of Language.all()) {
-            ret.push({
-                value: language,
-                toString: () => language.name
-            });
-        }
-        return ret;
+        return Language.all().map((language) => ({
+            value: language,
+            toString: () => language.name
+        }));
     }
 
     onMount() {
@@ -381,16 +374,15 @@ class TranslationEntryManager extends UI.Element {
             }
         }
 
-        let output = [];
-        for (let key of TranslationKey.all()) {
-            let entry = keyEntryMap.get(key.id);
-            output.push({
+        const output = TranslationKey.all().map((key) => {
+            const entry = keyEntryMap.get(key.id);
+            return {
                 keyId: key.id,
                 entryId: entry ? entry.id: "",
                 keyValue: key.value,
                 entryValue: entry ? entry.value: "",
-            });
-        }
+            };
+        });
         let file = new Blob([JSON.stringify(output, null, 2)], {type:'text/plain;charset=utf-8'});
 
         FileSaver.saveAs(file, "translations.json");
@@ -549,11 +541,7 @@ class TranslationKeyTable extends Table {
     }
 
     getEntries() {
-        let ret = [];
-        for (let key of TranslationKey.all()) {
-            ret.push({key: key, table: this, editable: this.editable});
-        }
-        return ret;
+        return TranslationKey.all().map((key) => ({key: key, table: this, editable: this.editable}));
     }
 
     makeEditable() {
@@ -686,8 +674,7 @@ class TranslationManager extends UI.Element {
 
     render() {
         return [
-            // @ts-expect-error Nothing reads variableHeightPanels - see the Backlog
-            <TabArea ref="tabArea" variableHeightPanels >
+            <TabArea ref="tabArea">
                 <TranslationKeyManager ref="keyManager" tabHref={this.getUrlPrefix("keys")} title="Edit keys" active/>
                 <TranslationEntryManager ref="entryManager" tabHref={this.getUrlPrefix("entries")} title="Edit entries"/>
             </TabArea>

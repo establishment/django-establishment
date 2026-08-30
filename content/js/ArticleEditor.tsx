@@ -202,8 +202,7 @@ class ArticleEditor extends UI.Element {
 
         return [
             <h3>{this.getArticle().name + " Id=" + this.options.articleId}</h3>,
-                // @ts-expect-error Nothing reads variableHeightPanels - see the Backlog
-                <TabArea ref="tabArea" variableHeightPanels style={{flex: "1", height: "100%", display: "flex", flexDirection: "column"}}>
+                <TabArea ref="tabArea" style={{flex: "1", height: "100%", display: "flex", flexDirection: "column"}}>
                 <UI.Element title="Edit" active style={{height: "100%", overflow: "hidden"}}>
                     <AjaxButton
                         style={{zIndex: 2, position: "relative"}}
