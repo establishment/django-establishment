@@ -21,6 +21,7 @@ import {CommentVotingWidgetWithThumbs} from "../../chat/js/VotingWidget";
 import {type ForumThread as ForumThreadStoreObject} from "./state/ForumStore";
 import {ErrorHandlers} from "../../webapp/js/ErrorHandlers";
 import {ForumThreadPanelStyle, ForumButtonStyle} from "./ForumStyle";
+import {ForumButton} from "./ForumButton";
 
 let forumThreadPanelStyle = ForumThreadPanelStyle.getInstance();
 ForumButtonStyle.getInstance(); // To ensure css importance order
@@ -89,13 +90,8 @@ export interface CreateForumThreadButtonOptions {
     forumId?: any;
 }
 
-@registerStyle(ForumButtonStyle)
-class CreateForumThreadButton extends Button {
-    declare options: ExtendedOptions<Button, CreateForumThreadButtonOptions>;
-
-    extraNodeAttributes(attr) {
-        attr.addClass(this.styleSheet.button);
-    }
+class CreateForumThreadButton extends ForumButton {
+    declare options: ExtendedOptions<ForumButton, CreateForumThreadButtonOptions>;
 
     setOptions(options) {
         if (!options.icon) {

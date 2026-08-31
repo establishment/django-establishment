@@ -32,7 +32,8 @@ export class BlogEntryEditModal extends Modal {
     declare visibleCheckbox: RawCheckboxInput;
 
     getModalWindowStyle() {
-        return Object.assign({}, super.getModalWindowStyle(), {
+        return {
+            ...super.getModalWindowStyle(),
             margin: "0 auto",
             maxHeight: "100%",
             overflow: "initial",
@@ -40,7 +41,7 @@ export class BlogEntryEditModal extends Modal {
             flexDirection: "column",
             top: "1vh",
             height: "98vh",
-        });
+        };
     }
 
     render() {

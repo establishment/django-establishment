@@ -25,7 +25,7 @@ export class CommandRun extends BaseStore("CommandRun") {
     declare logEntries: any;
     declare status: any;
 
-    update(event) {
+    applyEvent(event) {
         if (event.type === "logMessage") {
             this.logEntries = this.logEntries || {
                 entries: [],
@@ -33,7 +33,7 @@ export class CommandRun extends BaseStore("CommandRun") {
             };
             this.logEntries.entries.push(event.data);
         } else {
-            super.update(event);
+            super.applyEvent(event);
         }
     }
 

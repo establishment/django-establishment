@@ -377,7 +377,6 @@ class ForumThreadHeaderStyle extends StyleSheet {
         textAlign: "center",
         fontSize: this.fontSize,
         display: () => {
-            console.log(window.innerWidth);
             if (window.innerWidth < this.widthLimit) {
                 return "none";
             }

@@ -38,12 +38,13 @@ abstract class EmailTemplateModal extends ActionModal {
     }
 
     getModalWindowStyle() {
-        return Object.assign({}, super.getModalWindowStyle(), {
+        return {
+            ...super.getModalWindowStyle(),
             height: "90vh",
             width: "70vw",
             display: "flex",
             flexDirection: "column",
-        });
+        };
     }
 
     render() {

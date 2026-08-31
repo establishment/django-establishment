@@ -1,21 +1,18 @@
 import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
-import {Button} from "../../../stemjs/ui/button/Button";
-import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 import {Ajax} from "../../../stemjs/base/Ajax";
 
 import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal";
 import {LoginModal} from "../../accounts/js/LoginModal";
 import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer";
-import {ForumButtonStyle} from "./ForumStyle";
+import {ForumButton} from "./ForumButton";
 
 export interface CreateThreadReplyButtonOptions {
     forumThreadId?: any;
 }
 
-@registerStyle(ForumButtonStyle)
-class CreateThreadReplyButton extends Button {
-    declare options: ExtendedOptions<Button, CreateThreadReplyButtonOptions>;
+class CreateThreadReplyButton extends ForumButton {
+    declare options: ExtendedOptions<ForumButton, CreateThreadReplyButtonOptions>;
     declare markupEditorModal: any;
 
     getDefaultOptions() {
@@ -24,10 +21,6 @@ class CreateThreadReplyButton extends Button {
             size: Size.LARGE,
             label: UI.T("Preview")
         };
-    }
-
-    extraNodeAttributes(attr) {
-        attr.addClass(this.styleSheet.button);
     }
 
     onMount() {

@@ -12,12 +12,11 @@ class GithubManager extends SocialAccountManager {
     login(callback) {
         const githubUri = "https://github.com/login/oauth/authorize";
 
-        const rawParams = {
+        const params = new URLSearchParams({
             client_id: this.getClientId(),
-        };
+        });
 
-        // [object Object] - see the Backlog entry on defects this migration surfaced
-        const uri = composeURL(githubUri, rawParams);
+        const uri = composeURL(githubUri, params);
         const githubWindow = window.open(uri, "githubWindow", this.options.loginWindowOptions);
 
         githubWindow.onbeforeunload = callback;

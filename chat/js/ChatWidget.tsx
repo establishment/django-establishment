@@ -71,9 +71,10 @@ class EditableMessage extends UI.Element {
     declare message: any;
 
     getDefaultOptions() {
-        return Object.assign({}, super.getDefaultOptions(), {
+        return {
+            ...super.getDefaultOptions(),
             deletable: true,
-        });
+        };
     }
 
     setOptions(options) {

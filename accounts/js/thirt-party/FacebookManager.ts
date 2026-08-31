@@ -6,7 +6,6 @@ import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManag
 export interface FacebookManagerOptions {
     locale?: any;
     loginOptions?: any;
-    logoutUrl?: any;
     version?: any;
 }
 
@@ -21,7 +20,6 @@ class FacebookManager extends SocialAccountManager {
                 auth_type: "rerequest",
                 scope: "email"
             },
-            logoutUrl: "/accounts/logout/",
             // TODO: should probably look at https://www.facebook.com/translations/FacebookLocales.xml and Language.Locale
             locale: "en_US",
         });
@@ -81,21 +79,6 @@ class FacebookManager extends SocialAccountManager {
             expiresIn: response.authResponse.expiresIn
         };
         this.sendData(this.options.loginByTokenUrl, data);
-    }
-
-    logout() {
-        if (!self.FB) {
-            return;
-        }
-        FB.logout((response) => {
-            this.onLogoutSuccess(response, nextUrl);
-        });
-    }
-
-    onLogoutSuccess(response) {
-        if (this.options.logoutUrl) {
-            this.sendData(this.options.logoutUrl, data);
-        }
     }
 
     handleProcess(nextUrl, action?, process?) {

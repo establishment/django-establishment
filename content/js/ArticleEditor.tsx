@@ -192,7 +192,7 @@ class ArticleEditor extends UI.Element {
                     <Select style={{float:"right", marginRight:"25px"}} ref="rightTextSelector" options={this.versionsLabels}/>
                 </UI.Element>
                 <DiffWidgetClass ref="diffWidget" leftEditable={this.leftEditable} rightEditable={this.rightEditable}
-                                 leftTextValue={this.versions[2]} arrows={this.arrows} rightTextValue={this.versions[1]}
+                                 leftTextValue={this.versions[2]} rightTextValue={this.versions[1]}
                                      style={{flex:"1", height: "calc(100% - 100px)", width: "calc(100% - 100px)"}} />
             </UI.Element>;
         }

@@ -12,8 +12,8 @@ export class Forum extends BaseStore("forum") {
 
     declare forumThreads: Map<any, any>;
 
-    constructor() {
-        super(...arguments);
+    constructor(obj, event?) {
+        super(obj, event);
         this.forumThreads = new Map();
         // TODO: not appropriate to register to streams here
         GlobalState.registerStream(this.getStreamName());

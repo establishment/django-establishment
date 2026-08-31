@@ -66,7 +66,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
     declare options: ExtendedOptions<VolatileFloatingWindow, AutocompleteWindowOptions>;
     declare currentIndex: any;
     // Each div carries the id it was rendered for, which getSelectedUserId reads back off it
-    declare userDivs: (UIElement & {options: {userId?: StoreId}})[];
+    declare userDivs: UIElement[];
 
     extraNodeAttributes(attr) {
         attr.setStyle("z-index", "9999");
@@ -106,7 +106,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
     render() {
         this.userDivs = [];
         for (let userId of this.options.userIds) {
-            this.userDivs.push(<div userId={userId} style={{
+            this.userDivs.push(<div style={{
                                                 padding: "0 5px",
                                                 border: "1px solid grey",
                                                 height: this.options.userDivHeight + "px",
@@ -132,7 +132,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
     }
 
     getCurrentUserId() {
-        return this.userDivs[this.currentIndex].options.userId;
+        return this.options.userIds[this.currentIndex];
     }
 
     setCurrentIndex(index) {

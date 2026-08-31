@@ -108,9 +108,10 @@ class ArticleSwitcher extends Switcher {
     declare articleChildMap: WeakMap<Article, UIElement>;
 
     getDefaultOptions() {
-        return Object.assign({}, super.getDefaultOptions(), {
+        return {
+            ...super.getDefaultOptions(),
             fullHeight: true,
-        });
+        };
     }
 
     constructor() {

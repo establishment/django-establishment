@@ -63,12 +63,12 @@ class VotingWidget extends UI.Element {
             color: this.options.notVoteColor,
         };
 
-        let likeButtonStyle = Object.assign({}, buttonsStyle);
+        let likeButtonStyle = {...buttonsStyle};
         if (this.getUserVote() === VoteStatus.LIKE) {
             likeButtonStyle.color = this.options.likeColor;
         }
 
-        let dislikeButtonStyle = Object.assign({}, buttonsStyle);
+        let dislikeButtonStyle = {...buttonsStyle};
         if (this.getUserVote() === VoteStatus.DISLIKE) {
             dislikeButtonStyle.color = this.options.dislikeColor;
         }
@@ -209,13 +209,13 @@ class CommentVotingWidgetWithThumbs extends CommentVotingWidget {
         let thumbsDownScoreStyle: StyleRuleObject = {};
 
         // TODO: remove duplicate code
-        let likeButtonStyle: StyleRuleObject = Object.assign({}, this.styleSheet.thumbsStyle);
+        let likeButtonStyle: StyleRuleObject = {...this.styleSheet.thumbsStyle};
         if (this.getUserVote() === VoteStatus.LIKE) {
             likeButtonStyle.color = thumbsUpScoreStyle.color = this.options.likeColor;
             thumbsUpScoreStyle.fontWeight = "bold";
         }
 
-        let dislikeButtonStyle: StyleRuleObject = Object.assign({}, this.styleSheet.thumbsStyle);
+        let dislikeButtonStyle: StyleRuleObject = {...this.styleSheet.thumbsStyle};
         if (this.getUserVote() === VoteStatus.DISLIKE) {
             dislikeButtonStyle.color = thumbsDownScoreStyle.color = this.options.dislikeColor;
             thumbsDownScoreStyle.fontWeight = "bold";

@@ -6,7 +6,6 @@ import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan";
 import {Switcher} from "../../../stemjs/ui/Switcher";
 import {TextArea} from "../../../stemjs/ui/input/Input";
 import {Button} from "../../../stemjs/ui/button/Button";
-import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
 
 import {GroupChat} from "./state/ChatStore";
@@ -23,9 +22,10 @@ class ThreadMessage extends EditableMessage {
     declare contentSwitcher: any;
 
     getDefaultOptions() {
-        return Object.assign({}, super.getDefaultOptions(), {
+        return {
+            ...super.getDefaultOptions(),
             deletable: false,
-        });
+        };
     }
 
     render() {
@@ -97,16 +97,20 @@ class ToggleLogin extends UI.Primitive("span") {
 }
 
 
-@registerStyle(BlogStyle)
 class BlogCommentWidget extends ChatWidget(ThreadMessage) {
     declare chatInput: TextArea;
 
     getDefaultOptions() {
-        return Object.assign({}, super.getDefaultOptions(), {
+        return {
+            ...super.getDefaultOptions(),
             entryComparator: (a, b) => {
                 return b.getNormalizedId() - a.getNormalizedId();
-            }
-        })
+            },
+        }
+    }
+
+    get blogStyle() {
+        return BlogStyle.getInstance(this.getTheme());
     }
 
     get commentWidgetStyle() {
@@ -154,7 +158,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
                 <Button disabled={this.messageThread.muted}
                            label="SUBMIT"
                            ref="sendMessageButton"
-                           className={this.styleSheet.sendMessageButtonStyle}
+                           className={this.blogStyle.sendMessageButtonStyle}
                            level={Level.PRIMARY}
                            onClick={() => this.sendMessage()} />
                 {/*{this.messageThread.hasMarkupEnabled() ?
@@ -182,7 +186,6 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
     }
 }
 
-@registerStyle(BlogStyle)
 class CommentWidget extends BlogCommentWidget {
     // An embedder fills this in; see CSAApp
     declare static defaultPlugins?: Constructor<ChatPlugin>[];
@@ -228,7 +231,7 @@ class CommentWidget extends BlogCommentWidget {
         let commentsCount = this.messageThread.getMessages().length;
         let commentsTitle;
 
-        commentsTitle = <div className={this.styleSheet.commentsTitle}>
+        commentsTitle = <div className={this.blogStyle.commentsTitle}>
             {commentsCount} {commentsCount != 1 ? "comments" : "comment"}
         </div>;
 

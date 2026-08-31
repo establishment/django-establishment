@@ -267,7 +267,6 @@ class TranslationEntryManager extends UI.Element {
             let reader = new FileReader();
             let file = this.uploadFile.getFile();
             if (file.size > 1e8) {
-                this.fileWarningModal.show();
                 console.warn("File ", file.name, " too large. Skipping upload.");
                 this.uploadFile.setValue("");
                 return;
@@ -283,7 +282,8 @@ class TranslationEntryManager extends UI.Element {
                 }
             };
             reader.onload = (e) => {
-                let text = e.currentTarget.result;
+                // readAsText below, so the result is the text and not an ArrayBuffer
+                let text = (e.currentTarget as FileReader).result as string;
                 let error = false;
                 let errmsg = "";
                 try {

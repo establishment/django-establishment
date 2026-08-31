@@ -1,6 +1,6 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {type StoreId} from "../../../../stemjs/state/State";
-import {User} from "../../../../stemjs/state/UserStore";
+import {User} from "../../../../csaaccounts/js/state/UserStore";
 
 @globalStore
 export class Follower extends BaseStore("social_follower", {dependencies: ["user"]}) {

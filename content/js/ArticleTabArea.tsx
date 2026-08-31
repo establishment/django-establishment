@@ -14,13 +14,14 @@ export interface ArticleEntry {
 
 export interface ArticleTabAreaOptions {
     path?: any;
-    // Article descriptions rather than elements, which is what setOptions turns into Dispatchables
-    children?: (ArticleEntry & Dispatchable)[];
+    articles?: ArticleEntry[];
 }
 
 class ArticleTabArea extends TabArea {
     declare options: ExtendedOptions<TabArea, ArticleTabAreaOptions>;
     declare switcherArea: ArticleSwitcher;
+    // A Dispatchable each, so a tab title can listen for the "show" that setURL sends its entry
+    declare articleEntries: (ArticleEntry & Dispatchable)[];
 
     getDefaultOptions() {
         return {
@@ -53,21 +54,29 @@ class ArticleTabArea extends TabArea {
         </ArticleSwitcher>;
     }
 
-    createTabPanel(articleEntry) {
-        let tab = <BasicTabTitle panel={articleEntry} title={articleEntry.title}
-                                 activeTabDispatcher={this.activeTabDispatcher}
-                                 href={this.getArticleUrl(articleEntry)} styleSheet={this.styleSheet}/>;
+    createTabTitle(articleEntry) {
+        return <BasicTabTitle panel={articleEntry} title={articleEntry.title}
+                              activeTabDispatcher={this.activeTabDispatcher}
+                              href={this.getArticleUrl(articleEntry)} styleSheet={this.styleSheet}/>;
+    }
 
-        return [tab, articleEntry];
+    // An entry describes a tab, never a panel: the switcher loads an article by id rather than mounting one
+    getChildrenToRender() {
+        return [
+            this.getTitleArea(this.articleEntries.map(articleEntry => this.createTabTitle(articleEntry))),
+            this.getSwitcher([]),
+        ];
     }
 
     setOptions(options) {
         super.setOptions(options);
-        this.options.children = this.options.children.map(x => Object.assign(new Dispatchable(), x));
+        this.articleEntries = (this.options.articles || []).map(
+            articleEntry => Object.assign(new Dispatchable(), articleEntry)
+        );
     }
 
     setURL(urlParts) {
-        for (let articleEntry of this.options.children) {
+        for (let articleEntry of this.articleEntries) {
             if (articleEntry.url === urlParts[0]) {
                 articleEntry.dispatch("show"); // so that the tab title also known to set itself active
                 return;

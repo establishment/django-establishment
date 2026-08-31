@@ -512,7 +512,7 @@ export class TimeChart extends BasicChart {
             x: this.options.chartOptions.width / 2 * (1 - factor),
             y: this.options.chartOptions.height / 2 * (1 - factor)
         };
-        centerZoom.__proto__ = zoomIdentity.__proto__;
+        Object.setPrototypeOf(centerZoom, Object.getPrototypeOf(zoomIdentity));
 
         zoomNode.dispatch("zoom", {
             transform: centerZoom
@@ -570,7 +570,7 @@ export class ChartSVG extends SVGRoot {
 
     render() {
         return [
-            <BasicChart chartOptions={Object.assign({}, this.chartOptions)}
+            <BasicChart chartOptions={{...this.chartOptions}}
                                 xAxisDomain={this.options.xDomain}
                                 yAxisDomain={this.options.yDomain}>
                 <LinePlot plotOptions={this.plotOptions} data={this.data}/>
