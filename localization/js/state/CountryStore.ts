@@ -6,7 +6,8 @@ import {type StoreId} from "../../../../stemjs/state/State";
 export class Country extends BaseStore("Country") {
     declare name: string;
     declare isoCode: string;
-    declare phonePrefix?: string;
+    declare iso3Code: string;
+    declare phoneNumberPrefix?: string;
 
     toString(): string {
         return this.name;

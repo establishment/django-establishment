@@ -21,7 +21,7 @@ const deleteRedirectLink = "/";
 
 export interface ArticleMarkupEditorOptions {
     article?: Article;
-    value?: any;
+    value?: string;
 }
 
 class ArticleMarkupEditor extends MarkupEditor {
@@ -94,16 +94,16 @@ class ArticleEditor extends UI.Element {
 
     declare options: ElementOptions<ArticleEditorOptions>;
     declare articleNameFormInput: TextInput;
-    declare deleteArticleModal: any;
+    declare deleteArticleModal: DeleteArticleModal;
     declare dependencyFormInput: TextInput;
     declare diffWidget: any;
     declare languageSelect: Select<any>;
-    declare leftEditable: any;
+    declare leftEditable: boolean;
     declare leftTextSelector: Select<any>;
     declare markupEditor: ArticleMarkupEditor;
     declare ownerFormInput: TextInput;
     declare publicCheckbox: RawCheckboxInput;
-    declare rightEditable: any;
+    declare rightEditable: boolean;
     declare rightTextSelector: Select<any>;
     declare saveMarkupButton: AjaxButton;
     declare saveMarkupMessageArea: TemporaryMessageArea;

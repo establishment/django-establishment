@@ -8,6 +8,13 @@ import {ServerTime} from "../../../../stemjs/time/Time";
 import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
 import {UserReactionCollection} from "../../../accounts/js/state/UserReaction";
 
+// Either the real collection or the zeroed stand-in getReactionCollection answers with
+export interface ReactionCounts {
+    upvotesCount: number;
+    downvotesCount: number;
+    getCurrentUserReactionType(): number | undefined;
+}
+
 
 @globalStore
 export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") {
@@ -61,14 +68,14 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
         return MessageThread.get(this.messageThreadId);
     }
 
-    getReactionCollection(fakeIfMissing: boolean = false): any {
+    getReactionCollection(fakeIfMissing: boolean = false): ReactionCounts {
         let reactionCollection = UserReactionCollection.get(this.reactionCollectionId);
         if (fakeIfMissing && !reactionCollection) {
             return {
                 upvotesCount: 0,
                 downvotesCount: 0,
                 getCurrentUserReactionType() {},
-            };
+            } as ReactionCounts;
         }
         return reactionCollection;
     }
@@ -85,7 +92,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
         return this.getNumLikes() - this.getNumDislikes();
     }
 
-    getUserVote(): string | undefined {
+    getUserVote(): number | undefined {
         return this.getReactionCollection(true).getCurrentUserReactionType();
     }
 
@@ -152,7 +159,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
         }).then(onSuccess, onError);
     }
 
-    applyEvent(event: any): void {
+    applyEvent(event: StoreEvent): void {
         if (event.type === "messageEdit") {
             Object.assign(this, event.data);
             this.dispatch("edit", event);
@@ -167,7 +174,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
         }
     }
 
-    updateId(newId: any): void {
+    updateId(newId: StoreId): void {
         if (this.id == newId) {
             return;
         }
@@ -199,7 +206,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     }
 }
 
-MessageInstance.addCreateListener((messageInstance: MessageInstance, createEvent: any) => {
+MessageInstance.addCreateListener((messageInstance: MessageInstance, createEvent: StoreEvent) => {
     messageInstance.getMessageThread()?.addMessageInstance(messageInstance, createEvent);
 });
 
@@ -236,7 +243,7 @@ export class MessageThread extends BaseStore("MessageThread") {
         return this.markupEnabled || false;
     }
 
-    addMessageInstance(messageInstance: MessageInstance, event: any): void {
+    addMessageInstance(messageInstance: MessageInstance, event: StoreEvent): void {
         this.messages.set(messageInstance.id, messageInstance);
         this.dispatch("newMessage", event);
     }

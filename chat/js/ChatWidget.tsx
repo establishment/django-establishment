@@ -57,7 +57,7 @@ class PreviewMarkupButton extends Button {
 }
 
 export interface EditableMessageOptions {
-    deletable?: any;
+    deletable?: boolean;
 }
 
 class EditableMessage extends UI.Element {
@@ -68,7 +68,7 @@ class EditableMessage extends UI.Element {
     declare contentContainer: UIElement;
     declare contentSwitcher: Switcher;
     declare editContent: any;
-    declare message: any;
+    declare message: MessageInstance;
 
     getDefaultOptions() {
         return {
@@ -176,13 +176,13 @@ class EditableMessage extends UI.Element {
 
 
 export interface GroupChatMessageOptions {
-    message?: any;
+    message?: MessageInstance;
 }
 
 @registerStyle(ChatStyle)
 class GroupChatMessage extends EditableMessage {
     declare options: ExtendedOptions<EditableMessage, GroupChatMessageOptions>;
-    declare message: any;
+    declare message: MessageInstance;
 
     setOptions(options) {
         super.setOptions(options);
@@ -259,14 +259,14 @@ class GroupChatMessage extends EditableMessage {
 
 
 export interface PrivateChatMessageOptions {
-    message?: any;
+    message?: MessageInstance;
 }
 
 @registerStyle(ChatStyle)
 class PrivateChatMessage extends UI.Element {
     declare options: ElementOptions<PrivateChatMessageOptions>;
     declare contentSwitcher: Switcher;
-    declare message: any;
+    declare message: MessageInstance;
 
     setOptions(options) {
         super.setOptions(options);
@@ -376,7 +376,7 @@ class ChatMessageScrollSection extends InfiniteScrollable {
 export interface ChatWidgetBaseOptions {
     baseRequest?: any;
     extraHeightOffset?: number;
-    messageThread?: any;
+    messageThread?: MessageThread;
     plugins?: any;
     renderMessage?: any;
 }
@@ -799,7 +799,7 @@ class PrivateChatWidget extends ChatWidget(PrivateChatMessage) {
 }
 
 export interface VotableChatMessageOptions {
-    message?: any;
+    message?: MessageInstance;
 }
 
 class VotableChatMessage extends GroupChatMessage {

@@ -4,12 +4,12 @@ import {Article} from "../../../content/js/state/Article";
 
 @globalStore
 export class DocumentationEntry extends BaseStore("DocumentationEntry") {
-    declare articleId: any;
-    declare name: any;
-    declare parentId: any;
+    declare articleId: number;
+    declare name?: string;
+    declare parentId?: number;
     declare id: number;
     declare parentIndex: number;
-    declare urlName: any;
+    declare urlName?: string;
 
     getArticle() {
         let article = Article.get(this.articleId);

@@ -456,7 +456,7 @@ export class SocialAccountsPanel extends UI.Element {
 
 
 export class UserSettingsPanel extends UI.Element {
-    declare initialUrlParts: any;
+    declare initialUrlParts: string[];
     declare tabArea: TabArea;
 
     extraNodeAttributes(attr) {

@@ -31,7 +31,7 @@ class CollapseIconClass extends FACollapseIcon {
 }
 
 export interface DocumentationNavElementContentOptions {
-    collapsed?: any;
+    collapsed?: boolean;
     documentationEntry?: any;
     documentationSwitchDispatcher?: any;
     shouldToggle?: any;
@@ -214,7 +214,7 @@ class DraggableDocumentationNavElementContent extends Draggable(DocumentationNav
 }
 
 export interface DocumentationNavElementClassOptions {
-    collapsed?: any;
+    collapsed?: boolean;
     documentationEntry?: any;
     documentationSwitchDispatcher?: any;
     isRoot?: any;

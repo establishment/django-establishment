@@ -13,7 +13,7 @@ export interface CreateThreadReplyButtonOptions {
 
 class CreateThreadReplyButton extends ForumButton {
     declare options: ExtendedOptions<ForumButton, CreateThreadReplyButtonOptions>;
-    declare markupEditorModal: any;
+    declare markupEditorModal: CreateThreadReplyModal;
 
     getDefaultOptions() {
         return {

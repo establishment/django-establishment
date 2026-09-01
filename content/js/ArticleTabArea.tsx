@@ -13,7 +13,7 @@ export interface ArticleEntry {
 }
 
 export interface ArticleTabAreaOptions {
-    path?: any;
+    path?: string;
     articles?: ArticleEntry[];
 }
 

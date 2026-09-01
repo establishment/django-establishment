@@ -1,30 +1,50 @@
 import {UI, type ExtendedOptions, type UIElement} from "../../../../stemjs/ui/UIBase";
 import {SVGText} from "../../../../stemjs/ui/svg/SVGText";
-import {Direction} from "../../../../stemjs/ui/Constants";
+import {Direction, type DirectionType} from "../../../../stemjs/ui/Constants";
 import {uniqueId} from "../../../../stemjs/base/Utils";
 import {StemDate} from "../../../../stemjs/time/Date";
 import {LinePlot} from "./LinePlot";
 import {BasePointPlot} from "./PointPlot";
 
-// TODO: write own custom Scale
-// TODO: maybe import as some of these d3 functions
-import {scaleLinear, scaleTime} from "d3-scale";
+import {scaleLinear, scaleTime, type ContinuousScale} from "./Scale";
+
 import {select} from "d3-selection";
-import {zoom, zoomIdentity} from "d3-zoom";
+import {zoom, zoomIdentity, type D3ZoomEvent, type ZoomBehavior} from "d3-zoom";
 import {SVGRoot, SVGGroup, SVGLine, SVGRect} from "../../../../stemjs/ui/svg/SVGPrimitives";
+
+// The pixel box a chart draws inside
+export interface ChartDimensions {
+    width: number;
+    height: number;
+}
+
+// How a plot reads its points out of whatever data it was handed
+export interface PlotOptions {
+    pointsAlias: (data: any) => any[];
+    xCoordinateAlias: (point: any) => number;
+    yCoordinateAlias: (point: any) => number;
+}
+
+// What an axis needs to draw itself
+export interface ChartAxisOptions {
+    orientation: DirectionType;
+    ticks: number;
+    scale: ContinuousScale;
+    labelFormatFunction?: (value: any) => string;
+}
 
 
 // TODO: This file desperately needs a refactoring.
 
 export interface AxisTickOptions {
-    axisLineLength?: any;
-    chartOptions?: any;
-    gridLineStroke?: any;
+    axisLineLength?: number;
+    chartOptions?: ChartDimensions;
+    gridLineStroke?: string;
     label?: any;
-    labelPadding?: any;
+    labelPadding?: number;
     labelStrokeWidth?: any;
     orientation?: any;
-    scale?: any;
+    scale?: ContinuousScale;
     value?: any;
 }
 
@@ -124,10 +144,10 @@ export class AxisTick extends SVGGroup {
 }
 
 export interface BasicAxisOptions {
-    chartOptions?: any;
+    chartOptions?: ChartDimensions;
     labelFormatFunction?: any;
     orientation?: any;
-    scale?: any;
+    scale?: ContinuousScale;
     ticks?: any;
 }
 
@@ -197,31 +217,31 @@ export type ChartChild = UIElement & {options: {chart?: BasicChart}};
 
 export interface BasicChartOptions {
     children?: ChartChild[];
-    applyZoom?: any;
-    chartOptions?: any;
-    cursorStyle?: any;
+    applyZoom?: boolean;
+    chartOptions?: ChartDimensions;
+    cursorStyle?: string;
     domainPadding?: any;
-    enableZoom?: any;
+    enableZoom?: boolean;
     margin?: any;
     xAxisDomain?: any;
     xAxisLabelFormatFunction?: any;
-    xAxisScaleType?: any;
+    xAxisScaleType?: string;
     yAxisDomain?: any;
     yAxisLabelFormatFunction?: any;
-    yAxisScaleType?: any;
+    yAxisScaleType?: string;
 }
 
 export class BasicChart extends SVGGroup {
     declare interactiveLayer: SVGRect;
 
     declare options: ExtendedOptions<SVGGroup, BasicChartOptions>;
-    declare _initialXScale: any;
-    declare _initialYScale: any;
-    declare clipPath: any;
-    declare xAxisOptions: any;
-    declare yAxisOptions: any;
-    declare zoomBehavior: any;
-    declare zoomListener: any;
+    declare _initialXScale: ContinuousScale;
+    declare _initialYScale: ContinuousScale;
+    declare clipPath: string;
+    declare xAxisOptions: ChartAxisOptions;
+    declare yAxisOptions: ChartAxisOptions;
+    declare zoomBehavior: ZoomBehavior<Element, unknown>;
+    declare zoomListener: (event: D3ZoomEvent<Element, unknown>) => void;
 
     getDefaultOptions() {
         return {
@@ -265,7 +285,7 @@ export class BasicChart extends SVGGroup {
         return [domain[0] - padding[0] * domainLength, domain[1] + padding[1] * domainLength];
     }
 
-    getScaleType(type) {
+    getScaleType(type: string): ContinuousScale {
         if (type === "linear") {
             return scaleLinear();
         } else if (type === "time") {
@@ -349,8 +369,9 @@ export class BasicChart extends SVGGroup {
         let zoomNode = select(this.interactiveLayer.node);
         this.zoomListener = (event) => {
             if (this.options.applyZoom) {
-                this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale);
-                this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale);
+                // d3 types rescaleX as answering with the narrower ZoomScale, though it copies what it was given
+                this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale) as ContinuousScale;
+                this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale) as ContinuousScale;
                 this.redraw();
                 if (!event.sourceEvent) {
                     // Custom zoom event
@@ -379,8 +400,8 @@ export class BasicChart extends SVGGroup {
 }
 
 export interface TimeChartOptions {
-    applyZoom?: any;
-    chartOptions?: any;
+    applyZoom?: boolean;
+    chartOptions?: ChartDimensions;
     paddingXOnNoPoints?: any;
     paddingYOnNoPoints?: any;
     zoomScaleExtent?: any;
@@ -389,12 +410,6 @@ export interface TimeChartOptions {
 export class TimeChart extends BasicChart {
 
     declare options: ExtendedOptions<BasicChart, TimeChartOptions>;
-    declare _initialXScale: any;
-    declare _initialYScale: any;
-    declare xAxisOptions: any;
-    declare yAxisOptions: any;
-    declare zoomBehavior: any;
-    declare zoomListener: any;
 
     getDefaultOptions() {
         return Object.assign(super.getDefaultOptions(), {
@@ -491,8 +506,8 @@ export class TimeChart extends BasicChart {
                 let x = event.transform.x, y = event.transform.y, k = event.transform.k;
                 event.transform.x = Math.min(0, Math.max(x, this.options.chartOptions.width * (1 - k)));
                 event.transform.y = Math.min(0, Math.max(y, this.options.chartOptions.height * (1 - k)));
-                this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale);
-                this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale);
+                this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale) as ContinuousScale;
+                this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale) as ContinuousScale;
                 this.redraw();
                 this.interactiveLayer.node.__zoom = event.transform;
             }
@@ -526,9 +541,9 @@ export interface ChartSVGOptions {
 
 export class ChartSVG extends SVGRoot {
     declare options: ExtendedOptions<SVGRoot, ChartSVGOptions>;
-    declare chartOptions: any;
+    declare chartOptions: ChartDimensions;
     declare data: any;
-    declare plotOptions: any;
+    declare plotOptions: PlotOptions;
 
     setOptions(options) {
         super.setOptions(options);

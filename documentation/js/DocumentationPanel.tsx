@@ -18,7 +18,7 @@ class DocumentationPanel extends UI.Element {
     declare options: ElementOptions<DocumentationPanelOptions>;
     declare articleSwitcher: ArticleSwitcher;
     declare documentationSwitchDispatcher: Dispatcher;
-    declare initialUrlParts: any;
+    declare initialUrlParts: string[];
 
     constructor() {
         super(...arguments);

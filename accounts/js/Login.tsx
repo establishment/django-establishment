@@ -191,7 +191,7 @@ export class RegisterWidget extends UI.Element {
     declare getEmailInput: any;
     declare getPasswordInput: any;
     declare getHorizontalLine: () => UIChild;
-    declare recaptchaWidget: any;
+    declare recaptchaWidget: RecaptchaWidget;
     declare submitButton: SubmitInput;
     declare usernameInput: TextInput;
 

@@ -7,6 +7,7 @@ import {Orientation, VoteStatus} from "../../../stemjs/ui/Constants";
 import {LoginModal} from "../../accounts/js/LoginModal";
 import {UserReactionCollection} from "../../accounts/js/state/UserReaction";
 import {VotingWidgetStyle} from "./VotingWidgetStyle";
+import {type MessageInstance} from "./state/MessageThreadStore";
 
 export interface VotingWidgetOptions {
     balanceColor?: any;
@@ -100,7 +101,7 @@ class VotingWidget extends UI.Element {
 }
 
 export interface CommentVotingWidgetOptions {
-    message?: any;
+    message?: MessageInstance;
     target?: any;
 }
 
@@ -185,7 +186,7 @@ class CommentVotingWidget extends VotingWidget {
 export interface CommentVotingWidgetWithThumbsOptions {
     dislikeColor?: any;
     likeColor?: any;
-    message?: any;
+    message?: MessageInstance;
 }
 
 @registerStyle(VotingWidgetStyle)

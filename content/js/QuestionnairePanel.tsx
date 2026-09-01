@@ -14,6 +14,7 @@ import {ActionModalButton} from "../../../stemjs/ui/modal/Modal";
 import {StateDependentElement} from "../../../stemjs/ui/StateDependentElement";
 
 import {Questionnaire, QuestionnaireQuestion, QuestionnaireInstance} from "./state/QuestionnaireStore";
+import {type StoreId} from "../../../stemjs/state/State";
 
 
 export class QuestionnaireStyle extends StyleSheet {
@@ -106,7 +107,7 @@ export interface QuestionPageOptions {
 @registerStyle(QuestionnaireStyle)
 export class QuestionPage extends UI.Element {
     declare options: ElementOptions<QuestionPageOptions>;
-    declare ajaxThrottler: any;
+    declare ajaxThrottler: CallThrottler;
     declare otherChoice: any;
     declare textArea: any;
 
@@ -285,7 +286,7 @@ class OrderedChildrenSwitcher extends Switcher {
 
 
 export interface QuestionnairePanelOptions {
-    questionnaireId?: any;
+    questionnaireId?: StoreId;
 }
 
 @registerStyle(QuestionnaireStyle)
@@ -374,8 +375,8 @@ export class QuestionnairePanel extends UI.Element {
 
 export interface DelayedQuestionnairePanelOptions {
     error?: any;
-    loaded?: any;
-    questionnaireId?: any;
+    loaded?: boolean;
+    questionnaireId?: StoreId;
 }
 
 @registerStyle(QuestionnaireStyle)
@@ -418,7 +419,7 @@ export class DelayedQuestionnairePanel extends UI.Element {
 
 
 export interface QuestionnaireModalOptions {
-    questionnaireId?: any;
+    questionnaireId?: StoreId;
 }
 
 export class QuestionnaireModal extends Modal {
@@ -436,7 +437,7 @@ export class QuestionnaireModal extends Modal {
 
 
 export interface QuestionnaireButtonOptions {
-    questionnaireId?: any;
+    questionnaireId?: StoreId;
 }
 
 export class QuestionnaireButton extends ActionModalButton(QuestionnaireModal) {

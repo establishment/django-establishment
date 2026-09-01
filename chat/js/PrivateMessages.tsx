@@ -15,6 +15,7 @@ import {MessagesPanelListStyle} from "./SocialNotificationsStyle";
 import {PrivateChatWidget} from "./ChatWidget";
 import {PrivateChat} from "./state/ChatStore";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
+import {type StoreId} from "../../../stemjs/state/State";
 
 
 const formatMiniMessageLastTime = (timeStamp) => {
@@ -133,7 +134,7 @@ class MiniMessage extends UI.Element {
 }
 
 export interface UserSearchInputOptions {
-    placeholder?: any;
+    placeholder?: string;
     textInputStyle?: string;
 }
 
@@ -225,7 +226,7 @@ class UserSearchInput extends UI.Element {
 class MessagesList extends UI.Element {
     declare activeUserId: any;
     declare miniMessages: any;
-    declare unreadMessages: any;
+    declare unreadMessages: number;
 
     constructor(options) {
         super(options);
@@ -361,7 +362,8 @@ class MessagesPanelList extends UI.Element {
 }
 
 export interface PrivateChatWidgetWrapperOptions {
-    userId?: any;
+    // The route hands this over already parsed, which is why render parses it a second time
+    userId?: number;
     // Set by the fetch below, and read back on the redraw it triggers
     privateChat?: any;
     // Narrowed from the base's union: the widget's own height is copied out of it
@@ -410,7 +412,7 @@ class PrivateChatWidgetWrapper extends UI.Element {
 }
 
 class DelayedPrivateChat extends Router {
-    declare routes: any;
+    declare routes: Route;
 
     getNoChat() {
         return <h3 style={{marginTop: "40px", textAlign: "center"}}>Click on a chat box to start a conversation.</h3>;
@@ -429,7 +431,7 @@ class DelayedPrivateChat extends Router {
 class MessagesPanel extends UI.Element {
     declare chatWidget: DelayedPrivateChat;
     declare collapseButton: Button;
-    declare collapsed: any;
+    declare collapsed: boolean;
     declare messagesPanelList: MessagesPanelList;
 
     extraNodeAttributes(attr) {

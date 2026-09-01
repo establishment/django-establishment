@@ -1,5 +1,6 @@
 import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {SVGCircle, SVGGroup} from "../../../../stemjs/ui/svg/SVGPrimitives";
+import {type PlotOptions, type BasicChart} from "./BasicChart";
 
 export interface PointPlotElementOptions {
     data?: any;
@@ -34,9 +35,9 @@ export class PointPlotElement extends SVGCircle {
 }
 
 export interface PointPlotOptions {
-    chart?: any;
+    chart?: BasicChart;
     data?: any;
-    plotOptions?: any;
+    plotOptions?: PlotOptions;
 }
 
 export const PointPlot = (PointPlotElementClass) => class PointPlot extends SVGGroup {

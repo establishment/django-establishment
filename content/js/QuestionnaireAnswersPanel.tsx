@@ -17,6 +17,7 @@ import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 import {Questionnaire, QuestionnaireQuestion, type QuestionnaireInstance, type QuestionnaireQuestionOption} from "./state/QuestionnaireStore";
 import {PieChartSVG} from "./charts/PieChart";
 import {QuestionPage, QuestionnaireStyle} from "./QuestionnairePanel";
+import {type StoreId} from "../../../stemjs/state/State";
 
 
 // A real option, or the "Other" stand-in the panel appends when the question allows one
@@ -209,7 +210,7 @@ class QuestionSummary extends UI.Element {
 
 export interface QuestionnaireSummaryWidgetOptions {
     filters?: any;
-    questionnaireId?: any;
+    questionnaireId?: StoreId;
 }
 
 class QuestionnaireSummaryWidget extends UI.Element {
@@ -325,7 +326,7 @@ class FullInstancePage extends UI.Element {
 
 export interface QuestionnaireResponsesWidgetOptions {
     instances?: any;
-    questionnaireId?: any;
+    questionnaireId?: StoreId;
 }
 
 @registerStyle(QuestionnaireAnswersStyle)
@@ -392,7 +393,7 @@ class QuestionnaireResponsesWidget extends UI.Element {
 
 
 export interface QuestionnaireAnswersPanelOptions {
-    questionnaireId?: any;
+    questionnaireId?: StoreId;
 }
 
 export class QuestionnaireAnswersPanel extends UI.Element {
@@ -422,8 +423,8 @@ export class QuestionnaireAnswersPanel extends UI.Element {
 
 export interface DelayedQuestionnaireAnswersPanelOptions {
     error?: any;
-    loaded?: any;
-    questionnaireId?: any;
+    loaded?: boolean;
+    questionnaireId?: StoreId;
 }
 
 export class DelayedQuestionnaireAnswersPanel extends UI.Element {

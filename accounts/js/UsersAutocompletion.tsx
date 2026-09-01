@@ -55,7 +55,7 @@ export class AbstractUsernameAutocomplete extends Dispatchable {
 
 export interface AutocompleteWindowOptions {
     direction?: any;
-    highlightColor?: any;
+    highlightColor?: string;
     maxHeight?: number;
     onChooseUser?: any;
     userDivHeight?: number;
@@ -215,7 +215,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
 }
 
 export class UserInputField extends UI.Element {
-    declare duringAutocomplete: any;
+    declare duringAutocomplete: boolean;
     declare errorArea: TemporaryMessageArea;
     declare submitButton: Button;
     declare usernameInput: TextInput;

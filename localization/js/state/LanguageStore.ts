@@ -3,12 +3,12 @@ import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 
 @globalStore
 export class Language extends BaseStore("Language") {
-    declare static ARABIC: any;
-    declare static ENGLISH: any;
-    declare static ROMANIAN: any;
-    declare static RUSSIAN: any;
+    declare static ARABIC: Language;
+    declare static ENGLISH: Language;
+    declare static ROMANIAN: Language;
+    declare static RUSSIAN: Language;
 
-    declare flagEmoji: any;
+    declare flagEmoji: string;
 
     declare name: string;
     declare localName?: string;

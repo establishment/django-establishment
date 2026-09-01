@@ -3,6 +3,7 @@ import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
+import {type StoreId} from "../../../stemjs/state/State";
 
 export interface ProfilePanelOptions {
     user?: PublicUser;
@@ -30,7 +31,7 @@ class ProfilePanel extends UI.Element {
 }
 
 export interface UserProfilePanelOptions {
-    userId?: any;
+    userId?: StoreId;
 }
 
 class UserProfilePanel extends TabArea {

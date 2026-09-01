@@ -8,7 +8,7 @@ import {EmailTemplateWidget} from "./EmailTemplateWidget";
 
 class EmailManager extends UI.Element {
     declare campaignsWidget: EmailCampaignWidget;
-    declare initialUrlParts: any;
+    declare initialUrlParts: string[];
     declare tabArea: TabArea;
 
     extraNodeAttributes(attr) {

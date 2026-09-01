@@ -14,7 +14,7 @@ export class UserReactionCollection extends BaseStore("UserReactionCollection") 
         return this.getReactions().find(userReaction => userReaction.userId == currentUser.id);
     }
 
-    getCurrentUserReactionType(): string | undefined {
+    getCurrentUserReactionType(): number | undefined {
         const currentUserReaction = this.getCurrentUserReaction();
         return currentUserReaction?.type;
     }
@@ -25,5 +25,5 @@ export class UserReactionCollection extends BaseStore("UserReactionCollection") 
 export class UserReaction extends BaseStore("UserReaction") {
     declare userId: number;
     declare collectionId: number;
-    declare type: string;
+    declare type: number;
 }

@@ -6,7 +6,7 @@ import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManag
 export interface FacebookManagerOptions {
     locale?: any;
     loginOptions?: any;
-    version?: any;
+    version?: string;
 }
 
 class FacebookManager extends SocialAccountManager {

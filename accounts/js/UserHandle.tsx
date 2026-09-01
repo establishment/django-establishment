@@ -1,9 +1,10 @@
 import {UI, type ElementOptions, type HTMLTagType} from "../../../stemjs/ui/UIBase";
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
+import {type StoreId} from "../../../stemjs/state/State";
 
 export interface UserHandleOptions {
     color?: string;
-    userId?: any;
+    userId?: StoreId;
 }
 
 class UserHandle extends UI.Element {

@@ -388,7 +388,7 @@ class TranslationKeyTableRow extends TableRow {
     declare deleteButton: Button;
     declare oldTextElementValue: any;
     declare renameButton: Button;
-    declare renameState: any;
+    declare renameState: boolean;
     declare textElement: TextUIElement;
     declare textInput: TextInput;
     setOptions(options) {
@@ -479,8 +479,8 @@ class TranslationKeyTableRow extends TableRow {
 }
 
 class TranslationKeyTable extends Table {
-    declare changed: any;
-    declare editable: any;
+    declare changed: boolean;
+    declare editable: boolean;
 
     setOptions(options) {
         super.setOptions(options);
@@ -556,7 +556,7 @@ class TranslationKeyManager extends UI.Element {
     declare options: ElementOptions<TranslationKeyManagerOptions>;
 
     declare addStatus: TextUIElement;
-    declare changed: any;
+    declare changed: boolean;
     declare editableCheckbox: RawCheckboxInput;
     declare saveButton: Button;
     declare table: TranslationKeyTable;
@@ -653,7 +653,7 @@ class TranslationKeyManager extends UI.Element {
 
 class TranslationManager extends UI.Element {
     declare entryManager: TranslationEntryManager;
-    declare initialUrlParts: any;
+    declare initialUrlParts: string[];
     declare keyManager: TranslationKeyManager;
     declare tabArea: TabArea;
 

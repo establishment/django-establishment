@@ -1,11 +1,12 @@
 import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {SVGPath} from "../../../../stemjs/ui/svg/SVGPrimitives";
-import {line} from "d3-shape";
+import {line} from "./Shape";
+import {type PlotOptions, type BasicChart} from "./BasicChart";
 
 export interface LinePlotOptions {
-    chart?: any;
+    chart?: BasicChart;
     data?: any;
-    plotOptions?: any;
+    plotOptions?: PlotOptions;
 }
 
 class LinePlot extends SVGPath {

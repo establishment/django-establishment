@@ -23,7 +23,7 @@ import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 
 
 export interface TransferOwnershipModalOptions {
-    article?: any;
+    article?: Article;
 }
 
 class TransferOwnershipModal extends ActionModal {
@@ -261,7 +261,7 @@ class AddTranslationModal extends CreateArticleModal {
 }
 
 export interface ArticleOwnerSpanOptions {
-    article?: any;
+    article?: Article;
 }
 
 class ArticleOwnerSpan extends UI.Primitive("span") {
@@ -281,7 +281,7 @@ class ArticleOwnerSpan extends UI.Primitive("span") {
 }
 
 export interface ArticlePublicSpanOptions {
-    article?: any;
+    article?: Article;
 }
 
 class ArticlePublicSpan extends FAIcon {

@@ -155,7 +155,7 @@ export class FeedbackFormStyle extends StyleSheet {
 
 
 export interface FeedbackFormOptions {
-    formState?: any;
+    formState?: number;
 }
 
 @registerStyle(FeedbackFormStyle)
