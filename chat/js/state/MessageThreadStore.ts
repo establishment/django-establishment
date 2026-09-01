@@ -75,7 +75,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
                 upvotesCount: 0,
                 downvotesCount: 0,
                 getCurrentUserReactionType() {},
-            } as ReactionCounts;
+            };
         }
         return reactionCollection;
     }

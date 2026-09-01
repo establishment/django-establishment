@@ -370,8 +370,8 @@ export class BasicChart extends SVGGroup {
         this.zoomListener = (event) => {
             if (this.options.applyZoom) {
                 // d3 types rescaleX as answering with the narrower ZoomScale, though it copies what it was given
-                this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale) as ContinuousScale;
-                this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale) as ContinuousScale;
+                this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale);
+                this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale);
                 this.redraw();
                 if (!event.sourceEvent) {
                     // Custom zoom event
@@ -506,8 +506,8 @@ export class TimeChart extends BasicChart {
                 let x = event.transform.x, y = event.transform.y, k = event.transform.k;
                 event.transform.x = Math.min(0, Math.max(x, this.options.chartOptions.width * (1 - k)));
                 event.transform.y = Math.min(0, Math.max(y, this.options.chartOptions.height * (1 - k)));
-                this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale) as ContinuousScale;
-                this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale) as ContinuousScale;
+                this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale);
+                this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale);
                 this.redraw();
                 this.interactiveLayer.node.__zoom = event.transform;
             }
