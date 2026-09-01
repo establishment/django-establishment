@@ -7,7 +7,8 @@ export class DocumentationEntry extends BaseStore("DocumentationEntry") {
     declare articleId: any;
     declare name: any;
     declare parentId: any;
-    declare parentIndex: any;
+    declare id: number;
+    declare parentIndex: number;
     declare urlName: any;
 
     getArticle() {

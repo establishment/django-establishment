@@ -331,8 +331,7 @@ export interface QuestionnaireResponsesWidgetOptions {
 @registerStyle(QuestionnaireAnswersStyle)
 class QuestionnaireResponsesWidget extends UI.Element {
     declare options: ElementOptions<QuestionnaireResponsesWidgetOptions>;
-    declare instanceSwitcher: any;
-
+    declare instanceSwitcher: QuestionnaireInstanceSwitcher;
     extraNodeAttributes(attr) {
         attr.addClass(this.styleSheet.questionnaireResponseWidget);
     }
@@ -398,9 +397,8 @@ export interface QuestionnaireAnswersPanelOptions {
 
 export class QuestionnaireAnswersPanel extends UI.Element {
     declare options: ElementOptions<QuestionnaireAnswersPanelOptions>;
-    declare questionnaireResponses: any;
-    declare questionnaireSummary: any;
-
+    declare questionnaireResponses: QuestionnaireResponsesWidget;
+    declare questionnaireSummary: QuestionnaireSummaryWidget;
     render() {
         return [
             <TabArea>

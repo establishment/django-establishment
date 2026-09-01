@@ -5,7 +5,7 @@ import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 
 export interface ProfilePanelOptions {
-    user?: any;
+    user?: PublicUser;
 }
 
 class ProfilePanel extends UI.Element {
@@ -35,7 +35,7 @@ export interface UserProfilePanelOptions {
 
 class UserProfilePanel extends TabArea {
     declare options: ExtendedOptions<TabArea, UserProfilePanelOptions>;
-    declare user: any;
+    declare user: PublicUser;
 
     setOptions(options) {
         super.setOptions(options);

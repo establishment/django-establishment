@@ -38,7 +38,7 @@ function getUserMessagesUrl(userId) {
 }
 
 export interface MiniMessageOptions {
-    backgroundColorActive?: any;
+    backgroundColorActive?: boolean;
     list?: any;
     privateChatId?: any;
 }

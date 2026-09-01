@@ -145,7 +145,7 @@ export interface CommandRunDurationOptions {
 @autoredraw
 class CommandRunDuration extends UI.Primitive("span") {
     declare options: ElementOptions<CommandRunDurationOptions>;
-    declare intervalId: any;
+    declare intervalId: ReturnType<typeof setInterval>;
 
     render() {
         if (this.options.commandRun.status === 0) {

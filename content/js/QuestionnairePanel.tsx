@@ -255,7 +255,7 @@ export class QuestionPage extends UI.Element {
 
 
 class OrderedChildrenSwitcher extends Switcher {
-    declare childIndex: any;
+    declare childIndex: number;
 
     constructor() {
         super(...arguments);
@@ -291,11 +291,10 @@ export interface QuestionnairePanelOptions {
 @registerStyle(QuestionnaireStyle)
 export class QuestionnairePanel extends UI.Element {
     declare options: ElementOptions<QuestionnairePanelOptions>;
-    declare backButton: any;
-    declare forwardButton: any;
+    declare backButton: Button;
+    declare forwardButton: Button;
     declare progressArea: any;
-    declare questionPageSwitcher: any;
-
+    declare questionPageSwitcher: OrderedChildrenSwitcher;
     getQuestionnaire() {
         return Questionnaire.get(this.options.questionnaireId);
     }
@@ -424,8 +423,7 @@ export interface QuestionnaireModalOptions {
 
 export class QuestionnaireModal extends Modal {
     declare options: ExtendedOptions<Modal, QuestionnaireModalOptions>;
-    declare questionnairePanel: any;
-
+    declare questionnairePanel: DelayedQuestionnairePanel;
     render() {
         return <DelayedQuestionnairePanel questionnaireId={this.options.questionnaireId} ref="questionnairePanel"/>;
     }

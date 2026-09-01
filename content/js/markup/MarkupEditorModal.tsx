@@ -14,7 +14,7 @@ export interface ClickableEmoteOptions {
 
 abstract class ClickableEmote extends Emoji {
     declare options: ExtendedOptions<Emoji, ClickableEmoteOptions>;
-    declare redrawTimeout: any;
+    declare redrawTimeout: ReturnType<typeof setTimeout>;
     abstract getValueText(): string;
 
     redraw() {

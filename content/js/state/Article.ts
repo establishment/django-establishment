@@ -10,13 +10,14 @@ export class Article extends FetchStoreMixin("Article", {
     fetchURL: "/fetch_article/",
     maxFetchObjectCount: 32,
 }) {
-    declare dateCreated: any;
-    declare dateModified: any;
-    declare dependency: any;
-    declare getName: any;
-    declare isPublic: any;
-    declare markup: any;
-    declare name: any;
+    declare dateCreated: number;
+    declare dateModified: number;
+    declare dependency: string;
+    declare isPublic: boolean;
+    declare markup: string;
+    declare name: string;
+    declare version: number;
+    declare compiledJSON: string;
 
     declare userCreatedId: number;
     declare baseArticleId?: number;
@@ -42,7 +43,7 @@ export class Article extends FetchStoreMixin("Article", {
         return Array.from(this.edits.values());
     }
 
-    getTranslation(language: any = Language.Locale): Article {
+    getTranslation(language: Language = Language.Locale): Article {
         for (const article of Article.all()) {
             if (article.baseArticleId === this.id && article.languageId === language.id) {
                 return article;
@@ -55,7 +56,7 @@ export class Article extends FetchStoreMixin("Article", {
         return Article.get(this.baseArticleId) || this;
     }
 
-    static getTranslation(id: number, language: any = Language.Locale): Article | null {
+    static getTranslation(id: number, language: Language = Language.Locale): Article | null {
         let baseArticle = this.get(id);
         if (baseArticle) {
             baseArticle = baseArticle.getTranslation(language);
@@ -66,7 +67,10 @@ export class Article extends FetchStoreMixin("Article", {
 
 @globalStore
 export class ArticleEdit extends BaseStore("articleedit", {dependencies: ["article"]}) {
-    declare content: any;
+    // ArticleEdit.to_json sends the edit's markup under this name
+    declare content: string;
+    declare version: number;
+    declare dateModified: number;
 
     declare articleId: number;
 

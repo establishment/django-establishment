@@ -387,7 +387,6 @@ export interface TimeChartOptions {
 }
 
 export class TimeChart extends BasicChart {
-    declare interactiveLayer: any;
 
     declare options: ExtendedOptions<BasicChart, TimeChartOptions>;
     declare _initialXScale: any;

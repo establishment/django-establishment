@@ -1,5 +1,5 @@
 // TODO: this whole file needs a refactoring
-import {UI, type ExtendedOptions, type ElementOptions, type UIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type UIElement, type TextUIElement} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {Table, TableRow} from "../../../stemjs/ui/table/Table";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -28,9 +28,8 @@ export interface TranslationEntryTableRowOptions {
 
 class TranslationEntryTableRow extends TableRow {
     declare options: ExtendedOptions<TableRow, TranslationEntryTableRowOptions>;
-    declare entryInput: any;
-    declare saveButton: any;
-
+    declare entryInput: TextInput;
+    declare saveButton: Button;
     setOptions(options) {
         super.setOptions(options);
         this.options.saveButton = this.saveButton;
@@ -155,7 +154,6 @@ class TranslationEntryTable extends Table {
 }
 
 export interface TranslationEntryManagerOptions {
-    tabHref?: any;
 }
 
 class TranslationEntryManager extends UI.Element {
@@ -387,13 +385,12 @@ class TranslationEntryManager extends UI.Element {
 }
 
 class TranslationKeyTableRow extends TableRow {
-    declare deleteButton: any;
+    declare deleteButton: Button;
     declare oldTextElementValue: any;
-    declare renameButton: any;
+    declare renameButton: Button;
     declare renameState: any;
-    declare textElement: any;
-    declare textInput: any;
-
+    declare textElement: TextUIElement;
+    declare textInput: TextInput;
     setOptions(options) {
         super.setOptions(options);
     }
@@ -553,13 +550,12 @@ class TranslationKeyTable extends Table {
 }
 
 export interface TranslationKeyManagerOptions {
-    tabHref?: any;
 }
 
 class TranslationKeyManager extends UI.Element {
     declare options: ElementOptions<TranslationKeyManagerOptions>;
 
-    declare addStatus: any;
+    declare addStatus: TextUIElement;
     declare changed: any;
     declare editableCheckbox: RawCheckboxInput;
     declare saveButton: Button;

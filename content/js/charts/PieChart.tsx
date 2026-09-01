@@ -10,13 +10,13 @@ export interface PieChartSectorOptions {
     center?: any;
     displayPercents?: any;
     endOpacity?: any;
-    hoverExpandRadius?: any;
+    hoverExpandRadius?: number;
     hoverTime?: any;
-    innerRadius?: any;
+    innerRadius?: number;
     label?: any;
     mouseenterCallback?: any;
     mouseoutCallback?: any;
-    outerRadius?: any;
+    outerRadius?: number;
     pathFill?: any;
     percent?: number;
     spacing?: any;
@@ -148,9 +148,9 @@ class PieChartSector extends SVGGroup {
 
 export interface PieChartOptions {
     center?: any;
-    hoverExpandRadius?: any;
-    innerRadius?: any;
-    outerRadius?: any;
+    hoverExpandRadius?: number;
+    innerRadius?: number;
+    outerRadius?: number;
     sectorExtraOptions?: any;
     sectors?: any;
     spacing?: any;
@@ -204,9 +204,9 @@ export class PieChart extends SVGGroup {
 }
 
 export interface PieChartSVGOptions extends NumericSizeOptions {
-    hoverExpandRadius?: any;
-    innerRadius?: any;
-    outerRadius?: any;
+    hoverExpandRadius?: number;
+    innerRadius?: number;
+    outerRadius?: number;
     sectorExtraOptions?: any;
     sectors?: any;
 }

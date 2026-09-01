@@ -1,6 +1,6 @@
 import {type Constructor} from "../../../stemjs/base/Utils";
 import {type ChatPlugin} from "./ChatPlugin";
-import {UI, type ExtendedOptions, type ElementOptions, type UIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type UIElement, type TextUIElement} from "../../../stemjs/ui/UIBase";
 import {Switcher} from "../../../stemjs/ui/Switcher";
 import {TextArea} from "../../../stemjs/ui/input/Input";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -64,7 +64,7 @@ class EditableMessage extends UI.Element {
     declare messageInput: TextArea;
 
     declare options: ElementOptions<EditableMessageOptions>;
-    declare content: any;
+    declare content: TextUIElement;
     declare contentContainer: UIElement;
     declare contentSwitcher: Switcher;
     declare editContent: any;
@@ -182,7 +182,6 @@ export interface GroupChatMessageOptions {
 @registerStyle(ChatStyle)
 class GroupChatMessage extends EditableMessage {
     declare options: ExtendedOptions<EditableMessage, GroupChatMessageOptions>;
-    declare contentSwitcher: any;
     declare message: any;
 
     setOptions(options) {
@@ -266,7 +265,7 @@ export interface PrivateChatMessageOptions {
 @registerStyle(ChatStyle)
 class PrivateChatMessage extends UI.Element {
     declare options: ElementOptions<PrivateChatMessageOptions>;
-    declare contentSwitcher: any;
+    declare contentSwitcher: Switcher;
     declare message: any;
 
     setOptions(options) {
@@ -376,7 +375,7 @@ class ChatMessageScrollSection extends InfiniteScrollable {
 
 export interface ChatWidgetBaseOptions {
     baseRequest?: any;
-    extraHeightOffset?: any;
+    extraHeightOffset?: number;
     messageThread?: any;
     plugins?: any;
     renderMessage?: any;

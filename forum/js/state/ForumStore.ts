@@ -4,13 +4,14 @@ import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 
 import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
 import {MessageThread, MessageInstance} from "../../../chat/js/state/MessageThreadStore";
-import {GlobalState} from "../../../../stemjs/state/State";
+import {GlobalState, type StoreId} from "../../../../stemjs/state/State";
 
 @globalStore
 export class Forum extends BaseStore("forum") {
-    declare name: any;
+    declare name: string;
+    declare parentId?: StoreId;
 
-    declare forumThreads: Map<any, any>;
+    declare forumThreads: Map<StoreId, ForumThread>;
 
     constructor(obj, event?) {
         super(obj, event);
@@ -50,19 +51,21 @@ export class Forum extends BaseStore("forum") {
 
 @globalStore
 export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum", "messageinstance"]}) {
-    declare numViews: any;
+    declare id: number;
+    declare numViews: number;
 
-    declare authorId: any;
-    declare contentMessageId: any;
-    declare hidden: any;
-    declare lastActive: any;
-    declare messageThreadId: any;
-    declare numMessages: any;
-    declare parentId: any;
-    declare pinnedIndex: any;
-    declare timeAdded: any;
-    declare title: any;
-    declare votesBalance: any;
+    declare authorId: number;
+    declare contentMessageId: number;
+    // to_json only adds this one when the thread is actually hidden
+    declare hidden?: boolean;
+    declare lastActive: number;
+    declare messageThreadId: number;
+    declare numMessages: number;
+    declare parentId: StoreId;
+    declare pinnedIndex?: number;
+    declare timeAdded: number;
+    declare title: string;
+    declare votesBalance: number;
 
     constructor(obj) {
         super(obj);

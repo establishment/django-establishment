@@ -88,8 +88,8 @@ class NotificationsList extends UI.Element {
 
     declare options: ElementOptions<NotificationsListOptions>;
     declare displayedNotifications: Set<unknown>;
-    declare notificationsCount: any;
-    declare unreadNotificationsCount: any;
+    declare notificationsCount: number;
+    declare unreadNotificationsCount: number;
 
     extraNodeAttributes(attr) {
         attr.setStyle({

@@ -90,7 +90,6 @@ class TransferOwnershipModal extends ActionModal {
 
 export interface DeleteArticleModalOptions {
     article?: Article;
-    parent?: any;
 }
 
 class DeleteArticleModal extends ActionModal {
@@ -140,7 +139,6 @@ class DeleteArticleModal extends ActionModal {
 }
 
 export interface CreateArticleModalOptions {
-    parent?: any;
 }
 
 class CreateArticleModal extends ActionModal {
@@ -322,7 +320,6 @@ class ArticlePublicSpan extends FAIcon {
 
 export interface ArticleTableOptions {
     articles?: any;
-    parent?: any;
     // Table.setOptions maps these through ColumnHandler.mapColumns in place, so by the time
     // resetColumnSortingOrder reads them back they are handlers rather than what a caller passed
     columns?: ColumnHandler<any>[];
@@ -488,8 +485,7 @@ export interface ArticleTranslationManagerOptions {
 
 class ArticleTranslationManager extends UI.Element {
     declare options: ElementOptions<ArticleTranslationManagerOptions>;
-    declare table: any;
-
+    declare table: ArticleTable;
     getDefaultOptions() {
         return {
             title: "Translation manager"

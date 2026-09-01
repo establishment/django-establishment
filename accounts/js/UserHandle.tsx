@@ -9,7 +9,7 @@ export interface UserHandleOptions {
 class UserHandle extends UI.Element {
     declare options: ElementOptions<UserHandleOptions>;
     declare handle: any;
-    declare user: any;
+    declare user: PublicUser;
 
     setOptions(options) {
         options.userId = options.userId || options.id;

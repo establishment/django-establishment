@@ -13,7 +13,6 @@ interface BasePopupOptions extends FloatingWindowOptions {
     arrowDirection?: DirectionType;
     arrowColor?: string;
     backgroundColor?: string;
-    style?: any;
     children?: any;
     target?: HTMLElement | UIElement;
     bodyPlaced?: boolean;

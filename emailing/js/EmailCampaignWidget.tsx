@@ -243,12 +243,11 @@ class EditEmailCampaignModal extends EmailCampaignModal {
 
 
 class EmailCampaignTableRow extends TableRow {
-    declare clearStatusCampaignButton: any;
-    declare deleteCampaignButton: any;
-    declare editCampaignButton: any;
-    declare sendCampaignButton: any;
-    declare testSendCampaignButton: any;
-
+    declare clearStatusCampaignButton: Button;
+    declare deleteCampaignButton: Button;
+    declare editCampaignButton: Button;
+    declare sendCampaignButton: Button;
+    declare testSendCampaignButton: Button;
     onMount() {
         super.onMount();
         this.deleteCampaignButton.addClickListener(() => {

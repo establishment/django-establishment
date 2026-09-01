@@ -8,7 +8,6 @@ import {DocumentationStyle} from "./DocumentationStyle";
 
 
 export interface CollapseIconClassOptions {
-    parent?: any;
 }
 
 class CollapseIconClass extends FACollapseIcon {
@@ -135,7 +134,6 @@ export class DocumentationNavElementContent extends UI.Element {
 
 export const dragAndDropHandler = new Dispatcher();
 export interface DraggableDocumentationNavElementContentOptions {
-    parent?: any;
 }
 
 class DraggableDocumentationNavElementContent extends Draggable(DocumentationNavElementContent) {
@@ -229,7 +227,6 @@ export const DocumentationNavElement = (ContentClass) => class DocumentationNavE
     declare subEntries: any;
     declare subEntryArea: UIElement;
     declare titleElement: any;
-
     getDefaultOptions() {
         return {
             collapsed: true

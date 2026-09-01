@@ -106,7 +106,7 @@ export class QuestionnaireInstance extends BaseStore("QuestionnaireInstance", {d
     }
 
     static getCurrentUserInstance(questionnaireId: StoreId): QuestionnaireInstance | undefined {
-        return this.all().find((instance: QuestionnaireInstance) => instance.userId === (USER as any).id && instance.questionnaireId === questionnaireId);
+        return this.all().find((instance: QuestionnaireInstance) => instance.userId === USER.id && instance.questionnaireId === questionnaireId);
     }
 }
 

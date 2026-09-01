@@ -161,10 +161,9 @@ export interface FeedbackFormOptions {
 @registerStyle(FeedbackFormStyle)
 export class FeedbackForm extends UI.Element {
     declare options: ElementOptions<FeedbackFormOptions>;
-    declare emailInput: any;
-    declare messageInput: any;
-    declare nameInput: any;
-
+    declare emailInput: EmailInput;
+    declare messageInput: TextArea;
+    declare nameInput: Input;
     getDefaultOptions(options) {
         return {
             formState: 0,

@@ -56,15 +56,15 @@ export class AbstractUsernameAutocomplete extends Dispatchable {
 export interface AutocompleteWindowOptions {
     direction?: any;
     highlightColor?: any;
-    maxHeight?: any;
+    maxHeight?: number;
     onChooseUser?: any;
-    userDivHeight?: any;
+    userDivHeight?: number;
     userIds?: any;
 }
 
 export class AutocompleteWindow extends VolatileFloatingWindow {
     declare options: ExtendedOptions<VolatileFloatingWindow, AutocompleteWindowOptions>;
-    declare currentIndex: any;
+    declare currentIndex: number;
     // Each div carries the id it was rendered for, which getSelectedUserId reads back off it
     declare userDivs: UIElement[];
 

@@ -13,9 +13,7 @@ const State = {
 
 
 export interface YoutubeIframeOptions {
-    height?: any;
     videoId?: any;
-    width?: any;
 }
 
 export class YoutubeIframe extends UI.Element {

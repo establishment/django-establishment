@@ -227,9 +227,8 @@ class DeleteTemplateConfirmModal extends GenericConfirmModal {
 
 
 class EmailTemplateTableRow extends TableRow {
-    declare deleteTemplateButton: any;
-    declare editTemplateButton: any;
-
+    declare deleteTemplateButton: Button;
+    declare editTemplateButton: Button;
     onMount() {
         super.onMount();
         this.deleteTemplateButton.addClickListener(() => {

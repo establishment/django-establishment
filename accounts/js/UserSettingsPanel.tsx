@@ -20,7 +20,6 @@ import {GoogleManager} from "./thirt-party/GoogleManager";
 
 
 export interface GeneralInformationPanelOptions {
-    tabHref?: any;
     user?: User;
 }
 
@@ -129,7 +128,6 @@ export class GeneralInformationPanel extends UI.Element {
 
 
 export interface SecuritySettingsPanelOptions {
-    tabHref?: any;
     user?: User;
 }
 
@@ -216,7 +214,6 @@ export class SecuritySettingsPanel extends UI.Element {
 
 
 export interface EmailPanelOptions {
-    tabHref?: any;
     user?: User;
 }
 
@@ -378,7 +375,6 @@ export class EmailPanel extends UI.Element {
 
 
 export interface SocialAccountsPanelOptions {
-    tabHref?: any;
     user?: User;
 }
 

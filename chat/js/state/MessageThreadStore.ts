@@ -19,8 +19,12 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     declare messageThreadId: number;
     declare reactionCollectionId?: number;
     declare temporaryId?: number;
-    declare meta: any;
-    declare postError?: any;
+    // MessageInstance.to_json sends the metadata JSON column under this name
+    declare meta: Record<string, any>;
+    // to_json only adds hidden when the message actually is
+    declare hidden?: boolean;
+    // Set locally when a post fails; ChatWidget passes the literal 42 and renders it into a tooltip
+    declare postError?: number;
 
     constructor(obj: any, event: any) {
         super(obj, event);
@@ -174,7 +178,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
         messageThread.messages.set(this.id, this);
     }
 
-    setPostError(postError: any): void {
+    setPostError(postError: number): void {
         this.postError = postError;
         this.dispatch("postError", postError);
         console.log("Post error: ", postError);
@@ -202,8 +206,13 @@ MessageInstance.addCreateListener((messageInstance: MessageInstance, createEvent
 
 @globalStore
 export class MessageThread extends BaseStore("MessageThread") {
+    // MessageThread has no to_json, so meta_to_json camel-cases each column
     declare streamName: string;
+    declare messagesEditable?: boolean;
+    declare metadata?: Record<string, any>;
+    declare lastActivity?: number;
     declare markupEnabled?: boolean;
+    declare muted?: boolean;
     declare online: Set<StoreId>;
     declare messages: Map<StoreId, MessageInstance>;
 

@@ -19,7 +19,6 @@ import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
 
 
 class ThreadMessage extends EditableMessage {
-    declare contentSwitcher: any;
 
     getDefaultOptions() {
         return {

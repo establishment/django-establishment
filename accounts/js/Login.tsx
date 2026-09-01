@@ -185,7 +185,7 @@ export class RegisterWidget extends UI.Element {
     declare passwordInput: PasswordInput;
 
     declare countrySelect: Select<any>;
-    declare emailInput: any;
+    declare emailInput: EmailInput;
     declare errorArea: TemporaryMessageArea;
     declare form: UIElement;
     declare getEmailInput: any;
