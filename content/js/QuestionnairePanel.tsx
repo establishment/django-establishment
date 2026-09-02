@@ -1,4 +1,4 @@
-import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions, type UIElement} from "../../../stemjs/ui/UIBase";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {CallThrottler} from "../../../stemjs/base/CallModifier";
 import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
@@ -99,17 +99,19 @@ export class QuestionnaireStyle extends StyleSheet {
 
 export interface QuestionPageOptions {
     editable?: boolean;
-    instance?: any;
-    panel?: any;
-    question?: any;
+    instance?: QuestionnaireInstance;
+    panel?: QuestionnairePanel;
+    question?: QuestionnaireQuestion;
 }
 
 @registerStyle(QuestionnaireStyle)
 export class QuestionPage extends UI.Element {
     declare options: ElementOptions<QuestionPageOptions>;
     declare ajaxThrottler: CallThrottler;
-    declare otherChoice: any;
-    declare textArea: any;
+    // A RadioInput for a single-choice question, a RawCheckboxInput for multiple
+    declare otherChoice: RadioInput | RawCheckboxInput;
+    // A TextInput beside the "Other" choice, a TextArea for a plain-text question
+    declare textArea: TextInput | TextArea;
 
     getDefaultOptions() {
         return {
@@ -203,7 +205,7 @@ export class QuestionPage extends UI.Element {
     }
 
     getResponseData() {
-        let response: {questionnaireId: any; questionId: any; text?: string; choiceIds?: any[]} = {
+        let response: {questionnaireId: StoreId; questionId: StoreId; text?: string; choiceIds?: StoreId[]} = {
             questionnaireId: this.options.question.questionnaireId,
             questionId: this.options.question.id
         };
@@ -294,7 +296,7 @@ export class QuestionnairePanel extends UI.Element {
     declare options: ElementOptions<QuestionnairePanelOptions>;
     declare backButton: Button;
     declare forwardButton: Button;
-    declare progressArea: any;
+    declare progressArea: UIElement;
     declare questionPageSwitcher: OrderedChildrenSwitcher;
     getQuestionnaire() {
         return Questionnaire.get(this.options.questionnaireId);

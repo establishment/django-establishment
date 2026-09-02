@@ -17,19 +17,20 @@ import {EmailTemplate} from "state/EmailTemplateStore";
 import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 
 export interface EmailTemplateModalOptions {
-    template?: any;
+    template?: EmailTemplate;
 }
 
 abstract class EmailTemplateModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, EmailTemplateModalOptions>;
     abstract getAjaxAction(): string;
 
-    declare campaignSelect: Select<any>;
-    declare fields: any;
-    declare gatewaySelect: Select<any>;
+    declare campaignSelect: Select<EmailCampaign>;
+    // The wire keys the modal reads back off its inputs
+    declare fields: string[];
+    declare gatewaySelect: Select<EmailGateway>;
     declare htmlInput: TextArea;
     declare htmlRenderer: UIElement;
-    declare languageSelect: Select<any>;
+    declare languageSelect: Select<Language>;
     declare subjectInput: TextInput;
 
     constructor(options) {
@@ -168,7 +169,7 @@ class EditEmailTemplateModal extends EmailTemplateModal {
 
 
 export interface GenericConfirmModalOptions {
-    template?: any;
+    template?: EmailTemplate;
 }
 
 abstract class GenericConfirmModal extends ActionModal {
@@ -305,7 +306,7 @@ class EmailTemplateTable extends SortableTable {
 
 
 export interface EmailTemplateWidgetOptions {
-    entry?: any;
+    entry?: EmailTemplate;
 }
 
 export class EmailTemplateWidget extends UI.Element {

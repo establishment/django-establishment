@@ -1,7 +1,8 @@
-import {UI, type ElementOptions, type UIChild, type UIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type UIChild, type UIElement} from "../../../stemjs/ui/UIBase";
 import {registerStyle, Theme} from "../../../stemjs/ui/style/Theme";
 import {ensure} from "../../../stemjs/base/Require";
 import {Ajax} from "../../../stemjs/base/Ajax";
+import {type StoreId} from "../../../stemjs/state/State";
 import {Switcher} from "../../../stemjs/ui/Switcher";
 import {Link} from "../../../stemjs/ui/primitives/Link";
 import {EmailInput, PasswordInput, Select, SubmitInput, TextInput} from "../../../stemjs/ui/input/Input";
@@ -152,7 +153,7 @@ export class LoginWidget extends UI.Element {
 
 
 class RecaptchaWidget extends UI.Element {
-    declare captchaId: any;
+    declare captchaId: number;
 
     render() {
         return <div key={Math.random()} />;
@@ -184,12 +185,13 @@ class RecaptchaWidget extends UI.Element {
 export class RegisterWidget extends UI.Element {
     declare passwordInput: PasswordInput;
 
-    declare countrySelect: Select<any>;
+    declare countrySelect: Select<Country>;
     declare emailInput: EmailInput;
     declare errorArea: TemporaryMessageArea;
     declare form: UIElement;
-    declare getEmailInput: any;
-    declare getPasswordInput: any;
+    // Copied off LoginWidget's prototype below, so typed as exactly those methods
+    declare getEmailInput: LoginWidget["getEmailInput"];
+    declare getPasswordInput: LoginWidget["getPasswordInput"];
     declare getHorizontalLine: () => UIChild;
     declare recaptchaWidget: RecaptchaWidget;
     declare submitButton: SubmitInput;
@@ -262,7 +264,7 @@ export class RegisterWidget extends UI.Element {
     sendRegistration() {
         this.submitButton.updateOptions({value: "Signing up..."});
 
-        const data: {email: any; recaptchaKey: any; password: string; username?: string; countryId?: any} = {
+        const data: {email: string; recaptchaKey: string; password: string; username?: string; countryId?: StoreId} = {
             email: this.emailInput.getValue(),
             recaptchaKey: this.recaptchaWidget && this.recaptchaWidget.getResponse(),
             password: this.passwordInput.getValue(),
@@ -307,7 +309,7 @@ class NormalLogin extends UI.Element {
     declare loginWidget: LoginWidget;
     declare registerButton: UIElement;
     declare registerWidget: RegisterWidget;
-    declare state: any;
+    declare state: 0 | 1;
     declare switcher: Switcher;
 
     constructor() {
@@ -377,14 +379,8 @@ class NormalLogin extends UI.Element {
 }
 
 
-export interface LoginTabButtonOptions {
-    children?: any;
-}
-
 @registerStyle(LoginStyle)
 class LoginTabButton extends UI.Primitive("div", BasicTabTitle) {
-    declare options: ElementOptions<LoginTabButtonOptions>;
-
     getDefaultOptions() {
         return {
             children: [UI.T("Log In")]
@@ -399,14 +395,8 @@ class LoginTabButton extends UI.Primitive("div", BasicTabTitle) {
     }
 }
 
-export interface RegisterTabButtonOptions {
-    children?: any;
-}
-
 @registerStyle(LoginStyle)
 class RegisterTabButton extends UI.Primitive("div", BasicTabTitle) {
-    declare options: ElementOptions<RegisterTabButtonOptions>;
-
     getDefaultOptions() {
         return {
             children: [UI.T("Register")]

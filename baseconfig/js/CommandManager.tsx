@@ -16,7 +16,7 @@ import {StemDate} from "../../../stemjs/time/Date";
 import {FAIcon} from "../../../stemjs/ui/FontAwesome";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 
-import {CommandInstance, CommandRun} from "./state/CommandStore";
+import {CommandInstance, CommandRun, type CommandRunOption} from "./state/CommandStore";
 import {Popup} from "../../content/js/Popup";
 
 import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
@@ -26,7 +26,7 @@ import {Formatter} from "../../../csabase/js/util";
 
 
 export interface CommandRunStatusOptions {
-    commandRun?: any;
+    commandRun?: CommandRun;
 }
 
 @autoredraw
@@ -52,7 +52,7 @@ class CommandRunStatus extends UI.Element {
 }
 
 export interface CommandRunDetailsModalOptions {
-    commandRun?: any;
+    commandRun?: CommandRun;
 }
 
 class CommandRunDetailsModal extends Modal {
@@ -116,7 +116,7 @@ class CommandRunDetailsModal extends Modal {
 }
 
 export interface CommandRunDetailsOptions {
-    commandRun?: any;
+    commandRun?: CommandRun;
 }
 
 class CommandRunDetails extends UI.Element {
@@ -139,7 +139,7 @@ class CommandRunDetails extends UI.Element {
 }
 
 export interface CommandRunDurationOptions {
-    commandRun?: any;
+    commandRun?: CommandRun;
 }
 
 @autoredraw
@@ -213,13 +213,13 @@ class PastCommandsTable extends Table {
 }
 
 export interface AutoFormFieldHelperOptions {
-    description?: any;
+    description?: string;
 }
 
 class AutoFormFieldHelper extends UI.Element {
     declare options: ElementOptions<AutoFormFieldHelperOptions>;
     declare container: UIElement;
-    declare popup: any;
+    declare popup: Popup;
     declare span: FAIcon;
 
     render() {
@@ -258,8 +258,8 @@ class AutoFormFieldHelper extends UI.Element {
 }
 
 class AutoFormFieldSelectOption {
-    declare key: any;
-    declare label: any;
+    declare key: string | number;
+    declare label: string;
 
     constructor(options) {
         Object.assign(this, options);
@@ -274,14 +274,8 @@ class AutoFormFieldSelectOption {
     }
 }
 
-export interface AutoFormFieldOptions {
-    choices?: any;
-    description?: any;
-    initialValue?: any;
-    longName?: any;
-    shortName?: any;
-    type?: any;
-}
+// The spread of one CommandRunOption, which is what AutoFormField renders
+export interface AutoFormFieldOptions extends CommandRunOption {}
 
 class AutoFormField extends UI.Element {
     declare options: ElementOptions<AutoFormFieldOptions>;
@@ -352,7 +346,7 @@ class AutoFormField extends UI.Element {
 
 
 export interface CommandRunCreationModalOptions {
-    commandInstance?: any;
+    commandInstance?: CommandInstance;
 }
 
 class CommandRunCreationModal extends ActionModal {
@@ -411,7 +405,7 @@ function runCommand(json, callback) {
 }
 
 class CommandManager extends UI.Element {
-    declare commandSelect: Select<any>;
+    declare commandSelect: Select<CommandInstance>;
     declare descriptionArea: UIElement;
     declare pastCommandsTable: PastCommandsTable;
     declare runCommandButton: Button;

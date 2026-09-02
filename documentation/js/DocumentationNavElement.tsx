@@ -5,6 +5,8 @@ import {FACollapseIcon} from "../../../stemjs/ui/FontAwesome";
 
 import {EditEntryModal} from "./CreateEntryModal";
 import {DocumentationStyle} from "./DocumentationStyle";
+import {type DocumentationEntry} from "./state/DocumentationStore";
+import {type DocumentationPanel} from "./DocumentationPanel";
 
 
 export interface CollapseIconClassOptions {
@@ -32,9 +34,9 @@ class CollapseIconClass extends FACollapseIcon {
 
 export interface DocumentationNavElementContentOptions {
     collapsed?: boolean;
-    documentationEntry?: any;
-    documentationSwitchDispatcher?: any;
-    shouldToggle?: any;
+    documentationEntry?: DocumentationEntry;
+    documentationSwitchDispatcher?: Dispatcher;
+    shouldToggle?: boolean;
 }
 
 export class DocumentationNavElementContent extends UI.Element {
@@ -215,18 +217,19 @@ class DraggableDocumentationNavElementContent extends Draggable(DocumentationNav
 
 export interface DocumentationNavElementClassOptions {
     collapsed?: boolean;
-    documentationEntry?: any;
-    documentationSwitchDispatcher?: any;
-    isRoot?: any;
-    level?: any;
-    panel?: any;
+    documentationEntry?: DocumentationEntry;
+    documentationSwitchDispatcher?: Dispatcher;
+    isRoot?: boolean;
+    level?: number;
+    panel?: DocumentationPanel;
 }
 
 export const DocumentationNavElement = (ContentClass) => class DocumentationNavElementClass extends UI.Element {
     declare options: ElementOptions<DocumentationNavElementClassOptions>;
-    declare subEntries: any;
+    declare subEntries: DocumentationNavElementClass[];
     declare subEntryArea: UIElement;
-    declare titleElement: any;
+    // Whichever content class the factory was given; both derive from this one
+    declare titleElement: DocumentationNavElementContent;
     getDefaultOptions() {
         return {
             collapsed: true

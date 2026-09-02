@@ -116,7 +116,8 @@ export class QuestionnaireQuestionResponse extends BaseStore("QuestionnaireQuest
     declare instanceId: StoreId;
     declare questionId: StoreId;
     declare text?: string;
-    declare choiceId?: number;
+    // The choices many-to-many, sent with include_many_to_many=True and never omitted
+    declare choiceIds: StoreId[];
 
     constructor(obj?: any) {
         super(obj);

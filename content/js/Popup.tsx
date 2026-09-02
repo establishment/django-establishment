@@ -1,4 +1,4 @@
-import {type StyleObject, UI, UIElement} from "../../../stemjs/ui/UIBase";
+import {type ExtendedOptions, type PartialOptions, type StyleObject, UI, UIElement} from "../../../stemjs/ui/UIBase";
 import {Device} from "../../../stemjs/base/Device";
 import {FloatingWindow, type FloatingWindowOptions} from "../../../stemjs/ui/modal/FloatingWindow";
 import {Direction, type DirectionType} from "../../../stemjs/ui/Constants";
@@ -9,11 +9,10 @@ interface BasePopupOptions extends FloatingWindowOptions {
     x?: number;
     y?: number;
     contentPadding?: string;
-    contentStyle?: any;
+    contentStyle?: StyleObject;
     arrowDirection?: DirectionType;
     arrowColor?: string;
     backgroundColor?: string;
-    children?: any;
     target?: HTMLElement | UIElement;
     bodyPlaced?: boolean;
 }
@@ -27,7 +26,7 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
 
     [key: string]: any;
 
-    getDefaultOptions(): Partial<BasePopupOptions> {
+    getDefaultOptions(): PartialOptions<BasePopup> {
         return {
             ...super.getDefaultOptions(),
             x: 0,
@@ -239,11 +238,11 @@ interface PopupOptions extends BasePopupOptions {
 }
 
 export class Popup extends BasePopup {
-    declare options: PopupOptions;
+    declare options: ExtendedOptions<BasePopup, PopupOptions>;
     titleArea?: UIElement;
     closeButton?: Button;
 
-    getDefaultOptions(): Partial<PopupOptions> {
+    getDefaultOptions(): PartialOptions<Popup> {
         return {
             ...super.getDefaultOptions(),
             titleFontSize: "12pt",

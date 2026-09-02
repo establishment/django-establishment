@@ -1,4 +1,5 @@
 import {UI, type ExtendedOptions, type ElementOptions, type UIElement} from "../../../stemjs/ui/UIBase";
+import {type StoreId} from "../../../stemjs/state/State";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup";
@@ -85,7 +86,7 @@ class DeleteArticleModal extends ActionModal {
 }
 
 export interface ArticleEditorOptions {
-    articleId?: any;
+    articleId?: StoreId;
 }
 
 class ArticleEditor extends UI.Element {
@@ -97,14 +98,14 @@ class ArticleEditor extends UI.Element {
     declare deleteArticleModal: DeleteArticleModal;
     declare dependencyFormInput: TextInput;
     declare diffWidget: any;
-    declare languageSelect: Select<any>;
+    declare languageSelect: Select<Language>;
     declare leftEditable: boolean;
-    declare leftTextSelector: Select<any>;
+    declare leftTextSelector: Select<string>;
     declare markupEditor: ArticleMarkupEditor;
     declare ownerFormInput: TextInput;
     declare publicCheckbox: RawCheckboxInput;
     declare rightEditable: boolean;
-    declare rightTextSelector: Select<any>;
+    declare rightTextSelector: Select<string>;
     declare saveMarkupButton: AjaxButton;
     declare saveMarkupMessageArea: TemporaryMessageArea;
     declare saveOptionsButton: AjaxButton;
@@ -112,8 +113,8 @@ class ArticleEditor extends UI.Element {
     declare setOwnerButton: AjaxButton;
     declare setOwnerMessageArea: TemporaryMessageArea;
     declare tabArea: TabArea;
-    declare versions: any;
-    declare versionsLabels: any;
+    declare versions: string[];
+    declare versionsLabels: string[];
 
     setOptions(options) {
         super.setOptions(options);

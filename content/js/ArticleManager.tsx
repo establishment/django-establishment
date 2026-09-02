@@ -146,7 +146,7 @@ class CreateArticleModal extends ActionModal {
     declare articleNameInput: TextInput;
     declare createArticleButton: AjaxButton;
     declare dependencyInput: TextInput;
-    declare languageSelect: Select<any>;
+    declare languageSelect: Select<Language>;
     declare messageArea: TemporaryMessageArea;
     declare publicCheckbox: RawCheckboxInput;
 
@@ -215,7 +215,7 @@ class CreateArticleModal extends ActionModal {
 
 
 export interface AddTranslationModalOptions {
-    baseArticle?: any;
+    baseArticle?: Article;
 }
 
 class AddTranslationModal extends CreateArticleModal {
@@ -319,10 +319,10 @@ class ArticlePublicSpan extends FAIcon {
 }
 
 export interface ArticleTableOptions {
-    articles?: any;
+    articles?: Article[];
     // Table.setOptions maps these through ColumnHandler.mapColumns in place, so by the time
     // resetColumnSortingOrder reads them back they are handlers rather than what a caller passed
-    columns?: ColumnHandler<any>[];
+    columns?: ColumnHandler<Article>[];
 }
 
 class ArticleTable extends SortableTable {
@@ -360,7 +360,7 @@ class ArticleTable extends SortableTable {
             textAlign: "left",
             verticalAlign: "middle"
         };
-        let columns: ColumnInput<any>[] = [{
+        let columns: ColumnInput<Article>[] = [{
             value: article => <Link href={"/article/" + article.id + "/edit/"} value={article.name} />,
             rawValue: article => article.name,
             headerName: "Article",
@@ -432,8 +432,8 @@ class ArticleTable extends SortableTable {
 }
 
 export interface ArticleManagerOptions {
-    articles?: any;
-    readOnly?: any;
+    articles?: Article[];
+    readOnly?: boolean;
 }
 
 class ArticleManager extends UI.Element {
@@ -480,7 +480,7 @@ class ArticleManager extends UI.Element {
 
 export interface ArticleTranslationManagerOptions {
     baseArticle?: Article;
-    readOnly?: any;
+    readOnly?: boolean;
 }
 
 class ArticleTranslationManager extends UI.Element {

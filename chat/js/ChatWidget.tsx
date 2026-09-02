@@ -1,6 +1,6 @@
 import {type Constructor} from "../../../stemjs/base/Utils";
 import {type ChatPlugin} from "./ChatPlugin";
-import {UI, type ExtendedOptions, type ElementOptions, type UIElement, type TextUIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type UIElement, type TextUIElement, type BaseUIElement} from "../../../stemjs/ui/UIBase";
 import {Switcher} from "../../../stemjs/ui/Switcher";
 import {TextArea} from "../../../stemjs/ui/input/Input";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -10,14 +10,14 @@ import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {Pluginable} from "../../../stemjs/base/Plugin";
-import {GlobalState} from "../../../stemjs/state/State";
+import {GlobalState, type StoreId} from "../../../stemjs/state/State";
 import {StemDate, TimeUnit} from "../../../stemjs/time/Time";
 import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
 import {ButtonStyle} from "../../../stemjs/ui/button/ButtonStyle";
 import {InputStyle} from "../../../stemjs/ui/input/Style";
 
 import {MessageThread, MessageInstance} from "./state/MessageThreadStore";
-import {GroupChat} from "./state/ChatStore";
+import {GroupChat, type PrivateChat} from "./state/ChatStore";
 import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 import {ChatMarkupRenderer} from "./ChatMarkupRenderer";
@@ -29,8 +29,8 @@ ButtonStyle.getInstance().ensureFirstUpdate();
 InputStyle.getInstance().ensureFirstUpdate();
 
 export interface PreviewMarkupButtonOptions {
-    getValue?: any;
-    setValue?: any;
+    getValue?: () => string;
+    setValue?: (value: string) => void;
 }
 
 class PreviewMarkupButton extends Button {
@@ -67,7 +67,7 @@ class EditableMessage extends UI.Element {
     declare content: TextUIElement;
     declare contentContainer: UIElement;
     declare contentSwitcher: Switcher;
-    declare editContent: any;
+    declare editContent: UIElement;
     declare message: MessageInstance;
 
     getDefaultOptions() {
@@ -373,12 +373,15 @@ class ChatMessageScrollSection extends InfiniteScrollable {
 }
 
 
+// What every chat request is keyed by; the group widgets send the chat, the private one the pair
+type ChatBaseRequest = {chatId?: StoreId; userId?: StoreId; privateChatId?: StoreId};
+
 export interface ChatWidgetBaseOptions {
-    baseRequest?: any;
+    baseRequest?: ChatBaseRequest;
     extraHeightOffset?: number;
     messageThread?: MessageThread;
-    plugins?: any;
-    renderMessage?: any;
+    plugins?: Constructor<ChatPlugin>[];
+    renderMessage?: (message: MessageInstance) => BaseUIElement;
 }
 
 @registerStyle(ChatStyle)
@@ -707,9 +710,9 @@ let ChatWidget: ChatWidgetFactory = (ChatMessageClass) => class ChatWidgetClass 
 };
 
 export interface GroupChatWidgetOptions {
-    baseRequest?: any;
-    chatId?: any;
-    renderMessage?: any;
+    baseRequest?: ChatBaseRequest;
+    chatId?: StoreId;
+    renderMessage?: (message: MessageInstance) => BaseUIElement;
 }
 
 class GroupChatWidget extends ChatWidget(GroupChatMessage) {
@@ -763,7 +766,7 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
 }
 
 export interface PrivateChatWidgetOptions {
-    privateChat?: any;
+    privateChat?: PrivateChat;
 }
 
 class PrivateChatWidget extends ChatWidget(PrivateChatMessage) {
@@ -813,8 +816,8 @@ class VotableChatMessage extends GroupChatMessage {
 }
 
 export interface VotableGroupChatWidgetOptions {
-    baseRequest?: any;
-    chatId?: any;
+    baseRequest?: ChatBaseRequest;
+    chatId?: StoreId;
 }
 
 class VotableGroupChatWidget extends ChatWidget(VotableChatMessage) {

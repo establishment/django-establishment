@@ -22,8 +22,8 @@ function ajaxCall(request, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
 }
 
 export interface TranslationEntryTableRowOptions {
-    entryInput?: any;
-    saveButton?: any;
+    entryInput?: TextInput;
+    saveButton?: Button;
 }
 
 class TranslationEntryTableRow extends TableRow {
@@ -81,7 +81,7 @@ class TranslationEntryTableRow extends TableRow {
 }
 
 export interface TranslationEntryTableOptions {
-    language?: any;
+    language?: Language;
 }
 
 class TranslationEntryTable extends Table {
@@ -161,8 +161,8 @@ class TranslationEntryManager extends UI.Element {
 
     declare exportButton: Button;
     declare importButton: Button;
-    declare language: any;
-    declare languageSelect: Select<any>;
+    declare language: Language;
+    declare languageSelect: Select<ReturnType<TranslationEntryManager["getLanguageOptions"]>[number]>;
     declare saveAllButton: Button;
     declare translationTable: TranslationEntryTable;
     declare uploadFile: FileInput;
@@ -306,7 +306,7 @@ class TranslationEntryManager extends UI.Element {
                                 break;
                             }
                             x.entryValue = x.entryValue.trim();
-                            let change: {keyId: any; newValue: string; languageId: any; entryId?: any} = {
+                            let change: {keyId: StoreId; newValue: string; languageId: StoreId; entryId?: StoreId} = {
                                 keyId: x.keyId,
                                 newValue: x.entryValue,
                                 languageId: this.language.id
@@ -386,7 +386,7 @@ class TranslationEntryManager extends UI.Element {
 
 class TranslationKeyTableRow extends TableRow {
     declare deleteButton: Button;
-    declare oldTextElementValue: any;
+    declare oldTextElementValue: string;
     declare renameButton: Button;
     declare renameState: boolean;
     declare textElement: TextUIElement;

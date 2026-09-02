@@ -1,8 +1,8 @@
-import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions, type UIElement} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {type StyleRuleObject} from "../../../stemjs/ui/Style";
 import {type RemoveHandle} from "../../../stemjs/base/Dispatcher";
-import {Orientation, VoteStatus} from "../../../stemjs/ui/Constants";
+import {Orientation, type OrientationType, VoteStatus, type VoteStatusType} from "../../../stemjs/ui/Constants";
 
 import {LoginModal} from "../../accounts/js/LoginModal";
 import {UserReactionCollection} from "../../accounts/js/state/UserReaction";
@@ -10,14 +10,14 @@ import {VotingWidgetStyle} from "./VotingWidgetStyle";
 import {type MessageInstance} from "./state/MessageThreadStore";
 
 export interface VotingWidgetOptions {
-    balanceColor?: any;
-    dislikeColor?: any;
-    likeColor?: any;
-    notVoteColor?: any;
-    orientation?: any;
-    size?: any;
-    userVote?: any;
-    votesBalance?: any;
+    balanceColor?: string;
+    dislikeColor?: string;
+    likeColor?: string;
+    notVoteColor?: string;
+    orientation?: OrientationType;
+    size?: number;
+    userVote?: VoteStatusType;
+    votesBalance?: number;
 }
 
 class VotingWidget extends UI.Element {
@@ -102,13 +102,14 @@ class VotingWidget extends UI.Element {
 
 export interface CommentVotingWidgetOptions {
     message?: MessageInstance;
-    target?: any;
+    // Either the collection itself or the message that owns one, per updateTarget
+    target?: UserReactionCollection | MessageInstance;
 }
 
 class CommentVotingWidget extends VotingWidget {
     declare options: ExtendedOptions<VotingWidget, CommentVotingWidgetOptions>;
-    declare dislikeButton: any;
-    declare likeButton: any;
+    declare dislikeButton: UIElement;
+    declare likeButton: UIElement;
 
     getVotesBalance() {
         return this.options.message.getVotesBalance();
@@ -184,8 +185,8 @@ class CommentVotingWidget extends VotingWidget {
 
 // TODO: rewrite
 export interface CommentVotingWidgetWithThumbsOptions {
-    dislikeColor?: any;
-    likeColor?: any;
+    dislikeColor?: string;
+    likeColor?: string;
     message?: MessageInstance;
 }
 
