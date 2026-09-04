@@ -1,4 +1,4 @@
-import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type UIElement} from "../../../stemjs/ui/UIBase";
 import {Dispatchable} from "../../../stemjs/base/Dispatcher";
 import {Router} from "../../../stemjs/ui/Router";
 import {TabArea, BasicTabTitle} from "../../../stemjs/ui/tabs/TabArea";
@@ -47,7 +47,7 @@ class ArticleTabArea extends TabArea {
         return <h3>Welcome to the "About" page. Click on any of the above tabs to find more information on the desired topic.</h3>;
     }
 
-    getSwitcher(tabPanels) {
+    getSwitcher(tabPanels: UIElement[]) {
         return <ArticleSwitcher ref="switcherArea" lazyRender={this.options.lazyRender}
                                 style={{margin: "1em"}}>
             {this.getInitialPanel()}
@@ -68,14 +68,14 @@ class ArticleTabArea extends TabArea {
         ];
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.articleEntries = (this.options.articles || []).map(
             articleEntry => Object.assign(new Dispatchable(), articleEntry)
         );
     }
 
-    setURL(urlParts) {
+    setURL(urlParts: string[]) {
         for (let articleEntry of this.articleEntries) {
             if (articleEntry.url === urlParts[0]) {
                 articleEntry.dispatch("show"); // so that the tab title also known to set itself active

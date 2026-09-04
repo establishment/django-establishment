@@ -1,4 +1,5 @@
 import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
+import {type StoreId} from "../../../stemjs/state/State";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 import {Ajax} from "../../../stemjs/base/Ajax";
 
@@ -8,7 +9,7 @@ import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer";
 import {ForumButton} from "./ForumButton";
 
 export interface CreateThreadReplyButtonOptions {
-    forumThreadId?: any;
+    forumThreadId?: StoreId;
 }
 
 class CreateThreadReplyButton extends ForumButton {
@@ -41,7 +42,7 @@ class CreateThreadReplyButton extends ForumButton {
 }
 
 export interface CreateThreadReplyModalOptions {
-    forumThreadId?: any;
+    forumThreadId?: StoreId;
 }
 
 class CreateThreadReplyModal extends MarkupEditorModal {

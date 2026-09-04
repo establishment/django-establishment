@@ -1,28 +1,32 @@
-import {UI, type ExtendedOptions, type NumericSizeOptions} from "../../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type NumericSizeOptions, type NodeAttributes} from "../../../../stemjs/ui/UIBase";
 import {Transition} from "../../../../stemjs/ui/Transition";
 import {SVGText} from "../../../../stemjs/ui/svg/SVGText";
 import * as math from "../../../../stemjs/numerics/StemMath";
 import {SVGRoot, SVGGroup, SVGPath} from "../../../../stemjs/ui/svg/SVGPrimitives";
+import {type SVGUIElement} from "../../../../stemjs/ui/svg/SVGBase";
 import {makeOpacityTransition} from "../../../../stemjs/ui/svg/Animations";
 
 export interface PieChartSectorOptions {
     angleSpan?: number;
-    center?: any;
-    displayPercents?: any;
-    endOpacity?: any;
+    center?: math.Point;
+    displayPercents?: boolean;
+    endOpacity?: number;
     hoverExpandRadius?: number;
-    hoverTime?: any;
+    hoverTime?: number;
     innerRadius?: number;
-    label?: any;
-    mouseenterCallback?: any;
-    mouseoutCallback?: any;
+    label?: string;
+    mouseenterCallback?: () => void;
+    mouseoutCallback?: () => void;
     outerRadius?: number;
-    pathFill?: any;
+    pathFill?: string;
     percent?: number;
-    spacing?: any;
-    startAngle?: any;
-    startOpacity?: any;
+    spacing?: number;
+    startAngle?: number;
+    startOpacity?: number;
 }
+
+// One slice, spread over the sector element, so it may carry any of the sector's own options too
+export type PieChartSectorData = {size: number, color?: string} & PieChartSectorOptions;
 
 class PieChartSector extends SVGGroup {
     declare options: ExtendedOptions<SVGGroup, PieChartSectorOptions>;
@@ -37,7 +41,7 @@ class PieChartSector extends SVGGroup {
         };
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         // This is overwritten to make opacity attribute the same as the startOpacity option
         this.options.opacity = this.options.opacity || this.options.startOpacity;
@@ -101,7 +105,7 @@ class PieChartSector extends SVGGroup {
         return this.getArcPoint(startAngle + angleSpan / 2, (innerRadius + outerRadius) / 2, -1);
     }
 
-    changeRadiusTransition(extra, duration) {
+    changeRadiusTransition(extra, duration: number) {
         return new Transition({
             func: (t) => {
                 this.path.setPath(this.getPath(t * extra));
@@ -115,7 +119,7 @@ class PieChartSector extends SVGGroup {
     }
 
     render() {
-        let children = [
+        let children: SVGUIElement[] = [
             <SVGPath ref="path" d={this.getPath()} fill={this.options.pathFill}/>
         ];
         if (this.options.displayPercents) {
@@ -147,14 +151,14 @@ class PieChartSector extends SVGGroup {
 }
 
 export interface PieChartOptions {
-    center?: any;
+    center?: math.Point;
     hoverExpandRadius?: number;
     innerRadius?: number;
     outerRadius?: number;
-    sectorExtraOptions?: any;
-    sectors?: any;
-    spacing?: any;
-    startAngle?: any;
+    sectorExtraOptions?: PieChartSectorOptions;
+    sectors?: PieChartSectorData[];
+    spacing?: number;
+    startAngle?: number;
 }
 
 export class PieChart extends SVGGroup {
@@ -207,8 +211,8 @@ export interface PieChartSVGOptions extends NumericSizeOptions {
     hoverExpandRadius?: number;
     innerRadius?: number;
     outerRadius?: number;
-    sectorExtraOptions?: any;
-    sectors?: any;
+    sectorExtraOptions?: PieChartSectorOptions;
+    sectors?: PieChartSectorData[];
 }
 
 export class PieChartSVG extends SVGRoot {
@@ -225,7 +229,7 @@ export class PieChartSVG extends SVGRoot {
         }
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle("height", this.options.height + "px");
         attr.setStyle("width", this.options.width + "px");
     }

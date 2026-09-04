@@ -1,15 +1,15 @@
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {Link} from "../../../stemjs/ui/primitives/Link";
 import {ButtonStyle} from "../../../stemjs/ui/button/ButtonStyle";
 
 export interface EmailUnsubscribeOptions {
-    unsubscribeSuccess?: any;
+    unsubscribeSuccess?: boolean;
 }
 
 class EmailUnsubscribe extends UI.Element {
     declare options: ElementOptions<EmailUnsubscribeOptions>;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle({
             textAlign: "center",
         });

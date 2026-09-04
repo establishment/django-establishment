@@ -1,4 +1,5 @@
 import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {type StoreId} from "../../../stemjs/state/State";
 import {type Constructor} from "../../../stemjs/base/Utils";
 import {type ChatPlugin} from "./ChatPlugin";
 import {Level} from "../../../stemjs/ui/Constants";
@@ -189,9 +190,9 @@ class CommentWidget extends BlogCommentWidget {
     // An embedder fills this in; see CSAApp
     declare static defaultPlugins?: Constructor<ChatPlugin>[];
 
-    declare key: any;
+    declare key: StoreId;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
 
         this.key = this.messageThread.id;
@@ -239,7 +240,7 @@ class CommentWidget extends BlogCommentWidget {
 }
 
 export interface AsyncCommentThreadOptions {
-    chatId?: any;
+    chatId?: StoreId;
 }
 
 class AsyncCommentThread extends UI.Element {

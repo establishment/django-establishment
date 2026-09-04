@@ -32,7 +32,8 @@ export class GroupChat extends FetchStoreMixin("GroupChat", {
 
 @globalStore
 export class PrivateChat extends BaseStore("PrivateChat", {}, BaseChatObject) {
-    declare firstUnreadMessage: any;
+    // Per user, the id of their first unread message
+    declare firstUnreadMessage: Record<StoreId, StoreId>;
 
     declare user1Id: number;
     declare user2Id: number;
@@ -63,7 +64,7 @@ export class PrivateChat extends BaseStore("PrivateChat", {}, BaseChatObject) {
         Ajax.postJSON("/chat/private_chat_state/", {
             userId: userId,
         }).then(
-            (data: any) => onSuccess(PrivateChat.get(data.privateChatId)),
+            (data: {privateChatId: StoreId}) => onSuccess(PrivateChat.get(data.privateChatId)),
             onError
         );
     }

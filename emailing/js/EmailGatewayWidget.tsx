@@ -14,14 +14,14 @@ import {EmailGateway} from "./state/EmailGatewayStore";
 import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 
 export interface EmailGatewayModalOptions {
-    gateway?: any;
+    gateway?: EmailGateway;
 }
 
 abstract class EmailGatewayModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, EmailGatewayModalOptions>;
     abstract getAjaxAction(): string;
 
-    declare fields: any;
+    declare fields: string[];
     declare hostInput: TextInput;
     declare nameInput: TextInput;
     declare passwordInput: PasswordInput;
@@ -29,13 +29,13 @@ abstract class EmailGatewayModal extends ActionModal {
     declare useTLSInput: RawCheckboxInput;
     declare usernameInput: TextInput;
 
-    constructor(options) {
+    constructor(options: EmailGatewayModal["options"]) {
         super(options);
         this.fields = ["name", "host", "port", "useTLS", "username"];
     }
 
     getBody() {
-        const gatewayValues = this.options.gateway || {};
+        const gatewayValues: Partial<EmailGateway> = this.options.gateway || {};
         return [
             <FormField label="Name" ref="nameField">
                 <TextInput value={gatewayValues.name || ""} ref="nameInput"/>
@@ -53,7 +53,7 @@ abstract class EmailGatewayModal extends ActionModal {
                 <TextInput value={gatewayValues.username || ""} ref="usernameInput"/>
             </FormField>,
             <FormField label="Password" ref="passwordField">
-                <PasswordInput value={gatewayValues.password || ""} ref="passwordInput"/>
+                <PasswordInput value="" ref="passwordInput"/>
             </FormField>
         ];
     }
@@ -123,7 +123,7 @@ class EditEmailGatewayModal extends EmailGatewayModal {
 
 
 export interface GenericConfirmModalOptions {
-    gateway?: any;
+    gateway?: EmailGateway;
 }
 
 abstract class GenericConfirmModal extends ActionModal {
@@ -132,7 +132,7 @@ abstract class GenericConfirmModal extends ActionModal {
     abstract getAjaxAction(): string;
 
 
-    constructor(options) {
+    constructor(options: GenericConfirmModal["options"]) {
         super(options);
     }
 
@@ -217,36 +217,36 @@ class EmailGatewayTable extends SortableTable {
             width: "16%",
         };
 
-        const deleteButton = (gateway) => {
+        const deleteButton = (gateway: EmailGateway) => {
             return <Button level={Level.DANGER} ref="deleteGatewayButton">Delete</Button>;
         };
 
-        const editButton = (gateway) => {
+        const editButton = (gateway: EmailGateway) => {
             return <Button level={Level.INFO} ref="editGatewayButton">Edit</Button>;
         };
 
         return [{
-            value: gateway => gateway.name,
+            value: (gateway: EmailGateway) => gateway.name,
             headerName: UI.T("Name"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: gateway => gateway.host,
+            value: (gateway: EmailGateway) => gateway.host,
             headerName: UI.T("Host"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: gateway => gateway.port,
+            value: (gateway: EmailGateway) => gateway.port,
             headerName: UI.T("Port"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: gateway => gateway.useTLS,
+            value: (gateway: EmailGateway) => gateway.useTLS,
             headerName: UI.T("Use TLS"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: gateway => gateway.username,
+            value: (gateway: EmailGateway) => gateway.username,
             headerName: UI.T("Username"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,

@@ -1,4 +1,5 @@
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type NodeAttributes} from "../../../stemjs/ui/UIBase";
+import {type StoreId} from "../../../stemjs/state/State";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 import {Ajax} from "../../../stemjs/base/Ajax";
@@ -9,14 +10,14 @@ import {UserInputField} from "UsersAutocompletion";
 
 
 export interface UserGroupMemberUIOptions {
-    member?: any;
+    member?: UserGroupMember;
 }
 
 export class UserGroupMemberUI extends UI.Element {
     declare options: ElementOptions<UserGroupMemberUIOptions>;
     declare destroyButton: Button;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle("margin-top", "5px");
     }
 
@@ -47,7 +48,7 @@ export class UserGroupMemberUI extends UI.Element {
 
 
 export interface UserGroupEditorOptions {
-    groupId?: any;
+    groupId?: StoreId;
 }
 
 export class UserGroupEditor extends UI.Element {
@@ -71,7 +72,7 @@ export class UserGroupEditor extends UI.Element {
     }
 
     onMount() {
-        this.addUserField.addListener("user", (userId) => Ajax.postJSON("/accounts/change_user_group/", {
+        this.addUserField.addListener("user", (userId: StoreId) => Ajax.postJSON("/accounts/change_user_group/", {
             groupId: this.options.groupId,
             userId: userId,
             action: "add"

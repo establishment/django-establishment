@@ -56,7 +56,6 @@ export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum
 
     declare authorId: number;
     declare contentMessageId: number;
-    // to_json only adds this one when the thread is actually hidden
     declare hidden?: boolean;
     declare lastActive: number;
     declare messageThreadId: number;

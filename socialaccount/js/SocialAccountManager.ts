@@ -1,4 +1,5 @@
 import {Dispatchable} from "../../../stemjs/base/Dispatcher";
+import {type SocialApp} from "./state/SocialAppStore";
 
 export interface SocialAccountManagerOptions {
     loginWindowOptions?: string;
@@ -13,13 +14,13 @@ interface SocialAccountManager {
 }
 
 class SocialAccountManager extends Dispatchable {
-    declare socialApp: any;
+    declare socialApp: SocialApp;
     declare options: SocialAccountManagerOptions;
     declare loaded: boolean;
     // Only ever constructed through a subclass, whose own constructor takes nothing
     declare static _Global: SocialAccountManager;
 
-    constructor(socialApp?, options?) {
+    constructor(socialApp?: SocialApp, options?) {
         super();
         this.socialApp = socialApp;
         this.options = options;

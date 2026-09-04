@@ -13,14 +13,16 @@ const State = {
 
 
 export interface YoutubeIframeOptions {
-    videoId?: any;
+    videoId?: string;
 }
 
 export class YoutubeIframe extends UI.Element {
     declare options: ElementOptions<YoutubeIframeOptions>;
-    declare _delayedListeners: any;
+    // Listener registrations queued until the player exists: the event, the callback, extra arguments
+    declare _delayedListeners?: [event: string, callback: (...args: any[]) => void, ...extraArgs: unknown[]][];
     declare player: any;
-    declare static _registeredCallbacks: any;
+    // Run once the YT global has loaded, then dropped
+    declare static _registeredCallbacks?: (() => void)[];
     declare static youtubeAPI: any;
 
     static PLAYER_EVENTS = ["onReady", "onStateChange", "onPlaybackQualityChange", "onPlaybackRateChange", "onError", "onApiChange"];

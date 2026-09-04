@@ -3,6 +3,7 @@ import {Table} from "../../../../stemjs/ui/table/Table";
 import {MarkupRenderer} from "../../../../stemjs/markup/MarkupRenderer";
 
 export interface MarkupTableOptions {
+    // What the table renders, in place of the entries a plain Table takes
     rows?: any[];
 }
 

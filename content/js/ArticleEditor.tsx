@@ -1,4 +1,4 @@
-import {UI, type ExtendedOptions, type ElementOptions, type UIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type UIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {type StoreId} from "../../../stemjs/state/State";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -28,7 +28,7 @@ export interface ArticleMarkupEditorOptions {
 class ArticleMarkupEditor extends MarkupEditor {
     declare options: ExtendedOptions<MarkupEditor, ArticleMarkupEditorOptions>;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.options.value = this.options.article.markup;
     }
@@ -89,15 +89,22 @@ export interface ArticleEditorOptions {
     articleId?: StoreId;
 }
 
+// Structural rather than the class itself: the widget is injected by an embedder, see CSAApp
+interface ArticleDiffWidget extends UIElement {
+    setLeftText(text: string): void;
+    setRightText(text: string): void;
+    setLeftEditable(editable: boolean): void;
+    setRightEditable(editable: boolean): void;
+}
+
 class ArticleEditor extends UI.Element {
-    // An embedder points this at its own diff widget; see CSAApp
     declare static DiffWidgetClass?: any;
 
     declare options: ElementOptions<ArticleEditorOptions>;
     declare articleNameFormInput: TextInput;
     declare deleteArticleModal: DeleteArticleModal;
     declare dependencyFormInput: TextInput;
-    declare diffWidget: any;
+    declare diffWidget: ArticleDiffWidget;
     declare languageSelect: Select<Language>;
     declare leftEditable: boolean;
     declare leftTextSelector: Select<string>;
@@ -116,7 +123,7 @@ class ArticleEditor extends UI.Element {
     declare versions: string[];
     declare versionsLabels: string[];
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
 
     }
@@ -143,7 +150,7 @@ class ArticleEditor extends UI.Element {
         }
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
         attr.setStyle({
             display: "flex",
@@ -319,12 +326,12 @@ class ArticleEditor extends UI.Element {
         this.setRightIndex(rightIndex);
     }
 
-    setLeftIndex(index) {
+    setLeftIndex(index: number) {
         this.leftTextSelector.setIndex(index);
         this.diffWidget.setLeftText(this.versions[index]);
     }
 
-    setRightIndex(index) {
+    setRightIndex(index: number) {
         this.rightTextSelector.setIndex(index);
         this.diffWidget.setRightText(this.versions[index]);
     }

@@ -40,11 +40,12 @@ export interface AxisTickOptions {
     axisLineLength?: number;
     chartOptions?: ChartDimensions;
     gridLineStroke?: string;
-    label?: any;
+    label?: string | number;
     labelPadding?: number;
-    labelStrokeWidth?: any;
-    orientation?: any;
+    labelStrokeWidth?: number;
+    orientation?: DirectionType;
     scale?: ContinuousScale;
+    // A tick, in whatever the scale's domain is
     value?: any;
 }
 
@@ -52,7 +53,7 @@ export class AxisTick extends SVGGroup {
     declare gridLine: SVGLine;
 
     declare options: ExtendedOptions<SVGGroup, AxisTickOptions>;
-    declare axisPosition: any;
+    declare axisPosition: number;
 
     getDefaultOptions() {
         return {
@@ -145,21 +146,21 @@ export class AxisTick extends SVGGroup {
 
 export interface BasicAxisOptions {
     chartOptions?: ChartDimensions;
-    labelFormatFunction?: any;
-    orientation?: any;
+    labelFormatFunction?: ChartAxisOptions["labelFormatFunction"];
+    orientation?: DirectionType;
     scale?: ContinuousScale;
-    ticks?: any;
+    ticks?: number;
 }
 
 export class BasicAxis extends SVGGroup {
     declare options: ExtendedOptions<SVGGroup, BasicAxisOptions>;
-    declare axisLength: any;
-    declare tickValues: any;
+    declare axisLength: number;
+    declare tickValues: any[];
     declare ticks: AxisTick[];
 
     getDefaultOptions() {
         return {
-            labelFormatFunction: (x) => {return x;}
+            labelFormatFunction: (x: number) => {return x;}
         };
     }
 
@@ -212,22 +213,24 @@ export class BasicAxis extends SVGGroup {
     }
 }
 
-// The chart writes itself onto each child in redraw, and every plot reads it back off its own options
-export type ChartChild = UIElement & {options: {chart?: BasicChart}};
+// The chart writes itself onto each child in redraw, and every plot reads it back off its own options.
+// A plot draws into the chart's SVG, so its node is an SVG one rather than the HTML element UIElement defaults to.
+export type ChartChild = UIElement<any, SVGElement | HTMLElement, any> & {options: {chart?: BasicChart}};
 
 export interface BasicChartOptions {
     children?: ChartChild[];
     applyZoom?: boolean;
     chartOptions?: ChartDimensions;
     cursorStyle?: string;
-    domainPadding?: any;
+    // One, two, three or four numbers, normalized to four before it is read
+    domainPadding?: number[];
     enableZoom?: boolean;
-    margin?: any;
-    xAxisDomain?: any;
-    xAxisLabelFormatFunction?: any;
+    margin?: {top: number, bottom: number, left: number, right: number};
+    xAxisDomain?: any[];
+    xAxisLabelFormatFunction?: ChartAxisOptions["labelFormatFunction"];
     xAxisScaleType?: string;
-    yAxisDomain?: any;
-    yAxisLabelFormatFunction?: any;
+    yAxisDomain?: any[];
+    yAxisLabelFormatFunction?: ChartAxisOptions["labelFormatFunction"];
     yAxisScaleType?: string;
 }
 
@@ -293,7 +296,7 @@ export class BasicChart extends SVGGroup {
         }
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
 
         this.options.chartOptions.width -= this.options.margin.left + this.options.margin.right;
@@ -358,8 +361,10 @@ export class BasicChart extends SVGGroup {
     }
 
     redraw() {
-        this.options.children.forEach((child) => {
-            child.options.chart = this;
+        // The intersection with the base's wider children is what makes the annotation earn its place
+        const plots: ChartChild[] = this.options.children;
+        plots.forEach((plot) => {
+            plot.options.chart = this;
         });
         super.redraw();
     }
@@ -402,9 +407,11 @@ export class BasicChart extends SVGGroup {
 export interface TimeChartOptions {
     applyZoom?: boolean;
     chartOptions?: ChartDimensions;
-    paddingXOnNoPoints?: any;
-    paddingYOnNoPoints?: any;
-    zoomScaleExtent?: any;
+    data?: any;
+    plotOptions?: PlotOptions;
+    paddingXOnNoPoints?: number;
+    paddingYOnNoPoints?: number;
+    zoomScaleExtent?: [number, number];
 }
 
 export class TimeChart extends BasicChart {
@@ -478,7 +485,7 @@ export class TimeChart extends BasicChart {
         return this.getMinMaxDomain(points, coordinateAlias, padding);
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         options.xAxisLabelFormatFunction = this.getTimeFormat();
 
         // TODO: This REALLY needs a refactoring.
@@ -498,18 +505,22 @@ export class TimeChart extends BasicChart {
         super.setOptions(options);
     }
 
-    initZoom(infinite=false) {
+    initZoom(infinite: boolean = false) {
         this.options.applyZoom = true;
         let zoomNode = select(this.interactiveLayer.node);
         this.zoomListener = (event) => {
             if (this.options.applyZoom) {
                 let x = event.transform.x, y = event.transform.y, k = event.transform.k;
-                event.transform.x = Math.min(0, Math.max(x, this.options.chartOptions.width * (1 - k)));
-                event.transform.y = Math.min(0, Math.max(y, this.options.chartOptions.height * (1 - k)));
-                this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale);
-                this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale);
+                // A transform is a value object, so the pan is clamped into a new one rather than written
+                // back into the event's, and that new one is what d3 keeps on the node
+                const transform = zoomIdentity
+                    .translate(Math.min(0, Math.max(x, this.options.chartOptions.width * (1 - k))),
+                               Math.min(0, Math.max(y, this.options.chartOptions.height * (1 - k))))
+                    .scale(k);
+                this.xAxisOptions.scale = transform.rescaleX(this._initialXScale);
+                this.yAxisOptions.scale = transform.rescaleY(this._initialYScale);
                 this.redraw();
-                this.interactiveLayer.node.__zoom = event.transform;
+                this.interactiveLayer.node.__zoom = transform;
             }
         };
         this.zoomBehavior = zoom();
@@ -518,34 +529,25 @@ export class TimeChart extends BasicChart {
         }
         this.zoomBehavior = this.zoomBehavior.on("zoom", this.zoomListener);
         zoomNode.call(this.zoomBehavior);
-
-        // Simulate a center zoom
-        let factor = 1.2;
-        let centerZoom = {
-            k: factor,
-            x: this.options.chartOptions.width / 2 * (1 - factor),
-            y: this.options.chartOptions.height / 2 * (1 - factor)
-        };
-        Object.setPrototypeOf(centerZoom, Object.getPrototypeOf(zoomIdentity));
-
-        zoomNode.dispatch("zoom", {
-            transform: centerZoom
-        });
     }
 }
 
 export interface ChartSVGOptions {
-    xDomain?: any;
-    yDomain?: any;
+    // The chart's dimensions, which are numbers rather than the lengths an element takes
+    height?: number;
+    width?: number;
+    xDomain?: any[];
+    yDomain?: any[];
 }
 
 export class ChartSVG extends SVGRoot {
     declare options: ExtendedOptions<SVGRoot, ChartSVGOptions>;
     declare chartOptions: ChartDimensions;
-    declare data: any;
+    // The demo dataset this base draws, which every real chart replaces with its own
+    declare data: {points: {x: number, y: number, label?: string}[]};
     declare plotOptions: PlotOptions;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.chartOptions = {
             height: options.height || 500,

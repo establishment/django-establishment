@@ -1,4 +1,4 @@
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type UIChild, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {MarkupClassMap} from "../../../stemjs/markup/MarkupRenderer";
 import {ArticleRenderer} from "../../content/js/ArticleRenderer";
@@ -7,7 +7,7 @@ import {BlogArticleRendererStyle} from "./BlogStyle";
 // TODO move this to the regular markup class
 @registerStyle(BlogArticleRendererStyle)
 export class BlogArticleRenderer extends ArticleRenderer {
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
         attr.addClass(this.styleSheet.blogArticleRenderer);
     }
@@ -15,15 +15,15 @@ export class BlogArticleRenderer extends ArticleRenderer {
 
 
 export interface BlogQuoteOptions {
-    source?: any;
-    value?: any;
+    source?: UIChild;
+    value?: UIChild;
 }
 
 @registerStyle(BlogArticleRendererStyle)
 export class BlogQuote extends UI.Element {
     declare options: ElementOptions<BlogQuoteOptions>;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle({
             marginTop: 20,
             marginBottom: 20

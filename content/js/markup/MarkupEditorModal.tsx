@@ -8,8 +8,8 @@ import {BasePopup} from "../Popup";
 import {Emoji} from "../../../../csabase/js/ui/EmojiUI";
 
 export interface ClickableEmoteOptions {
-    afterClick?: any;
-    textBox?: any;
+    afterClick?: () => void;
+    textBox?: MarkupEditor;
 }
 
 abstract class ClickableEmote extends Emoji {
@@ -45,12 +45,12 @@ class ClickableEmoji extends ClickableEmote {
 }
 
 export interface EmojiButtonOptions {
-    getTextBox?: any;
+    getTextBox?: () => MarkupEditor;
 }
 
 class EmojiButton extends Button {
     declare options: ExtendedOptions<Button, EmojiButtonOptions>;
-    declare emojiPopup: any;
+    declare emojiPopup: BasePopup;
 
     getPopup() {
         const textBox = this.options.getTextBox();
@@ -95,9 +95,9 @@ class EmojiButton extends Button {
 }
 
 export interface MarkupEditorModalOptions {
-    classMap?: any;
-    hideCallback?: any;
-    showCallback?: any;
+    classMap?: MarkupEditor["options"]["classMap"];
+    hideCallback?: (modal: MarkupEditorModal) => void;
+    showCallback?: (modal: MarkupEditorModal) => void;
 }
 
 class MarkupEditorModal extends Modal {

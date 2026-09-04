@@ -1,4 +1,4 @@
-import {UI, type ElementOptions, type ExtendedOptions, type UIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions, type UIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {CallThrottler} from "../../../stemjs/base/CallModifier";
 import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
@@ -119,7 +119,7 @@ export class QuestionPage extends UI.Element {
         };
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.questionPage);
     }
 
@@ -376,7 +376,7 @@ export class QuestionnairePanel extends UI.Element {
 
 
 export interface DelayedQuestionnairePanelOptions {
-    error?: any;
+    error?: {message?: string};
     loaded?: boolean;
     questionnaireId?: StoreId;
 }

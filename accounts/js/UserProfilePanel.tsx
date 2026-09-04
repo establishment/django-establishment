@@ -38,7 +38,7 @@ class UserProfilePanel extends TabArea {
     declare options: ExtendedOptions<TabArea, UserProfilePanelOptions>;
     declare user: PublicUser;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
 
         this.setUser(PublicUser.get(this.options.userId));
@@ -48,7 +48,7 @@ class UserProfilePanel extends TabArea {
         ];
     }
 
-    setUser(user) {
+    setUser(user: PublicUser) {
         this.user = user;
     }
 

@@ -1,5 +1,5 @@
 import {Ajax} from "../../../stemjs/base/Ajax";
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {styleRule} from "../../../stemjs/decorators/Style";
 import {StyleSheet} from "../../../stemjs/ui/Style";
@@ -164,13 +164,13 @@ export class FeedbackForm extends UI.Element {
     declare emailInput: EmailInput;
     declare messageInput: TextArea;
     declare nameInput: Input;
-    getDefaultOptions(options) {
+    getDefaultOptions(options: typeof this.options) {
         return {
             formState: 0,
         }
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.feedbackForm);
     }
 

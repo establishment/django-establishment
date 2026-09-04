@@ -51,7 +51,7 @@ export class UserGroupMember extends BaseStore("UserGroupMember", {
     dependencies: ["UserGroup"]
 }) {
     declare userId: number;
-    declare groupId: any;
+    declare groupId: StoreId;
 
     constructor(obj: any, event?: StoreEvent) {
         super(obj, event);
@@ -66,7 +66,7 @@ export class UserGroupMember extends BaseStore("UserGroupMember", {
         return UserGroup.get(this.groupId);
     }
 
-    getPublicUser(): any {
+    getPublicUser() {
         return PublicUser.get(this.userId);
     }
 }

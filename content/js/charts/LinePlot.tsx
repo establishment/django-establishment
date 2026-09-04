@@ -1,6 +1,6 @@
 import {UI, type ExtendedOptions} from "../../../../stemjs/ui/UIBase";
 import {SVGPath} from "../../../../stemjs/ui/svg/SVGPrimitives";
-import {line} from "./Shape";
+import {line, type LineGenerator} from "./Shape";
 import {type PlotOptions, type BasicChart} from "./BasicChart";
 
 export interface LinePlotOptions {
@@ -11,7 +11,7 @@ export interface LinePlotOptions {
 
 class LinePlot extends SVGPath {
     declare options: ExtendedOptions<SVGPath, LinePlotOptions>;
-    declare linePathGenerator: any;
+    declare linePathGenerator: LineGenerator<any>;
 
     getDefaultOptions() {
         return {
@@ -23,7 +23,7 @@ class LinePlot extends SVGPath {
         };
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         Object.assign(options, this.options.plotOptions);
         super.setOptions(options);
     }

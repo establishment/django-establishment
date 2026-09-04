@@ -6,19 +6,29 @@ import {Select} from "../../../stemjs/ui/input/Input";
 import {Ajax} from "../../../stemjs/base/Ajax";
 
 import {DocumentationEntry} from "./state/DocumentationStore";
+import {type StoreId} from "../../../stemjs/state/State";
+
+// The create modal renders the same form off a blank stand-in, so a field arrives as either spelling
+interface EntryFormValues {
+    id: StoreId;
+    urlName?: string;
+    name?: string;
+    articleId: number | string;
+    parentIndex: number | string;
+}
 
 export interface EditEntryModalOptions {
-    entry?: any;
+    entry?: EntryFormValues;
 }
 
 // What the edit form posts, plus the parent the create form adds on top of it
 interface EntryRequest {
-    entryId: any;
+    entryId: StoreId;
     urlName: string;
     name: string;
     articleId: number;
     parentIndex: number;
-    parentId?: any;
+    parentId?: StoreId;
 }
 
 // The "No Parent" choice the select needs, which is not a real entry
@@ -113,7 +123,7 @@ export class EditEntryModal extends ActionModal {
 }
 
 export class CreateEntryModal extends EditEntryModal {
-    declare parentInput: Select<any>;
+    declare parentInput: Select<ParentChoice>;
 
     getTitle() {
         return "Create documentation entry";

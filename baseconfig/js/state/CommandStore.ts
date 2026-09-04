@@ -1,14 +1,12 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {type StoreEvent} from "../../../../stemjs/state/State";
 
-// One choice of a SelectArgument, from establishment/misc/command.py
 export interface SelectArgumentChoice {
     key: string | number;
     label: string;
 }
 
 // One argument a command accepts, spread straight into an AutoFormField by CommandManager.
-// BaseCommandArgument.to_json is vars() camel-cased, so every field it sets in __init__ is always sent
 export interface CommandRunOption {
     shortName: string;
     longName: string;
@@ -21,7 +19,6 @@ export interface CommandRunOption {
     choices?: SelectArgumentChoice[];
 }
 
-// One line of a run's log, from CommandRunLogger.log_message in establishment/baseconfig/models.py
 export interface CommandLogEntry {
     level: string;
     timestamp: number;
@@ -59,7 +56,6 @@ export class CommandRun extends BaseStore("CommandRun") {
     declare commandInstanceId: number;
     declare dateCreated: number;
     declare dateFinished?: number;
-    // to_json_dict of the kwargs the run was executed with
     declare arguments?: Record<string, any>;
     // Whatever the command's run returned, or the traceback lines on failure; only ever stringified
     declare result?: unknown;

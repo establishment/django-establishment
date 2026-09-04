@@ -3,16 +3,29 @@ import {FacebookManager} from "./FacebookManager";
 import {GithubManager} from "./GithubManager";
 import {registerStyle} from "../../../../stemjs/ui/style/Theme";
 import {LoginStyle} from "../LoginStyle";
-import {UI, type ElementOptions} from "../../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type NodeAttributes} from "../../../../stemjs/ui/UIBase";
 import {FAIcon} from "../../../../stemjs/ui/FontAwesome";
 import {MakeIcon} from "../../../../stemjs/ui/SimpleElements";
+import {type LoginWidget} from "../Login";
+import {type SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
 
 // An embedder adds its own entries to the map below, and every read of it is by name
+// The button calls login bare, and each manager's own signature differs, hence the rest parameter
+export interface LoginManagerInstance {
+    login(...args: any[]): void;
+}
+
+// Structural rather than a class union: CSAApp adds an IEEE handler as a plain object
+export interface LoginManager {
+    getInstance(): LoginManagerInstance;
+    login(...args: any[]): void;
+}
+
 export interface ThirdPartyLoginHandler {
     name: string;
     color: string;
     icon: string;
-    loginManager: {getInstance(): any; login(...args: any[]): void};
+    loginManager: LoginManager;
 }
 
 export const THIRD_PARTY_LOGIN_HANDLERS: Record<string, ThirdPartyLoginHandler> = {
@@ -37,15 +50,15 @@ export const THIRD_PARTY_LOGIN_HANDLERS: Record<string, ThirdPartyLoginHandler> 
 };
 
 export interface SocialConnectButtonOptions {
-    loginElement?: any;
-    specificInfo?: any;
+    loginElement?: LoginWidget;
+    specificInfo?: ThirdPartyLoginHandler;
 }
 
 @registerStyle(LoginStyle)
 class SocialConnectButton extends UI.Primitive("button") {
     declare options: ElementOptions<SocialConnectButtonOptions>;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         let {specificInfo} = this.options;
 
         attr.addClass(this.styleSheet.socialConnectButtonContainer);
@@ -80,8 +93,8 @@ class SocialConnectButton extends UI.Primitive("button") {
 
 
 export interface ThirdPartyLoginOptions {
-    socialApps?: any;
-    loginElement?: any;
+    socialApps?: SocialApp[];
+    loginElement?: LoginWidget;
 }
 
 @registerStyle(LoginStyle)

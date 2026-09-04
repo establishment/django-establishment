@@ -22,7 +22,7 @@ class ArticleRenderer extends MarkupRenderer {
     declare options: ExtendedOptions<MarkupRenderer, ArticleRendererOptions>;
     declare static markupClassMap: MarkupClassMap;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         options.classMap = options.classMap || this.constructor.markupClassMap;
         super.setOptions(options);
     }
@@ -83,7 +83,7 @@ class ArticleRenderer extends MarkupRenderer {
 }
 
 class RecursiveArticleRenderer extends ArticleRenderer {
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.options.articleId = this.options.articleId || this.options.id;
     }
@@ -99,7 +99,7 @@ class RecursiveArticleRenderer extends ArticleRenderer {
 
 export interface ArticleSwitcherOptions {
     initialArticle?: Article;
-    initialArticleId?: any;
+    initialArticleId?: StoreId;
     showEditButton?: boolean;
 }
 
@@ -119,14 +119,14 @@ class ArticleSwitcher extends Switcher {
         this.articleChildMap = new WeakMap();
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         options = Object.assign({
             lazyRender: true,
         }, options);
         super.setOptions(options);
     }
 
-    getPageForArticle(article) {
+    getPageForArticle(article: Article) {
         if (!this.articleChildMap.has(article)) {
             this.articleChildMap.set(article, <ArticleRenderer article={article} showEditButton={this.options.showEditButton} />);
         }

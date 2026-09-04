@@ -6,7 +6,7 @@ import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
 import {Level} from "../../../stemjs/ui/Constants";
 
 export interface PasswordResetFromKeyOptions {
-    tokenFail?: any;
+    tokenFail?: boolean;
 }
 
 class PasswordResetFromKey extends UI.Element {

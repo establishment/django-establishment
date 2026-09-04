@@ -1,5 +1,5 @@
-import {UI, type ElementOptions, type UIElement} from "../../../../stemjs/ui/UIBase";
-import {MarkupRenderer, type MarkupRendererOptions} from "../../../../stemjs/markup/MarkupRenderer";
+import {UI, type ElementOptions, type UIElement, type NodeAttributes} from "../../../../stemjs/ui/UIBase";
+import {MarkupRenderer, type MarkupClassMap, type MarkupRendererOptions} from "../../../../stemjs/markup/MarkupRenderer";
 
 
 import {TextArea} from "../../../../stemjs/ui/input/Input";
@@ -9,9 +9,9 @@ import {RawCheckboxInput} from "../../../../stemjs/ui/input/Input";
 
 
 export interface MarkupEditorOptions {
-    classMap?: any;
+    classMap?: MarkupClassMap;
     showButtons?: boolean;
-    value?: any;
+    value?: string;
 }
 
 class MarkupEditor extends UI.Element {
@@ -29,7 +29,7 @@ class MarkupEditor extends UI.Element {
         };
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
         attr.setStyle("textAlign", "center");
     }
@@ -135,7 +135,7 @@ class MarkupEditor extends UI.Element {
         return this.codeEditor.getValue();
     }
 
-    setValue(value) {
+    setValue(value: string) {
         this.updateValue(value);
         return this.codeEditor.setValue(value);
     }

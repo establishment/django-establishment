@@ -1,6 +1,6 @@
 import {type Constructor} from "../../../stemjs/base/Utils";
 import {type ChatPlugin} from "./ChatPlugin";
-import {UI, type ExtendedOptions, type ElementOptions, type UIElement, type TextUIElement, type BaseUIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type UIElement, type TextUIElement, type BaseUIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {Switcher} from "../../../stemjs/ui/Switcher";
 import {TextArea} from "../../../stemjs/ui/input/Input";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -10,7 +10,7 @@ import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {Pluginable} from "../../../stemjs/base/Plugin";
-import {GlobalState, type StoreId} from "../../../stemjs/state/State";
+import {GlobalState, type StoreEvent, type StoreId} from "../../../stemjs/state/State";
 import {StemDate, TimeUnit} from "../../../stemjs/time/Time";
 import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
 import {ButtonStyle} from "../../../stemjs/ui/button/ButtonStyle";
@@ -36,7 +36,7 @@ export interface PreviewMarkupButtonOptions {
 class PreviewMarkupButton extends Button {
     declare options: ExtendedOptions<Button, PreviewMarkupButtonOptions>;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         if (!options.icon) {
             options.label = options.label || UI.T("Preview");
         }
@@ -48,9 +48,9 @@ class PreviewMarkupButton extends Button {
         this.addClickListener(() => {
             MarkupEditorModal.show({
                 classMap: ChatMarkupRenderer.classMap,
-                showCallback: (modal) => {modal.markupEditor.setValue(this.options.getValue());
-                                          modal.markupEditor.codeEditor.getAce().focus();},
-                hideCallback: (modal) => {this.options.setValue(modal.markupEditor.getValue());}
+                showCallback: (modal: MarkupEditorModal) => {modal.markupEditor.setValue(this.options.getValue());
+                                          modal.markupEditor.codeEditor.focus();},
+                hideCallback: (modal: MarkupEditorModal) => {this.options.setValue(modal.markupEditor.getValue());}
             });
         });
     }
@@ -58,6 +58,7 @@ class PreviewMarkupButton extends Button {
 
 export interface EditableMessageOptions {
     deletable?: boolean;
+    message?: MessageInstance;
 }
 
 class EditableMessage extends UI.Element {
@@ -77,7 +78,7 @@ class EditableMessage extends UI.Element {
         };
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.message = options.message;
     }
@@ -184,7 +185,7 @@ class GroupChatMessage extends EditableMessage {
     declare options: ExtendedOptions<EditableMessage, GroupChatMessageOptions>;
     declare message: MessageInstance;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         if (this.message.hasTemporaryId()) {
             // TODO: this can also happen when editing a message, another case for later
@@ -198,7 +199,7 @@ class GroupChatMessage extends EditableMessage {
         }
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.groupChatMessage);
     }
 
@@ -268,7 +269,7 @@ class PrivateChatMessage extends UI.Element {
     declare contentSwitcher: Switcher;
     declare message: MessageInstance;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.message = options.message;
     }
@@ -358,9 +359,9 @@ class PrivateChatMessage extends UI.Element {
 
 
 class ChatMessageScrollSection extends InfiniteScrollable {
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         options = Object.assign({
-            entryComparator: (a, b) => {
+            entryComparator: (a: MessageInstance, b: MessageInstance) => {
                 return a.getNormalizedId() - b.getNormalizedId();
             }
         }, options);
@@ -376,6 +377,9 @@ class ChatMessageScrollSection extends InfiniteScrollable {
 // What every chat request is keyed by; the group widgets send the chat, the private one the pair
 type ChatBaseRequest = {chatId?: StoreId; userId?: StoreId; privateChatId?: StoreId};
 
+// What is posted: the base request the widget was configured with, plus what sendMessage adds to it
+type ChatSendRequest = ChatBaseRequest & {message?: string; virtualId?: string};
+
 export interface ChatWidgetBaseOptions {
     baseRequest?: ChatBaseRequest;
     extraHeightOffset?: number;
@@ -388,7 +392,7 @@ export interface ChatWidgetBaseOptions {
 class ChatWidgetBase extends Pluginable(UI.Element) {
     declare options: ExtendedOptions<InstanceType<ReturnType<typeof Pluginable>>, ChatWidgetBaseOptions>;
 
-    getDefaultOptions(options?) {
+    getDefaultOptions(options?: typeof this.options) {
         return {
             dateTimestamps: true,
         };
@@ -398,12 +402,12 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
         return this.options.messageThread;
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.initializeShowLoadMoreButton();
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
         attr.setStyle({
             display: "flex",
@@ -422,14 +426,14 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
         }
     }
 
-    createVirtualMessage(request, message) {
+    createVirtualMessage(request: ChatSendRequest, message: string) {
         let virtualId = this.messageThread.getMaxMessageId() + "-" + MessageInstance.generateVirtualId() + "-" + Math.random();
         let virtualMessageInstance = MessageInstance.createVirtualMessageInstance(message, this.messageThread, virtualId);
         request.virtualId = virtualId;
         return virtualMessageInstance;
     }
 
-    async sendMessage(message?) {
+    async sendMessage(message?: string) {
         if (!USER.isAuthenticated) {
             LoginModal.show();
             return;
@@ -519,7 +523,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
         this.setStyle("height", this.getDesiredHeight());
     }
 
-    setHeight(height) {
+    setHeight(height: number) {
         this.setStyle("height", height);
     }
 
@@ -663,13 +667,13 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
             this.registerPlugin(plugin);
         }
 
-        this.attachChangeListener(this.messageThread, (event) => {
+        this.attachChangeListener(this.messageThread, (event: StoreEvent) => {
             if (event.type === "muted") {
                 this.redraw();
             }
         });
 
-        this.attachListener(this.messageThread, "newMessage", (event) => {
+        this.attachListener(this.messageThread, "newMessage", (event: StoreEvent) => {
             //console.log("Received chat message: ", event);
             let messageInstance = MessageInstance.get(event.data.id);
 
@@ -699,10 +703,10 @@ interface ChatWidgetFactory {
 }
 
 let ChatWidget: ChatWidgetFactory = (ChatMessageClass) => class ChatWidgetClass extends ChatWidgetBase {
-    getDefaultOptions(options) {
+    getDefaultOptions(options: typeof this.options) {
         return {
             ...super.getDefaultOptions(options),
-            renderMessage: (messageInstance) => {
+            renderMessage: (messageInstance: MessageInstance) => {
                 return <ChatMessageClass key={messageInstance.getNormalizedId()} message={messageInstance} />;
             }
         };
@@ -718,7 +722,7 @@ export interface GroupChatWidgetOptions {
 class GroupChatWidget extends ChatWidget(GroupChatMessage) {
     declare options: ExtendedOptions<InstanceType<ReturnType<typeof ChatWidget>>, GroupChatWidgetOptions>;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.options.baseRequest = {
             chatId: this.options.chatId,
@@ -729,7 +733,7 @@ class GroupChatWidget extends ChatWidget(GroupChatMessage) {
         return "/chat/group_chat_post/";
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
         attr.setStyle({
             display: "flex",
@@ -772,7 +776,7 @@ export interface PrivateChatWidgetOptions {
 class PrivateChatWidget extends ChatWidget(PrivateChatMessage) {
     declare options: ExtendedOptions<InstanceType<ReturnType<typeof ChatWidget>>, PrivateChatWidgetOptions>;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         options = Object.assign({
             messageThread: options.privateChat.getMessageThread(),
             baseRequest: {
@@ -783,7 +787,7 @@ class PrivateChatWidget extends ChatWidget(PrivateChatMessage) {
         super.setOptions(options);
     }
 
-    setPrivateChat(privateChat) {
+    setPrivateChat(privateChat: boolean) {
         this.options.privateChat = privateChat;
         this.setOptions(this.options);
     }
@@ -823,7 +827,7 @@ export interface VotableGroupChatWidgetOptions {
 class VotableGroupChatWidget extends ChatWidget(VotableChatMessage) {
     declare options: ExtendedOptions<InstanceType<ReturnType<typeof ChatWidget>>, VotableGroupChatWidgetOptions>;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         options.messageThread = options.messageThread || MessageThread.get(GroupChat.get(options.chatId).messageThreadId);
         super.setOptions(options);
         this.options.baseRequest = {

@@ -24,7 +24,7 @@ export class DocumentationEntry extends BaseStore("DocumentationEntry") {
         return this.getName();
     }
 
-    getFullURL() {
+    getFullURL(): string {
         let parent = this.getParent();
         if (parent) {
             return parent.getFullURL() + "/" + this.urlName;
@@ -35,7 +35,7 @@ export class DocumentationEntry extends BaseStore("DocumentationEntry") {
     }
 
     getName() {
-        return this.name || this.getArticle().getName();
+        return this.name || this.getArticle().name;
     }
 
     getParentIndex() {

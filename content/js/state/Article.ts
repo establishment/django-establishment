@@ -67,7 +67,6 @@ export class Article extends FetchStoreMixin("Article", {
 
 @globalStore
 export class ArticleEdit extends BaseStore("articleedit", {dependencies: ["article"]}) {
-    // ArticleEdit.to_json sends the edit's markup under this name
     declare content: string;
     declare version: number;
     declare dateModified: number;

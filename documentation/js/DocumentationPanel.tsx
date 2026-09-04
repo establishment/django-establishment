@@ -1,4 +1,5 @@
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type NodeAttributes} from "../../../stemjs/ui/UIBase";
+import {type StoreId} from "../../../stemjs/state/State";
 import {Orientation} from "../../../stemjs/ui/Constants";
 import {Router} from "../../../stemjs/ui/Router";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
@@ -10,7 +11,7 @@ import {SimpleDocumentationNavElement} from "./DocumentationNavElement";
 import {DocumentationStyle} from "./DocumentationStyle";
 
 export interface DocumentationPanelOptions {
-    documentationEntryId?: any;
+    documentationEntryId?: StoreId;
 }
 
 @registerStyle(DocumentationStyle)
@@ -25,7 +26,7 @@ class DocumentationPanel extends UI.Element {
         this.documentationSwitchDispatcher = new Dispatcher();
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.documentationPanel);
     }
 
@@ -56,7 +57,7 @@ class DocumentationPanel extends UI.Element {
         return "/docs/";
     }
 
-    getUrlPrefix(suffix) {
+    getUrlPrefix(suffix?: string) {
         let url = this.getBaseUrl();
         if (suffix) {
             url += suffix + "/";
@@ -64,11 +65,11 @@ class DocumentationPanel extends UI.Element {
         return url;
     }
 
-    checkUrl(urlParts, documentationEntry) {
+    checkUrl(urlParts: string[], documentationEntry: DocumentationEntry) {
         return documentationEntry.getFullURL() === urlParts.join("/");
     }
 
-    setURL(urlParts) {
+    setURL(urlParts: string[]) {
         if (this.articleSwitcher) {
             for (let documentationEntry of DocumentationEntry.all()) {
                 if (this.checkUrl(urlParts, documentationEntry)) {
@@ -81,17 +82,17 @@ class DocumentationPanel extends UI.Element {
         }
     }
 
-    setArticle(documentationEntry) {
+    setArticle(documentationEntry: DocumentationEntry) {
         this.articleSwitcher.setActive(documentationEntry.getArticle());
         Router.changeURL(this.getUrlPrefix(documentationEntry.getFullURL()));
     }
 
-    focusToDocumentationEntry(documentationEntry) {
+    focusToDocumentationEntry(documentationEntry: DocumentationEntry) {
         documentationEntry.dispatch("show");
         this.uncollapsePathTo(documentationEntry);
     }
 
-    uncollapsePathTo(documentationEntry) {
+    uncollapsePathTo(documentationEntry: DocumentationEntry) {
         while (documentationEntry) {
             documentationEntry.dispatch("setCollapsed", false);
             documentationEntry = documentationEntry.getParent();

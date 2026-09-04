@@ -1,6 +1,7 @@
 import {Dispatcher} from "../../../stemjs/base/Dispatcher";
-import {UI, type ExtendedOptions, type ElementOptions, type UIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type UIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {Draggable} from "../../../stemjs/ui/Draggable";
+import {type Constructor} from "../../../stemjs/base/Utils";
 import {FACollapseIcon} from "../../../stemjs/ui/FontAwesome";
 
 import {EditEntryModal} from "./CreateEntryModal";
@@ -15,7 +16,7 @@ export interface CollapseIconClassOptions {
 class CollapseIconClass extends FACollapseIcon {
     declare options: ExtendedOptions<FACollapseIcon, CollapseIconClassOptions>;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
         if (!this.options.collapsed) {
             // this is not really a hack, but we might want this with em?
@@ -43,7 +44,7 @@ export class DocumentationNavElementContent extends UI.Element {
     declare options: ElementOptions<DocumentationNavElementContentOptions>;
     declare collapseIcon: CollapseIconClass;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(DocumentationStyle.getInstance().navElementDiv); // TODO: add this later
 
         // TODO: this should be in 2 separate classes
@@ -57,7 +58,7 @@ export class DocumentationNavElementContent extends UI.Element {
         }
     }
 
-    setCollapsed(collapsed) {
+    setCollapsed(collapsed: boolean) {
         if (this.options.collapsed === collapsed) {
             return;
         }
@@ -73,7 +74,7 @@ export class DocumentationNavElementContent extends UI.Element {
         this.setCollapsed(!this.options.collapsed);
     }
 
-    setActive(active) {
+    setActive(active: boolean) {
         this.options.active = active;
         this.redraw();
 
@@ -81,7 +82,7 @@ export class DocumentationNavElementContent extends UI.Element {
 			let documentationSwitchDispatcher = this.options.documentationSwitchDispatcher;
 
             documentationSwitchDispatcher.dispatch(this.options.documentationEntry);
-            documentationSwitchDispatcher.addListenerOnce((documentationEntry) => {
+            documentationSwitchDispatcher.addListenerOnce((documentationEntry: DocumentationEntry) => {
                 if (documentationEntry != this.options.documentationEntry) {
                     this.setActive(false);
                 }
@@ -168,7 +169,7 @@ class DraggableDocumentationNavElementContent extends Draggable(DocumentationNav
         };
     }
 
-    getOffset(type) {
+    getOffset(type: keyof ReturnType<DraggableDocumentationNavElementContent["getDirectOffsets"]>) {
         return this.getDirectOffsets()[type];
     }
 
@@ -224,19 +225,18 @@ export interface DocumentationNavElementClassOptions {
     panel?: DocumentationPanel;
 }
 
-export const DocumentationNavElement = (ContentClass) => class DocumentationNavElementClass extends UI.Element {
+export const DocumentationNavElement = <T extends Constructor<DocumentationNavElementContent>>(ContentClass: T) => class DocumentationNavElementClass extends UI.Element {
     declare options: ElementOptions<DocumentationNavElementClassOptions>;
     declare subEntries: DocumentationNavElementClass[];
     declare subEntryArea: UIElement;
-    // Whichever content class the factory was given; both derive from this one
-    declare titleElement: DocumentationNavElementContent;
+    declare titleElement: InstanceType<T>; // Whichever content class the factory was given
     getDefaultOptions() {
         return {
             collapsed: true
         };
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle("cursor", "pointer");
         attr.setStyle("padding-left", ((this.options.level || 0) > 0 ? 12 : 0) + "px");
     }
@@ -293,11 +293,11 @@ export const DocumentationNavElement = (ContentClass) => class DocumentationNavE
             this.titleElement.setActive(true);
         });
 
-        this.attachListener(this.getDocumentationEntry(), "setCollapsed", (collapsed) => {
+        this.attachListener(this.getDocumentationEntry(), "setCollapsed", (collapsed: boolean) => {
             this.titleElement.setCollapsed(collapsed);
         });
 
-        this.titleElement.addListener("setActive", (active) => {
+        this.titleElement.addListener("setActive", (active: boolean) => {
             if (active) {
                 this.showArticle();
             }

@@ -1,4 +1,4 @@
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 
 export interface EmailConfirmedOptions {
     confirmSuccess?: boolean;
@@ -7,7 +7,7 @@ export interface EmailConfirmedOptions {
 class EmailConfirmed extends UI.Element {
     declare options: ElementOptions<EmailConfirmedOptions>;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle({
             textAlign: "center"
         });

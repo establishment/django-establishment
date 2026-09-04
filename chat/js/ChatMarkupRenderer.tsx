@@ -3,7 +3,7 @@ import {MarkupClassMap, MarkupRenderer} from "../../../stemjs/markup/MarkupRende
 class ChatMarkupRenderer extends MarkupRenderer {
     declare static classMap: MarkupClassMap;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         options.classMap = this.constructor.classMap;
         super.setOptions(options);
     }

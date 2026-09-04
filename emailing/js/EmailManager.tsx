@@ -1,4 +1,4 @@
-import {UI} from "../../../stemjs/ui/UIBase";
+import {UI, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {GlobalStyle} from "../../../stemjs/ui/GlobalStyle";
 
@@ -11,12 +11,12 @@ class EmailManager extends UI.Element {
     declare initialUrlParts: string[];
     declare tabArea: TabArea;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
         attr.addClass(GlobalStyle.Container.SMALL);
     }
 
-    getUrlPrefix(urlPart) {
+    getUrlPrefix(urlPart: string) {
         let url = "/email/manager/";
         if (urlPart) {
             url += urlPart + "/";
@@ -24,7 +24,7 @@ class EmailManager extends UI.Element {
         return url;
     }
 
-    setURL(urlParts) {
+    setURL(urlParts: string[]) {
         if (this.tabArea) {
             this.showUrlTab(urlParts[0] || "campaigns");
         } else {
@@ -47,7 +47,7 @@ class EmailManager extends UI.Element {
         delete this.initialUrlParts;
     }
 
-    showUrlTab(urlPart) {
+    showUrlTab(urlPart: string) {
         if (this[urlPart + "Widget"]) {
             this[urlPart + "Widget"].dispatch("show");
         } else {

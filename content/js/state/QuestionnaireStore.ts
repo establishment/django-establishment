@@ -23,7 +23,7 @@ export class Questionnaire extends BaseStore("questionnaire") {
 
 
 @globalStore
-export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {dependencies: ["Questionnaire"]}) {
+export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {dependencies: ["questionnaire"]}) {
     declare otherChoice: boolean;
 
     static Type = {
@@ -66,7 +66,7 @@ export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {d
 
 
 @globalStore
-export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestionOption", {dependencies: ["QuestionnaireQuestion"]}) {
+export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestionOption", {dependencies: ["questionnairequestion"]}) {
     declare answer: string;
 
     declare questionId: number;
@@ -86,7 +86,7 @@ export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestio
 
 
 @globalStore
-export class QuestionnaireInstance extends BaseStore("QuestionnaireInstance", {dependencies: ["Questionnaire", "QuestionnaireQuestion", "QuestionnaireQuestionOption"]}) {
+export class QuestionnaireInstance extends BaseStore("QuestionnaireInstance", {dependencies: ["questionnaire", "questionnairequestion", "QuestionnaireQuestionOption"]}) {
     declare dateSubmitted?: number;
 
     declare questionnaireId: number;
@@ -133,9 +133,5 @@ export class QuestionnaireQuestionResponse extends BaseStore("QuestionnaireQuest
 
     getText(): string {
         return this.text || "";
-    }
-
-    getChoice(): QuestionnaireQuestionOption | null {
-        return QuestionnaireQuestionOption.get(this.choiceId);
     }
 }

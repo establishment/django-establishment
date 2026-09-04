@@ -33,7 +33,7 @@ abstract class EmailTemplateModal extends ActionModal {
     declare languageSelect: Select<Language>;
     declare subjectInput: TextInput;
 
-    constructor(options) {
+    constructor(options: EmailTemplateModal["options"]) {
         super(options);
         this.fields = ["subject", "html", "campaignId", "languageId", "gatewayId"];
     }
@@ -68,7 +68,8 @@ abstract class EmailTemplateModal extends ActionModal {
     }
 
     getBody() {
-        const templateValues = this.options.template || {};
+        // The Add modal is opened without one, so every field may be absent
+        const templateValues: Partial<EmailTemplate> = this.options.template || {};
         return [
             <FormField label="Subject" ref="subjectField" style={{margin: "initial"}}>
                 <TextInput value={templateValues.subject || ""} ref="subjectInput"/>
@@ -178,7 +179,7 @@ abstract class GenericConfirmModal extends ActionModal {
     abstract getAjaxAction(): string;
 
 
-    constructor(options) {
+    constructor(options: GenericConfirmModal["options"]) {
         super(options);
     }
 
@@ -264,31 +265,31 @@ class EmailTemplateTable extends SortableTable {
             width: "20%",
         };
 
-        const deleteButton = (template) => {
+        const deleteButton = (template: EmailTemplate) => {
             return <Button level={Level.DANGER} ref="deleteTemplateButton">Delete</Button>;
         };
 
-        const editButton = (template) => {
+        const editButton = (template: EmailTemplate) => {
             return <Button level={Level.INFO} ref="editTemplateButton">Edit</Button>;
         };
 
         return [{
-            value: template => template.subject,
+            value: (template: EmailTemplate) => template.subject,
             headerName: UI.T("Subject"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: template => EmailCampaign.get(template.campaignId).name,
+            value: (template: EmailTemplate) => EmailCampaign.get(template.campaignId).name,
             headerName: UI.T("Campaign"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: template => Language.get(template.languageId).name,
+            value: (template: EmailTemplate) => Language.get(template.languageId).name,
             headerName: UI.T("Language"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: template => EmailGateway.get(template.gatewayId).name,
+            value: (template: EmailTemplate) => EmailGateway.get(template.gatewayId).name,
             headerName: UI.T("Gateway"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,

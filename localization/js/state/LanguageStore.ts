@@ -13,7 +13,7 @@ export class Language extends BaseStore("Language") {
     declare name: string;
     declare localName?: string;
     declare isoCode: string;
-    translationMap: Map<any, any> = new Map();
+    translationMap: Map<string, string> = new Map();
 
     toString(): string {
         let name = this.name;
@@ -23,7 +23,7 @@ export class Language extends BaseStore("Language") {
         return name;
     }
 
-    buildTranslation(callback: (translationMap: Map<any, any>) => void): void {
+    buildTranslation(callback: (translationMap: Map<string, string>) => void): void {
         this.getStore().dispatch("buildTranslationMap", this);
         callback(this.translationMap);
     }

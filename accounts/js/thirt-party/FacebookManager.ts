@@ -3,9 +3,15 @@ import {Ajax} from "../../../../stemjs/base/Ajax";
 import {SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
 import {SocialAccountManager} from "../../../socialaccount/js/SocialAccountManager";
 
+// What the SDK's login callback answers with, as far as the handlers below read it
+interface FacebookLoginResponse {
+    status?: string;
+    authResponse?: {accessToken: string, expiresIn: number};
+}
+
 export interface FacebookManagerOptions {
-    locale?: any;
-    loginOptions?: any;
+    locale?: string;
+    loginOptions?: {auth_type: string, scope: string};
     version?: string;
 }
 
@@ -26,7 +32,7 @@ class FacebookManager extends SocialAccountManager {
         this.ensureScriptNodeExists();
     }
 
-    sendData(url, data) {
+    sendData(url: string, data: object) {
         Ajax.postJSON(url, data).then(
             (data) => {
                 if (data.next) {
@@ -65,13 +71,13 @@ class FacebookManager extends SocialAccountManager {
         document.getElementsByTagName("head")[0].appendChild(scriptElement);
     }
 
-    onLoginCanceled(response) {
+    onLoginCanceled(response: FacebookLoginResponse) {
     }
 
-    onLoginError(response) {
+    onLoginError(response: FacebookLoginResponse) {
     }
 
-    onLoginSuccess(response, nextUrl, process) {
+    onLoginSuccess(response: FacebookLoginResponse, nextUrl: string, process: string) {
         let data = {
             next: nextUrl || '',
             process: process,
@@ -81,9 +87,9 @@ class FacebookManager extends SocialAccountManager {
         this.sendData(this.options.loginByTokenUrl, data);
     }
 
-    handleProcess(nextUrl, action?, process?) {
+    handleProcess(nextUrl: string, action?: string, process?: string) {
         if (!this.loaded) {
-            this.addListenerOnce("loaded", () => this.handleProcess(process));
+            this.addListenerOnce("loaded", () => this.handleProcess(nextUrl, action, process));
             return;
         }
 
@@ -91,7 +97,7 @@ class FacebookManager extends SocialAccountManager {
             this.options.loginOptions.auth_type = action;
         }
 
-        FB.login((response) => {
+        FB.login((response: FacebookLoginResponse) => {
             if (response.authResponse) {
                 this.onLoginSuccess(response, nextUrl, process);
             } else if (response && response.status && ["not_authorized", "unknown"].indexOf(response.status) > -1) {
@@ -102,11 +108,11 @@ class FacebookManager extends SocialAccountManager {
         }, this.options.loginOptions);
     }
 
-    login(nextUrl, action, process) {
+    login(nextUrl?: string, action?: string, process?: string) {
         this.handleProcess(nextUrl=self.location.pathname, action="authenticate", process="login");
     }
 
-    connect(nextUrl, action, process) {
+    connect(nextUrl?: string, action?: string, process?: string) {
         this.handleProcess(nextUrl=self.location.pathname, action="authenticate", process="connect");
     }
 }

@@ -8,26 +8,28 @@ import {ViewportMeta} from "../../../stemjs/ui/ViewportMeta";
 
 // Wires the websocket transport into GlobalState.registerStream
 import "../../../stemjs/websocket/client/WebsocketSubscriber";
-import {ErrorHandlers} from "./ErrorHandlers";
+import {ErrorHandlers, type ErrorInput} from "./ErrorHandlers";
 import {GlobalStyleSheet} from "./GlobalStyleSheet";
 import {type FetchOptions, XHRPromise} from "../../../stemjs/base/Fetch";
 
 // Global type extensions
 declare global {
     interface Window {
-        PUBLIC_STATE?: any;
+        // The public state bundle, in the shape importState takes
+        PUBLIC_STATE?: Parameters<typeof GlobalState.importState>[0];
     }
 }
 
 type AjaxResponsePayload = StateLoadOptions & {
-    error?: any;
+    // Thrown into the reject path, which wrapError then receives
+    error?: ErrorInput;
 }
 
 export class EstablishmentApp extends StemApp {
     static MIN_VIEWPORT_META_WIDTH: number = 375; // Iphone 6
     static viewportMeta: ViewportMeta;
 
-    static init(): EstablishmentApp {
+    static init() {
         this.loadPublicState();
         this.addAjaxProcessors();
         this.registerWebsocketStreams();
@@ -76,13 +78,13 @@ export class EstablishmentApp extends StemApp {
         });
 
         // Prettify any error, so it's in a standardized format
-        Ajax.addErrorPostprocessor((error: any) => {
+        Ajax.addErrorPostprocessor((error) => {
             console.error("Ajax error", error);
             return ErrorHandlers.wrapError(error);
         });
 
         // Add a default error handler
-        Ajax.errorHandler = (error: any) => ErrorHandlers.showErrorAlert(error);
+        Ajax.errorHandler = (error) => ErrorHandlers.showErrorAlert(error);
     }
 
     static registerWebsocketStreams(): void {
@@ -104,6 +106,6 @@ export class EstablishmentApp extends StemApp {
     }
 
     static initializeGlobalStyle(): void {
-        (GlobalStyleSheet as any).initialize();
+        GlobalStyleSheet.initialize();
     }
 }

@@ -1,4 +1,4 @@
-import {UI, type ExtendedOptions, type PartialOptions, type UIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type PartialOptions, type UIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {type StoreId} from "../../../stemjs/state/State";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {Dispatchable} from "../../../stemjs/base/Dispatcher";
@@ -7,16 +7,16 @@ import {TextInput} from "../../../stemjs/ui/input/Input";
 import {getOffset, getComputedStyle} from "../../../stemjs/ui/Utils";
 import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea";
 import {Button} from "../../../stemjs/ui/button/Button";
-import {Direction, Level, Size} from "../../../stemjs/ui/Constants";
+import {Direction, type DirectionType, Level, Size} from "../../../stemjs/ui/Constants";
 
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 
 
 export class AbstractUsernameAutocomplete extends Dispatchable {
-    declare static usernamePrefixCache: Map<any, any>;
+    declare static usernamePrefixCache: Map<string, StoreId[]>;
 
-    static requestNewUsers(prefix, callback) {
+    static requestNewUsers(prefix: string, callback: (userIds: StoreId[]) => void) {
         Ajax.getJSON(PublicUser.fetchURL, {
             usernamePrefix: prefix
         }).then(
@@ -29,7 +29,7 @@ export class AbstractUsernameAutocomplete extends Dispatchable {
         );
     }
 
-    static loadUsersForPrefix(prefix, callback) {
+    static loadUsersForPrefix(prefix: string, callback: (userIds: StoreId[]) => void) {
         if (!prefix.length) {
             callback([]);
             return;
@@ -54,12 +54,12 @@ export class AbstractUsernameAutocomplete extends Dispatchable {
 }
 
 export interface AutocompleteWindowOptions {
-    direction?: any;
+    direction?: DirectionType;
     highlightColor?: string;
     maxHeight?: number;
-    onChooseUser?: any;
+    onChooseUser?: (userId: StoreId) => void;
     userDivHeight?: number;
-    userIds?: any;
+    userIds?: StoreId[];
 }
 
 export class AutocompleteWindow extends VolatileFloatingWindow {
@@ -68,7 +68,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
     // Each div carries the id it was rendered for, which getSelectedUserId reads back off it
     declare userDivs: UIElement[];
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle("z-index", "9999");
     }
 
@@ -119,7 +119,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
         return this.userDivs;
     }
 
-    moveIndex(delta) {
+    moveIndex(delta: number) {
         let index = this.currentIndex;
         index += delta;
         if (index === this.userDivs.length) {
@@ -135,7 +135,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
         return this.options.userIds[this.currentIndex];
     }
 
-    setCurrentIndex(index) {
+    setCurrentIndex(index: number) {
         if (this.hasOwnProperty("currentIndex")) {
             this.userDivs[this.currentIndex].setStyle("background-color", "white");
         }
@@ -159,7 +159,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
         }
     }
 
-    scrollTo(index) {
+    scrollTo(index: number) {
         if (this.node && this.options.userDivHeight * this.userDivs.length > this.options.maxHeight) {
             this.node.scrollTop = Math.max(this.node.scrollTop, this.options.userDivHeight * (index + 1) - this.options.maxHeight);
             this.node.scrollTop = Math.min(this.node.scrollTop, this.options.userDivHeight * index);
@@ -171,7 +171,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
 
     // Called whenever the class has a list of users that should be displayed in an AutocompleteWindow,
     // above the "inputField" DOM Node
-    static handleAutocomplete(obj, userIds, inputField) {
+    static handleAutocomplete(obj, userIds: StoreId[], inputField) {
         if (obj.autocompleteWindow && obj.autocompleteWindow.node) {
             obj.autocompleteWindow.destroyNode();
         }
@@ -239,7 +239,7 @@ export class UserInputField extends UI.Element {
         return parseInt(username);
     }
 
-    autocompleteUser(userId) {
+    autocompleteUser(userId: StoreId) {
         this.usernameInput.setValue(PublicUser.get(userId).username);
         this.dispatch("autocomplete", []);
     }
@@ -252,7 +252,7 @@ export class UserInputField extends UI.Element {
 
     handleChange() {
         let prefix = this.usernameInput.getValue();
-        AbstractUsernameAutocomplete.loadUsersForPrefix(prefix, (userIds) => {
+        AbstractUsernameAutocomplete.loadUsersForPrefix(prefix, (userIds: StoreId[]) => {
             this.dispatch("autocomplete", userIds);
         });
     }
@@ -264,7 +264,7 @@ export class UserInputField extends UI.Element {
         this.usernameInput.addNodeListener("input", () => {
             this.handleChange();
         });
-        this.addListener("autocomplete", (userIds) => {
+        this.addListener("autocomplete", (userIds: StoreId[]) => {
             AutocompleteWindow.handleAutocomplete(this, userIds, this.usernameInput);
         });
 

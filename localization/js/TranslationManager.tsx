@@ -17,7 +17,7 @@ import {TranslationKey, TranslationEntry} from "./state/TranslationStore";
 import {Language} from "./state/LanguageStore";
 import {type StoreId} from "../../../stemjs/state/State";
 
-function ajaxCall(request, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
+function ajaxCall(request: object, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
     Ajax.postJSON("/edit_translation/", request).then(onSuccess, onError);
 }
 
@@ -30,7 +30,7 @@ class TranslationEntryTableRow extends TableRow {
     declare options: ExtendedOptions<TableRow, TranslationEntryTableRowOptions>;
     declare entryInput: TextInput;
     declare saveButton: Button;
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.options.saveButton = this.saveButton;
     }
@@ -84,6 +84,8 @@ export interface TranslationEntryTableOptions {
     language?: Language;
 }
 
+type TranslationEntryRow = ReturnType<TranslationEntryTable["getEntries"]>[number];
+
 class TranslationEntryTable extends Table {
     declare options: ExtendedOptions<Table, TranslationEntryTableOptions>;
 
@@ -97,19 +99,19 @@ class TranslationEntryTable extends Table {
         };
 
         return [{
-            value: entry => entry.key.id,
+            value: (entry: TranslationEntryRow) => entry.key.id,
             headerName: "Key ID",
             sortDescending: true,
             cellStyle: numberStyle,
             headerStyle: numberStyle,
         }, {
-            value: entry => entry.key.value,
+            value: (entry: TranslationEntryRow) => entry.key.value,
             headerName: "Entry value",
             sortDescending: true,
             cellStyle: numberStyle,
             headerStyle: numberStyle,
         }, {
-            value: entry => {
+            value: (entry: TranslationEntryRow) => {
                 return <div className="form-group">
                     <TextInput ref="entryInput" value={entry.entry ? entry.entry.value : ""}/>
                 </div>;
@@ -119,7 +121,7 @@ class TranslationEntryTable extends Table {
             cellStyle: numberStyle,
             headerStyle: numberStyle,
         }, {
-            value: entry => {
+            value: (entry: TranslationEntryRow) => {
                 return <div className="form-group">
                     <Button ref="saveButton" label="Save" level={Level.INFO}/>
                 </div>;
@@ -130,7 +132,7 @@ class TranslationEntryTable extends Table {
     }
 
     // TODO @cleanup shouldn't we just delete all these?
-    getEntryKey(entry, index) {
+    getEntryKey(entry: TranslationEntryRow, index: number) {
         return index;
     }
 
@@ -167,7 +169,7 @@ class TranslationEntryManager extends UI.Element {
     declare translationTable: TranslationEntryTable;
     declare uploadFile: FileInput;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.language = Language.get(1);
     }
@@ -391,7 +393,7 @@ class TranslationKeyTableRow extends TableRow {
     declare renameState: boolean;
     declare textElement: TextUIElement;
     declare textInput: TextInput;
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
     }
 
@@ -478,11 +480,13 @@ class TranslationKeyTableRow extends TableRow {
 
 }
 
+type TranslationKeyRow = ReturnType<TranslationKeyTable["getEntries"]>[number];
+
 class TranslationKeyTable extends Table {
     declare changed: boolean;
     declare editable: boolean;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.editable = false;
     }
@@ -497,13 +501,13 @@ class TranslationKeyTable extends Table {
         };
 
         return [{
-            value: entry => entry.key.id,
+            value: (entry: TranslationKeyRow) => entry.key.id,
             headerName: "Key ID",
             sortDescending: true,
             cellStyle: numberStyle,
             headerStyle: numberStyle,
         }, {
-            value: entry => [
+            value: (entry: TranslationKeyRow) => [
                 <UI.TextElement ref="textElement" value={entry.key.value}/>,
                 <TextInput ref="textInput"/>
             ],
@@ -512,7 +516,7 @@ class TranslationKeyTable extends Table {
             cellStyle: numberStyle,
             headerStyle: numberStyle,
         }, {
-            value: entry => {
+            value: (entry: TranslationKeyRow) => {
                 return [
                     <div className="btn-group">
                         <Button ref="renameButton" label="Rename" level={Level.INFO}/>
@@ -530,7 +534,7 @@ class TranslationKeyTable extends Table {
         this.changed = false;
     }
 
-    getEntryKey(entry, index) {
+    getEntryKey(entry: TranslationKeyRow, index: number) {
         return index;
     }
 
@@ -657,7 +661,7 @@ class TranslationManager extends UI.Element {
     declare keyManager: TranslationKeyManager;
     declare tabArea: TabArea;
 
-    getUrlPrefix(urlPart) {
+    getUrlPrefix(urlPart: string) {
         let url = "/manage/translation/";
         if (urlPart) {
             url += urlPart + "/";
@@ -674,7 +678,7 @@ class TranslationManager extends UI.Element {
         ];
     }
 
-    setURL(urlParts) {
+    setURL(urlParts: string[]) {
         if (!this.tabArea) {
             this.initialUrlParts = urlParts;
         } else {
@@ -699,7 +703,7 @@ class TranslationManager extends UI.Element {
         });
     }
 
-    showUrlTab(urlPart) {
+    showUrlTab(urlPart: string) {
         if (urlPart === "keys") {
             this.keyManager.dispatch("show");
         } else if (urlPart === "entries") {

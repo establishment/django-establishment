@@ -1,4 +1,4 @@
-import {UI, type ElementOptions, type StyleObject} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type StyleObject, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 import {Route, Router} from "../../../stemjs/ui/Router";
 import {Link} from "../../../stemjs/ui/primitives/Link";
@@ -34,14 +34,14 @@ const formatMiniMessageLastTime = (timeStamp) => {
     }
 };
 
-function getUserMessagesUrl(userId) {
+function getUserMessagesUrl(userId: StoreId) {
     return "/messages/" + userId + "/";
 }
 
 export interface MiniMessageOptions {
     backgroundColorActive?: boolean;
-    list?: any;
-    privateChatId?: any;
+    list?: MessagesList;
+    privateChatId?: StoreId;
 }
 
 class MiniMessage extends UI.Element {
@@ -73,7 +73,7 @@ class MiniMessage extends UI.Element {
         return !this.getPrivateChat().firstUnreadMessage[USER.id];
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle({
             padding: "10px",
             borderBottom: "1px solid #ddd",
@@ -183,7 +183,7 @@ class UserSearchInput extends UI.Element {
 
     updateList(listItems?) {
         if (!listItems) {
-            this.window.options.children = "";
+            this.window.options.children = [];
             this.window.redraw();
             return;
         }
@@ -224,11 +224,11 @@ class UserSearchInput extends UI.Element {
 }
 
 class MessagesList extends UI.Element {
-    declare activeUserId: any;
-    declare miniMessages: any;
+    declare activeUserId: StoreId;
+    declare miniMessages: MiniMessage[];
     declare unreadMessages: number;
 
-    constructor(options) {
+    constructor(options: MessagesList["options"]) {
         super(options);
         this.miniMessages = [];
         this.unreadMessages = 0;
@@ -243,7 +243,7 @@ class MessagesList extends UI.Element {
             this.miniMessages.push(miniMessage);
         }
         this.miniMessages.sort((a, b) => {
-            return - parseInt(a.getLastMessage().timeAdded) + parseInt(b.getLastMessage().timeAdded);
+            return - a.getLastMessage().timeAdded + b.getLastMessage().timeAdded;
         });
         return this.miniMessages;
     }
@@ -256,7 +256,7 @@ class MessagesList extends UI.Element {
         </div>;
     }
 
-    setActiveMiniMessage(userId) {
+    setActiveMiniMessage(userId: StoreId) {
         this.activeUserId = userId;
         this.redraw();
     }
@@ -288,7 +288,7 @@ class MessagesList extends UI.Element {
 class IconMessagesList extends UI.Element {
     declare messagesList: MessagesList;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle({
             lineHeight: "normal",
             backgroundColor: "#fff",
@@ -313,10 +313,10 @@ class IconMessagesList extends UI.Element {
     }
 
     onMount() {
-        this.attachListener(this.messagesList, "unreadCountChanged", (value) => {
+        this.attachListener(this.messagesList, "unreadCountChanged", (value: number) => {
             this.dispatch("unreadCountChanged", value);
         });
-        this.attachListener(this.messagesList, "messageSelected", (userId) => {
+        this.attachListener(this.messagesList, "messageSelected", (userId: StoreId) => {
             window.open(getUserMessagesUrl(userId));
         });
     }
@@ -327,7 +327,7 @@ class MessagesPanelList extends UI.Element {
     declare messagesList: MessagesList;
     declare userSearchInput: UserSearchInput;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.messagesPanelList);
     }
 
@@ -340,20 +340,20 @@ class MessagesPanelList extends UI.Element {
         ];
     }
 
-    setActiveMiniMessage(userId) {
+    setActiveMiniMessage(userId: StoreId) {
         this.messagesList.setActiveMiniMessage(userId);
     }
 
-    routeToUser(userId) {
+    routeToUser(userId: StoreId) {
         Router.changeURL(getUserMessagesUrl(userId));
     }
 
     onMount() {
-        this.attachListener(this.userSearchInput, "userChosen", (userId) => {
+        this.attachListener(this.userSearchInput, "userChosen", (userId: StoreId) => {
             this.routeToUser(userId);
             this.messagesList.refreshList();
         });
-        this.attachListener(this.messagesList, "messageSelected", (userId) => {
+        this.attachListener(this.messagesList, "messageSelected", (userId: StoreId) => {
             this.setActiveMiniMessage(userId);
             this.dispatch("userChanged", userId);
             this.routeToUser(userId);
@@ -365,7 +365,7 @@ export interface PrivateChatWidgetWrapperOptions {
     // The route hands this over already parsed, which is why render parses it a second time
     userId?: number;
     // Set by the fetch below, and read back on the redraw it triggers
-    privateChat?: any;
+    privateChat?: PrivateChat;
     // Narrowed from the base's union: the widget's own height is copied out of it
     style?: StyleObject;
 }
@@ -375,7 +375,7 @@ class PrivateChatWidgetWrapper extends UI.Element {
     declare chat: PrivateChatWidget;
 
     render() {
-        const privateChat = PrivateChat.getChatWithUser(parseInt(this.options.userId));
+        const privateChat = PrivateChat.getChatWithUser(this.options.userId);
         if (privateChat) {
             let widgetStyle: StyleObject = {
                 marginLeft: "0px",
@@ -434,7 +434,7 @@ class MessagesPanel extends UI.Element {
     declare collapsed: boolean;
     declare messagesPanelList: MessagesPanelList;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
         attr.setStyle({
             border: "1px solid #ddd",
@@ -445,7 +445,7 @@ class MessagesPanel extends UI.Element {
         });
     }
 
-    setURL(urlParts) {
+    setURL(urlParts: string[]) {
         this.messagesPanelList.setActiveMiniMessage(parseInt(urlParts[0]));
         this.chatWidget.setURL(urlParts);
     }

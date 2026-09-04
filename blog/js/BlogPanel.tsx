@@ -1,4 +1,5 @@
-import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type NodeAttributes} from "../../../stemjs/ui/UIBase";
+import {type StoreId} from "../../../stemjs/state/State";
 import {Level} from "../../../stemjs/ui/Constants";
 import {Route, Router, type RouteOptions} from "../../../stemjs/ui/Router";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -22,7 +23,7 @@ import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 
 
 export interface BlogEntryEditModalOptions {
-    entryId?: any;
+    entryId?: StoreId;
 }
 
 export class BlogEntryEditModal extends Modal {
@@ -78,7 +79,7 @@ export class BlogEntryEditModal extends Modal {
         let title = this.titleInput.getValue();
         let urlName = this.urlInput.getValue();
 
-        let request: {entryId: any; isVisible: boolean; title?: string; urlName?: string} = {
+        let request: {entryId: StoreId; isVisible: boolean; title?: string; urlName?: string} = {
             entryId: this.options.entryId,
             isVisible: this.visibleCheckbox.getValue(),
         };
@@ -176,13 +177,13 @@ export class NewBlogEntryModal extends Modal {
 }
 
 export interface BlogEntryPreviewOptions {
-    entryId?: any;
+    entryId?: StoreId;
 }
 
 class BlogEntryPreview extends UI.Element {
     declare options: ElementOptions<BlogEntryPreviewOptions>;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle({
             position: "relative",
             maxHeight: "420px",
@@ -256,7 +257,7 @@ class BlogEntryPreview extends UI.Element {
 }
 
 export interface BlogEntryViewOptions {
-    entryId?: any;
+    entryId?: StoreId;
 }
 
 class BlogEntryView extends UI.Element {
@@ -274,7 +275,7 @@ class BlogEntryView extends UI.Element {
         return this.getBlogEntry().getArticle();
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.blogEntryView);
     }
 
@@ -344,14 +345,14 @@ class BlogEntryView extends UI.Element {
 }
 
 export interface BlogEntryListOptions {
-    finishedLoading?: any;
+    finishedLoading?: boolean;
 }
 
 class BlogEntryList extends UI.Element {
     declare options: ElementOptions<BlogEntryListOptions>;
     declare loadMoreButton: Button;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle("paddingTop", "10px");
     }
 

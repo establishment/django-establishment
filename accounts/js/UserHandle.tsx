@@ -1,4 +1,4 @@
-import {UI, type ElementOptions, type HTMLTagType} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type HTMLTagType, type UIElement} from "../../../stemjs/ui/UIBase";
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {type StoreId} from "../../../stemjs/state/State";
 
@@ -9,10 +9,10 @@ export interface UserHandleOptions {
 
 class UserHandle extends UI.Element {
     declare options: ElementOptions<UserHandleOptions>;
-    declare handle: any;
+    declare handle: UIElement;
     declare user: PublicUser;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         options.userId = options.userId || options.id;
 
         super.setOptions(options);
@@ -21,7 +21,7 @@ class UserHandle extends UI.Element {
         this.setUser(PublicUser.get(this.options.userId));
     }
 
-    setUser(user) {
+    setUser(user: PublicUser) {
         this.user = user;
     }
 
@@ -29,7 +29,7 @@ class UserHandle extends UI.Element {
         return "span";
     }
 
-    setColor(color) {
+    setColor(color: string) {
         this.options.color = color;
         this.handle.setStyle("color", color);
     }

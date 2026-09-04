@@ -1,4 +1,5 @@
 import {UI, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
+import {type MessageInstance} from "../../chat/js/state/MessageThreadStore";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {Level} from "../../../stemjs/ui/Constants";
 import {MarkupEditorModal} from "../../content/js/markup/MarkupEditorModal";
@@ -7,13 +8,13 @@ import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer";
 
 
 export interface EditThreadReplyButtonOptions {
-    messageInstance?: any;
+    messageInstance?: MessageInstance;
 }
 
 class EditThreadReplyButton extends Button {
     declare options: ExtendedOptions<Button, EditThreadReplyButtonOptions>;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         if (!options.icon) {
             options.label = options.label || UI.T("Preview");
         }
@@ -37,7 +38,7 @@ class EditThreadReplyButton extends Button {
 }
 
 export interface EditThreadReplyModalOptions {
-    messageInstance?: any;
+    messageInstance?: MessageInstance;
 }
 
 class EditThreadReplyModal extends MarkupEditorModal {

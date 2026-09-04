@@ -1,8 +1,9 @@
 import {UI} from "../../../stemjs/ui/UIBase";
+import {type MessageInstance} from "../../chat/js/state/MessageThreadStore";
 import {ActionModal, ActionModalButton, type ActionModalOptions} from "../../../stemjs/ui/modal/Modal";
 
 interface DeleteThreadReplyModalOptions extends ActionModalOptions {
-    messageInstance?: any;
+    messageInstance?: MessageInstance;
 }
 
 class DeleteThreadReplyModal extends ActionModal<DeleteThreadReplyModalOptions> {

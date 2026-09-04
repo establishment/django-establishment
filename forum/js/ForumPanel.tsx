@@ -1,4 +1,4 @@
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {Link} from "../../../stemjs/ui/primitives/Link";
 import {Route} from "../../../stemjs/ui/Router";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
@@ -17,7 +17,7 @@ import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 
 @registerStyle(ForumThreadHeaderStyle)
 export class ForumThreadHeader extends UI.Element {
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.mainClass);
     }
 
@@ -71,7 +71,7 @@ export class ForumThreadHeader extends UI.Element {
 
 @registerStyle(ForumThreadPreviewStyle)
 export class ForumThreadPreview extends ChatMarkupRenderer {
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.forumThreadPreview);
     }
 }
@@ -251,7 +251,7 @@ export interface ForumPanelOptions {
 export class ForumPanel extends UI.Element {
     declare options: ElementOptions<ForumPanelOptions>;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.mainClass);
     }
 

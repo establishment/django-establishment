@@ -1,13 +1,27 @@
-import {UI, type ElementOptions, type ExtendedOptions, type UIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions, type UIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {type StyleRuleObject} from "../../../stemjs/ui/Style";
-import {type RemoveHandle} from "../../../stemjs/base/Dispatcher";
+import {type Dispatchable, type RemoveHandle} from "../../../stemjs/base/Dispatcher";
 import {Orientation, type OrientationType, VoteStatus, type VoteStatusType} from "../../../stemjs/ui/Constants";
 
 import {LoginModal} from "../../accounts/js/LoginModal";
 import {UserReactionCollection} from "../../accounts/js/state/UserReaction";
 import {VotingWidgetStyle} from "./VotingWidgetStyle";
-import {type MessageInstance} from "./state/MessageThreadStore";
+import {type ReactionCounts} from "./state/MessageThreadStore";
+
+
+// TODO @Mihai maybe this should be a real type better
+// What the widget needs of the thing it votes on, which a chat message and a contest question both are
+export interface Votable extends Dispatchable {
+    getNumLikes(): number;
+    getNumDislikes(): number;
+    getVotesBalance(): number;
+    getUserVote(): number | void;
+    getReactionCollection(fakeIfMissing?: boolean): ReactionCounts;
+    like(onSuccess?: () => void, onError?: () => void): void;
+    dislike(onSuccess?: () => void, onError?: () => void): void;
+    resetReaction(onSuccess?: () => void, onError?: () => void): void;
+}
 
 export interface VotingWidgetOptions {
     balanceColor?: string;
@@ -23,7 +37,7 @@ export interface VotingWidgetOptions {
 class VotingWidget extends UI.Element {
     declare options: ElementOptions<VotingWidgetOptions>;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         options = Object.assign({
             votesBalance: 0,
             userVote: VoteStatus.NONE,
@@ -37,7 +51,7 @@ class VotingWidget extends UI.Element {
         super.setOptions(options);
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle({
             textAlign: "center",
             marginRight: "10px",
@@ -101,9 +115,9 @@ class VotingWidget extends UI.Element {
 }
 
 export interface CommentVotingWidgetOptions {
-    message?: MessageInstance;
+    message?: Votable;
     // Either the collection itself or the message that owns one, per updateTarget
-    target?: UserReactionCollection | MessageInstance;
+    target?: UserReactionCollection | Votable;
 }
 
 class CommentVotingWidget extends VotingWidget {
@@ -119,7 +133,7 @@ class CommentVotingWidget extends VotingWidget {
         return this.options.message.getUserVote();
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.updateTarget(this.options.message);
     }
@@ -187,14 +201,14 @@ class CommentVotingWidget extends VotingWidget {
 export interface CommentVotingWidgetWithThumbsOptions {
     dislikeColor?: string;
     likeColor?: string;
-    message?: MessageInstance;
+    message?: Votable;
 }
 
 @registerStyle(VotingWidgetStyle)
 class CommentVotingWidgetWithThumbs extends CommentVotingWidget {
     declare options: ExtendedOptions<CommentVotingWidget, CommentVotingWidgetWithThumbsOptions>;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.container);
     }
 

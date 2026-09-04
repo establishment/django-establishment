@@ -15,7 +15,7 @@ import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 
 
 export interface GenericConfirmModalOptions {
-    campaign?: any;
+    campaign?: EmailCampaign;
 }
 
 abstract class GenericConfirmModal extends ActionModal {
@@ -91,14 +91,14 @@ class SendCampaignConfirmModal extends GenericConfirmModal {
 
 
 export interface TestSendCampaignModalOptions {
-    campaign?: any;
+    campaign?: EmailCampaign;
 }
 
 class TestSendCampaignModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, TestSendCampaignModalOptions>;
     declare receiverIdInput: TextInput;
 
-    constructor(options) {
+    constructor(options: TestSendCampaignModal["options"]) {
         super(options);
     }
 
@@ -144,26 +144,28 @@ class TestSendCampaignModal extends ActionModal {
 
 
 export interface EmailCampaignModalOptions {
-    campaign?: any;
+    campaign?: EmailCampaign;
 }
 
 abstract class EmailCampaignModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, EmailCampaignModalOptions>;
     abstract getAjaxAction(): string;
 
-    declare fields: any;
+    // The wire keys the modal reads back off its inputs
+    declare fields: string[];
     declare fromAddressInput: TextInput;
-    declare gatewaySelect: Select<any>;
+    declare gatewaySelect: Select<EmailGateway>;
     declare isNewsletterInput: RawCheckboxInput;
     declare nameInput: TextInput;
 
-    constructor(options) {
+    constructor(options: EmailCampaignModal["options"]) {
         super(options);
         this.fields = ["name", "fromAddress", "gatewayId", "isNewsletter"];
     }
 
     getBody() {
-        const campaignValues = this.options.campaign || {};
+        // The Add modal is opened without one, so every field may be absent
+        const campaignValues: Partial<EmailCampaign> = this.options.campaign || {};
         return [
             <FormField label="Name" ref="nameField">
                 <TextInput value={campaignValues.name || ""} ref="nameInput"/>
@@ -297,53 +299,53 @@ class EmailCampaignTable extends SortableTable {
             width: "20%",
         };
 
-        const deleteButton = (campaign) => {
+        const deleteButton = (campaign: EmailCampaign) => {
             return <Button level={Level.DANGER} ref="deleteCampaignButton">Delete</Button>;
         };
 
-        const editButton = (campaign) => {
+        const editButton = (campaign: EmailCampaign) => {
             return <Button level={Level.INFO} ref="editCampaignButton">Edit</Button>;
         };
 
-        const testSendButton = (campaign) => {
+        const testSendButton = (campaign: EmailCampaign) => {
             return <Button level={Level.INFO} ref="testSendCampaignButton">Test Send</Button>
         };
 
-        const sendButton = (campaign) => {
+        const sendButton = (campaign: EmailCampaign) => {
             return <Button level={Level.INFO} ref="sendCampaignButton">Send</Button>
         };
 
-        const clearStatusButton = (campaign) => {
+        const clearStatusButton = (campaign: EmailCampaign) => {
             return <Button level={Level.DANGER} ref="clearStatusCampaignButton">Clear Status</Button>
         };
 
         return [{
-            value: campaign => campaign.name,
+            value: (campaign: EmailCampaign) => campaign.name,
             headerName: UI.T("Name"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: campaign => campaign.fromAddress,
+            value: (campaign: EmailCampaign) => campaign.fromAddress,
             headerName: UI.T("From Address"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: campaign => campaign.isNewsletter,
+            value: (campaign: EmailCampaign) => campaign.isNewsletter,
             headerName: UI.T("Is Newsletter"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: campaign => (campaign.gatewayId && EmailGateway.get(campaign.gatewayId).name) || "default",
+            value: (campaign: EmailCampaign) => (campaign.gatewayId && EmailGateway.get(campaign.gatewayId).name) || "default",
             headerName: UI.T("Gateway"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: campaign => campaign.emailsRead,
+            value: (campaign: EmailCampaign) => campaign.emailsRead,
             headerName: UI.T("Emails Read"),
             cellStyle: cellStyle,
             headerStyle: headerStyle
         }, {
-            value: campaign => campaign.emailsSent,
+            value: (campaign: EmailCampaign) => campaign.emailsSent,
             headerName: UI.T("Emails Sent"),
             cellStyle: cellStyle,
             headerStyle: headerStyle
@@ -373,7 +375,7 @@ class EmailCampaignTable extends SortableTable {
 
 
 export interface EmailCampaignWidgetOptions {
-    entry?: any;
+    entry?: EmailCampaign;
 }
 
 class EmailCampaignWidget extends UI.Element {

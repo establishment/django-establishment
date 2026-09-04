@@ -7,7 +7,7 @@ export class Follower extends BaseStore("social_follower", {dependencies: ["user
     declare userId: StoreId;
     declare targetId: StoreId;
 
-    static getFollowed(userId) {
+    static getFollowed(userId: StoreId) {
         return this.all().filter(follower => follower.userId === userId).map(
             follower => User.get(follower.targetId)
         );

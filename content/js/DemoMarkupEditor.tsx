@@ -1,4 +1,5 @@
 import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {type StoreId} from "../../../stemjs/state/State";
 
 import {Article} from "./state/Article";
 import {MarkupEditor} from "./markup/MarkupEditor";
@@ -6,7 +7,7 @@ import {MarkupEditor} from "./markup/MarkupEditor";
 
 // TODO: should probably be in a modal component
 export interface DemoMarkupEditorOptions {
-    articleId?: any;
+    articleId?: StoreId;
 }
 
 export class DemoMarkupEditor extends UI.Element {

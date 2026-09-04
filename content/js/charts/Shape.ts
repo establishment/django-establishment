@@ -22,8 +22,9 @@ function isDrawable(x: number, y: number): boolean {
 }
 
 export function line<Datum = [number, number]>(): LineGenerator<Datum> {
-    let xAccessor: PointAccessor<Datum> = (datum: any) => datum[0];
-    let yAccessor: PointAccessor<Datum> = (datum: any) => datum[1];
+    // With no accessor configured a datum is read as the [x, y] pair the type parameter defaults to
+    let xAccessor: PointAccessor<Datum> = (datum: Datum & [number, number]) => datum[0];
+    let yAccessor: PointAccessor<Datum> = (datum: Datum & [number, number]) => datum[1];
 
     const generator = ((data: Datum[]) => {
         let path = "";
@@ -53,9 +54,9 @@ export function line<Datum = [number, number]>(): LineGenerator<Datum> {
 }
 
 export function area<Datum = [number, number]>(): AreaGenerator<Datum> {
-    let xAccessor: PointAccessor<Datum> = (datum: any) => datum[0];
+    let xAccessor: PointAccessor<Datum> = (datum: Datum & [number, number]) => datum[0];
     let y0Accessor: PointAccessor<Datum> = () => 0;
-    let y1Accessor: PointAccessor<Datum> = (datum: any) => datum[1];
+    let y1Accessor: PointAccessor<Datum> = (datum: Datum & [number, number]) => datum[1];
 
     // The upper edge is drawn left to right and the lower edge back again, so the ring closes
     const generator = ((data: Datum[]) => {

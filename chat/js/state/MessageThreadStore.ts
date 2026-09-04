@@ -1,5 +1,5 @@
 import {Ajax} from "../../../../stemjs/base/Ajax";
-import {GlobalState, type StoreEvent, type StoreId} from "../../../../stemjs/state/State";
+import {GlobalState, type StoreEvent, type StoreId, type StoreObjectType} from "../../../../stemjs/state/State";
 import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 import {BaseStore, globalStore} from "../../../../stemjs/state/Store";
 import {VirtualObjectStoreMixin} from "../../../../stemjs/state/mixins/VirtualObjectStoreMixin";
@@ -12,13 +12,13 @@ import {UserReactionCollection} from "../../../accounts/js/state/UserReaction";
 export interface ReactionCounts {
     upvotesCount: number;
     downvotesCount: number;
-    getCurrentUserReactionType(): number | undefined;
+    getCurrentUserReactionType(): number | void;
 }
 
 
 @globalStore
 export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") {
-    static dependencies = ["messagethread", "publicuser"];
+    static dependencies: StoreObjectType[] = ["messagethread", "publicuser"];
 
     declare content: string;
     declare timeAdded: number;
@@ -26,14 +26,11 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     declare messageThreadId: number;
     declare reactionCollectionId?: number;
     declare temporaryId?: number;
-    // MessageInstance.to_json sends the metadata JSON column under this name
     declare meta: Record<string, any>;
-    // to_json only adds hidden when the message actually is
     declare hidden?: boolean;
-    // Set locally when a post fails; ChatWidget passes the literal 42 and renders it into a tooltip
-    declare postError?: number;
+    declare postError?: number; // Set on the client when a post fails
 
-    constructor(obj: any, event: any) {
+    constructor(obj: any, event?: StoreEvent) {
         super(obj, event);
 
         PublicUser.create(event.user);
@@ -92,7 +89,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
         return this.getNumLikes() - this.getNumDislikes();
     }
 
-    getUserVote(): number | undefined {
+    getUserVote(): number | void {
         return this.getReactionCollection(true).getCurrentUserReactionType();
     }
 
@@ -213,7 +210,6 @@ MessageInstance.addCreateListener((messageInstance: MessageInstance, createEvent
 
 @globalStore
 export class MessageThread extends BaseStore("MessageThread") {
-    // MessageThread has no to_json, so meta_to_json camel-cases each column
     declare streamName: string;
     declare messagesEditable?: boolean;
     declare metadata?: Record<string, any>;
@@ -230,10 +226,11 @@ export class MessageThread extends BaseStore("MessageThread") {
         if (!this.streamName.startsWith("messagethread-privatechat-") && !this.streamName.startsWith("temp-")) {
             GlobalState.registerStream(this.streamName);
         }
-        this.setOnlineUsers(this.online as any as StoreId[]);
+        this.setOnlineUsers(this.online);
     }
 
-    setOnlineUsers(userIds?: StoreId[]) {
+    // Builds a Set, so the existing one can be handed straight back in
+    setOnlineUsers(userIds?: Iterable<StoreId>) {
         this.online = new Set(userIds || []);
         this.online.delete(0);
         return this.online;

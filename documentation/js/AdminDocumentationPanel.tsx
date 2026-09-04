@@ -11,8 +11,20 @@ import {DocumentationPanel} from "./DocumentationPanel";
 import {DraggableDocumentationNavElement, dragAndDropHandler} from "./DocumentationNavElement";
 
 
+type NavElement = InstanceType<typeof DraggableDocumentationNavElement>;
+type DragEventType = "drag" | "drop";
+// Which edge of the target the drop lands on, spelled as the CSS property the highlight is set on
+type BorderType = "border" | "border-top" | "border-bottom";
+
+// One row of the reparenting payload; a delete sends a parentId of -1 and nothing else
+interface EntryReparent {
+    entryId: DocumentationEntry["id"];
+    parentId?: DocumentationEntry["id"];
+    parentIndex?: number;
+}
+
 export class AdminDocumentationPanel extends DocumentationPanel {
-    declare root: InstanceType<typeof DraggableDocumentationNavElement>;
+    declare root: NavElement;
     declare trash: Button;
 
     getBaseUrl() {
@@ -71,26 +83,12 @@ export class AdminDocumentationPanel extends DocumentationPanel {
         ]
     }
 
-    checkUrl(urlParts, documentationEntry) {
+    checkUrl(urlParts: string[], documentationEntry: DocumentationEntry) {
         return "edit/" + documentationEntry.getFullURL() === urlParts.join("/");
     }
 
-    getNavElement(entry) {
-        let explore = (entryNavElement) => {
-            if (entryNavElement.getDocumentationEntry() === entry) {
-                return entryNavElement;
-            }
-            let navElement = null;
-            for (let subEntry of entryNavElement.subEntries) {
-                navElement = navElement || explore(subEntry);
-            }
-            return navElement;
-        };
-        return explore(this.root);
-    }
-
-    modifyEntry(entry, newParent, nextSibling) {
-        let modified = [];
+    modifyEntry(entry: DocumentationEntry, newParent: DocumentationEntry | -1, nextSibling: DocumentationEntry) {
+        let modified: EntryReparent[] = [];
         if (newParent === -1) {
             modified.push({
                 entryId: entry.id,
@@ -149,7 +147,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
         Ajax.postJSON("/docs/change_parents/",{modifiedEntries: JSON.stringify(modified)});
     }
 
-    setTarget(element, eventType, borderType, visibleEntries) {
+    setTarget(element: NavElement, eventType: DragEventType, borderType: BorderType, visibleEntries: NavElement[]) {
         for (let visibleElement of visibleEntries) {
             visibleElement.titleElement.setStyle("border", "");
             visibleElement.titleElement.setStyle("border-top", "");
@@ -164,7 +162,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
             element.titleElement.setStyle(borderType, "2px solid red");
             return [null, null, null];
         } else {
-            let newParent, nextSibling;
+            let newParent: DocumentationEntry, nextSibling: DocumentationEntry;
             // Drop: add the element to its new position
             if (borderType === "border") {
                 newParent = element.getDocumentationEntry();
@@ -191,30 +189,9 @@ export class AdminDocumentationPanel extends DocumentationPanel {
         return getOffset(this.trash).top - 50;
     }
 
-    redrawAndUncollapse(visibleEntries, entry) {
-        this.redraw();
-        let exploreAndUncollapse = (entryNavElement) => {
-            if (entryNavElement.getDocumentationEntry() === entry) {
-                return;
-            }
-            if (visibleEntries.indexOf(entryNavElement.getDocumentationEntry()) !== -1
-                    && entryNavElement.getDocumentationEntry().parentId) {
-                let parentEntry = DocumentationEntry.get(entryNavElement.getDocumentationEntry().parentId);
-                let parentEntryNavElement = this.getNavElement(parentEntry);
-                if (parentEntryNavElement && parentEntryNavElement.titleElement.options.shouldToggle) {
-                    parentEntryNavElement.titleElement.setCollapsed(false);
-                }
-            }
-            for (let subEntry of entryNavElement.subEntries) {
-                exploreAndUncollapse(subEntry);
-            }
-        };
-        exploreAndUncollapse(this.root);
-    }
-
-    getVisibleEntries(draggedItem) {
-        let visibleEntries = [];
-        let exploreEntries = (entryNavElement) => {
+    getVisibleEntries(draggedItem: NavElement["titleElement"]) {
+        let visibleEntries: NavElement[] = [];
+        let exploreEntries = (entryNavElement: NavElement) => {
             if (entryNavElement.titleElement === draggedItem) {
                 return;
             }
@@ -231,12 +208,12 @@ export class AdminDocumentationPanel extends DocumentationPanel {
 
     onMount() {
         super.onMount();
-        this.attachCreateListener(DocumentationEntry, (entry) => {
+        this.attachCreateListener(DocumentationEntry, (entry: DocumentationEntry) => {
             this.attachChangeListener(entry, () => {
                 this.focusToDocumentationEntry(entry);
             });
         }, true);
-        dragAndDropHandler.addListener((type, draggedItem, top) => {
+        dragAndDropHandler.addListener((type: DragEventType, draggedItem: NavElement["titleElement"], top: number) => {
             let titleHeight = 40;
 
             let visibleEntries = this.getVisibleEntries(draggedItem);
@@ -245,7 +222,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
             }
 
             // TODO: Refactor this! Make UIElement or NodeWrapper support direct offsets
-            let getTop = (element) => {
+            let getTop = (element: NavElement) => {
                 return element.titleElement.getOffset("top");
             };
 
@@ -254,7 +231,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
                 return getTop(a) - getTop(b);
             });
 
-            let entry = draggedItem.getDocumentationEntry(), newParent = null, nextSibling = null;
+            let entry = draggedItem.getDocumentationEntry(), newParent: DocumentationEntry | -1 = null, nextSibling: DocumentationEntry = null;
             if (Math.abs(this.getTrashOffset() - top) < titleHeight * 2) {
                 newParent = -1;
                 this.setTarget(null, type, "border", visibleEntries);
@@ -289,7 +266,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
             }
 
             if (type === "drop") {
-                let changePosition = (modifyEntry) => {
+                let changePosition = (modifyEntry: boolean) => {
                     if (modifyEntry) {
                         this.modifyEntry(entry, newParent, nextSibling);
                     }

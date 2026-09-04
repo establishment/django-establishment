@@ -8,7 +8,7 @@ export interface LatexOptions {
 export class Latex extends UI.Element {
     declare options: ElementOptions<LatexOptions>;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         if (options.children?.length) {
             let value = "";
             for (let child of options.children) {
@@ -23,7 +23,7 @@ export class Latex extends UI.Element {
         super.setOptions(options);
     }
 
-    updateOptions(options) {
+    updateOptions(options: typeof this.options) {
         const oldValue = this.options.value;
         this.setOptions(Object.assign(this.options, options));
         if (oldValue !== this.options.value) {

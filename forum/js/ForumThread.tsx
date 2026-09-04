@@ -1,4 +1,6 @@
-import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type NodeAttributes} from "../../../stemjs/ui/UIBase";
+import {type StoreId} from "../../../stemjs/state/State";
+import {type MessageInstance} from "../../chat/js/state/MessageThreadStore";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {ActionModal, ActionModalButton} from "../../../stemjs/ui/modal/Modal";
 import {Input} from "../../../stemjs/ui/input/Input";
@@ -28,7 +30,7 @@ ForumButtonStyle.getInstance(); // To ensure css importance order
 
 
 export interface CreateForumThreadModalOptions {
-    forumId?: any;
+    forumId?: StoreId;
 }
 
 class CreateForumThreadModal extends MarkupEditorModal {
@@ -51,7 +53,7 @@ class CreateForumThreadModal extends MarkupEditorModal {
         };
 
         return [
-            <Input label={UI.T("Title")} ref="titleInput" style={inputStyle} placeholder="Click here to edit the title (max. 160 characters)." />,
+            <Input ref="titleInput" style={inputStyle} placeholder="Click here to edit the title (max. 160 characters)." />,
             ...super.render(),
         ];
     }
@@ -87,13 +89,13 @@ class CreateForumThreadModal extends MarkupEditorModal {
 }
 
 export interface CreateForumThreadButtonOptions {
-    forumId?: any;
+    forumId?: StoreId;
 }
 
 class CreateForumThreadButton extends ForumButton {
     declare options: ExtendedOptions<ForumButton, CreateForumThreadButtonOptions>;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         if (!options.icon) {
             options.label = options.label || UI.T("Preview");
         }
@@ -122,7 +124,7 @@ class CreateForumThreadButton extends ForumButton {
 }
 
 export interface DeleteForumThreadModalOptions {
-    forumThread?: any;
+    forumThread?: ForumThreadStoreObject;
 }
 
 class DeleteForumThreadModal extends ActionModal {
@@ -152,13 +154,13 @@ class DeleteForumThreadModal extends ActionModal {
 let DeleteForumThreadButton = ActionModalButton(DeleteForumThreadModal);
 
 export interface ForumThreadReplyOptions {
-    messageInstance?: any;
+    messageInstance?: MessageInstance;
 }
 
 class ForumThreadReply extends UI.Element {
     declare options: ElementOptions<ForumThreadReplyOptions>;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         // attr.addClass(forumThreadReplyStyle.mainClass);
     }
 
@@ -237,7 +239,7 @@ class ForumThreadPanel extends UI.Element {
 
     declare options: ElementOptions<ForumThreadPanelOptions>;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.mainClass);
     }
 

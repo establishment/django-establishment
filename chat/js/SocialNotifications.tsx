@@ -1,4 +1,4 @@
-import {UI, type ElementOptions, type ExtendedOptions, type HTMLTagType, type UIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions, type HTMLTagType, type UIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
@@ -6,7 +6,7 @@ import {UserNotification} from "../../../csaaccounts/js/state/UserStore";
 import {Emoji} from "../../../csabase/js/ui/EmojiUI";
 
 export interface NotificationOptions {
-    notification?: any;
+    notification?: UserNotification;
 }
 
 class Notification extends UI.Element {
@@ -38,7 +38,7 @@ class Notification extends UI.Element {
 }
 
 export interface RatingNotificationOptions {
-    notification?: any;
+    notification?: UserNotification;
 }
 
 class RatingNotification extends Notification {
@@ -62,7 +62,7 @@ class RatingNotification extends Notification {
 }
 
 export interface AnnouncementNotificationOptions {
-    notification?: any;
+    notification?: UserNotification;
 }
 
 class AnnouncementNotification extends Notification {
@@ -79,19 +79,21 @@ class AnnouncementNotification extends Notification {
 
 export interface NotificationsListOptions {
     children?: UIElement[];
-    icon?: any;
+    // The nav icon that hands itself in; structural, since it lives in app code
+    icon?: {increaseUnreadNotificationsCount(): void};
 }
 
 class NotificationsList extends UI.Element {
     // Filled in below the class, and looked up through this.constructor so a subclass can replace it
-    declare static NotificationClassMap: Map<any, any>;
+    // Which element renders each notification type; every value is a Notification subclass
+    declare static NotificationClassMap: Map<UserNotification["type"], typeof Notification>;
 
     declare options: ElementOptions<NotificationsListOptions>;
     declare displayedNotifications: Set<unknown>;
     declare notificationsCount: number;
     declare unreadNotificationsCount: number;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle({
             height: "100%",
             width: "100%",
@@ -103,7 +105,7 @@ class NotificationsList extends UI.Element {
         });
     }
 
-    constructor(options) {
+    constructor(options: NotificationsList["options"]) {
         super(options);
         this.unreadNotificationsCount = 0;
         this.notificationsCount = 0;
@@ -177,7 +179,7 @@ class NotificationsList extends UI.Element {
     }
 }
 
-NotificationsList.NotificationClassMap = new Map([
+NotificationsList.NotificationClassMap = new Map<UserNotification["type"], typeof Notification>([
     ["ratingsChange", RatingNotification],
     ["announcement", AnnouncementNotification]
 ]);

@@ -1,4 +1,4 @@
-import {type ExtendedOptions, type PartialOptions, type StyleObject, UI, UIElement} from "../../../stemjs/ui/UIBase";
+import {type ExtendedOptions, type PartialOptions, type StyleObject, UI, type UIChild, UIElement} from "../../../stemjs/ui/UIBase";
 import {Device} from "../../../stemjs/base/Device";
 import {FloatingWindow, type FloatingWindowOptions} from "../../../stemjs/ui/modal/FloatingWindow";
 import {Direction, type DirectionType} from "../../../stemjs/ui/Constants";
@@ -56,6 +56,7 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
         this.createArrowStyle();
     }
 
+    // Assigned straight into the held children, which a caller's lone child or array is not yet
     setContent(content: any): void {
         this.options.children = content;
         this.redraw();
@@ -266,7 +267,7 @@ export class Popup extends BasePopup {
         ];
     }
 
-    setTitle(newTitle: string): void {
+    setTitle(newTitle: UIChild): void {
         this.options.title = newTitle;
         this.redraw();
     }

@@ -1,4 +1,4 @@
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type UIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {FormField, Form} from "../../../stemjs/ui/form/Form";
 import {TextInput} from "../../../stemjs/ui/input/Input";
@@ -34,7 +34,7 @@ export interface SaveProfileRequest {
 
 export class GeneralInformationPanel extends UI.Element {
     declare options: ElementOptions<GeneralInformationPanelOptions>;
-    declare displayNameSelect: Select<any>;
+    declare displayNameSelect: Select<"Name" | "Username">;
     declare firstNameFormField: FormField;
     declare firstNameFormInput: TextInput;
     declare lastNameFormField: FormField;
@@ -381,7 +381,7 @@ export interface SocialAccountsPanelOptions {
 export class SocialAccountsPanel extends UI.Element {
     declare options: ElementOptions<SocialAccountsPanelOptions>;
 
-    constructor(options) {
+    constructor(options: SocialAccountsPanel["options"]) {
         super(options);
         // Ensure Social managers are initialized
         // TODO: should use the Social App store!
@@ -459,7 +459,7 @@ export class UserSettingsPanel extends UI.Element {
     declare initialUrlParts: string[];
     declare tabArea: TabArea;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
         attr.setStyle({
             height: "500px"
@@ -467,7 +467,7 @@ export class UserSettingsPanel extends UI.Element {
         attr.addClass(GlobalStyle.Container.SMALL);
     }
 
-    getUrlPrefix(str) {
+    getUrlPrefix(str: string) {
         let url = "/accounts/settings/";
         if (str) {
             url += str + "/";
@@ -475,7 +475,7 @@ export class UserSettingsPanel extends UI.Element {
         return url;
     }
 
-    setURL(urlParts) {
+    setURL(urlParts: string[]) {
         if (this.tabArea) {
             this.showUrlTab(urlParts[0] || "general");
         } else {
@@ -495,7 +495,8 @@ export class UserSettingsPanel extends UI.Element {
         return User.getCurrentUser();
     }
 
-    getPanels() {
+    // A subclass swaps panels in and out, and the tab area only ever renders them
+    getPanels(): UIElement[] {
         return [
             <GeneralInformationPanel title={UI.T("General Info")} active={true}
                                      user={this.getUser()} ref="generalPanel" tabHref={this.getUrlPrefix("general")} />,

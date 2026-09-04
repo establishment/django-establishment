@@ -4,12 +4,12 @@ import {Article} from "../../../content/js/state/Article";
 
 @globalStore
 export class BlogEntry extends BaseStore("BlogEntry", {dependencies: ["Article"]}) {
-    declare lastActive: any;
+    declare lastActive: number; // A unix timestamp
 
-    declare discussionId: any;
-    declare visible: any;
+    declare discussionId?: StoreId;
+    declare visible: boolean;
 
-    declare articleId: StoreId;
+    declare articleId?: StoreId;
     declare urlName: string;
 
     getArticle() {

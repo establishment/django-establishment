@@ -1,4 +1,4 @@
-import {UI, type ElementOptions, type ExtendedOptions, type UIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions, type UIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {Select, TextInput, RawCheckboxInput, NumberInput} from "../../../stemjs/ui/input/Input";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {Table} from "../../../stemjs/ui/table/Table";
@@ -16,7 +16,7 @@ import {StemDate} from "../../../stemjs/time/Date";
 import {FAIcon} from "../../../stemjs/ui/FontAwesome";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 
-import {CommandInstance, CommandRun, type CommandRunOption} from "./state/CommandStore";
+import {CommandInstance, CommandRun, type CommandRunOption, type SelectArgumentChoice} from "./state/CommandStore";
 import {Popup} from "../../content/js/Popup";
 
 import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
@@ -122,7 +122,7 @@ export interface CommandRunDetailsOptions {
 class CommandRunDetails extends UI.Element {
     declare options: ElementOptions<CommandRunDetailsOptions>;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle("cursor", "pointer");
         attr.setStyle("text-decoration", "underline");
     }
@@ -182,19 +182,19 @@ class PastCommandsTable extends Table {
     getDefaultColumns() {
         return [
             {
-                value: commandRun => CommandInstance.get(commandRun.commandInstanceId).name,
+                value: (commandRun: CommandRun) => CommandInstance.get(commandRun.commandInstanceId).name,
                 headerName: "Command",
             }, {
-                value: commandRun => <UserHandle userId={commandRun.userId}/>,
+                value: (commandRun: CommandRun) => <UserHandle userId={commandRun.userId}/>,
                 headerName: "User"
             }, {
-                value: commandRun => StemDate.format(commandRun.dateCreated, "DD/MM/YYYY HH:mm"),
+                value: (commandRun: CommandRun) => StemDate.format(commandRun.dateCreated, "DD/MM/YYYY HH:mm"),
                 headerName: "Date"
             }, {
-                value: commandRun => <CommandRunDuration commandRun={commandRun}/>,
+                value: (commandRun: CommandRun) => <CommandRunDuration commandRun={commandRun}/>,
                 headerName: "Duration"
             }, {
-                value: (commandRun) => {
+                value: (commandRun: CommandRun) => {
                     return <CommandRunStatus commandRun={commandRun}/>;
                 },
                 headerName: "Status",
@@ -205,7 +205,7 @@ class PastCommandsTable extends Table {
                     textAlign: "center"
                 }
             }, {
-                value: commandRun => <CommandRunDetails commandRun={commandRun}/>,
+                value: (commandRun: CommandRun) => <CommandRunDetails commandRun={commandRun}/>,
                 headerName: "Details"
             }
         ];
@@ -261,7 +261,7 @@ class AutoFormFieldSelectOption {
     declare key: string | number;
     declare label: string;
 
-    constructor(options) {
+    constructor(options: SelectArgumentChoice) {
         Object.assign(this, options);
     }
 
@@ -293,15 +293,17 @@ class AutoFormField extends UI.Element {
 
     render() {
         let formField = null;
+        // The argument's type says which of the three the default is, so each branch asserts its own
+        const {defaultValue} = this.options;
 
         if (this.options.type === this.fieldType.text) {
-            formField = <TextInput ref={this.getInputRef()} initialValue={this.options.initialValue}/>;
+            formField = <TextInput ref={this.getInputRef()} initialValue={defaultValue as string}/>;
         }
         if (this.options.type === this.fieldType.number) {
-            formField = <NumberInput ref={this.getInputRef()} initialValue={this.options.initialValue}/>;
+            formField = <NumberInput ref={this.getInputRef()} initialValue={defaultValue as number}/>;
         }
         if (this.options.type === this.fieldType.checkbox) {
-            formField = <RawCheckboxInput ref={this.getInputRef()} initialValue={this.options.initialValue}/>;
+            formField = <RawCheckboxInput ref={this.getInputRef()} initialValue={defaultValue as boolean}/>;
         }
         if (this.options.type === this.fieldType.select) {
             let options = [];
@@ -410,7 +412,7 @@ class CommandManager extends UI.Element {
     declare pastCommandsTable: PastCommandsTable;
     declare runCommandButton: Button;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.setStyle("margin-left", "15%");
         attr.setStyle("margin-right", "15%");
     }

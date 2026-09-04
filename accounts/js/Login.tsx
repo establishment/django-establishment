@@ -1,4 +1,4 @@
-import {UI, type UIChild, type UIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type UIChild, type UIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {registerStyle, Theme} from "../../../stemjs/ui/style/Theme";
 import {ensure} from "../../../stemjs/base/Require";
 import {Ajax} from "../../../stemjs/base/Ajax";
@@ -31,7 +31,7 @@ export class LoginWidget extends UI.Element {
     declare form: UIElement;
     declare loginErrorMessage: TemporaryMessageArea;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.loginWidget);
     }
 
@@ -197,7 +197,7 @@ export class RegisterWidget extends UI.Element {
     declare submitButton: SubmitInput;
     declare usernameInput: TextInput;
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.registerWidget);
     }
 
@@ -318,7 +318,7 @@ class NormalLogin extends UI.Element {
         this.state = 0;
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.loginRegisterSystem);
     }
 
@@ -387,7 +387,7 @@ class LoginTabButton extends UI.Primitive("div", BasicTabTitle) {
         };
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.loginSystemButton);
         if (this.options.active) {
             attr.addClass(this.styleSheet.selectedLeftClass);
@@ -403,7 +403,7 @@ class RegisterTabButton extends UI.Primitive("div", BasicTabTitle) {
         };
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.registerSystemButton);
         if (this.options.active) {
             attr.addClass(this.styleSheet.selectedRightClass);

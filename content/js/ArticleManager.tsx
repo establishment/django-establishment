@@ -1,5 +1,5 @@
 import {type ColumnHandler, type ColumnInput} from "../../../stemjs/base/ColumnHandler";
-import {UI, type ExtendedOptions, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup";
@@ -301,12 +301,12 @@ class ArticlePublicSpan extends FAIcon {
         return this.options.article.isPublic;
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
         attr.setStyle("color", this.isPublic() ? "green" : "red");
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.options.icon = this.isPublic() ? "check" : "times";
     }
@@ -328,7 +328,7 @@ export interface ArticleTableOptions {
 class ArticleTable extends SortableTable {
     declare options: ExtendedOptions<InstanceType<typeof SortableTable>, ArticleTableOptions>;
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.resetColumnSortingOrder();
     }
@@ -346,7 +346,7 @@ class ArticleTable extends SortableTable {
         return -1;
     }
 
-    addArticle(article) {
+    addArticle(article: Article) {
         this.options.articles.push(article);
         this.redraw();
     }
@@ -362,38 +362,38 @@ class ArticleTable extends SortableTable {
         };
         let columns: ColumnInput<Article>[] = [{
             value: article => <Link href={"/article/" + article.id + "/edit/"} value={article.name} />,
-            rawValue: article => article.name,
+            rawValue: (article: Article) => article.name,
             headerName: "Article",
             headerStyle: headerStyle,
             cellStyle: cellStyle
         }, {
             value: article => <ArticleOwnerSpan article={article} />,
-            rawValue: article => PublicUser.get(article.userCreatedId).username,
+            rawValue: (article: Article) => PublicUser.get(article.userCreatedId).username,
             headerName: "Author",
             headerStyle: headerStyle,
             cellStyle: cellStyle
         }, {
             value: article => <ArticlePublicSpan article={article} />,
-            rawValue: article => (article.isPublic ? "Yes" : "No"),
+            rawValue: (article: Article) => (article.isPublic ? "Yes" : "No"),
             headerName: "Public",
             headerStyle: headerStyle,
             cellStyle: cellStyle
         }, {
             value: article => Language.get(article.languageId).name,
-            rawValue: article => Language.get(article.languageId).name,
+            rawValue: (article: Article) => Language.get(article.languageId).name,
             headerName: "Language",
             headerStyle: headerStyle,
             cellStyle: cellStyle
         }, {
             value: article => StemDate.unix(article.dateCreated).locale("en").format("DD/MM/YYYY HH:mm:ss"),
-            rawValue: article => article.dateCreated,
+            rawValue: (article: Article) => article.dateCreated,
             sortDescending: true,
             headerName: "Date created",
             headerStyle: headerStyle,
             cellStyle: cellStyle
         }, {
             value: article => StemDate.unix(article.dateModified).locale("en").format("DD/MM/YYYY HH:mm:ss"),
-            rawValue: article => article.dateModified,
+            rawValue: (article: Article) => article.dateModified,
             sortDescending: true,
             headerName: "Date modified",
             headerStyle: headerStyle,
@@ -446,12 +446,12 @@ class ArticleManager extends UI.Element {
         };
     }
 
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
         attr.addClass(GlobalStyle.Container.SMALL);
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         options = Object.assign(this.getDefaultOptions(), options);
         super.setOptions(options);
     }
@@ -492,7 +492,7 @@ class ArticleTranslationManager extends UI.Element {
         };
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         options = Object.assign(this.getDefaultOptions(), options);
         super.setOptions(options);
     }

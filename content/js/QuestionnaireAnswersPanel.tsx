@@ -1,4 +1,4 @@
-import {UI, type ElementOptions, type ExtendedOptions, type UIElement} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions, type UIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {CardPanel} from "../../../stemjs/ui/CardPanel";
 import {Switcher} from "../../../stemjs/ui/Switcher";
@@ -66,16 +66,16 @@ class QuestionnaireAnswersStyle extends QuestionnaireStyle {
 
 
 export interface QuestionSummaryOptions {
-    instances?: any;
+    instances?: QuestionnaireInstance[];
     question?: QuestionnaireQuestion;
-    widget?: any;
+    widget?: QuestionnaireSummaryWidget;
 }
 
 @registerStyle(QuestionnaireAnswersStyle)
 class QuestionSummary extends UI.Element {
     declare options: ElementOptions<QuestionSummaryOptions>;
 
-    getInstanceResponse(instance) {
+    getInstanceResponse(instance: QuestionnaireInstance) {
         return instance.getQuestionResponse(this.options.question.id);
     }
 
@@ -209,7 +209,8 @@ class QuestionSummary extends UI.Element {
 
 
 export interface QuestionnaireSummaryWidgetOptions {
-    filters?: any;
+    // Per question, the option ids a response must have chosen to stay in the list
+    filters?: Record<StoreId, StoreId[]>;
     questionnaireId?: StoreId;
 }
 
@@ -226,7 +227,7 @@ class QuestionnaireSummaryWidget extends UI.Element {
         return Questionnaire.get(this.options.questionnaireId);
     }
 
-    respectsFilters(instance) {
+    respectsFilters(instance: QuestionnaireInstance) {
         const filters = this.options.filters || {};
         for (const questionId of Object.keys(filters)) {
             const response = instance.getQuestionResponse(parseInt(questionId));
@@ -274,12 +275,13 @@ class QuestionnaireSummaryWidget extends UI.Element {
 
 export interface QuestionnaireInstanceSwitcherOptions {
     // Each child is a panel for one instance, and is looked up again by that instance's id
-    children?: UIElement<{instance: QuestionnaireInstance}>[];
+    children?: UIElement<{instance?: QuestionnaireInstance}>[];
 }
 
 class QuestionnaireInstanceSwitcher extends Switcher {
     declare options: ExtendedOptions<Switcher, QuestionnaireInstanceSwitcherOptions>;
-    declare instanceMap: any;
+    // One page per instance, plus a placeholder div under 0 for "none selected"
+    declare instanceMap: Map<StoreId, UIElement>;
 
     getDefaultOptions() {
         return Object.assign(super.getDefaultOptions(), {
@@ -298,7 +300,7 @@ class QuestionnaireInstanceSwitcher extends Switcher {
         }
     }
 
-    switchToInstance(instance) {
+    switchToInstance(instance: QuestionnaireInstance) {
         if (!instance) {
             this.setActive(this.instanceMap.get(0));
             return;
@@ -309,7 +311,7 @@ class QuestionnaireInstanceSwitcher extends Switcher {
 
 
 export interface FullInstancePageOptions {
-    instance?: any;
+    instance?: QuestionnaireInstance;
 }
 
 class FullInstancePage extends UI.Element {
@@ -325,7 +327,7 @@ class FullInstancePage extends UI.Element {
 
 
 export interface QuestionnaireResponsesWidgetOptions {
-    instances?: any;
+    instances?: QuestionnaireInstance[];
     questionnaireId?: StoreId;
 }
 
@@ -333,7 +335,7 @@ export interface QuestionnaireResponsesWidgetOptions {
 class QuestionnaireResponsesWidget extends UI.Element {
     declare options: ElementOptions<QuestionnaireResponsesWidgetOptions>;
     declare instanceSwitcher: QuestionnaireInstanceSwitcher;
-    extraNodeAttributes(attr) {
+    extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.questionnaireResponseWidget);
     }
 
@@ -341,12 +343,12 @@ class QuestionnaireResponsesWidget extends UI.Element {
         return Questionnaire.get(this.options.questionnaireId);
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.options.instances = this.options.instances || this.getQuestionnaire().getAllInstances();
     }
 
-    switchToInstance(instance) {
+    switchToInstance(instance: QuestionnaireInstance) {
         this.instanceSwitcher.switchToInstance(instance);
 
         const allInstances = this.getInstances();
@@ -422,7 +424,8 @@ export class QuestionnaireAnswersPanel extends UI.Element {
 
 
 export interface DelayedQuestionnaireAnswersPanelOptions {
-    error?: any;
+    args?: string[];
+    error?: {message?: string};
     loaded?: boolean;
     questionnaireId?: StoreId;
 }
@@ -438,7 +441,7 @@ export class DelayedQuestionnaireAnswersPanel extends UI.Element {
         };
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         // this is here since this class can be used as a stand-alone page in a webapp
         // pattern of URL in mind: /questionnaire/{id}/answers/
         options.questionnaireId = options.questionnaireId || (parseInt(options.args[0]) || 0);

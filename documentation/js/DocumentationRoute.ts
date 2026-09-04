@@ -13,7 +13,7 @@ export class DocumentationRoute extends TerminalRoute {
         ];
     }
 
-    matchesOwnNode(urlParts) {
+    matchesOwnNode(urlParts: string[]) {
         return urlParts.length === 0 || urlParts[0] !== "edit";
     }
 }

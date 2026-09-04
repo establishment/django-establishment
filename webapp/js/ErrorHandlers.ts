@@ -4,7 +4,7 @@ import {StoreObject} from "../../../stemjs/state/Store";
 
 import {ErrorMessage} from "./state/ErrorMessageStore";
 
-type ErrorInput = string | Error | StoreObject | ErrorMessage | {
+export type ErrorInput = string | Error | StoreObject | ErrorMessage | {
     id?: string | number;
     name?: string;
     message?: string;
@@ -36,7 +36,7 @@ export const ErrorHandlers: ErrorHandlersInterface = {
                     message: error.message
                 };
             } else {
-                errorObj = error as any;
+                errorObj = error;
             }
             return new ErrorMessage(errorObj);
         }
@@ -48,7 +48,7 @@ export const ErrorHandlers: ErrorHandlersInterface = {
         });
     },
 
-    PAGE_NOT_FOUND: null as any // Will be initialized below
+    PAGE_NOT_FOUND: null,
 };
 
 ErrorHandlers.PAGE_NOT_FOUND = ErrorHandlers.wrapError("Page not found.");
