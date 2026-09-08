@@ -9,7 +9,7 @@ import {StaticCodeHighlighter} from "../../../stemjs/ui/CodeEditor";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 import {Ajax} from "../../../stemjs/base/Ajax";
-import {GlobalState} from "../../../stemjs/state/State";
+import {GlobalState, type StoreEvent} from "../../../stemjs/state/State";
 import {StemDate} from "../../../stemjs/time/Date";
 
 
@@ -77,7 +77,7 @@ class CommandRunDetailsModal extends Modal {
         return children;
     }
 
-    getFormattedMessage(logEntry) {
+    getFormattedMessage(logEntry: {timestamp: number, message: string}) {
         let message = "";
         message += "[" + StemDate.format(logEntry.timestamp, "DD/MM/YYYY HH:mm:SS") + "]";
         message += " ";
@@ -86,7 +86,7 @@ class CommandRunDetailsModal extends Modal {
         return message;
     }
 
-    getFormattedResult(resultJson) {
+    getFormattedResult(resultJson: unknown) {
         if (!resultJson) {
             return "Success!";
         }
@@ -100,7 +100,7 @@ class CommandRunDetailsModal extends Modal {
                 this.logger.append(this.getFormattedMessage(entry));
             }
         }
-        this.attachEventListener(this.options.commandRun, "logMessage", (event) => {
+        this.attachEventListener(this.options.commandRun, "logMessage", (event: StoreEvent) => {
             this.logger.append(this.getFormattedMessage(event.data));
         });
         this.attachEventListener(this.options.commandRun, "createOrUpdate", () => {
@@ -279,6 +279,8 @@ export interface AutoFormFieldOptions extends CommandRunOption {}
 
 class AutoFormField extends UI.Element {
     declare options: ElementOptions<AutoFormFieldOptions>;
+    // Exactly one of render's four branches makes it, so which one is what the argument's type says
+    declare input: TextInput | NumberInput | RawCheckboxInput | Select<AutoFormFieldSelectOption>;
 
     fieldType = {
         "text": 1,
@@ -287,30 +289,26 @@ class AutoFormField extends UI.Element {
         "select": 4
     };
 
-    getInputRef() {
-        return this.options.shortName + "Input";
-    }
-
     render() {
         let formField = null;
         // The argument's type says which of the three the default is, so each branch asserts its own
         const {defaultValue} = this.options;
 
         if (this.options.type === this.fieldType.text) {
-            formField = <TextInput ref={this.getInputRef()} initialValue={defaultValue as string}/>;
+            formField = <TextInput ref="input" initialValue={defaultValue as string}/>;
         }
         if (this.options.type === this.fieldType.number) {
-            formField = <NumberInput ref={this.getInputRef()} initialValue={defaultValue as number}/>;
+            formField = <NumberInput ref="input" initialValue={defaultValue as number}/>;
         }
         if (this.options.type === this.fieldType.checkbox) {
-            formField = <RawCheckboxInput ref={this.getInputRef()} initialValue={defaultValue as boolean}/>;
+            formField = <RawCheckboxInput ref="input" initialValue={defaultValue as boolean}/>;
         }
         if (this.options.type === this.fieldType.select) {
-            let options = [];
+            let options: AutoFormFieldSelectOption[] = [];
             for (let option of this.options.choices) {
                 options.push(new AutoFormFieldSelectOption(option));
             }
-            formField = <Select ref={this.getInputRef()} options={options}/>;
+            formField = <Select ref="input" options={options}/>;
         }
 
         return <div style={{
@@ -338,10 +336,10 @@ class AutoFormField extends UI.Element {
     }
 
     getValue() {
-        if (this.options.type === this.fieldType.select) {
-            return this[this.getInputRef()].get().getValue();
+        if (this.input instanceof Select) {
+            return this.input.get().getValue();
         } else {
-            return this[this.getInputRef()].getValue();
+            return this.input.getValue();
         }
     }
 }
@@ -353,6 +351,8 @@ export interface CommandRunCreationModalOptions {
 
 class CommandRunCreationModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, CommandRunCreationModalOptions>;
+    // One field per run option, keyed by the argument it fills in
+    fields: Record<string, AutoFormField> = {};
 
     getTitle() {
         return this.options.commandInstance.name;
@@ -366,7 +366,7 @@ class CommandRunCreationModal extends ActionModal {
                     this command?</h4>);
             }
             for (let entry of this.options.commandInstance.runOptions) {
-                body.push(<AutoFormField ref={entry.shortName} {...entry}/>);
+                body.push(<AutoFormField ref={{parent: this.fields, name: entry.shortName}} {...entry}/>);
             }
         }
         return body;
@@ -384,15 +384,14 @@ class CommandRunCreationModal extends ActionModal {
     }
 
     action() {
+        let commandArguments: Record<string, unknown> = {};
+        for (let entry of this.options.commandInstance.runOptions) {
+            commandArguments[entry.shortName] = this.fields[entry.shortName].getValue();
+        }
         let requestJson = {
             commandInstanceId: this.options.commandInstance.id,
-            arguments: {}
+            arguments: JSON.stringify(commandArguments)
         };
-
-        for (let entry of this.options.commandInstance.runOptions) {
-            requestJson.arguments[entry.shortName] = this[entry.shortName].getValue();
-        }
-        requestJson.arguments = JSON.stringify(requestJson.arguments);
 
 
         runCommand(requestJson, () => {
@@ -402,7 +401,7 @@ class CommandRunCreationModal extends ActionModal {
     }
 }
 
-function runCommand(json, callback) {
+function runCommand(json: object, callback: () => void) {
     Ajax.postJSON("/baseconfig/run_command/", json).then(callback);
 }
 

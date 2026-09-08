@@ -109,14 +109,16 @@ class VotingWidget extends UI.Element {
         return this.options.votesBalance;
     }
 
-    getUserVote() {
+    // Answers with what Votable's own getUserVote does, since CommentVotingWidget below forwards one
+    getUserVote(): number | void {
         return this.options.userVote;
     }
 }
 
 export interface CommentVotingWidgetOptions {
     message?: Votable;
-    // Either the collection itself or the message that owns one, per updateTarget
+    // Left as the concrete class: the instanceof below narrows on it, but getReactionCollection answers
+    // with a ReactionCounts, so no one declaration types both arms of updateTarget
     target?: UserReactionCollection | Votable;
 }
 

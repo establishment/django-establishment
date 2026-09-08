@@ -16,7 +16,7 @@ export class BlogEntry extends BaseStore("BlogEntry", {dependencies: ["Article"]
         return Article.get(this.articleId);
     }
 
-    static getEntryForURL(urlName) {
+    static getEntryForURL(urlName: string) {
         return this.all().find(blogEntry => blogEntry.urlName === urlName);
     }
 }

@@ -192,7 +192,7 @@ class BlogEntryPreview extends UI.Element {
         });
     }
 
-    canOverwrite(obj) {
+    canOverwrite(obj: BlogEntryPreview) {
         return super.canOverwrite(obj) && this.options.entryId === obj.options.entryId;
     }
 

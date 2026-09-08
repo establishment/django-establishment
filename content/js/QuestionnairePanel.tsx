@@ -13,7 +13,7 @@ import {Modal} from "../../../stemjs/ui/modal/Modal";
 import {ActionModalButton} from "../../../stemjs/ui/modal/Modal";
 import {StateDependentElement} from "../../../stemjs/ui/StateDependentElement";
 
-import {Questionnaire, QuestionnaireQuestion, QuestionnaireInstance} from "./state/QuestionnaireStore";
+import {Questionnaire, QuestionnaireQuestion, type QuestionnaireQuestionOption, QuestionnaireInstance} from "./state/QuestionnaireStore";
 import {type StoreId} from "../../../stemjs/state/State";
 
 
@@ -110,6 +110,8 @@ export class QuestionPage extends UI.Element {
     declare ajaxThrottler: CallThrottler;
     // A RadioInput for a single-choice question, a RawCheckboxInput for multiple
     declare otherChoice: RadioInput | RawCheckboxInput;
+    // One input per answer option, keyed by the option it answers for
+    optionInputs: Record<StoreId, RawCheckboxInput> = {};
     // A TextInput beside the "Other" choice, a TextArea for a plain-text question
     declare textArea: TextInput | TextArea;
 
@@ -137,17 +139,19 @@ export class QuestionPage extends UI.Element {
 
     getForm() {
         let formFields;
-        let InputType;
+        let InputType: typeof RawCheckboxInput;
         if (this.isSingleChoice()) {
             InputType = RadioInput;
         }
         if (this.isMultipleChoice()) {
             InputType = RawCheckboxInput;
         }
+        // The radio group the options share, which the DOM wants as a string
+        const groupName = String(this.options.question.id);
         if (!this.isPlainText()) {
             formFields = this.options.question.getOptions().map(
                 option => <div className={this.styleSheet.radioInputContainer}>
-                            <InputType ref={"option" + option.id} name={this.options.question.id}
+                            <InputType ref={{parent: this.optionInputs, name: option.id}} name={groupName}
                                         initialValue={this.isChecked(option)} disabled={!this.options.editable} />
                             <MarkupRenderer value={option.answer} className={this.styleSheet.markup}/>
                           </div>
@@ -155,7 +159,7 @@ export class QuestionPage extends UI.Element {
             if (this.options.question.otherChoice) {
                 formFields.push(
                     <div className={this.styleSheet.radioInputContainer}>
-                        <InputType ref="otherChoice" name={this.options.question.id}
+                        <InputType ref="otherChoice" name={groupName}
                                     initialValue={this.isOtherChoice()} disabled={!this.options.editable} />
                         Other: <TextInput ref="textArea" value={this.getTextValue()}
                                             className={this.styleSheet.otherInput} readOnly={!this.options.editable}/>
@@ -178,14 +182,14 @@ export class QuestionPage extends UI.Element {
         return this.options.question.getCurrentUserResponse();
     }
 
-    isChecked(questionOption) {
+    isChecked(questionOption: QuestionnaireQuestionOption) {
         const userResponse = this.getResponse();
         return (userResponse && userResponse.choiceIds.indexOf(questionOption.id) >= 0) || false;
     }
 
     isOtherChoice() {
         const userResponse = this.getResponse();
-        return (userResponse && (userResponse.choiceIds.length === 0 || this.isMultipleChoice()) && userResponse.text);
+        return !!(userResponse && (userResponse.choiceIds.length === 0 || this.isMultipleChoice()) && userResponse.text);
     }
 
     getTextValue() {
@@ -217,7 +221,7 @@ export class QuestionPage extends UI.Element {
         if (!this.isPlainText()) {
             let choiceIds = [];
             for (const option of this.options.question.getOptions()) {
-                if (this["option" + option.id].getValue()) {
+                if (this.optionInputs[option.id].getValue()) {
                     choiceIds.push(option.id);
                 }
             }
@@ -244,7 +248,7 @@ export class QuestionPage extends UI.Element {
         }
         if (!this.isPlainText()) {
             for (const option of this.options.question.getOptions()) {
-                this["option" + option.id].addChangeListener(() => this.sendResponse());
+                this.optionInputs[option.id].addChangeListener(() => this.sendResponse());
             }
             if (this.options.question.otherChoice) {
                 this.otherChoice.addChangeListener(() => this.sendResponse());
@@ -277,7 +281,7 @@ class OrderedChildrenSwitcher extends Switcher {
         return this.getChildIndex() === this.options.children.length - 1;
     }
 
-    updateChildIndex(delta) {
+    updateChildIndex(delta: number) {
         const newChildIndex = this.childIndex + delta;
         if (0 <= newChildIndex && newChildIndex < this.options.children.length) {
             this.childIndex = newChildIndex;

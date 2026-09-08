@@ -44,7 +44,7 @@ class LoginModal extends Modal {
         return <Login/>;
     }
 
-    static requireLogin(func) {
+    static requireLogin<T>(func: () => T) {
         if (USER.isAuthenticated) {
             return func();
         } else {

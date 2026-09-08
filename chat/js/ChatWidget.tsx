@@ -358,7 +358,7 @@ class PrivateChatMessage extends UI.Element {
 }
 
 
-class ChatMessageScrollSection extends InfiniteScrollable {
+class ChatMessageScrollSection extends InfiniteScrollable<MessageInstance> {
     setOptions(options: typeof this.options) {
         options = Object.assign({
             entryComparator: (a: MessageInstance, b: MessageInstance) => {
@@ -585,7 +585,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
                     //TODO(@Rocky): find out why this doesn't work
                     this.outstandingRequest = false;
                 }
-            }).then((data) => {
+            }).then((data: {state?: {MessageInstance?: unknown[]}}) => {
                 const emptyData = !data.state || !data.state.MessageInstance;
                 if (emptyData || data.state.MessageInstance.length < 20) {
                     if (this.loadMoreButton) {

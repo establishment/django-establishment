@@ -68,7 +68,7 @@ class ArticleRenderer extends MarkupRenderer {
 
         const depPaths = dependencies.map(dep => `/static/js/${dep}.js`);
 
-        ensure(depPaths, (...args) => {
+        ensure(depPaths, (...args: unknown[]) => {
             const reqDep = dependencies.map(dep => require(dep));
             this.registerDependencies(reqDep);
             super.redraw();
@@ -133,7 +133,7 @@ class ArticleSwitcher extends Switcher {
         return this.articleChildMap.get(article);
     }
 
-    setActive(article) {
+    setActive(article: UIElement | Article) {
         if (!(article instanceof Article)) {
             super.setActive(article);
             return;
@@ -141,7 +141,7 @@ class ArticleSwitcher extends Switcher {
         super.setActive(this.getPageForArticle(article));
     }
 
-    setActiveArticleId(articleId) {
+    setActiveArticleId(articleId: StoreId) {
         Article.fetchSync(articleId, (article) => {
             this.setActive(article);
         });

@@ -1,6 +1,7 @@
 import {Ajax} from "../../../../stemjs/base/Ajax";
 import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {type StoreEvent} from "../../../../stemjs/state/State";
 
 import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
 import {MessageThread, MessageInstance} from "../../../chat/js/state/MessageThreadStore";
@@ -13,7 +14,8 @@ export class Forum extends BaseStore("forum") {
 
     declare forumThreads: Map<StoreId, ForumThread>;
 
-    constructor(obj, event?) {
+    // The fields above are the whole of what arrives; obj is the event's data, whoever built it
+    constructor(obj: StoreEvent["data"], event?: StoreEvent) {
         super(obj, event);
         this.forumThreads = new Map();
         // TODO: not appropriate to register to streams here
@@ -37,12 +39,12 @@ export class Forum extends BaseStore("forum") {
         return forumThreads;
     }
 
-    addForumThread(forumThread, event?) {
+    addForumThread(forumThread: ForumThread, event?: StoreEvent) {
         this.forumThreads.set(forumThread.id, forumThread);
         this.dispatch("newForumThread", event);
     }
 
-    deleteForumThread(forumThread) {
+    deleteForumThread(forumThread: ForumThread) {
         this.forumThreads.delete(forumThread.id);
         this.dispatch("deleteForumThread", forumThread);
     }
@@ -66,7 +68,7 @@ export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum
     declare title: string;
     declare votesBalance: number;
 
-    constructor(obj) {
+    constructor(obj: StoreEvent["data"]) {
         super(obj);
         let parent = this.getParent();
         parent && parent.addForumThread(this);

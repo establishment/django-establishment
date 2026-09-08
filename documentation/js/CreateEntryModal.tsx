@@ -90,7 +90,7 @@ export class EditEntryModal extends ActionModal {
         ];
     }
 
-    check(data) {
+    check(data: EntryRequest) {
         if (!data.urlName) {
             return "URL name cannot be empty.";
         }

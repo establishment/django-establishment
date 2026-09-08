@@ -178,7 +178,7 @@ export class FeedbackForm extends UI.Element {
         return this.options.formState > 0;
     }
 
-    setFormState(value) {
+    setFormState(value: number) {
         this.options.formState = value;
         this.redraw();
     }

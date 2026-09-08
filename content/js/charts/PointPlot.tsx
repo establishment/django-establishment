@@ -43,6 +43,8 @@ export interface PointPlotOptions {
     plotOptions?: PlotOptions;
 }
 
+// The element class stays open: it is rendered as a tag with the plot's own attributes, which is the
+// per-class options the plugin derives and no constructor type can name
 export const PointPlot = (PointPlotElementClass) => class PointPlot extends SVGGroup {
     declare options: ExtendedOptions<SVGGroup, PointPlotOptions>;
     // The factory's own element class, one per datum the alias pulled out

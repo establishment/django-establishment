@@ -12,7 +12,7 @@ class GoogleManager extends SocialAccountManager {
         this.ensureScriptNodeExists();
     }
 
-    sendData(url, data, onSuccess=NOOP_FUNCTION) {
+    sendData(url: string, data: object, onSuccess=NOOP_FUNCTION) {
         Ajax.postJSON(url, data).then(onSuccess);
     }
 
@@ -57,13 +57,13 @@ class GoogleManager extends SocialAccountManager {
         return this.getGoogleUser().getAuthResponse();
     }
 
-    updateSigninStatus(isSignedIn) {
+    updateSigninStatus(isSignedIn: boolean) {
         if (isSignedIn) {
             console.log("Google user is signed in");
         }
     }
 
-    handleProcess(process) {
+    handleProcess(process: string) {
         if (!this.loaded) {
             this.addListenerOnce("loaded", () => this.handleProcess(process));
             return;
@@ -71,7 +71,7 @@ class GoogleManager extends SocialAccountManager {
         this.getGoogleAuth().grantOfflineAccess({
             redirect_uri: "postmessage",
             immediate: false,
-        }).then((data) => {
+        }).then((data: object) => {
             Object.assign(data, {
                 process: process,
             });

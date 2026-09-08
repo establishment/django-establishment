@@ -59,7 +59,7 @@ export class UserGroupEditor extends UI.Element {
         return UserGroup.get(this.options.groupId);
     }
 
-    renderUserGroupMember(member) {
+    renderUserGroupMember(member: UserGroupMember) {
         return <UserGroupMemberUI member={member} />;
     }
 
@@ -77,7 +77,7 @@ export class UserGroupEditor extends UI.Element {
             userId: userId,
             action: "add"
         }).then(() => this.addUserField.clear()));
-        this.attachListener(UserGroupMember, ["create", "delete"], (userGroupMember) => {
+        this.attachListener(UserGroupMember, ["create", "delete"], (userGroupMember: UserGroupMember) => {
             if (userGroupMember.groupId === this.options.groupId) {
                 this.redraw();
             }

@@ -4,7 +4,7 @@ export class ChatPlugin extends Plugin {
     // The widget the plugins reach into for its input, its own plugins and sendMessage
     declare chatWidget: any;
 
-    linkToParent(parent) {
+    linkToParent(parent: ChatPlugin["chatWidget"]) {
         this.chatWidget = parent;
     }
 

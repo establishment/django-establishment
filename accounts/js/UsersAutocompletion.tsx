@@ -21,7 +21,7 @@ export class AbstractUsernameAutocomplete extends Dispatchable {
             usernamePrefix: prefix
         }).then(
             (data) => {
-                let userIds = (data.state.publicuser || []).map(user => user.id);
+                let userIds = (data.state.publicuser || []).map((user: {id: StoreId}) => user.id);
                 this.usernamePrefixCache.set(prefix, userIds);
                 callback(userIds);
             },
@@ -55,11 +55,22 @@ export class AbstractUsernameAutocomplete extends Dispatchable {
 
 export interface AutocompleteWindowOptions {
     direction?: DirectionType;
+    // Not parentNode: an option of that name intersects with the node's own, which no element satisfies
+    anchorElement?: UIElement;
+    offsets?: ReturnType<typeof getOffset>;
     highlightColor?: string;
     maxHeight?: number;
     onChooseUser?: (userId: StoreId) => void;
     userDivHeight?: number;
     userIds?: StoreId[];
+}
+
+// What both callers of the two statics below hold: the window they own, and what to do with a chosen user
+interface AutocompleteHost {
+    autocompleteWindow?: AutocompleteWindow;
+    duringAutocomplete?: boolean;
+    autocompleteUser(userId: StoreId): void;
+    dispatch: Dispatchable["dispatch"];
 }
 
 export class AutocompleteWindow extends VolatileFloatingWindow {
@@ -81,11 +92,11 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
         };
     }
 
-    setOptions(options) {
+    setOptions(options: typeof this.options) {
         options = Object.assign(this.getDefaultOptions(), options);
         let height = Math.min(options.maxHeight, options.userIds.length * options.userDivHeight);
-        options.offsets = getOffset(options.parentNode);
-        options.style = Object.assign({
+        options.offsets = getOffset(options.anchorElement);
+        const style = {
             marginBottom: "5px",
             border: "1px solid black",
             position: "absolute",
@@ -95,10 +106,11 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
             boxShadow: "0 6px 12px rgba(0,0,0,.175)",
             top: options.offsets.top - height + "px",
             left: options.offsets.left + "px"
-        }, options.style || {});
+        };
+        options.style = Object.assign(style, options.style || {});
         if (options.direction === Direction.DOWN) {
-            options.style.top = parseInt(options.style.top) + height
-                                    + parseInt(getComputedStyle(options.parentNode, "height")) + "px";
+            style.top = parseInt(style.top) + height
+                                    + parseInt(getComputedStyle(options.anchorElement, "height")) + "px";
         }
         super.setOptions(options);
     }
@@ -171,7 +183,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
 
     // Called whenever the class has a list of users that should be displayed in an AutocompleteWindow,
     // above the "inputField" DOM Node
-    static handleAutocomplete(obj, userIds: StoreId[], inputField) {
+    static handleAutocomplete(obj: AutocompleteHost, userIds: StoreId[], inputField: UIElement) {
         if (obj.autocompleteWindow && obj.autocompleteWindow.node) {
             obj.autocompleteWindow.destroyNode();
         }
@@ -181,7 +193,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
         }
         obj.duringAutocomplete = true;
         obj.autocompleteWindow = AutocompleteWindow.create(document.body, {
-            parentNode: inputField,
+            anchorElement: inputField,
             userIds: userIds,
             onChooseUser: (userId) => {
                 obj.duringAutocomplete = false;
@@ -192,7 +204,7 @@ export class AutocompleteWindow extends VolatileFloatingWindow {
 
     // Called whenever there is a keydown event on the inputField that has a window attached, treats the cases
     // of Enter, Escape and Up/Down arrows, modifying the attached window as needed.
-    static handleKeydownEvent(obj, event) {
+    static handleKeydownEvent(obj: AutocompleteHost, event: KeyboardEvent) {
         if (event.key === "Enter" || event.keyCode === 13) { // Enter key
             if (obj.duringAutocomplete) {
                 obj.duringAutocomplete = false;

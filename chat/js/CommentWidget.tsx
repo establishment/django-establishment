@@ -10,6 +10,7 @@ import {Button} from "../../../stemjs/ui/button/Button";
 import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
 
 import {GroupChat} from "./state/ChatStore";
+import {type MessageInstance} from "./state/MessageThreadStore";
 import {ChatMessageScrollSection, ChatWidget, EditableMessage} from "ChatWidget";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 import {LoginModal} from "../../accounts/js/LoginModal";
@@ -103,7 +104,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
     getDefaultOptions() {
         return {
             ...super.getDefaultOptions(),
-            entryComparator: (a, b) => {
+            entryComparator: (a: MessageInstance, b: MessageInstance) => {
                 return b.getNormalizedId() - a.getNormalizedId();
             },
         }
@@ -181,7 +182,7 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
         return CommentWidget.defaultPlugins || [];
     }
 
-    createVirtualMessage(request, message) {
+    createVirtualMessage(request: object, message: string): MessageInstance {
         return null;
     }
 }

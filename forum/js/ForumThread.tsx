@@ -64,7 +64,7 @@ class CreateForumThreadModal extends MarkupEditorModal {
         });
     }
 
-    routeToThread(forumThreadId) {
+    routeToThread(forumThreadId: StoreId) {
         // TODO: add the temp forum title
         Router.changeURL(["forum", forumThreadId, "title"])
     }
@@ -300,7 +300,7 @@ class ForumThreadPanel extends UI.Element {
             </div>;
     }
 
-    getNumReplies(postsLength) {
+    getNumReplies(postsLength: number) {
         return [
             <div className={this.styleSheet.numReplies}>
                 <span style={{fontWeight: "bold", }}>{postsLength}</span>

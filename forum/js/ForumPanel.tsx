@@ -5,7 +5,7 @@ import {registerStyle} from "../../../stemjs/ui/style/Theme";
 import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {slugify, multikeySort} from "../../../stemjs/base/Utils";
-import {StateDependentElement} from "../../../stemjs/ui/StateDependentElement";
+import {StateDependentElement, type PageState} from "../../../stemjs/ui/StateDependentElement";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer";
@@ -292,7 +292,7 @@ export class ForumPanel extends UI.Element {
 }
 
 export class DelayedForumPanel extends StateDependentElement(ForumPanel) {
-    importState(data) {
+    importState(data: PageState) {
         super.importState(data);
         this.options.forum = Forum.get(this.options.forumId);
     }
@@ -312,7 +312,7 @@ export class DelayedForumThreadPanel extends StateDependentElement(ForumThreadPa
         );
     }
 
-    importState(data) {
+    importState(data: PageState) {
         super.importState(data);
         this.options.forumThread = ForumThread.get(this.options.forumThreadId);
     }

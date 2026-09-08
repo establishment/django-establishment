@@ -14,7 +14,7 @@ import {ColorGenerator} from "../../../stemjs/ui/Color";
 import {MarkupRenderer} from "../../../stemjs/markup/MarkupRenderer";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
-import {Questionnaire, QuestionnaireQuestion, type QuestionnaireInstance, type QuestionnaireQuestionOption} from "./state/QuestionnaireStore";
+import {Questionnaire, QuestionnaireQuestion, type QuestionnaireInstance, type QuestionnaireQuestionOption, type QuestionnaireQuestionResponse} from "./state/QuestionnaireStore";
 import {PieChartSVG} from "./charts/PieChart";
 import {QuestionPage, QuestionnaireStyle} from "./QuestionnairePanel";
 import {type StoreId} from "../../../stemjs/state/State";
@@ -74,12 +74,14 @@ export interface QuestionSummaryOptions {
 @registerStyle(QuestionnaireAnswersStyle)
 class QuestionSummary extends UI.Element {
     declare options: ElementOptions<QuestionSummaryOptions>;
+    // One filter checkbox per answer option, keyed by the option it filters on
+    optionFilters: Record<StoreId, RawCheckboxInput> = {};
 
     getInstanceResponse(instance: QuestionnaireInstance) {
         return instance.getQuestionResponse(this.options.question.id);
     }
 
-    isOtherResponse(response) {
+    isOtherResponse(response: QuestionnaireQuestionResponse) {
         if (this.options.question.type === QuestionnaireQuestion.Type.SINGLE_CHOICE) {
             return (response.choiceIds || []).length === 0 && response.text;
         }
@@ -143,7 +145,7 @@ class QuestionSummary extends UI.Element {
                           {value: option => frequencyMap.get(option.id) || 0, headerName: UI.T("Votes")},
                           {value: (option, index) => <div style={{height: "20px", width: "20px", backgroundColor: ColorGenerator.getPersistentColor(index)}}/>,
                            headerName: UI.T("Color")},
-                          {value: (option) => <RawCheckboxInput ref={this.refLink("optionFilter" + option.id)} />, headerName: UI.T("Filter")}
+                          {value: (option) => <RawCheckboxInput ref={{parent: this.optionFilters, name: option.id}} />, headerName: UI.T("Filter")}
                       ]} />;
     }
     
@@ -193,10 +195,10 @@ class QuestionSummary extends UI.Element {
     onMount() {
         if (this.options.question.type !== QuestionnaireQuestion.Type.PLAIN_TEXT) {
             for (const option of this.getQuestionOptions()) {
-                this["optionFilter" + option.id].addChangeListener(() => {
+                this.optionFilters[option.id].addChangeListener(() => {
                     let acceptableChoices = [];
                     for (const choice of this.getQuestionOptions()) {
-                        if (this["optionFilter" + choice.id].getValue()) {
+                        if (this.optionFilters[choice.id].getValue()) {
                             acceptableChoices.push(choice.id);
                         }
                     }
@@ -264,7 +266,7 @@ class QuestionnaireSummaryWidget extends UI.Element {
     }
 
     onMount() {
-        this.addListener("updateFilter", (question, acceptableOptions) => {
+        this.addListener("updateFilter", (question: QuestionnaireQuestion, acceptableOptions: StoreId[]) => {
             this.options.filters[question.id] = acceptableOptions;
             this.redraw();
             this.dispatch("updateInstanceList", this.getInstances());
@@ -335,6 +337,8 @@ export interface QuestionnaireResponsesWidgetOptions {
 class QuestionnaireResponsesWidget extends UI.Element {
     declare options: ElementOptions<QuestionnaireResponsesWidgetOptions>;
     declare instanceSwitcher: QuestionnaireInstanceSwitcher;
+    // The instance picker's entries, keyed by the instance each one switches to
+    miniInstanceDivs: Record<StoreId, UIElement> = {};
     extraNodeAttributes(attr: NodeAttributes) {
         attr.addClass(this.styleSheet.questionnaireResponseWidget);
     }
@@ -353,7 +357,7 @@ class QuestionnaireResponsesWidget extends UI.Element {
 
         const allInstances = this.getInstances();
         for (const otherInstance of allInstances) {
-            const obj = this["miniInstanceDiv" + otherInstance.id];
+            const obj = this.miniInstanceDivs[otherInstance.id];
             if (instance === otherInstance) {
                 obj.setStyle("background-color", Theme.props.COLOR_INFO);
             } else {
@@ -369,7 +373,7 @@ class QuestionnaireResponsesWidget extends UI.Element {
     render() {
         const allInstances = this.getInstances();
         const miniResponses = allInstances.map(
-            instance => <div onClick={() => this.switchToInstance(instance)} ref={"miniInstanceDiv" + instance.id}
+            instance => <div onClick={() => this.switchToInstance(instance)} ref={{parent: this.miniInstanceDivs, name: instance.id}}
                              className={this.styleSheet.miniInstance}>
                             <UserHandle disableClick userId={instance.userId}/>
                         </div>
@@ -416,7 +420,7 @@ export class QuestionnaireAnswersPanel extends UI.Element {
     }
 
     onMount() {
-        this.questionnaireSummary.addListener("updateInstanceList", (instances) => {
+        this.questionnaireSummary.addListener("updateInstanceList", (instances: QuestionnaireInstance[]) => {
             this.questionnaireResponses.updateOptions({instances});
         })
     }

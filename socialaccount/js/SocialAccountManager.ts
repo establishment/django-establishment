@@ -18,8 +18,10 @@ class SocialAccountManager extends Dispatchable {
     declare options: SocialAccountManagerOptions;
     declare loaded: boolean;
     // Only ever constructed through a subclass, whose own constructor takes nothing
-    declare static _Global: SocialAccountManager;
+    declare static globalInstance: SocialAccountManager;
 
+    // options stays open: every subclass calls super with its own extended shape, and a constructor
+    // parameter cannot be typed against the class's own `options` field (TS17009)
     constructor(socialApp?: SocialApp, options?) {
         super();
         this.socialApp = socialApp;
@@ -40,18 +42,18 @@ class SocialAccountManager extends Dispatchable {
     }
 
     static getInstance() {
-        if (!this._Global) {
-            this._Global = new this();
+        if (!this.globalInstance) {
+            this.globalInstance = new this();
         }
-        return this._Global;
+        return this.globalInstance;
     }
 
     // TODO: all managers should call the onError function (if one is passed in) to report issues
-    static login(callback, onError) {
+    static login(callback?: () => void, onError?: (error: unknown) => void) {
         this.getInstance().login(...arguments);
     }
 
-    static connect(callback?, onError?) {
+    static connect(callback?: () => void, onError?: (error: unknown) => void) {
         this.getInstance().connect(...arguments);
     }
 }

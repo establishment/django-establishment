@@ -9,7 +9,7 @@ class GithubManager extends SocialAccountManager {
         });
     }
 
-    login(callback) {
+    login(callback: (event: BeforeUnloadEvent) => void) {
         const githubUri = "https://github.com/login/oauth/authorize";
 
         const params = new URLSearchParams({

@@ -25,6 +25,11 @@ export interface PlotOptions {
     yCoordinateAlias: (point: any) => number;
 }
 
+// A chart's points are whatever its plot's pointsAlias pulled out of the data, and each axis reads one
+// coordinate off them - both are the caller's shapes, which is why the aliases exist
+export type ChartPoint = ReturnType<PlotOptions["pointsAlias"]>[number];
+export type CoordinateAlias = PlotOptions["xCoordinateAlias"];
+
 // What an axis needs to draw itself
 export interface ChartAxisOptions {
     orientation: DirectionType;
@@ -238,8 +243,8 @@ export class BasicChart extends SVGGroup {
     declare interactiveLayer: SVGRect;
 
     declare options: ExtendedOptions<SVGGroup, BasicChartOptions>;
-    declare _initialXScale: ContinuousScale;
-    declare _initialYScale: ContinuousScale;
+    declare initialXScale: ContinuousScale;
+    declare initialYScale: ContinuousScale;
     declare clipPath: string;
     declare xAxisOptions: ChartAxisOptions;
     declare yAxisOptions: ChartAxisOptions;
@@ -264,7 +269,7 @@ export class BasicChart extends SVGGroup {
         };
     }
 
-    normalizePadding(padding) {
+    normalizePadding(padding: number[]) {
         if (!Array.isArray(padding)) {
             return null;
         }
@@ -283,7 +288,7 @@ export class BasicChart extends SVGGroup {
         }
     }
 
-    getPaddedDomain(domain, padding) {
+    getPaddedDomain(domain: number[], padding: number[]) {
         let domainLength = domain[1] - domain[0];
         return [domain[0] - padding[0] * domainLength, domain[1] + padding[1] * domainLength];
     }
@@ -315,7 +320,7 @@ export class BasicChart extends SVGGroup {
                 .domain(this.options.xAxisDomain)
                 .range([0, this.options.chartOptions.width])
         };
-        this._initialXScale = this.xAxisOptions.scale.copy();
+        this.initialXScale = this.xAxisOptions.scale.copy();
         if (this.options.xAxisLabelFormatFunction) {
             this.xAxisOptions.labelFormatFunction = this.options.xAxisLabelFormatFunction;
         }
@@ -326,7 +331,7 @@ export class BasicChart extends SVGGroup {
                 .domain(this.options.yAxisDomain)
                 .range([this.options.chartOptions.height, 0])
         };
-        this._initialYScale = this.yAxisOptions.scale.copy();
+        this.initialYScale = this.yAxisOptions.scale.copy();
         if (this.options.yAxisLabelFormatFunction) {
             this.yAxisOptions.labelFormatFunction = this.options.yAxisLabelFormatFunction;
         }
@@ -375,8 +380,8 @@ export class BasicChart extends SVGGroup {
         this.zoomListener = (event) => {
             if (this.options.applyZoom) {
                 // d3 types rescaleX as answering with the narrower ZoomScale, though it copies what it was given
-                this.xAxisOptions.scale = event.transform.rescaleX(this._initialXScale);
-                this.yAxisOptions.scale = event.transform.rescaleY(this._initialYScale);
+                this.xAxisOptions.scale = event.transform.rescaleX(this.initialXScale);
+                this.yAxisOptions.scale = event.transform.rescaleY(this.initialYScale);
                 this.redraw();
                 if (!event.sourceEvent) {
                     // Custom zoom event
@@ -399,7 +404,8 @@ export class BasicChart extends SVGGroup {
         }
     }
 
-    addZoomListener(func) {
+    // Nothing dispatches "zoom" on the chart: the d3 behaviour calls zoomListener, which redraws directly
+    addZoomListener(func: () => void) {
         this.addListener("zoom", func);
     }
 }
@@ -428,19 +434,19 @@ export class TimeChart extends BasicChart {
     }
 
     getTimeFormat() {
-        return (unixTime) => {
+        return (unixTime: number) => {
             let date = new StemDate(unixTime);
-            var formatTypes = [
-                {name: "Seconds", continueSubdivisionOnValue: 0, format: "HH:mm:ss"},
-                {name: "Minutes", continueSubdivisionOnValue: 0, format: "HH:mm"},
-                {name: "Hours", continueSubdivisionOnValue: 0, format: "HH:mm"},
-                {name: "Date", continueSubdivisionOnValue: 1, format: "DD/MMM"},
-                {name: "Month", continueSubdivisionOnValue: 0, format: "MMM"}
+            // The coarsest unit whose value is not its own zero point is what the label shows
+            const formatTypes = [
+                {getValue: (date: StemDate) => date.getSeconds(), continueSubdivisionOnValue: 0, format: "HH:mm:ss"},
+                {getValue: (date: StemDate) => date.getMinutes(), continueSubdivisionOnValue: 0, format: "HH:mm"},
+                {getValue: (date: StemDate) => date.getHours(), continueSubdivisionOnValue: 0, format: "HH:mm"},
+                {getValue: (date: StemDate) => date.getDate(), continueSubdivisionOnValue: 1, format: "DD/MMM"},
+                {getValue: (date: StemDate) => date.getMonth(), continueSubdivisionOnValue: 0, format: "MMM"}
             ];
 
             for (let i = 0; i < formatTypes.length; i += 1) {
-                // TODO: this is a bit hacky, should be cleaner (maybe included in Date)
-                let subdivisionValue = date["get" + formatTypes[i].name]();
+                let subdivisionValue = formatTypes[i].getValue(date);
                 if (subdivisionValue !== formatTypes[i].continueSubdivisionOnValue) {
                     return date.format(formatTypes[i].format);
                 }
@@ -450,7 +456,7 @@ export class TimeChart extends BasicChart {
         };
     }
 
-    getMinMaxDomain(points, coordinateAlias, padding) {
+    getMinMaxDomain(points: ChartPoint[], coordinateAlias: CoordinateAlias, padding: number) {
         let domain = [coordinateAlias(points[0]), coordinateAlias(points[0])];
         points.forEach((point) => {
             domain[0] = Math.min(domain[0], coordinateAlias(point));
@@ -467,18 +473,18 @@ export class TimeChart extends BasicChart {
         return [+StemDate.now() - padding, +StemDate.now() + padding];
     }
 
-    getXAxisDomain(points, coordinateAlias, padding=this.options.paddingXOnNoPoints) {
+    getXAxisDomain(points: ChartPoint[], coordinateAlias: CoordinateAlias, padding=this.options.paddingXOnNoPoints) {
         if (!Array.isArray(points) || points.length === 0) {
             return this.defaultXNoPoints(padding);
         }
         return this.getMinMaxDomain(points, coordinateAlias, padding);
     }
 
-    defaultYNoPoints(padding) {
+    defaultYNoPoints(padding: number) {
         return [-padding, padding];
     }
 
-    getYAxisDomain(points, coordinateAlias, padding=this.options.paddingYOnNoPoints) {
+    getYAxisDomain(points: ChartPoint[], coordinateAlias: CoordinateAlias, padding=this.options.paddingYOnNoPoints) {
         if (!Array.isArray(points) || points.length === 0) {
             return this.defaultYNoPoints(padding);
         }
@@ -517,8 +523,8 @@ export class TimeChart extends BasicChart {
                     .translate(Math.min(0, Math.max(x, this.options.chartOptions.width * (1 - k))),
                                Math.min(0, Math.max(y, this.options.chartOptions.height * (1 - k))))
                     .scale(k);
-                this.xAxisOptions.scale = transform.rescaleX(this._initialXScale);
-                this.yAxisOptions.scale = transform.rescaleY(this._initialYScale);
+                this.xAxisOptions.scale = transform.rescaleX(this.initialXScale);
+                this.yAxisOptions.scale = transform.rescaleY(this.initialYScale);
                 this.redraw();
                 this.interactiveLayer.node.__zoom = transform;
             }

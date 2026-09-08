@@ -1,5 +1,6 @@
 import {type ColumnHandler, type ColumnInput} from "../../../stemjs/base/ColumnHandler";
-import {UI, type ExtendedOptions, type ElementOptions, type NodeAttributes} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type NodeAttributes, type PartialOptions} from "../../../stemjs/ui/UIBase";
+import {type StoreId} from "../../../stemjs/state/State";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {ButtonGroup} from "../../../stemjs/ui/button/ButtonGroup";
@@ -182,7 +183,7 @@ class CreateArticleModal extends ActionModal {
         ];
     }
 
-    createArticle(options?) {
+    createArticle(options?: object) {
         let name = this.articleNameInput.getValue();
         let dependency = this.dependencyInput.getValue();
         let languageId = this.languageSelect.get().id;
@@ -338,7 +339,7 @@ class ArticleTable extends SortableTable {
         this.columnSortingOrder = [columns[4], columns[5], columns[0], columns[3], columns[2], columns[1]];
     }
 
-    getArticleIndex(articleId) {
+    getArticleIndex(articleId: StoreId) {
         for (let i = 0; i < this.options.articles.length; i += 1) {
             if (this.options.articles[i].id === articleId)
                 return i;
@@ -439,7 +440,7 @@ export interface ArticleManagerOptions {
 class ArticleManager extends UI.Element {
     declare options: ElementOptions<ArticleManagerOptions>;
 
-    getDefaultOptions() {
+    getDefaultOptions(): PartialOptions<ArticleManager> {
         return {
             title: "Article manager",
             articles: [],
@@ -448,7 +449,7 @@ class ArticleManager extends UI.Element {
 
     extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
-        attr.addClass(GlobalStyle.Container.SMALL);
+        attr.addClass(GlobalStyle.Container.sm);
     }
 
     setOptions(options: typeof this.options) {

@@ -18,7 +18,7 @@ import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 import {type StoreId} from "../../../stemjs/state/State";
 
 
-const formatMiniMessageLastTime = (timeStamp) => {
+const formatMiniMessageLastTime = (timeStamp: StemDate) => {
     const presentTimeStamp = StemDate.now();
     const fullDateFormat = "DD/MM/YYYY";
     if (presentTimeStamp.format(fullDateFormat) === timeStamp.format(fullDateFormat)) {
@@ -39,7 +39,7 @@ function getUserMessagesUrl(userId: StoreId) {
 }
 
 export interface MiniMessageOptions {
-    backgroundColorActive?: boolean;
+    backgroundColorActive?: string;
     list?: MessagesList;
     privateChatId?: StoreId;
 }
@@ -181,7 +181,8 @@ class UserSearchInput extends UI.Element {
         ];
     }
 
-    updateList(listItems?) {
+    // What the username-prefix search answers with, straight off the wire
+    updateList(listItems?: {id: StoreId; username: string}[]) {
         if (!listItems) {
             this.window.options.children = [];
             this.window.redraw();

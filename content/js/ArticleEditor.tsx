@@ -37,7 +37,7 @@ class ArticleMarkupEditor extends MarkupEditor {
         return <ArticleRenderer ref={this.refLink("markupRenderer")} article={this.options.article} style={{flex:"1", height: "100%", overflow: "auto"}} />
     }
 
-    updateValue(markup) {
+    updateValue(markup: string) {
         this.options.article.markup = markup;
         super.updateValue(markup);
     }
@@ -268,7 +268,7 @@ class ArticleEditor extends UI.Element {
         ];
     }
 
-    saveMarkup(content) {
+    saveMarkup(content: string) {
         let request = {
             markup: content
         };
@@ -287,7 +287,7 @@ class ArticleEditor extends UI.Element {
         );
     }
 
-    saveOptions(options) {
+    saveOptions(options: object) {
         let request = {};
         Object.assign(request, options);
 
@@ -299,7 +299,7 @@ class ArticleEditor extends UI.Element {
         );
     }
 
-    setOwner(newOwner) {
+    setOwner(newOwner: string) {
         this.setOwnerMessageArea.showMessage("Saving...", "black", null);
         this.setOwnerButton.postJSON("/article/" + this.options.articleId + "/set_owner/", {
             newOwner: newOwner
@@ -309,7 +309,7 @@ class ArticleEditor extends UI.Element {
         );
     }
 
-    addNewVersion(content) {
+    addNewVersion(content: string) {
         this.versionsLabels[0] = ("Version " + this.versionsLabels.length);
         this.versions[0] = content;
 

@@ -120,7 +120,7 @@ export class LoginWidget extends UI.Element {
         ];
     }
 
-    setErrorMessage(error, isError=true) {
+    setErrorMessage(error: {message: string}, isError: boolean = true) {
         this.loginErrorMessage.showMessage(error.message, isError? Theme.props.COLOR_DANGER : "#000", ERROR_TIMEOUT);
     }
 

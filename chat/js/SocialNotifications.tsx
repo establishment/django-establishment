@@ -133,7 +133,7 @@ class NotificationsList extends UI.Element {
         Ajax.getJSON("/accounts/get_user_notifications/", {});
     }
 
-    insertChild(child, position) {
+    insertChild(child: UIElement, position?: number) {
         position = position || 0;
 
         this.options.children.splice(position, 0, child);
@@ -143,7 +143,7 @@ class NotificationsList extends UI.Element {
         return child;
     }
 
-    handleNewNotification(notification) {
+    handleNewNotification(notification: UserNotification) {
         if (this.displayedNotifications.has(notification)) {
             return;
         }
@@ -173,7 +173,7 @@ class NotificationsList extends UI.Element {
         })) {
             this.handleNewNotification(notification);
         }
-        this.attachCreateListener(UserNotification, (notification) => {
+        this.attachCreateListener(UserNotification, (notification: UserNotification) => {
             this.handleNewNotification(notification);
         });
     }

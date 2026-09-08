@@ -30,7 +30,7 @@ class ArticleTabArea extends TabArea {
         };
     }
 
-    getArticleUrl(articleEntry) {
+    getArticleUrl(articleEntry: ArticleEntry) {
         let url = this.options.path;
         if (!url.endsWith("/")) {
             url += "/";
@@ -38,6 +38,7 @@ class ArticleTabArea extends TabArea {
         return url + articleEntry.url + "/";
     }
 
+    // Left open: an entry stands in for the panel the base's signature names, as getChildrenToRender says
     onSetActive(articleEntry) {
         this.switcherArea.setActiveArticleId(articleEntry.articleId);
         Router.changeURL(this.getArticleUrl(articleEntry));

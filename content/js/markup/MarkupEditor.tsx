@@ -1,5 +1,5 @@
 import {UI, type ElementOptions, type UIElement, type NodeAttributes} from "../../../../stemjs/ui/UIBase";
-import {MarkupRenderer, type MarkupClassMap, type MarkupRendererOptions} from "../../../../stemjs/markup/MarkupRenderer";
+import {MarkupRenderer, type MarkupClassMap, type MarkupRendererOptions, type MarkupValue} from "../../../../stemjs/markup/MarkupRenderer";
 
 
 import {TextArea} from "../../../../stemjs/ui/input/Input";
@@ -81,12 +81,12 @@ class MarkupEditor extends UI.Element {
         ]
     }
 
-    updateValue(markup) {
+    updateValue(markup: MarkupValue) {
         this.markupRenderer.setValue(markup);
         this.markupRenderer.redraw();
     }
 
-    appendValue(markup, separator="\n") {
+    appendValue(markup: string, separator="\n") {
         let value = this.getValue();
         if (value && separator != null) {
             value += separator;

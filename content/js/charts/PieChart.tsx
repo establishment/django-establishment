@@ -47,7 +47,7 @@ class PieChartSector extends SVGGroup {
         this.options.opacity = this.options.opacity || this.options.startOpacity;
     }
 
-    getArcPoint(angle, radius, orientation) {
+    getArcPoint(angle: number, radius: number, orientation: number) {
         let spacing = this.options.spacing;
         let center = this.options.center;
 
@@ -105,7 +105,7 @@ class PieChartSector extends SVGGroup {
         return this.getArcPoint(startAngle + angleSpan / 2, (innerRadius + outerRadius) / 2, -1);
     }
 
-    changeRadiusTransition(extra, duration: number) {
+    changeRadiusTransition(extra: number, duration: number) {
         return new Transition({
             func: (t) => {
                 this.path.setPath(this.getPath(t * extra));

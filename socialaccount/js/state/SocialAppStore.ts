@@ -13,7 +13,7 @@ export class SocialApp extends BaseStore("SocialApp") {
         return this.all();
     }
 
-    static getSocialAppByName(name) {
+    static getSocialAppByName(name: string) {
         return this.all().find(socialApp => socialApp.name === name);
     }
 }

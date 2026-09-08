@@ -1,4 +1,5 @@
 import {UI, type ElementOptions, type UIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
+import {type StoreId} from "../../../stemjs/state/State";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
 import {FormField, Form} from "../../../stemjs/ui/form/Form";
 import {TextInput} from "../../../stemjs/ui/input/Input";
@@ -195,7 +196,7 @@ export class SecuritySettingsPanel extends UI.Element {
             return;
         }
 
-        let request = {
+        let request: {newPassword: string; oldPassword?: string} = {
             newPassword: password1
         };
         if (oldPassword) {
@@ -330,7 +331,7 @@ export class EmailPanel extends UI.Element {
         );
     }
 
-    removeEmail(email) {
+    removeEmail(email: string) {
         let request = {
             email: email
         };
@@ -347,7 +348,7 @@ export class EmailPanel extends UI.Element {
         );
     }
 
-    makePrimaryEmail(email) {
+    makePrimaryEmail(email: string) {
         let request = {
             email: email
         };
@@ -360,13 +361,13 @@ export class EmailPanel extends UI.Element {
         );
     }
 
-    sendConfirmation(email) {
+    sendConfirmation(email: string) {
         Ajax.postJSON("/accounts/email_address_verification_send/", {
             email: email
         });
     }
 
-    changeEmailSubscription(receivesEmailAnnouncements) {
+    changeEmailSubscription(receivesEmailAnnouncements: boolean) {
         Ajax.postJSON("/accounts/profile_changed/", {
             receivesEmailAnnouncements: receivesEmailAnnouncements
         });
@@ -442,7 +443,7 @@ export class SocialAccountsPanel extends UI.Element {
 
     }
 
-    removeSocialAccount(socialAccountId) {
+    removeSocialAccount(socialAccountId: StoreId) {
         Ajax.postJSON("/accounts/remove_social_account/", {
             socialAccountId: socialAccountId
         }).then(
@@ -458,13 +459,15 @@ export class SocialAccountsPanel extends UI.Element {
 export class UserSettingsPanel extends UI.Element {
     declare initialUrlParts: string[];
     declare tabArea: TabArea;
+    // Keyed by the url segment that selects the tab, which a subclass adds to by rendering more panels
+    panels: Record<string, UIElement> = {};
 
     extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
         attr.setStyle({
             height: "500px"
         });
-        attr.addClass(GlobalStyle.Container.SMALL);
+        attr.addClass(GlobalStyle.Container.sm);
     }
 
     getUrlPrefix(str: string) {
@@ -483,12 +486,8 @@ export class UserSettingsPanel extends UI.Element {
         }
     }
 
-    showUrlTab(tabName) {
-        if (this[tabName + "UI.Element"]) {
-            this[tabName + "UI.Element"].dispatch("show");
-        } else {
-            this["generalPanel"].dispatch("show");
-        }
+    showUrlTab(tabName: string) {
+        (this.panels[tabName] || this.panels.general).dispatch("show");
     }
 
     getUser() {
@@ -499,13 +498,13 @@ export class UserSettingsPanel extends UI.Element {
     getPanels(): UIElement[] {
         return [
             <GeneralInformationPanel title={UI.T("General Info")} active={true}
-                                     user={this.getUser()} ref="generalPanel" tabHref={this.getUrlPrefix("general")} />,
+                                     user={this.getUser()} ref={{parent: this.panels, name: "general"}} tabHref={this.getUrlPrefix("general")} />,
             <EmailPanel title={UI.T("Email")} user={this.getUser()}
-                        ref="emailPanel" tabHref={this.getUrlPrefix("email")} />,
+                        ref={{parent: this.panels, name: "email"}} tabHref={this.getUrlPrefix("email")} />,
             <SocialAccountsPanel title={UI.T("Social accounts")} user={this.getUser()}
-                        ref="socialPanel" tabHref={this.getUrlPrefix("social")} />,
+                        ref={{parent: this.panels, name: "social"}} tabHref={this.getUrlPrefix("social")} />,
             <SecuritySettingsPanel title={UI.T("Security")}
-                                   user={this.getUser()} ref="securityPanel" tabHref={this.getUrlPrefix("security")} />
+                                   user={this.getUser()} ref={{parent: this.panels, name: "security"}} tabHref={this.getUrlPrefix("security")} />
         ];
     }
 
