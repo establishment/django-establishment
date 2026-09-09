@@ -38,7 +38,8 @@ class ArticleTabArea extends TabArea {
         return url + articleEntry.url + "/";
     }
 
-    // Left open: an entry stands in for the panel the base's signature names, as getChildrenToRender says
+    // Left open, here and in createTabTitle: an entry stands in for the panel the base's signature names,
+    // as getChildrenToRender says, and BasicTabTitle's own panel option is a UIElement
     onSetActive(articleEntry) {
         this.switcherArea.setActiveArticleId(articleEntry.articleId);
         Router.changeURL(this.getArticleUrl(articleEntry));
