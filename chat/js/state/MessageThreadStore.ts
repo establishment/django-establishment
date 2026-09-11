@@ -247,6 +247,7 @@ export class MessageThread extends BaseStore("MessageThread") {
 
     deleteMessageInstance(messageInstance: MessageInstance): void {
         this.messages.delete(messageInstance.id);
+        this.dispatch("deleteMessage", messageInstance);
     }
 
     applyEvent(event: StoreEvent): void {

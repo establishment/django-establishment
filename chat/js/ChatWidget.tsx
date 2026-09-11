@@ -497,7 +497,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
         this.addListener("hide", () => {this.saveScrollPosition();});
         this.addListener("show", () => {this.applyScrollPosition();});
 
-        window.addEventListener("resize", () => {
+        this.attachEventListener(window, "resize", () => {
             this.saveScrollPosition();
             this.setAdaptiveHeight();
         });

@@ -12,6 +12,17 @@ const State = {
 };
 
 
+// The slice of the YouTube iframe API this uses. Declared rather than depended on: the script is loaded
+// from Youtube at runtime, and only these three members are ever touched
+interface YoutubePlayer {
+    addEventListener(event: string, callback: (...args: any[]) => void, ...extraArgs: unknown[]): void;
+    destroy(): void;
+}
+
+interface YoutubeAPI {
+    Player: new (node: HTMLElement, options: {height?: number | string; width?: number | string; videoId?: string}) => YoutubePlayer;
+}
+
 export interface YoutubeIframeOptions {
     videoId?: string;
 }
@@ -20,10 +31,10 @@ export class YoutubeIframe extends UI.Element {
     declare options: ElementOptions<YoutubeIframeOptions>;
     // Listener registrations queued until the player exists: the event, the callback, extra arguments
     declare _delayedListeners?: [event: string, callback: (...args: any[]) => void, ...extraArgs: unknown[]][];
-    declare player: any;
+    declare player: YoutubePlayer;
     // Run once the YT global has loaded, then dropped
     declare static _registeredCallbacks?: (() => void)[];
-    declare static youtubeAPI: any;
+    declare static youtubeAPI: YoutubeAPI;
 
     static PLAYER_EVENTS = ["onReady", "onStateChange", "onPlaybackQualityChange", "onPlaybackRateChange", "onError", "onApiChange"];
     static YOUTUBE_API_STATE = State.NOT_STARTED;

@@ -3,6 +3,7 @@ import {BaseStore, globalStore, StoreObject} from "../../../../stemjs/state/Stor
 import {GlobalState, type StoreEvent, type StoreId} from "../../../../stemjs/state/State";
 import {Ajax} from "../../../../stemjs/base/Ajax";
 import {MessageThread} from "./MessageThreadStore";
+import {type FetchErrorHandler} from "../../../../stemjs/base/Fetch";
 
 export class BaseChatObject extends StoreObject {
     declare messageThreadId: number;
@@ -60,7 +61,7 @@ export class PrivateChat extends BaseStore("PrivateChat", {}, BaseChatObject) {
         return null;
     }
 
-    static fetchForUser(userId: StoreId, onSuccess: (chat: PrivateChat) => void, onError?: (error: any) => void): void {
+    static fetchForUser(userId: StoreId, onSuccess: (chat: PrivateChat) => void, onError?: FetchErrorHandler): void {
         Ajax.postJSON("/chat/private_chat_state/", {
             userId: userId,
         }).then(

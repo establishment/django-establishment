@@ -18,6 +18,7 @@ import {ArticleRenderer} from "./ArticleRenderer";
 import {MarkupEditor} from "./markup/MarkupEditor";
 
 
+
 const deleteRedirectLink = "/";
 
 export interface ArticleMarkupEditorOptions {
@@ -98,6 +99,9 @@ interface ArticleDiffWidget extends UIElement {
 }
 
 class ArticleEditor extends UI.Element {
+    // Set by the app (CSAApp), so the diff widget's own dependency stays out of establishment. Left open
+    // because it is written as a JSX tag: the extra options a tag accepts come from the $stemJsxOptions
+    // ts-plugin/ emits per class, and an interface named here is not a class it ever sees
     declare static DiffWidgetClass?: any;
 
     declare options: ElementOptions<ArticleEditorOptions>;
