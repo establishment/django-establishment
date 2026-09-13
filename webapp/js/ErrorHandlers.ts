@@ -4,7 +4,7 @@ import {StoreObject} from "../../../stemjs/state/Store";
 
 import {ErrorMessage} from "./state/ErrorMessageStore";
 
-export type ErrorInput = string | Error | StoreObject | ErrorMessage | {
+export type ErrorInput = string | Error | ErrorMessage | {
     id?: string | number;
     name?: string;
     message?: string;
@@ -12,13 +12,13 @@ export type ErrorInput = string | Error | StoreObject | ErrorMessage | {
 };
 
 interface ErrorHandlersInterface {
-    wrapError(error: ErrorInput): StoreObject | ErrorMessage;
+    wrapError(error: ErrorInput): ErrorMessage;
     showErrorAlert(error: ErrorInput): void;
-    PAGE_NOT_FOUND: StoreObject | ErrorMessage;
+    PAGE_NOT_FOUND: ErrorMessage;
 }
 
 export const ErrorHandlers: ErrorHandlersInterface = {
-    wrapError: (error: ErrorInput): StoreObject | ErrorMessage => {
+    wrapError: (error: ErrorInput): ErrorMessage => {
         if (error instanceof StoreObject) {
             return error;
         }
