@@ -1,4 +1,5 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {field} from "../../../../stemjs/state/StoreField";
 import {type StoreId} from "../../../../stemjs/state/State";
 import {Article} from "../../../content/js/state/Article";
 
@@ -9,11 +10,11 @@ export class BlogEntry extends BaseStore("BlogEntry", {dependencies: ["Article"]
     declare discussionId?: StoreId;
     declare visible: boolean;
 
-    declare articleId?: StoreId;
+    @field(Article) article;
     declare urlName: string;
 
     getArticle() {
-        return Article.get(this.articleId);
+        return this.article;
     }
 
     static getEntryForURL(urlName: string) {

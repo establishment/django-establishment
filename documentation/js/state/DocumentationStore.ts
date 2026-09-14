@@ -1,4 +1,5 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {field} from "../../../../stemjs/state/StoreField";
 import {Article} from "../../../content/js/state/Article";
 
 
@@ -6,7 +7,7 @@ import {Article} from "../../../content/js/state/Article";
 export class DocumentationEntry extends BaseStore("DocumentationEntry") {
     declare articleId: number;
     declare name?: string;
-    declare parentId?: number;
+    @field("self") parent?: DocumentationEntry;
     declare id: number;
     declare parentIndex: number;
     declare urlName?: string;
@@ -17,7 +18,7 @@ export class DocumentationEntry extends BaseStore("DocumentationEntry") {
     }
 
     getParent() {
-        return DocumentationEntry.get(this.parentId);
+        return this.parent;
     }
 
     toString() {

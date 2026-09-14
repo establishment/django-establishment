@@ -1,6 +1,7 @@
 import {Ajax} from "../../../../stemjs/base/Ajax";
 import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {field} from "../../../../stemjs/state/StoreField";
 import {type StoreEvent} from "../../../../stemjs/state/State";
 
 import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
@@ -56,13 +57,13 @@ export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum
     declare id: number;
     declare numViews: number;
 
-    declare authorId: number;
-    declare contentMessageId: number;
+    @field(PublicUser) author;
+    @field(MessageInstance) contentMessage;
     declare hidden?: boolean;
     declare lastActive: number;
-    declare messageThreadId: number;
+    @field("MessageThread") messageThread: MessageThread;
     declare numMessages: number;
-    declare parentId: StoreId;
+    @field(Forum) parent;
     declare pinnedIndex?: number;
     declare timeAdded: number;
     declare title: string;
@@ -75,7 +76,7 @@ export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum
     }
 
     getAuthor() {
-        return PublicUser.get(this.authorId);
+        return this.author;
     }
 
     isPinned() {
@@ -91,7 +92,7 @@ export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum
     }
 
     getContentMessage() {
-        return MessageInstance.get(this.contentMessageId);
+        return this.contentMessage;
     }
 
     getVotesBalance() {
@@ -103,11 +104,11 @@ export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum
     }
 
     getParent() {
-        return Forum.get(this.parentId);
+        return this.parent;
     }
 
     getMessageThread() {
-        return MessageThread.get(this.messageThreadId);
+        return this.messageThread;
     }
 
     getTimeAdded() {

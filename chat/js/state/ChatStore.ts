@@ -6,6 +6,8 @@ import {MessageThread} from "./MessageThreadStore";
 import {type FetchErrorHandler} from "../../../../stemjs/base/Fetch";
 
 export class BaseChatObject extends StoreObject {
+    // Not a @field: this is a plain StoreObject base rather than a store, so it has no registry entry
+    // for the plugin to hang a raw id on, and declaring one breaks every StemStoreRegistry lookup
     declare messageThreadId: number;
 
     getMessageThread(): MessageThread | undefined {
@@ -23,6 +25,8 @@ export class GroupChat extends FetchStoreMixin("GroupChat", {
     fetchURL: "/chat/group_chat_state/",
     maxFetchObjectCount: 1,
 }, BaseChatObject) {
+    declare id: number;
+
     static getFetchRequestData(entries: [StoreId, FetchJob<any>[]][]) {
         return {
             chatId: entries.map(entry => entry[0])[0],

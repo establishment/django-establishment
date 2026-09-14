@@ -1,5 +1,6 @@
 import {FetchStoreMixin} from "../../../../stemjs/state/mixins/FetchStoreMixin";
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {field} from "../../../../stemjs/state/StoreField";
 
 import {User} from "../../../../csaaccounts/js/state/UserStore";
 import {Language} from "../../../localization/js/state/LanguageStore";
@@ -10,6 +11,7 @@ export class Article extends FetchStoreMixin("Article", {
     fetchURL: "/fetch_article/",
     maxFetchObjectCount: 32,
 }) {
+    declare id: number;
     declare dateCreated: number;
     declare dateModified: number;
     declare dependency: string;
@@ -71,10 +73,10 @@ export class ArticleEdit extends BaseStore("articleedit", {dependencies: ["artic
     declare version: number;
     declare dateModified: number;
 
-    declare articleId: number;
+    @field(Article) article;
 
-    getArticle(): Article | null {
-        return Article.get(this.articleId);
+    getArticle(): Article {
+        return this.article;
     }
 }
 

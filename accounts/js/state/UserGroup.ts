@@ -1,9 +1,11 @@
 import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {field} from "../../../../stemjs/state/StoreField";
 import {type StoreEvent, type StoreId} from "../../../../stemjs/state/State";
 
 @globalStore
 export class UserGroup extends BaseStore("UserGroup") {
+    declare id: number;
     declare name: string;
     members: Map<StoreId, UserGroupMember> = new Map();
     membersByUserId: Map<StoreId, UserGroupMember> = new Map();
@@ -50,8 +52,8 @@ export class UserGroup extends BaseStore("UserGroup") {
 export class UserGroupMember extends BaseStore("UserGroupMember", {
     dependencies: ["UserGroup"]
 }) {
-    declare userId: number;
-    declare groupId: StoreId;
+    @field(PublicUser) user;
+    @field(UserGroup) group;
 
     constructor(obj: any, event?: StoreEvent) {
         super(obj, event);
@@ -62,11 +64,11 @@ export class UserGroupMember extends BaseStore("UserGroupMember", {
         this.getGroup()?.removeMemberByUserId(this.userId);
     }
 
-    getGroup(): UserGroup | undefined {
-        return UserGroup.get(this.groupId);
+    getGroup(): UserGroup {
+        return this.group;
     }
 
     getPublicUser() {
-        return PublicUser.get(this.userId);
+        return this.user;
     }
 }

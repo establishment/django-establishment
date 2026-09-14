@@ -2,6 +2,7 @@ import {Ajax} from "../../../../stemjs/base/Ajax";
 import {GlobalState, type StoreEvent, type StoreId, type StoreObjectType} from "../../../../stemjs/state/State";
 import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 import {BaseStore, globalStore} from "../../../../stemjs/state/Store";
+import {field} from "../../../../stemjs/state/StoreField";
 import {VirtualObjectStoreMixin} from "../../../../stemjs/state/mixins/VirtualObjectStoreMixin";
 import {StemDate} from "../../../../stemjs/time/Date";
 import {ServerTime} from "../../../../stemjs/time/Time";
@@ -23,7 +24,8 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     declare content: string;
     declare timeAdded: number;
     declare userId: number;
-    declare messageThreadId: number;
+    // Named rather than passed: MessageThread is declared below this class
+    @field("MessageThread") messageThread: MessageThread;
     declare reactionCollectionId?: number;
     declare temporaryId?: number;
     declare meta: Record<string, any>;
@@ -62,7 +64,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     }
 
     getMessageThread(): MessageThread | undefined {
-        return MessageThread.get(this.messageThreadId);
+        return this.messageThread;
     }
 
     getReactionCollection(fakeIfMissing: boolean = false): ReactionCounts {

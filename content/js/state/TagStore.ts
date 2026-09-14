@@ -1,12 +1,14 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {field} from "../../../../stemjs/state/StoreField";
 
 @globalStore
 export class Tag extends BaseStore("Tag") {
     static _caseSensitiveCache?: Map<string, Tag>;
     static _caseInsensitiveCache?: Map<string, Tag>;
 
+    declare id: number;
     declare name: string;
-    declare parentId?: number;
+    @field("self") parent?: Tag;
 
     toString(): string {
         let result = this.name;
@@ -18,7 +20,7 @@ export class Tag extends BaseStore("Tag") {
     }
 
     getParent(): Tag | null {
-        return Tag.get(this.parentId);
+        return this.parent;
     }
 
     getDepth(): number {

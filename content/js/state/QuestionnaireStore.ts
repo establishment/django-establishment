@@ -1,10 +1,12 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
+import {field} from "../../../../stemjs/state/StoreField";
 import {type StoreId} from "../../../../stemjs/state/State";
 import {multikeySort} from "../../../../stemjs/base/Utils";
 
 
 @globalStore
 export class Questionnaire extends BaseStore("questionnaire") {
+    declare id: number;
     declare title?: string;
     questions: QuestionnaireQuestion[] = [];
 
@@ -24,6 +26,7 @@ export class Questionnaire extends BaseStore("questionnaire") {
 
 @globalStore
 export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {dependencies: ["questionnaire"]}) {
+    declare id: number;
     declare otherChoice: boolean;
 
     static Type = {
@@ -32,14 +35,14 @@ export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {d
         MULTIPLE_CHOICE: 3
     };
 
-    declare questionnaireId: number;
+    @field(Questionnaire) questionnaire;
     declare priority: number;
     declare text?: string;
     declare type?: number;
     options: QuestionnaireQuestionOption[] = [];
 
-    getQuestionnaire(): Questionnaire | null {
-        return Questionnaire.get(this.questionnaireId);
+    getQuestionnaire(): Questionnaire {
+        return this.questionnaire;
     }
 
     constructor(obj?: any) {
@@ -69,7 +72,7 @@ export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {d
 export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestionOption", {dependencies: ["questionnairequestion"]}) {
     declare answer: string;
 
-    declare questionId: number;
+    @field(QuestionnaireQuestion) question;
     declare priority: number;
     declare text?: string;
 
@@ -79,8 +82,8 @@ export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestio
         question?.addOption(this);
     }
 
-    getQuestion(): QuestionnaireQuestion | null {
-        return QuestionnaireQuestion.get(this.questionId);
+    getQuestion(): QuestionnaireQuestion {
+        return this.question;
     }
 }
 
@@ -89,12 +92,12 @@ export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestio
 export class QuestionnaireInstance extends BaseStore("QuestionnaireInstance", {dependencies: ["questionnaire", "questionnairequestion", "QuestionnaireQuestionOption"]}) {
     declare dateSubmitted?: number;
 
-    declare questionnaireId: number;
+    @field(Questionnaire) questionnaire;
     declare userId: number;
     questionResponses: Map<StoreId, QuestionnaireQuestionResponse> = new Map();
 
-    getQuestionnaire(): Questionnaire | null {
-        return Questionnaire.get(this.questionnaireId);
+    getQuestionnaire(): Questionnaire {
+        return this.questionnaire;
     }
 
     addQuestionResponse(questionResponse: QuestionnaireQuestionResponse): void {
@@ -113,7 +116,7 @@ export class QuestionnaireInstance extends BaseStore("QuestionnaireInstance", {d
 
 @globalStore
 export class QuestionnaireQuestionResponse extends BaseStore("QuestionnaireQuestionResponse", {dependencies: ["QuestionnaireInstance"]}) {
-    declare instanceId: StoreId;
+    @field(QuestionnaireInstance) instance;
     declare questionId: StoreId;
     declare text?: string;
     // The choices many-to-many, sent with include_many_to_many=True and never omitted
@@ -127,8 +130,8 @@ export class QuestionnaireQuestionResponse extends BaseStore("QuestionnaireQuest
         }
     }
 
-    getQuestionnaireInstance(): QuestionnaireInstance | null {
-        return QuestionnaireInstance.get(this.instanceId);
+    getQuestionnaireInstance(): QuestionnaireInstance {
+        return this.instance;
     }
 
     getText(): string {
