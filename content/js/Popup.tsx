@@ -23,8 +23,7 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
     target?: HTMLElement;
     popupArrow?: UIElement;
     popupArrowOutline?: UIElement;
-
-    [key: string]: any;
+    declare contentArea: UIElement; // Rendered below, into the div the body goes in
 
     getDefaultOptions(): PartialOptions<BasePopup> {
         return {
