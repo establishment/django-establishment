@@ -108,12 +108,12 @@ class FacebookManager extends SocialAccountManager {
         }, this.options.loginOptions);
     }
 
-    login(nextUrl?: string, action?: string, process?: string) {
-        this.handleProcess(nextUrl=self.location.pathname, action="authenticate", process="login");
+    login() {
+        this.handleProcess(self.location.pathname, "authenticate", "login");
     }
 
-    connect(nextUrl?: string, action?: string, process?: string) {
-        this.handleProcess(nextUrl=self.location.pathname, action="authenticate", process="connect");
+    connect() {
+        this.handleProcess(self.location.pathname, "authenticate", "connect");
     }
 }
 

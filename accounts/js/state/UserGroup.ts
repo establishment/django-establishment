@@ -1,7 +1,7 @@
 import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {field} from "../../../../stemjs/state/StoreField";
-import {type StoreEvent, type StoreId} from "../../../../stemjs/state/State";
+import {type StoreEvent, type StoreId, type RawStoreObject} from "../../../../stemjs/state/State";
 
 @globalStore
 export class UserGroup extends BaseStore("UserGroup") {
@@ -55,7 +55,7 @@ export class UserGroupMember extends BaseStore("UserGroupMember", {
     @field(PublicUser) user;
     @field(UserGroup) group;
 
-    constructor(obj: any, event?: StoreEvent) {
+    constructor(obj: RawStoreObject, event?: StoreEvent) {
         super(obj, event);
         this.getGroup()?.addMember(this);
     }

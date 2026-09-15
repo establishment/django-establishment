@@ -9,8 +9,8 @@ export interface SocialAccountManagerOptions {
 // Provided by every subclass - the statics below are only a shortcut through getInstance(). Merged in
 // rather than declared as fields, so a subclass can implement them as the methods they are.
 interface SocialAccountManager {
-    login(...args: any[]): void;
-    connect(...args: any[]): void;
+    login(...args: Parameters<typeof SocialAccountManager.login>): void;
+    connect(...args: Parameters<typeof SocialAccountManager.connect>): void;
 }
 
 class SocialAccountManager extends Dispatchable {

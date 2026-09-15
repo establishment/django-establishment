@@ -1,4 +1,4 @@
-import {UI, type ElementOptions} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type ExtendedOptions} from "../../../stemjs/ui/UIBase";
 import {type StoreId} from "../../../stemjs/state/State";
 import {type Constructor} from "../../../stemjs/base/Utils";
 import {type ChatPlugin} from "./ChatPlugin";
@@ -98,7 +98,14 @@ class ToggleLogin extends UI.Primitive("span") {
 }
 
 
+export interface BlogCommentWidgetOptions {
+    // A comment thread is not ordered by id, so the scroll section is told how to place a new entry
+    entryComparator?: (left: MessageInstance, right: MessageInstance) => number;
+}
+
 class BlogCommentWidget extends ChatWidget(ThreadMessage) {
+    declare options: ExtendedOptions<InstanceType<ReturnType<typeof ChatWidget>>, BlogCommentWidgetOptions>;
+
     declare chatInput: TextArea;
 
     getDefaultOptions() {
@@ -187,7 +194,13 @@ class BlogCommentWidget extends ChatWidget(ThreadMessage) {
     }
 }
 
+export interface CommentWidgetOptions {
+    chatId?: StoreId;
+}
+
 class CommentWidget extends BlogCommentWidget {
+    declare options: ExtendedOptions<BlogCommentWidget, CommentWidgetOptions>;
+
     // An embedder fills this in; see CSAApp
     declare static defaultPlugins?: Constructor<ChatPlugin>[];
 

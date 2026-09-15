@@ -8,7 +8,7 @@ export type ErrorInput = string | Error | ErrorMessage | {
     id?: string | number;
     name?: string;
     message?: string;
-    [key: string]: any;
+    [key: string]: unknown;
 };
 
 interface ErrorHandlersInterface {
@@ -26,7 +26,7 @@ export const ErrorHandlers: ErrorHandlersInterface = {
         if (typeof error === "object" && error !== null && "id" in error && error.id) {
             return ErrorMessage.create(error);
         } else {
-            let errorObj: { name?: string; message?: string; [key: string]: any };
+            let errorObj: {name?: string; message?: string; [key: string]: unknown};
             
             if (typeof error === "string" || error instanceof String) {
                 errorObj = { message: error.toString() };

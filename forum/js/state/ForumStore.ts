@@ -2,7 +2,7 @@ import {Ajax} from "../../../../stemjs/base/Ajax";
 import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {field} from "../../../../stemjs/state/StoreField";
-import {type StoreEvent} from "../../../../stemjs/state/State";
+import {type StoreEvent, type RawStoreObject} from "../../../../stemjs/state/State";
 
 import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
 import {MessageThread, MessageInstance} from "../../../chat/js/state/MessageThreadStore";
@@ -16,7 +16,7 @@ export class Forum extends BaseStore("forum") {
     declare forumThreads: Map<StoreId, ForumThread>;
 
     // The fields above are the whole of what arrives; obj is the event's data, whoever built it
-    constructor(obj: StoreEvent["data"], event?: StoreEvent) {
+    constructor(obj: RawStoreObject, event?: StoreEvent) {
         super(obj, event);
         this.forumThreads = new Map();
         // TODO: not appropriate to register to streams here
@@ -69,7 +69,7 @@ export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum
     declare title: string;
     declare votesBalance: number;
 
-    constructor(obj: StoreEvent["data"]) {
+    constructor(obj: RawStoreObject) {
         super(obj);
         let parent = this.getParent();
         parent && parent.addForumThread(this);

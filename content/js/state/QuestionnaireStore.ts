@@ -1,6 +1,6 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {field} from "../../../../stemjs/state/StoreField";
-import {type StoreId} from "../../../../stemjs/state/State";
+import {type StoreId, type RawStoreObject} from "../../../../stemjs/state/State";
 import {multikeySort} from "../../../../stemjs/base/Utils";
 
 
@@ -45,7 +45,7 @@ export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {d
         return this.questionnaire;
     }
 
-    constructor(obj?: any) {
+    constructor(obj?: RawStoreObject) {
         super(obj);
         const questionnaire = this.getQuestionnaire();
         if (questionnaire) {
@@ -76,7 +76,7 @@ export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestio
     declare priority: number;
     declare text?: string;
 
-    constructor(obj?: any) {
+    constructor(obj?: RawStoreObject) {
         super(obj);
         const question = this.getQuestion();
         question?.addOption(this);
@@ -122,7 +122,7 @@ export class QuestionnaireQuestionResponse extends BaseStore("QuestionnaireQuest
     // The choices many-to-many, sent with include_many_to_many=True and never omitted
     declare choiceIds: StoreId[];
 
-    constructor(obj?: any) {
+    constructor(obj?: RawStoreObject) {
         super(obj);
         const instance = this.getQuestionnaireInstance();
         if (instance) {

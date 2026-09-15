@@ -4,7 +4,7 @@ import {field} from "../../../../stemjs/state/StoreField";
 
 import {User} from "../../../../csaaccounts/js/state/UserStore";
 import {Language} from "../../../localization/js/state/LanguageStore";
-import {type StoreId} from "../../../../stemjs/state/State";
+import {type StoreId, type RawStoreObject} from "../../../../stemjs/state/State";
 
 @globalStore
 export class Article extends FetchStoreMixin("Article", {
@@ -28,7 +28,7 @@ export class Article extends FetchStoreMixin("Article", {
     declare content?: string;
     edits: Map<StoreId, ArticleEdit>;
 
-    constructor(obj: any) {
+    constructor(obj: RawStoreObject) {
         super(obj);
         this.edits = new Map();
     }

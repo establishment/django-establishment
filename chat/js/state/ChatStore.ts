@@ -1,4 +1,4 @@
-import {FetchStoreMixin, type FetchJob} from "../../../../stemjs/state/mixins/FetchStoreMixin";
+import {FetchStoreMixin, type BaseFetchOptions, type FetchJob} from "../../../../stemjs/state/mixins/FetchStoreMixin";
 import {BaseStore, globalStore, StoreObject} from "../../../../stemjs/state/Store";
 import {GlobalState, type StoreEvent, type StoreId} from "../../../../stemjs/state/State";
 import {Ajax} from "../../../../stemjs/base/Ajax";
@@ -27,7 +27,7 @@ export class GroupChat extends FetchStoreMixin("GroupChat", {
 }, BaseChatObject) {
     declare id: number;
 
-    static getFetchRequestData(entries: [StoreId, FetchJob<any>[]][]) {
+    static getFetchRequestData(entries: [StoreId, FetchJob<BaseChatObject, Partial<BaseFetchOptions>>[]][]) {
         return {
             chatId: entries.map(entry => entry[0])[0],
         };

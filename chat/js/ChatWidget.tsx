@@ -382,15 +382,33 @@ type ChatSendRequest = ChatBaseRequest & {message?: string; virtualId?: string};
 
 export interface ChatWidgetBaseOptions {
     baseRequest?: ChatBaseRequest;
+    dateTimestamps?: boolean;
     extraHeightOffset?: number;
     messageThread?: MessageThread;
     plugins?: Constructor<ChatPlugin>[];
     renderMessage?: (message: MessageInstance) => BaseUIElement;
 }
 
+// Each widget answers with its own endpoints, which the base only calls. Merged in rather than declared
+// as fields, so a subclass can implement them as the methods they are
+interface ChatWidgetBase {
+    getPostURL(): string;
+    getGetURL(): string;
+}
+
 @registerStyle(ChatStyle)
 class ChatWidgetBase extends Pluginable(UI.Element) {
-    declare options: ExtendedOptions<InstanceType<ReturnType<typeof Pluginable>>, ChatWidgetBaseOptions>;
+    declare options: ElementOptions<ChatWidgetBaseOptions>;
+
+    declare chatInput: TextArea;
+    declare loadMoreButton: AjaxButton;
+    declare messageWindow: ChatMessageScrollSection;
+    // Held across a redraw, so the view stays where the reader left it
+    declare scrollPercent: number;
+    declare scrollPosition: number;
+    // False once the server has answered with fewer messages than asked for
+    declare showLoadMoreButton: boolean;
+    declare outstandingRequest: boolean;
 
     getDefaultOptions(options?: typeof this.options) {
         return {
@@ -438,7 +456,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
             LoginModal.show();
             return;
         }
-        const request = {
+        const request: ChatSendRequest = {
             ...this.options.baseRequest,
         };
 
@@ -564,7 +582,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
         const topMessage = this.messageWindow.getTopMessage();
 
         let messageInstances = this.messageThread.getMessages();
-        let lastMessageId = 999999999;
+        let lastMessageId: StoreId = 999999999;
         if (messageInstances.length) {
             lastMessageId = messageInstances[0].id;
         }
@@ -641,7 +659,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
                 let userData = [];
                 for (let userId of this.messageThread.online) {
                     userData.push([
-                        <UserHandle id={parseInt(userId)}/>
+                        <UserHandle id={userId}/>
                     ]);
                 }
                 return userData;
@@ -698,7 +716,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
 // plugin appends a merged interface there, and it cannot reach a class declared inside a function.
 // An embedder bolts defaultPlugins onto the factory itself; see CSAApp
 interface ChatWidgetFactory {
-    (ChatMessageClass: any): typeof ChatWidgetBase;
+    (ChatMessageClass: typeof EditableMessage | typeof PrivateChatMessage): typeof ChatWidgetBase;
     defaultPlugins?: Constructor<ChatPlugin>[];
 }
 
@@ -785,11 +803,6 @@ class PrivateChatWidget extends ChatWidget(PrivateChatMessage) {
             }
         }, options);
         super.setOptions(options);
-    }
-
-    setPrivateChat(privateChat: boolean) {
-        this.options.privateChat = privateChat;
-        this.setOptions(this.options);
     }
 
     getPostURL() {

@@ -30,7 +30,7 @@ export interface SaveProfileRequest {
     userName: string;
     displayName: boolean;
     // A subclass adds its own fields, and the whole object is posted
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 export class GeneralInformationPanel extends UI.Element {

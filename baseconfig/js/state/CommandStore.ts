@@ -28,7 +28,7 @@ export interface CommandLogEntry {
 // The log_entries column, which CommandRun.log and set_progress build together
 export interface CommandLog {
     entries: CommandLogEntry[];
-    progress: Record<string, any>;
+    progress: {percent?: number};
 }
 
 @globalStore
@@ -56,7 +56,8 @@ export class CommandRun extends BaseStore("CommandRun") {
     declare commandInstanceId: number;
     declare dateCreated: number;
     declare dateFinished?: number;
-    declare arguments?: Record<string, any>;
+    // Keyed by the run option's shortName, holding what its form field answered with
+    declare arguments?: Record<string, CommandRunOption["defaultValue"]>;
     // Whatever the command's run returned, or the traceback lines on failure; only ever stringified
     declare result?: unknown;
 

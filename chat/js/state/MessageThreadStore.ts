@@ -1,5 +1,5 @@
 import {Ajax} from "../../../../stemjs/base/Ajax";
-import {GlobalState, type StoreEvent, type StoreId, type StoreObjectType} from "../../../../stemjs/state/State";
+import {GlobalState, type StoreEvent, type StoreId, type StoreObjectType, type RawStoreObject} from "../../../../stemjs/state/State";
 import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 import {BaseStore, globalStore} from "../../../../stemjs/state/Store";
 import {field} from "../../../../stemjs/state/StoreField";
@@ -17,6 +17,13 @@ export interface ReactionCounts {
 }
 
 
+// One revision of a message's content, oldest first; the first is what was originally posted
+export interface MessageEdit {
+    userId: number;
+    date: number;
+    content: string;
+}
+
 @globalStore
 export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") {
     static dependencies: StoreObjectType[] = ["messagethread", "publicuser"];
@@ -28,11 +35,11 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     @field("MessageThread") messageThread: MessageThread;
     declare reactionCollectionId?: number;
     declare temporaryId?: number;
-    declare meta: Record<string, any>;
+    declare meta: {edits?: MessageEdit[]};
     declare hidden?: boolean;
     declare postError?: number; // Set on the client when a post fails
 
-    constructor(obj: any, event?: StoreEvent) {
+    constructor(obj: RawStoreObject, event?: StoreEvent) {
         super(obj, event);
 
         PublicUser.create(event.user);
@@ -214,14 +221,13 @@ MessageInstance.addCreateListener((messageInstance: MessageInstance, createEvent
 export class MessageThread extends BaseStore("MessageThread") {
     declare streamName: string;
     declare messagesEditable?: boolean;
-    declare metadata?: Record<string, any>;
     declare lastActivity?: number;
     declare markupEnabled?: boolean;
     declare muted?: boolean;
     declare online: Set<StoreId>;
     declare messages: Map<StoreId, MessageInstance>;
 
-    constructor(obj: any) {
+    constructor(obj: RawStoreObject) {
         super(obj);
         this.messages = new Map();
         // TODO: don't change the global here, you fool!

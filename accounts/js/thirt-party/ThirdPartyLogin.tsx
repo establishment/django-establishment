@@ -10,15 +10,14 @@ import {type LoginWidget} from "../Login";
 import {type SocialApp} from "../../../socialaccount/js/state/SocialAppStore";
 
 // An embedder adds its own entries to the map below, and every read of it is by name
-// The button calls login bare, and each manager's own signature differs, hence the rest parameter
 export interface LoginManagerInstance {
-    login(...args: any[]): void;
+    login(): void;
 }
 
 // Structural rather than a class union: CSAApp adds an IEEE handler as a plain object
 export interface LoginManager {
     getInstance(): LoginManagerInstance;
-    login(...args: any[]): void;
+    login(): void;
 }
 
 export interface ThirdPartyLoginHandler {

@@ -55,8 +55,8 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
         this.createArrowStyle();
     }
 
-    // Assigned straight into the held children, which a caller's lone child or array is not yet
-    setContent(content: any): void {
+    // Assigned straight into the held children, so a lone child has to be wrapped by the caller
+    setContent(content: BasePopup["options"]["children"]): void {
         this.options.children = content;
         this.redraw();
     }
