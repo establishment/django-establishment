@@ -181,7 +181,7 @@ class DeleteGatewayConfirmModal extends GenericConfirmModal {
 }
 
 
-class EmailGatewayTableRow extends TableRow {
+class EmailGatewayTableRow extends TableRow<EmailGateway> {
     declare deleteGatewayButton: Button;
     declare editGatewayButton: Button;
     onMount() {

@@ -11,7 +11,6 @@ import {SortableTable} from "../../../stemjs/ui/table/SortableTable";
 import {TemporaryMessageArea} from "../../../stemjs/ui/misc/TemporaryMessageArea";
 import {Level} from "../../../stemjs/ui/Constants";
 import {Ajax} from "../../../stemjs/base/Ajax";
-import {StemDate} from "../../../stemjs/time/Date";
 import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
 import {FAIcon} from "../../../stemjs/ui/FontAwesome";
 import {GlobalStyle} from "../../../stemjs/ui/GlobalStyle";
@@ -386,15 +385,15 @@ class ArticleTable extends SortableTable {
             headerStyle: headerStyle,
             cellStyle: cellStyle
         }, {
-            value: article => StemDate.unix(article.dateCreated).locale("en").format("DD/MM/YYYY HH:mm:ss"),
-            rawValue: (article: Article) => article.dateCreated,
+            value: article => article.dateCreated.format("DD/MM/YYYY HH:mm:ss"),
+            rawValue: (article: Article) => article.dateCreated.valueOf(),
             sortDescending: true,
             headerName: "Date created",
             headerStyle: headerStyle,
             cellStyle: cellStyle
         }, {
-            value: article => StemDate.unix(article.dateModified).locale("en").format("DD/MM/YYYY HH:mm:ss"),
-            rawValue: (article: Article) => article.dateModified,
+            value: article => article.dateModified.format("DD/MM/YYYY HH:mm:ss"),
+            rawValue: (article: Article) => article.dateModified.valueOf(),
             sortDescending: true,
             headerName: "Date modified",
             headerStyle: headerStyle,

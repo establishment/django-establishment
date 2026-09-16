@@ -213,8 +213,7 @@ class BlogEntryPreview extends UI.Element {
         const article = this.getBlogArticle();
 
         // TODO: not actually the published date
-        let publishedDate = article.dateCreated;
-        let publishedFormat = StemDate.unix(publishedDate).format("LL");
+        let publishedFormat = article.dateCreated.format("LL");
         let modifiedFormat;
 
         let articleInfoStyle = {
@@ -225,7 +224,7 @@ class BlogEntryPreview extends UI.Element {
         };
 
         if (article.dateModified > article.dateCreated) {
-            modifiedFormat = <p style={articleInfoStyle}>{UI.T("Last update on")} {StemDate.unix(article.dateModified).format("LL")}.</p>
+            modifiedFormat = <p style={articleInfoStyle}>{UI.T("Last update on")} {article.dateModified.format("LL")}.</p>
         }
 
         return [
@@ -294,8 +293,7 @@ class BlogEntryView extends UI.Element {
         const {styleSheet} = this;
 
         // TODO: not actually the published date
-        let publishedDate = article.dateCreated;
-        let publishedFormat = StemDate.unix(publishedDate).format("LL");
+        let publishedFormat = article.dateCreated.format("LL");
         let modifiedFormat;
 
         let articleInfoStyle = {
@@ -306,7 +304,7 @@ class BlogEntryView extends UI.Element {
         };
 
         if (article.dateModified > article.dateCreated) {
-            modifiedFormat = <p style={articleInfoStyle}>Last update on {StemDate.unix(article.dateModified).format("LL")}.</p>
+            modifiedFormat = <p style={articleInfoStyle}>Last update on {article.dateModified.format("LL")}.</p>
         }
 
         let blogEntryEditButton;
@@ -401,7 +399,7 @@ class BlogEntryList extends UI.Element {
         this.loadMoreButton.addClickListener(() => {
             if (!this.options.finishedLoading) {
                 Ajax.getJSON("/blog/", {
-                    lastDate: Math.min.apply(null, BlogEntry.all().map(x => x.getArticle().dateCreated))
+                    lastDate: StemDate.min(...BlogEntry.all().map(x => x.getArticle().dateCreated)).toUnix()
                 }).then(
                     (data) => {
                         this.options.finishedLoading = data.finishedLoading;

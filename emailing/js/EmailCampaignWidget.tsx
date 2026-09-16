@@ -244,7 +244,7 @@ class EditEmailCampaignModal extends EmailCampaignModal {
 }
 
 
-class EmailCampaignTableRow extends TableRow {
+class EmailCampaignTableRow extends TableRow<EmailCampaign> {
     declare clearStatusCampaignButton: Button;
     declare deleteCampaignButton: Button;
     declare editCampaignButton: Button;

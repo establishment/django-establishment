@@ -5,6 +5,7 @@ import {field} from "../../../../stemjs/state/StoreField";
 import {User} from "../../../../csaaccounts/js/state/UserStore";
 import {Language} from "../../../localization/js/state/LanguageStore";
 import {type StoreId, type RawStoreObject} from "../../../../stemjs/state/State";
+import {type StemDate} from "../../../../stemjs/time/Date";
 
 @globalStore
 export class Article extends FetchStoreMixin("Article", {
@@ -12,8 +13,8 @@ export class Article extends FetchStoreMixin("Article", {
     maxFetchObjectCount: 32,
 }) {
     declare id: number;
-    declare dateCreated: number;
-    declare dateModified: number;
+    @field(Date) dateCreated: StemDate;
+    @field(Date) dateModified: StemDate;
     declare dependency: string;
     declare isPublic: boolean;
     declare markup: string;

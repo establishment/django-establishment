@@ -172,7 +172,7 @@ class CommandRunDuration extends UI.Primitive("span") {
     }
 }
 
-class PastCommandsTable extends Table {
+class PastCommandsTable extends Table<CommandRun> {
     getEntries() {
         return CommandRun.all().sort((a, b) => {
             return b.dateCreated - a.dateCreated;
