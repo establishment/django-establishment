@@ -21,8 +21,8 @@ class DocumentationPanel extends UI.Element {
     declare documentationSwitchDispatcher: Dispatcher;
     declare initialUrlParts: string[];
 
-    constructor() {
-        super(...arguments);
+    constructor(options: DocumentationPanel["options"]) {
+        super(options);
         this.documentationSwitchDispatcher = new Dispatcher();
     }
 

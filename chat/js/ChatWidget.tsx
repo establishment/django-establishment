@@ -1,6 +1,6 @@
 import {type Constructor} from "../../../stemjs/base/Utils";
 import {type ChatPlugin} from "./ChatPlugin";
-import {UI, type ExtendedOptions, type ElementOptions, type UIElement, type TextUIElement, type BaseUIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
+import {UI, type ExtendedOptions, type ElementOptions, type StyleObject, type UIElement, type TextUIElement, type BaseUIElement, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {Switcher} from "../../../stemjs/ui/Switcher";
 import {TextArea} from "../../../stemjs/ui/input/Input";
 import {Button} from "../../../stemjs/ui/button/Button";
@@ -56,6 +56,28 @@ class PreviewMarkupButton extends Button {
     }
 }
 
+// What a chat widget needs of whatever renders one of its messages
+export interface ChatMessageElement extends UIElement {
+    // Hides the divider on a message that no longer heads a day, and answers with the height that frees
+    hideStaleDayTimestamp(): number;
+}
+
+// The divider only says something above the first message of a day
+function startsNewDay(message: MessageInstance): boolean {
+    const previous = message.getPreviousMessage();
+    return !previous || !new StemDate(previous.timeAdded).isSame(message.timeAdded, TimeUnit.DAY);
+}
+
+// Shared by the two message classes that draw a divider, which have no common base below UI.Element
+function hideDayTimestampIfStale(message: GroupChatMessage | PrivateChatMessage): number {
+    if (!message.dayTimestamp || message.shouldShowDayTimestamp()) {
+        return 0;
+    }
+    const height = message.dayTimestamp.getHeight();
+    message.dayTimestamp.addClass("hidden");
+    return height;
+}
+
 export interface EditableMessageOptions {
     deletable?: boolean;
     message?: MessageInstance;
@@ -70,6 +92,11 @@ class EditableMessage extends UI.Element {
     declare contentSwitcher: Switcher;
     declare editContent: UIElement;
     declare message: MessageInstance;
+
+    // Overridden by the message classes that draw a day divider; a thread has none to hide
+    hideStaleDayTimestamp(): number {
+        return 0;
+    }
 
     getDefaultOptions() {
         return {
@@ -184,6 +211,7 @@ export interface GroupChatMessageOptions {
 class GroupChatMessage extends EditableMessage {
     declare options: ExtendedOptions<EditableMessage, GroupChatMessageOptions>;
     declare message: MessageInstance;
+    declare dayTimestamp?: UIElement;
 
     setOptions(options: typeof this.options) {
         super.setOptions(options);
@@ -204,8 +232,11 @@ class GroupChatMessage extends EditableMessage {
     }
 
     shouldShowDayTimestamp() {
-        let lastMessage = this.options.message.getPreviousMessage();
-        return !lastMessage || new StemDate(lastMessage.timeAdded).isSame(this.options.message.timeAdded, TimeUnit.DAY);
+        return startsNewDay(this.options.message);
+    }
+
+    hideStaleDayTimestamp(): number {
+        return hideDayTimestampIfStale(this);
     }
 
     render() {
@@ -268,6 +299,7 @@ class PrivateChatMessage extends UI.Element {
     declare options: ElementOptions<PrivateChatMessageOptions>;
     declare contentSwitcher: Switcher;
     declare message: MessageInstance;
+    declare dayTimestamp?: UIElement;
 
     setOptions(options: typeof this.options) {
         super.setOptions(options);
@@ -281,8 +313,11 @@ class PrivateChatMessage extends UI.Element {
     }
 
     shouldShowDayTimestamp() {
-        let lastMessage = this.options.message.getPreviousMessage();
-        return !lastMessage || new StemDate(lastMessage.timeAdded).isSame(this.options.message.timeAdded, TimeUnit.DAY);
+        return startsNewDay(this.options.message);
+    }
+
+    hideStaleDayTimestamp(): number {
+        return hideDayTimestampIfStale(this);
     }
 
     isOwnMessage() {
@@ -359,6 +394,9 @@ class PrivateChatMessage extends UI.Element {
 
 
 class ChatMessageScrollSection extends InfiniteScrollable<MessageInstance> {
+    // The widget's static top, then one element per message, which no children type can say on its own
+    declare children: [UIElement, ...ChatMessageElement[]];
+
     setOptions(options: typeof this.options) {
         options = Object.assign({
             entryComparator: (a: MessageInstance, b: MessageInstance) => {
@@ -368,7 +406,8 @@ class ChatMessageScrollSection extends InfiniteScrollable<MessageInstance> {
         super.setOptions(options);
     }
 
-    getTopMessage() {
+    // Only ever asked while the load-more button is up, which is what puts a static top above the messages
+    getTopMessage(): ChatMessageElement {
         return this.children[1];
     }
 }
@@ -383,6 +422,8 @@ type ChatSendRequest = ChatBaseRequest & {message?: string; virtualId?: string};
 export interface ChatWidgetBaseOptions {
     baseRequest?: ChatBaseRequest;
     dateTimestamps?: boolean;
+    // Narrowed from the node's own, since getDesiredHeight reads the height back off it
+    style?: StyleObject;
     extraHeightOffset?: number;
     messageThread?: MessageThread;
     plugins?: Constructor<ChatPlugin>[];
@@ -403,12 +444,11 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
     declare chatInput: TextArea;
     declare loadMoreButton: AjaxButton;
     declare messageWindow: ChatMessageScrollSection;
+    declare outstandingRequest: boolean;
     // Held across a redraw, so the view stays where the reader left it
     declare scrollPercent: number;
     declare scrollPosition: number;
-    // False once the server has answered with fewer messages than asked for
-    declare showLoadMoreButton: boolean;
-    declare outstandingRequest: boolean;
+    declare showLoadMoreButton: boolean; // False once the server answers with fewer than asked for
 
     getDefaultOptions(options?: typeof this.options) {
         return {
@@ -616,11 +656,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
                     }
                 }
 
-                let scrollDelta = 0;
-                if (!topMessage.shouldShowDayTimestamp()) {
-                    scrollDelta += topMessage.dayTimestamp.getHeight();
-                    topMessage.dayTimestamp.addClass("hidden");
-                }
+                const scrollDelta = topMessage.hideStaleDayTimestamp();
                 this.messageWindow.scrollToHeight(this.messageWindow.node.scrollHeight - oldScrollHeight - scrollDelta);
 
                 this.outstandingRequest = false;

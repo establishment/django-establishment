@@ -65,7 +65,7 @@ export class CommandRun extends BaseStore("CommandRun") {
     // CommandRun.COMMAND_RUN_STATUS: 0 waiting, 1 running, 2 failed, 3 successful
     declare status: number;
 
-    applyEvent(event: StoreEvent) {
+    applyEvent(event: StoreEvent & {data?: CommandLogEntry}) {
         if (event.type === "logMessage") {
             this.logEntries = this.logEntries || {
                 entries: [],

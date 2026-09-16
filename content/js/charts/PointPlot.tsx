@@ -6,7 +6,7 @@ import {type ContinuousScale} from "./Scale";
 
 export interface PointPlotElementOptions {
     // One entry of whatever the chart was handed, which only the aliases below know how to read
-    data?: any;
+    data?: unknown;
     xAxisScale?: ContinuousScale;
     xCoordinateAlias?: PlotOptions["xCoordinateAlias"];
     yAxisScale?: ContinuousScale;
@@ -39,7 +39,7 @@ export class PointPlotElement extends SVGCircle {
 
 export interface PointPlotOptions {
     chart?: BasicChart;
-    data?: any;
+    data?: unknown;
     plotOptions?: PlotOptions;
 }
 
@@ -49,7 +49,7 @@ export const PointPlot = (PointPlotElementClass) => class PointPlot extends SVGG
     declare options: ExtendedOptions<SVGGroup, PointPlotOptions>;
     // The factory's own element class, one per datum the alias pulled out
     declare points: SVGUIElement[];
-    declare pointsData: any[];
+    declare pointsData: unknown[];
 
     getNodeAttributes() {
         let attr = super.getNodeAttributes();

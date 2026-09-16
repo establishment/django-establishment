@@ -17,30 +17,33 @@ interface ErrorHandlersInterface {
     PAGE_NOT_FOUND: ErrorMessage;
 }
 
-export const ErrorHandlers: ErrorHandlersInterface = {
-    wrapError: (error: ErrorInput): ErrorMessage => {
-        if (error instanceof StoreObject) {
-            return error;
-        }
+// Outside the object so PAGE_NOT_FOUND can be wrapped where it is declared
+function wrapError(error: ErrorInput): ErrorMessage {
+    if (error instanceof StoreObject) {
+        return error;
+    }
 
-        if (typeof error === "object" && error !== null && "id" in error && error.id) {
-            return ErrorMessage.create(error);
+    if (typeof error === "object" && error !== null && "id" in error && error.id) {
+        return ErrorMessage.create(error);
+    } else {
+        let errorObj: {name?: string; message?: string; [key: string]: unknown};
+
+        if (typeof error === "string" || error instanceof String) {
+            errorObj = { message: error.toString() };
+        } else if (error instanceof Error) {
+            errorObj = {
+                name: error.name,
+                message: error.message
+            };
         } else {
-            let errorObj: {name?: string; message?: string; [key: string]: unknown};
-            
-            if (typeof error === "string" || error instanceof String) {
-                errorObj = { message: error.toString() };
-            } else if (error instanceof Error) {
-                errorObj = {
-                    name: error.name,
-                    message: error.message
-                };
-            } else {
-                errorObj = error;
-            }
-            return new ErrorMessage(errorObj);
+            errorObj = error;
         }
-    },
+        return new ErrorMessage(errorObj);
+    }
+}
+
+export const ErrorHandlers: ErrorHandlersInterface = {
+    wrapError,
 
     showErrorAlert: (error: ErrorInput): void => {
         ErrorModal.show({
@@ -48,7 +51,5 @@ export const ErrorHandlers: ErrorHandlersInterface = {
         });
     },
 
-    PAGE_NOT_FOUND: null,
+    PAGE_NOT_FOUND: wrapError("Page not found."),
 };
-
-ErrorHandlers.PAGE_NOT_FOUND = ErrorHandlers.wrapError("Page not found.");

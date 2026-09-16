@@ -6,7 +6,7 @@ import {StemDate} from "../../../../stemjs/time/Date";
 import {LinePlot} from "./LinePlot";
 import {BasePointPlot} from "./PointPlot";
 
-import {scaleLinear, scaleTime, type ContinuousScale} from "./Scale";
+import {scaleLinear, scaleTime, type ContinuousScale, type ScaleValue} from "./Scale";
 
 import {select} from "d3-selection";
 import {zoom, zoomIdentity, type D3ZoomEvent, type ZoomBehavior} from "d3-zoom";
@@ -18,24 +18,23 @@ export interface ChartDimensions {
     height: number;
 }
 
-// How a plot reads its points out of whatever data it was handed
-export interface PlotOptions {
-    pointsAlias: (data: any) => any[];
-    xCoordinateAlias: (point: any) => number;
-    yCoordinateAlias: (point: any) => number;
+// How a plot reads its points out of whatever data it was handed. Both shapes are the caller's, and a
+// chart that names them gets its aliases checked; the defaults leave an un-migrated one as it was
+export interface PlotOptions<Datum = unknown, Point = unknown> {
+    pointsAlias: (data: Datum) => Point[];
+    xCoordinateAlias: (point: Point) => number;
+    yCoordinateAlias: (point: Point) => number;
 }
 
-// A chart's points are whatever its plot's pointsAlias pulled out of the data, and each axis reads one
-// coordinate off them - both are the caller's shapes, which is why the aliases exist
-export type ChartPoint = ReturnType<PlotOptions["pointsAlias"]>[number];
-export type CoordinateAlias = PlotOptions["xCoordinateAlias"];
+export type ChartPoint<Point = unknown> = Point;
+export type CoordinateAlias<Point = unknown> = PlotOptions<unknown, Point>["xCoordinateAlias"];
 
 // What an axis needs to draw itself
 export interface ChartAxisOptions {
     orientation: DirectionType;
     ticks: number;
     scale: ContinuousScale;
-    labelFormatFunction?: (value: any) => string;
+    labelFormatFunction?: (value: ScaleValue) => AxisTickOptions["label"]; // A tick renders whatever its formatter answers
 }
 
 
@@ -51,7 +50,7 @@ export interface AxisTickOptions {
     orientation?: DirectionType;
     scale?: ContinuousScale;
     // A tick, in whatever the scale's domain is
-    value?: any;
+    value?: ScaleValue;
 }
 
 export class AxisTick extends SVGGroup {
@@ -160,7 +159,7 @@ export interface BasicAxisOptions {
 export class BasicAxis extends SVGGroup {
     declare options: ExtendedOptions<SVGGroup, BasicAxisOptions>;
     declare axisLength: number;
-    declare tickValues: any[];
+    declare tickValues: ScaleValue[];
     declare ticks: AxisTick[];
 
     getDefaultOptions() {
@@ -231,10 +230,10 @@ export interface BasicChartOptions {
     domainPadding?: number[];
     enableZoom?: boolean;
     margin?: {top: number, bottom: number, left: number, right: number};
-    xAxisDomain?: any[];
+    xAxisDomain?: number[];
     xAxisLabelFormatFunction?: ChartAxisOptions["labelFormatFunction"];
     xAxisScaleType?: string;
-    yAxisDomain?: any[];
+    yAxisDomain?: number[];
     yAxisLabelFormatFunction?: ChartAxisOptions["labelFormatFunction"];
     yAxisScaleType?: string;
 }
@@ -410,11 +409,11 @@ export class BasicChart extends SVGGroup {
     }
 }
 
-export interface TimeChartOptions {
+export interface TimeChartOptions<Datum = unknown, Point = unknown> {
     applyZoom?: boolean;
     chartOptions?: ChartDimensions;
-    data?: any;
-    plotOptions?: PlotOptions;
+    data?: Datum;
+    plotOptions?: PlotOptions<Datum, Point>;
     paddingXOnNoPoints?: number;
     paddingYOnNoPoints?: number;
     zoomScaleExtent?: [number, number];
@@ -542,15 +541,18 @@ export interface ChartSVGOptions {
     // The chart's dimensions, which are numbers rather than the lengths an element takes
     height?: number;
     width?: number;
-    xDomain?: any[];
-    yDomain?: any[];
+    xDomain?: number[];
+    yDomain?: number[];
 }
+
+// The demo dataset this base draws, which every real chart replaces with its own
+type ChartSVGPoint = {x: number; y: number; label?: string};
+type ChartSVGData = {points: ChartSVGPoint[]};
 
 export class ChartSVG extends SVGRoot {
     declare options: ExtendedOptions<SVGRoot, ChartSVGOptions>;
     declare chartOptions: ChartDimensions;
-    // The demo dataset this base draws, which every real chart replaces with its own
-    declare data: {points: {x: number, y: number, label?: string}[]};
+    declare data: ChartSVGData;
     declare plotOptions: PlotOptions;
 
     setOptions(options: typeof this.options) {
@@ -560,9 +562,9 @@ export class ChartSVG extends SVGRoot {
             width: options.width || 790
         };
         this.plotOptions = {
-            pointsAlias: (data) => {return data.points},
-            xCoordinateAlias: (data) => {return data.x},
-            yCoordinateAlias: (data) => {return data.y}
+            pointsAlias: (data: ChartSVGData) => {return data.points},
+            xCoordinateAlias: (data: ChartSVGPoint) => {return data.x},
+            yCoordinateAlias: (data: ChartSVGPoint) => {return data.y}
         };
         this.data = {
             points: [

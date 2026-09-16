@@ -114,8 +114,8 @@ class ArticleSwitcher extends Switcher {
         };
     }
 
-    constructor() {
-        super(...arguments);
+    constructor(options: ArticleSwitcher["options"]) {
+        super(options);
         this.articleChildMap = new WeakMap();
     }
 

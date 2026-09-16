@@ -291,8 +291,8 @@ class QuestionnaireInstanceSwitcher extends Switcher {
         });
     }
 
-    constructor() {
-        super(...arguments);
+    constructor(options: QuestionnaireInstanceSwitcher["options"]) {
+        super(options);
         this.instanceMap = new Map();
         for (const instanceUIElement of this.options.children) {
             this.instanceMap.set(instanceUIElement.options.instance.id, instanceUIElement);

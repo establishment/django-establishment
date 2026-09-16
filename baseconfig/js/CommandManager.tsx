@@ -16,7 +16,7 @@ import {StemDate} from "../../../stemjs/time/Date";
 import {FAIcon} from "../../../stemjs/ui/FontAwesome";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 
-import {CommandInstance, CommandRun, type CommandRunOption, type SelectArgumentChoice} from "./state/CommandStore";
+import {CommandInstance, CommandRun, type CommandRunOption, type SelectArgumentChoice, type CommandLogEntry} from "./state/CommandStore";
 import {Popup} from "../../content/js/Popup";
 
 import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
@@ -100,7 +100,7 @@ class CommandRunDetailsModal extends Modal {
                 this.logger.append(this.getFormattedMessage(entry));
             }
         }
-        this.attachEventListener(this.options.commandRun, "logMessage", (event: StoreEvent) => {
+        this.attachEventListener(this.options.commandRun, "logMessage", (event: StoreEvent & {data?: CommandLogEntry}) => {
             this.logger.append(this.getFormattedMessage(event.data));
         });
         this.attachEventListener(this.options.commandRun, "createOrUpdate", () => {

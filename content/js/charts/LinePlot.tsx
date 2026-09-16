@@ -5,21 +5,20 @@ import {type PlotOptions, type BasicChart} from "./BasicChart";
 
 export interface LinePlotOptions {
     chart?: BasicChart;
-    data?: any;
+    data?: unknown;
     plotOptions?: PlotOptions;
 }
 
 class LinePlot extends SVGPath {
     declare options: ExtendedOptions<SVGPath, LinePlotOptions>;
-    declare linePathGenerator: LineGenerator<any>;
+    declare linePathGenerator: LineGenerator<unknown>;
 
     getDefaultOptions() {
         return {
             d: "",
             fill: "none",
             stroke: "darkgrey",
-            strokeWidth: 1.5,
-            interpolation: "linear"
+            strokeWidth: 1.5
         };
     }
 

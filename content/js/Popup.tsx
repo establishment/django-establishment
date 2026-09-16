@@ -1,7 +1,7 @@
 import {type ExtendedOptions, type PartialOptions, type StyleObject, UI, type UIChild, UIElement} from "../../../stemjs/ui/UIBase";
 import {Device} from "../../../stemjs/base/Device";
 import {FloatingWindow, type FloatingWindowOptions} from "../../../stemjs/ui/modal/FloatingWindow";
-import {Direction, type DirectionType} from "../../../stemjs/ui/Constants";
+import {Direction} from "../../../stemjs/ui/Constants";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {type Point} from "../../../stemjs/numerics/StemMath";
 
@@ -10,7 +10,7 @@ interface BasePopupOptions extends FloatingWindowOptions {
     y?: number;
     contentPadding?: string;
     contentStyle?: StyleObject;
-    arrowDirection?: DirectionType;
+    arrowDirection?: typeof Direction.UP | typeof Direction.DOWN; // The only two an arrow style is built for
     arrowColor?: string;
     backgroundColor?: string;
     target?: HTMLElement | UIElement;
@@ -24,6 +24,11 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
     popupArrow?: UIElement;
     popupArrowOutline?: UIElement;
     declare contentArea: UIElement; // Rendered below, into the div the body goes in
+    // One pair per direction, written by createArrowStyle and picked by getArrow
+    declare arrowup: StyleObject;
+    declare arrowupOutline: StyleObject;
+    declare arrowdown: StyleObject;
+    declare arrowdownOutline: StyleObject;
 
     getDefaultOptions(): PartialOptions<BasePopup> {
         return {
@@ -79,13 +84,13 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
             marginLeft: "-11px"
         };
 
-        this["arrow" + Direction.UP + "Outline"] = Object.assign({
+        this[`arrow${Direction.UP}Outline`] = Object.assign({
             borderBottom: "10px solid #C8C8C8",
             marginTop: "-10.8px",
             marginLeft: "-11px"
         }, baseArrowOutline);
 
-        this["arrow" + Direction.DOWN + "Outline"] = Object.assign({
+        this[`arrow${Direction.DOWN}Outline`] = Object.assign({
             borderTop: "10px solid #C8C8C8",
             marginTop: "2px"
         }, baseArrowOutline);
@@ -99,12 +104,12 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
             borderRight: "10px solid transparent",
         };
 
-        this["arrow" + Direction.UP] = Object.assign({
+        this[`arrow${Direction.UP}`] = Object.assign({
             marginTop: "-10px",
             borderBottom: "10px solid " + this.options.arrowColor
         }, baseArrow);
 
-        this["arrow" + Direction.DOWN] = Object.assign({
+        this[`arrow${Direction.DOWN}`] = Object.assign({
             borderTop: "10px solid " + this.options.arrowColor
         }, baseArrow);
     }
@@ -112,8 +117,8 @@ export class BasePopup extends FloatingWindow<BasePopupOptions> {
     getArrow() {
         let direction = this.options.arrowDirection;
         return [
-            <UIElement ref="popupArrow" style={this["arrow" + direction]}/>,
-            <UIElement ref="popupArrowOutline" style={this["arrow" + direction + "Outline"]} />
+            <UIElement ref="popupArrow" style={this[`arrow${direction}`]}/>,
+            <UIElement ref="popupArrowOutline" style={this[`arrow${direction}Outline`]} />
         ];
     }
 

@@ -17,7 +17,7 @@ export interface ReactionCounts {
 }
 
 
-// One revision of a message's content, oldest first; the first is what was originally posted
+// One revision of a message's content
 export interface MessageEdit {
     userId: number;
     date: number;
@@ -35,11 +35,11 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     @field("MessageThread") messageThread: MessageThread;
     declare reactionCollectionId?: number;
     declare temporaryId?: number;
-    declare meta: {edits?: MessageEdit[]};
+    declare meta: {edits?: MessageEdit[]}; // Oldest first, the first being what was originally posted
     declare hidden?: boolean;
     declare postError?: number; // Set on the client when a post fails
 
-    constructor(obj: RawStoreObject, event?: StoreEvent) {
+    constructor(obj: RawStoreObject, event?: StoreEvent & {user?: RawStoreObject}) {
         super(obj, event);
 
         PublicUser.create(event.user);
@@ -258,7 +258,7 @@ export class MessageThread extends BaseStore("MessageThread") {
         this.dispatch("deleteMessage", messageInstance);
     }
 
-    applyEvent(event: StoreEvent): void {
+    applyEvent(event: StoreEvent & {data?: {online?: Iterable<StoreId>; userId?: StoreId}}): void {
         if (event.data.online) {
             event.data.online = this.setOnlineUsers(event.data.online);
         }

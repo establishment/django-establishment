@@ -137,10 +137,15 @@ export class DocumentationNavElementContent extends UI.Element {
 
 export const dragAndDropHandler = new Dispatcher();
 export interface DraggableDocumentationNavElementContentOptions {
+    // The nav element that owns this title, which the drag handlers ask for its entry and its root flag
+    parent?: InstanceType<ReturnType<typeof DocumentationNavElement>>;
 }
 
 class DraggableDocumentationNavElementContent extends Draggable(DocumentationNavElementContent) {
-    declare options: ExtendedOptions<InstanceType<ReturnType<typeof Draggable>>, DraggableDocumentationNavElementContentOptions>;
+    declare options: ExtendedOptions<DocumentationNavElementContent, DraggableDocumentationNavElementContentOptions>;
+    declare editEntry: UIElement;
+    // Set once a drag has moved far enough to count as one, rather than as a click
+    declare dragged: boolean;
 
     getNodeAttributes() {
         let attr = super.getNodeAttributes();

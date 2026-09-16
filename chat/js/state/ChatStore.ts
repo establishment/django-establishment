@@ -1,6 +1,6 @@
 import {FetchStoreMixin, type BaseFetchOptions, type FetchJob} from "../../../../stemjs/state/mixins/FetchStoreMixin";
 import {BaseStore, globalStore, StoreObject} from "../../../../stemjs/state/Store";
-import {GlobalState, type StoreEvent, type StoreId} from "../../../../stemjs/state/State";
+import {GlobalState, type StateEvent, type StoreId} from "../../../../stemjs/state/State";
 import {Ajax} from "../../../../stemjs/base/Ajax";
 import {MessageThread} from "./MessageThreadStore";
 import {type FetchErrorHandler} from "../../../../stemjs/base/Fetch";
@@ -75,7 +75,7 @@ export class PrivateChat extends BaseStore("PrivateChat", {}, BaseChatObject) {
     }
 }
 
-PrivateChat.addChangeListener((obj: PrivateChat, event: StoreEvent) => {
+PrivateChat.addChangeListener((obj: PrivateChat, event: StateEvent) => {
     if (event.type === "privateMessage") {
         GlobalState.importState(event.state);
     }

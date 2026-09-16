@@ -1,15 +1,19 @@
 // The parts of d3-scale the charts here use: a continuous domain-to-range mapping, plus the tick
 // selection d3 performs, so axis labels land exactly where they always have.
 
-export interface ContinuousScale {
-    (value: any): number;
-    domain(values: any[]): ContinuousScale;
-    domain(): any[];
-    range(values: number[]): ContinuousScale;
+export type ScaleValue = number | Date;
+// A linear scale's values are numbers and a time scale's dates; left open it is one or the other, never a mix
+type ScaleValues<Value extends ScaleValue> = Value extends number ? number[] : Date[];
+
+export interface ContinuousScale<Value extends ScaleValue = ScaleValue> {
+    (value: ScaleValue): number;
+    domain(values: ScaleValue[]): ContinuousScale<Value>;
+    domain(): ScaleValues<Value>;
+    range(values: number[]): ContinuousScale<Value>;
     range(): number[];
-    invert(value: number): any;
-    copy(): ContinuousScale;
-    ticks(count?: number): any[];
+    invert(value: number): Value;
+    copy(): ContinuousScale<Value>;
+    ticks(count?: number): ScaleValues<Value>;
 }
 
 const E10 = Math.sqrt(50);
@@ -217,26 +221,26 @@ export function timeTicks(start: number, stop: number, count: number): Date[] {
     return unitRange(chosen.unit, chosen.step, start, stop + 1);
 }
 
-function makeScale(isTime: boolean): ContinuousScale {
+function makeScale<Value extends ScaleValue>(isTime: boolean): ContinuousScale<Value> {
     let domain: number[] = [0, 1];
     let range: number[] = [0, 1];
 
-    const scale = ((value: any) => {
+    const scale = ((value: ScaleValue) => {
         const [d0, d1] = domain;
         const [r0, r1] = range;
         if (d1 === d0) {
             return r0;
         }
         return r0 + (Number(value) - d0) / (d1 - d0) * (r1 - r0);
-    }) as ContinuousScale;
+    }) as ContinuousScale<Value>;
 
-    scale.domain = ((values?: any[]) => {
+    scale.domain = ((values?: ScaleValue[]) => {
         if (values === undefined) {
             return isTime ? domain.map(value => new Date(value)) : domain.slice();
         }
         domain = values.map(Number);
         return scale;
-    }) as ContinuousScale["domain"];
+    }) as ContinuousScale<Value>["domain"];
 
     scale.range = ((values?: number[]) => {
         if (values === undefined) {
@@ -244,33 +248,33 @@ function makeScale(isTime: boolean): ContinuousScale {
         }
         range = values.map(Number);
         return scale;
-    }) as ContinuousScale["range"];
+    }) as ContinuousScale<Value>["range"];
 
-    scale.invert = (value: number) => {
+    scale.invert = ((value: number) => {
         const [d0, d1] = domain;
         const [r0, r1] = range;
         const inverted = r1 === r0 ? d0 : d0 + (value - r0) / (r1 - r0) * (d1 - d0);
         return isTime ? new Date(inverted) : inverted;
-    };
+    }) as ContinuousScale<Value>["invert"];
 
     scale.copy = () => {
-        const other = makeScale(isTime);
+        const other = makeScale<Value>(isTime);
         other.domain(isTime ? domain.map(value => new Date(value)) : domain);
         other.range(range);
         return other;
     };
 
-    scale.ticks = (count: number = 10) => {
+    scale.ticks = ((count: number = 10) => {
         return isTime ? timeTicks(domain[0], domain[1], count) : numericTicks(domain[0], domain[1], count);
-    };
+    }) as ContinuousScale<Value>["ticks"];
 
     return scale;
 }
 
-export function scaleLinear(): ContinuousScale {
+export function scaleLinear(): ContinuousScale<number> {
     return makeScale(false);
 }
 
-export function scaleTime(): ContinuousScale {
+export function scaleTime(): ContinuousScale<Date> {
     return makeScale(true);
 }

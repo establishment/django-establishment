@@ -59,17 +59,6 @@ export class QuestionnaireStyle extends StyleSheet {
     };
 
     @styleRule
-    finished = {
-        fontSize: "1.5em",
-        alignItems: "center",
-        height: "250px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        textAlign: "center"
-    };
-
-    @styleRule
     otherInput = {
         outline: 0,
         border: 0,
@@ -264,8 +253,8 @@ export class QuestionPage extends UI.Element {
 class OrderedChildrenSwitcher extends Switcher {
     declare childIndex: number;
 
-    constructor() {
-        super(...arguments);
+    constructor(options: OrderedChildrenSwitcher["options"]) {
+        super(options);
         this.childIndex = 0;
     }
 
@@ -389,10 +378,6 @@ export interface DelayedQuestionnairePanelOptions {
 export class DelayedQuestionnairePanel extends UI.Element {
     declare options: ElementOptions<DelayedQuestionnairePanelOptions>;
 
-    isFinished() {
-        return !!QuestionnaireInstance.getCurrentUserInstance(this.options.questionnaireId).dateSubmitted;
-    }
-
     render() {
         if (this.options.error) {
             return StateDependentElement.renderError(this.options.error);
@@ -400,16 +385,6 @@ export class DelayedQuestionnairePanel extends UI.Element {
         if (!this.options.loaded) {
             return StateDependentElement.renderLoading();
         }
-        // if (this.isFinished()) {
-        //     return <div className={this.styleSheet.finished}>
-        //                 <div>
-        //                     {UI.T("We have received your answer for this form.")}
-        //                 </div>
-        //                 <div>
-        //                     {UI.T("Thank you!")}
-        //                 </div>
-        //            </div>;
-        // }
         return <QuestionnairePanel questionnaireId={this.options.questionnaireId}/>
     }
 

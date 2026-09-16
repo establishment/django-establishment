@@ -1,4 +1,4 @@
-import {UI, type ElementOptions, type ExtendedOptions, type NodeAttributes} from "../../../stemjs/ui/UIBase";
+import {UI, type ElementOptions, type NodeAttributes} from "../../../stemjs/ui/UIBase";
 import {Link} from "../../../stemjs/ui/primitives/Link";
 import {Route} from "../../../stemjs/ui/Router";
 import {registerStyle} from "../../../stemjs/ui/style/Theme";
@@ -6,7 +6,7 @@ import {TimePassedSpan} from "../../../stemjs/ui/misc/TimePassedSpan";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {type StoreId} from "../../../stemjs/state/State";
 import {slugify, multikeySort} from "../../../stemjs/base/Utils";
-import {StateDependentElement, type PageState, type StateDependentElementOptions} from "../../../stemjs/ui/StateDependentElement";
+import {StateDependentElement, type PageOptions, type PageState} from "../../../stemjs/ui/StateDependentElement";
 
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 import {ChatMarkupRenderer} from "../../chat/js/ChatMarkupRenderer";
@@ -293,7 +293,7 @@ export class ForumPanel extends UI.Element {
 }
 
 export class DelayedForumPanel extends StateDependentElement(ForumPanel) {
-    declare options: ExtendedOptions<ForumPanel, StateDependentElementOptions & {forumId: StoreId}>;
+    declare options: PageOptions<ForumPanel, {forumId: StoreId}>;
 
     importState(data: PageState) {
         super.importState(data);
@@ -302,7 +302,7 @@ export class DelayedForumPanel extends StateDependentElement(ForumPanel) {
 }
 
 export class DelayedForumThreadPanel extends StateDependentElement(ForumThreadPanel) {
-    declare options: ExtendedOptions<ForumThreadPanel, StateDependentElementOptions & {forumThreadId: StoreId}>;
+    declare options: PageOptions<ForumThreadPanel, {forumThreadId: StoreId}>;
 
     // TODO: must be able to specify if URL is POST or GET in StateDependentElement
     beforeRedrawNotLoaded() {

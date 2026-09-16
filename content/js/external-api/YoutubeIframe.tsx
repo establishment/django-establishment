@@ -13,9 +13,8 @@ const State = {
 
 
 // The slice of the YouTube iframe API this uses. Declared rather than depended on: the script is loaded
-// from Youtube at runtime, and only these three members are ever touched
+// from Youtube at runtime, and only its constructor and destroy are ever touched
 interface YoutubePlayer {
-    addEventListener(event: string, callback: (...args: any[]) => void, ...extraArgs: unknown[]): void;
     destroy(): void;
 }
 
@@ -29,14 +28,11 @@ export interface YoutubeIframeOptions {
 
 export class YoutubeIframe extends UI.Element {
     declare options: ElementOptions<YoutubeIframeOptions>;
-    // Listener registrations queued until the player exists: the event, the callback, extra arguments
-    declare _delayedListeners?: [event: string, callback: (...args: any[]) => void, ...extraArgs: unknown[]][];
     declare player: YoutubePlayer;
     // Run once the YT global has loaded, then dropped
-    declare static _registeredCallbacks?: (() => void)[];
+    declare static registeredCallbacks?: (() => void)[];
     declare static youtubeAPI: YoutubeAPI;
 
-    static PLAYER_EVENTS = ["onReady", "onStateChange", "onPlaybackQualityChange", "onPlaybackRateChange", "onError", "onApiChange"];
     static YOUTUBE_API_STATE = State.NOT_STARTED;
 
     static ensureYoutubeAPI() {
@@ -48,21 +44,21 @@ export class YoutubeIframe extends UI.Element {
             self.onYouTubeIframeAPIReady = () => {
                 this.YOUTUBE_API_STATE = State.LOADED;
                 this.youtubeAPI = YT;
-                for (const callback of this._registeredCallbacks) {
+                for (const callback of this.registeredCallbacks) {
                     callback();
                 }
-                delete this._registeredCallbacks;
+                delete this.registeredCallbacks;
             }
         }
 
     }
 
     static registerDelayedCallback(callback: () => void) {
-        if (!this._registeredCallbacks) {
-            this._registeredCallbacks = [];
+        if (!this.registeredCallbacks) {
+            this.registeredCallbacks = [];
             this.ensureYoutubeAPI();
         }
-        this._registeredCallbacks.push(callback);
+        this.registeredCallbacks.push(callback);
     }
 
     static onYoutubeLoaded(callback: () => void) {
@@ -93,12 +89,6 @@ export class YoutubeIframe extends UI.Element {
             width: this.options.width,
             videoId: this.options.videoId
         });
-        if (this._delayedListeners) {
-            for (const delayedListener of this._delayedListeners) {
-                this.getPlayer().addEventListener(...delayedListener);
-            }
-            delete this._delayedListeners;
-        }
     }
 
     onMount() {
@@ -109,17 +99,5 @@ export class YoutubeIframe extends UI.Element {
 
     onUnmount() {
         this.getPlayer() && this.getPlayer().destroy();
-    }
-}
-for (const playerEvent of YoutubeIframe.PLAYER_EVENTS) {
-    // extraArgs stays open: this installs a listener adder per player event, and each takes its own
-    YoutubeIframe.prototype["add" + playerEvent.substring(2) + "Listener"] = function(callback: () => void, ...extraArgs: any[]) {
-        const player = this.getPlayer();
-        if (player) {
-            player.addEventListener(playerEvent, callback);
-        } else {
-            this._delayedListeners = this._delayedListeners || [];
-            this._delayedListeners.push([playerEvent, callback, ...extraArgs]);
-        }
     }
 }

@@ -12,7 +12,7 @@ import {Ajax} from "../../../stemjs/base/Ajax";
 import {slugify} from "../../../stemjs/base/Utils";
 import {MarkupEditor} from "../../content/js/markup/MarkupEditor";
 import {StemDate} from "../../../stemjs/time/Date";
-import {StateDependentElement, type StateDependentElementOptions} from "../../../stemjs/ui/StateDependentElement";
+import {StateDependentElement, type PageOptions} from "../../../stemjs/ui/StateDependentElement";
 import {Theme} from "../../../stemjs/ui/style/Theme";
 import {ArticleEditor} from "../../content/js/ArticleEditor";
 import {AsyncCommentThread} from "../../chat/js/CommentWidget";
@@ -430,7 +430,7 @@ class DelayedBlogEntryList extends StateDependentElement(BlogEntryList) {
 }
 
 class DelayedBlogEntryView extends StateDependentElement(BlogEntryView) {
-    declare options: ExtendedOptions<BlogEntryView, StateDependentElementOptions & {entryURL: string}>;
+    declare options: PageOptions<BlogEntryView, {entryURL: string}>;
 
     getBlogEntry() {
         return BlogEntry.getEntryForURL(this.options.entryURL);
