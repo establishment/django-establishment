@@ -352,7 +352,8 @@ class GroupChat(StreamObjectMixin):
     group = models.ForeignKey("accounts.UserGroup", on_delete=models.CASCADE, null=True, blank=True)
     max_message_size = models.IntegerField(default=4096)
 
-    stream_name_pattern = re.compile(r"messagethread-groupchat-(\d+)-m=(\d+)")
+    # TODO: migrate the older message threads still storing "-m=" stream names, then drop "=" from this pattern
+    stream_name_pattern = re.compile(r"messagethread-groupchat-(\d+)-m[=-](\d+)")
 
     class Meta:
         db_table = "GroupChat"

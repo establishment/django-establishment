@@ -70,7 +70,8 @@ class ForumThread(StreamObjectMixin):
     hidden = models.BooleanField(default=False)
     pinned_index = models.IntegerField(blank=True, null=True)
 
-    stream_name_pattern = re.compile(r"messagethread-forumthread-(\d+)-m=(\d+)")
+    # TODO: migrate the older message threads still storing "-m=" stream names, then drop "=" from this pattern
+    stream_name_pattern = re.compile(r"messagethread-forumthread-(\d+)-m[=-](\d+)")
 
     class Meta:
         db_table = "ForumThread"
@@ -89,7 +90,7 @@ class ForumThread(StreamObjectMixin):
         return [self.message_thread.stream_name, self.parent.get_stream_name()]
 
     def get_desired_stream_name(self):
-        return "messagethread-forumthread-" + str(self.id) + "-m=" + str(self.message_thread_id)
+        return "messagethread-forumthread-" + str(self.id) + "-m-" + str(self.message_thread_id)
 
     @classmethod
     def create(cls, author, title, content, parent_forum):
@@ -107,7 +108,7 @@ class ForumThread(StreamObjectMixin):
 
     @classmethod
     def matches_stream_name(cls, stream_name):
-        return cls.stream_name_pattern.match(stream_name)
+        return cls.stream_name_pattern.match(stream_name) is not None
 
     @classmethod
     def can_subscribe(cls, user, stream_name):
