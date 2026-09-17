@@ -4,6 +4,7 @@ import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 export class SocialApp extends BaseStore("SocialApp") {
     declare name: string;
     declare clientId: string;
+    declare key: string;
 
     getClientId() {
         return this.clientId;

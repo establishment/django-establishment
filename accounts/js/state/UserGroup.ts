@@ -6,7 +6,8 @@ import {type StoreEvent, type StoreId, type RawStoreObject} from "../../../../st
 @globalStore
 export class UserGroup extends BaseStore("UserGroup") {
     declare id: number;
-    declare name: string;
+    declare ownerId: number;
+    declare name?: string;
     members: Map<StoreId, UserGroupMember> = new Map();
     membersByUserId: Map<StoreId, UserGroupMember> = new Map();
 
@@ -54,6 +55,7 @@ export class UserGroupMember extends BaseStore("UserGroupMember", {
 }) {
     @field(PublicUser) user;
     @field(UserGroup) group;
+    declare muted: boolean;
 
     constructor(obj: RawStoreObject, event?: StoreEvent) {
         super(obj, event);

@@ -35,6 +35,7 @@ export interface CommandLog {
 
 @globalStore
 export class CommandInstance extends BaseStore("CommandInstance") {
+    declare classInstance: string;
     declare name: string;
     declare description: string;
     declare promptForConfirmation: boolean;

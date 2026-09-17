@@ -7,7 +7,9 @@ import {multikeySort} from "../../../../stemjs/base/Utils";
 @globalStore
 export class Questionnaire extends BaseStore("questionnaire") {
     declare id: number;
-    declare title?: string;
+    declare name: string;
+    declare ownerId: number;
+    declare visible: boolean;
     questions: QuestionnaireQuestion[] = [];
 
     getQuestions(): QuestionnaireQuestion[] {
@@ -37,8 +39,8 @@ export class QuestionnaireQuestion extends BaseStore("questionnairequestion", {d
 
     @field(Questionnaire) questionnaire;
     declare priority: number;
-    declare text?: string;
-    declare type?: number;
+    declare text: string;
+    declare type: number;
     options: QuestionnaireQuestionOption[] = [];
 
     getQuestionnaire(): Questionnaire {
@@ -74,7 +76,6 @@ export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestio
 
     @field(QuestionnaireQuestion) question;
     declare priority: number;
-    declare text?: string;
 
     constructor(obj?: RawStoreObject) {
         super(obj);
@@ -90,6 +91,8 @@ export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestio
 
 @globalStore
 export class QuestionnaireInstance extends BaseStore("QuestionnaireInstance", {dependencies: ["questionnaire", "questionnairequestion", "QuestionnaireQuestionOption"]}) {
+    // Unix timestamps
+    declare dateCreated: number;
     declare dateSubmitted?: number;
 
     @field(Questionnaire) questionnaire;
