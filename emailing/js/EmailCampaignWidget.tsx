@@ -281,7 +281,7 @@ class EmailCampaignTableRow extends TableRow<EmailCampaign> {
 
 
 @autoredraw(EmailCampaign)
-class EmailCampaignTable extends SortableTable {
+class EmailCampaignTable extends SortableTable<EmailCampaign> {
     getRowClass() {
         return EmailCampaignTableRow;
     }

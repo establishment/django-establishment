@@ -221,7 +221,7 @@ export class ForumThreadList extends UI.Element {
     }
 
     render() {
-        // Pinned threads come first, ordered among themselves by pin index rather than by activity
+        // Pinned first by pin index, the rest by activity; the flag keeps a pin index from meeting a date
         const forumThreads = multikeySort(this.options.forum.getForumThreads(), forumThread => {
             const isPinned = forumThread.isPinned();
             return [isPinned, isPinned ? forumThread.getPinIndex() : forumThread.lastActive];

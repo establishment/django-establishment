@@ -4,7 +4,7 @@ import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 import {BaseStore, globalStore} from "../../../../stemjs/state/Store";
 import {field} from "../../../../stemjs/state/StoreField";
 import {VirtualObjectStoreMixin} from "../../../../stemjs/state/mixins/VirtualObjectStoreMixin";
-import {StemDate} from "../../../../stemjs/time/Date";
+import {type StemDate} from "../../../../stemjs/time/Date";
 import {ServerTime} from "../../../../stemjs/time/Time";
 import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
 import {UserReactionCollection} from "../../../accounts/js/state/UserReaction";
@@ -29,7 +29,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     static dependencies: StoreObjectType[] = ["messagethread", "publicuser"];
 
     declare content: string;
-    declare timeAdded: number;
+    @field(Date) timeAdded: StemDate;
     declare userId: number;
     // Named rather than passed: MessageThread is declared below this class
     @field("MessageThread") messageThread: MessageThread;
@@ -54,7 +54,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
         return parseInt(messageId);
     }
 
-    getDate(): number {
+    getDate(): StemDate {
         return this.timeAdded;
     }
 
@@ -129,7 +129,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
     }
 
     getTimeOfDay(): string {
-        return StemDate.unix(this.timeAdded).format("HH:mm");
+        return this.timeAdded.format("HH:mm");
     }
 
     edit(content: string, onSuccess: () => void = NOOP_FUNCTION, onError: () => void = NOOP_FUNCTION): void {
@@ -202,7 +202,7 @@ export class MessageInstance extends VirtualObjectStoreMixin("MessageInstance") 
             content: messageContent,
             temporaryId: temporaryId,
             id: "temp-" + temporaryId,
-            timeAdded: ServerTime.now().toUnix(),
+            timeAdded: ServerTime.now(),
             userId: parseInt(String(USER.id)),
             messageThreadId: messageThread.id,
             meta: {},

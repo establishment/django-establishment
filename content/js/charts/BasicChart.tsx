@@ -18,8 +18,7 @@ export interface ChartDimensions {
     height: number;
 }
 
-// How a plot reads its points out of whatever data it was handed. Both shapes are the caller's, and a
-// chart that names them gets its aliases checked; the defaults leave an un-migrated one as it was
+// How a plot reads its points out of the data it was handed, in whatever shape the caller holds
 export interface PlotOptions<Datum = unknown, Point = unknown> {
     pointsAlias: (data: Datum) => Point[];
     xCoordinateAlias: (point: Point) => number;
@@ -217,8 +216,7 @@ export class BasicAxis extends SVGGroup {
     }
 }
 
-// The chart writes itself onto each child in redraw, and every plot reads it back off its own options.
-// A plot draws into the chart's SVG, so its node is an SVG one rather than the HTML element UIElement defaults to.
+// Written onto each child at redraw, and drawn into the chart's SVG rather than an HTML node
 export type ChartChild = UIElement<any, SVGElement | HTMLElement, any> & {options: {chart?: BasicChart}};
 
 export interface BasicChartOptions {
@@ -516,8 +514,7 @@ export class TimeChart extends BasicChart {
         this.zoomListener = (event) => {
             if (this.options.applyZoom) {
                 let x = event.transform.x, y = event.transform.y, k = event.transform.k;
-                // A transform is a value object, so the pan is clamped into a new one rather than written
-                // back into the event's, and that new one is what d3 keeps on the node
+                // A transform is a value object: the clamp builds a new one, which is what d3 keeps
                 const transform = zoomIdentity
                     .translate(Math.min(0, Math.max(x, this.options.chartOptions.width * (1 - k))),
                                Math.min(0, Math.max(y, this.options.chartOptions.height * (1 - k))))

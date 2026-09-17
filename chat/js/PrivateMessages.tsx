@@ -14,6 +14,7 @@ import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {MessagesPanelListStyle} from "./SocialNotificationsStyle";
 import {PrivateChatWidget} from "./ChatWidget";
 import {PrivateChat} from "./state/ChatStore";
+import {type MessageInstance} from "./state/MessageThreadStore";
 import {UserHandle} from "../../../csaaccounts/js/UserHandle";
 import {type StoreId} from "../../../stemjs/state/State";
 
@@ -61,8 +62,8 @@ class MiniMessage extends UI.Element {
         return this.getPrivateChat().getMessageThread();
     }
 
-    getLastMessage() {
-        return this.getMessageThread().getLastMessage() || {content: "", timeAdded: 0, id: "0"};
+    getLastMessage(): MessageInstance | null {
+        return this.getMessageThread().getLastMessage();
     }
 
     getUserId() {
@@ -84,13 +85,14 @@ class MiniMessage extends UI.Element {
     }
 
     render() {
+        const lastMessage = this.getLastMessage();
         return [
             <UserHandle ref="userHandle" id={this.getUserId()} noPopup color={this.options.active ? "white" : null}/>,
             <div ref="timeAttribute" className="pull-right" style={{color: (this.options.active ? "white" : "#888"),}}>
-                {(this.getLastMessage().timeAdded !== 0 ? formatMiniMessageLastTime(new StemDate(this.getLastMessage().timeAdded)) : "")}
+                {lastMessage ? formatMiniMessageLastTime(lastMessage.timeAdded) : ""}
             </div>,
             <div style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingTop: "8px",}}>
-                {this.getLastMessage().content}
+                {lastMessage?.content ?? ""}
             </div>,
         ];
     }
@@ -243,9 +245,9 @@ class MessagesList extends UI.Element {
                                            list={this} privateChatId={privateChat.id} />;
             this.miniMessages.push(miniMessage);
         }
-        this.miniMessages.sort((a, b) => {
-            return - a.getLastMessage().timeAdded + b.getLastMessage().timeAdded;
-        });
+        // A chat with no messages yet goes last
+        const lastTime = (miniMessage: MiniMessage) => miniMessage.getLastMessage()?.timeAdded.valueOf() ?? 0;
+        this.miniMessages.sort((a, b) => lastTime(b) - lastTime(a));
         return this.miniMessages;
     }
 

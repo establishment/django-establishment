@@ -3,6 +3,7 @@ import {NOOP_FUNCTION} from "../../../../stemjs/base/Utils";
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {field} from "../../../../stemjs/state/StoreField";
 import {type StoreEvent, type RawStoreObject} from "../../../../stemjs/state/State";
+import {type StemDate} from "../../../../stemjs/time/Date";
 
 import {PublicUser} from "../../../../csaaccounts/js/state/UserStore";
 import {MessageThread, MessageInstance} from "../../../chat/js/state/MessageThreadStore";
@@ -60,12 +61,12 @@ export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum
     @field(PublicUser) author;
     @field(MessageInstance) contentMessage;
     declare hidden?: boolean;
-    declare lastActive: number;
+    @field(Date) lastActive: StemDate;
     @field("MessageThread") messageThread: MessageThread;
     declare numMessages: number;
     @field(Forum) parent;
     declare pinnedIndex?: number;
-    declare timeAdded: number;
+    @field(Date) timeAdded: StemDate;
     declare title: string;
     declare votesBalance: number;
 
@@ -111,12 +112,11 @@ export class ForumThread extends BaseStore("forumthread", {dependencies: ["forum
         return this.messageThread;
     }
 
-    getTimeAdded() {
-        // TODO: maybe return formatted time
+    getTimeAdded(): StemDate {
         return this.timeAdded;
     }
 
-    getLastActive() {
+    getLastActive(): StemDate {
         return this.lastActive;
     }
 

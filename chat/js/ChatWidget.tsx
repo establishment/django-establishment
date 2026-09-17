@@ -11,7 +11,7 @@ import {Level, Size} from "../../../stemjs/ui/Constants";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {Pluginable} from "../../../stemjs/base/Plugin";
 import {GlobalState, type StoreEvent, type StoreId} from "../../../stemjs/state/State";
-import {StemDate, TimeUnit} from "../../../stemjs/time/Time";
+import {TimeUnit} from "../../../stemjs/time/Time";
 import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
 import {ButtonStyle} from "../../../stemjs/ui/button/ButtonStyle";
 import {InputStyle} from "../../../stemjs/ui/input/Style";
@@ -65,7 +65,7 @@ export interface ChatMessageElement extends UIElement {
 // The divider only says something above the first message of a day
 function startsNewDay(message: MessageInstance): boolean {
     const previous = message.getPreviousMessage();
-    return !previous || !new StemDate(previous.timeAdded).isSame(message.timeAdded, TimeUnit.DAY);
+    return !previous || !previous.timeAdded.isSame(message.timeAdded, TimeUnit.DAY);
 }
 
 // Shared by the two message classes that draw a divider, which have no common base below UI.Element
@@ -263,7 +263,7 @@ class GroupChatMessage extends EditableMessage {
         if (this.shouldShowDayTimestamp()) {
             date = <div ref="dayTimestamp" className={this.styleSheet.messageTimeStampHr}>
                 <div className={this.styleSheet.messageTimeStamp}>
-                    {StemDate.unix(this.message.timeAdded).format("dddd, MMMM Do")}
+                    {this.message.timeAdded.format("dddd, MMMM Do")}
                 </div>
             </div>;
         }
@@ -341,7 +341,7 @@ class PrivateChatMessage extends UI.Element {
         if (this.shouldShowDayTimestamp()) {
             date = <div className={this.styleSheet.messageTimeStampHr}>
                 <div ref="dayTimestamp" className={this.styleSheet.messageTimeStamp}>
-                    {StemDate.unix(this.message.timeAdded).format("dddd, MMMM Do")}
+                    {this.message.timeAdded.format("dddd, MMMM Do")}
                 </div>
             </div>;
         }

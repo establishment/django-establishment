@@ -151,13 +151,9 @@ class CommandRunDuration extends UI.Primitive("span") {
         if (this.options.commandRun.status === 0) {
             return "-";
         }
-        let time;
-        if (this.options.commandRun.status === 1) {
-            time = StemDate.now() / 1000 - this.options.commandRun.dateCreated;
-        } else {
-            time = this.options.commandRun.dateFinished - this.options.commandRun.dateCreated
-        }
-        return Formatter.truncate(time, 2);
+        const {status, dateCreated, dateFinished} = this.options.commandRun;
+        const endTime = status === 1 ? StemDate.now() : dateFinished;
+        return Formatter.truncate((endTime - dateCreated) / 1000, 2);
     }
 
     onMount() {
@@ -188,7 +184,7 @@ class PastCommandsTable extends Table<CommandRun> {
                 value: (commandRun: CommandRun) => <UserHandle userId={commandRun.userId}/>,
                 headerName: "User"
             }, {
-                value: (commandRun: CommandRun) => StemDate.format(commandRun.dateCreated, "DD/MM/YYYY HH:mm"),
+                value: (commandRun: CommandRun) => commandRun.dateCreated.format("DD/MM/YYYY HH:mm"),
                 headerName: "Date"
             }, {
                 value: (commandRun: CommandRun) => <CommandRunDuration commandRun={commandRun}/>,

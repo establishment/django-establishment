@@ -325,8 +325,8 @@ export interface ArticleTableOptions {
     columns?: ColumnHandler<Article>[];
 }
 
-class ArticleTable extends SortableTable {
-    declare options: ExtendedOptions<InstanceType<typeof SortableTable>, ArticleTableOptions>;
+class ArticleTable extends SortableTable<Article> {
+    declare options: ExtendedOptions<SortableTable<Article>, ArticleTableOptions>;
 
     setOptions(options: typeof this.options) {
         super.setOptions(options);
@@ -386,14 +386,14 @@ class ArticleTable extends SortableTable {
             cellStyle: cellStyle
         }, {
             value: article => article.dateCreated.format("DD/MM/YYYY HH:mm:ss"),
-            rawValue: (article: Article) => article.dateCreated.valueOf(),
+            rawValue: (article: Article) => article.dateCreated,
             sortDescending: true,
             headerName: "Date created",
             headerStyle: headerStyle,
             cellStyle: cellStyle
         }, {
             value: article => article.dateModified.format("DD/MM/YYYY HH:mm:ss"),
-            rawValue: (article: Article) => article.dateModified.valueOf(),
+            rawValue: (article: Article) => article.dateModified,
             sortDescending: true,
             headerName: "Date modified",
             headerStyle: headerStyle,

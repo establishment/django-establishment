@@ -1,5 +1,7 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {type StoreEvent} from "../../../../stemjs/state/State";
+import {field} from "../../../../stemjs/state/StoreField";
+import {type StemDate} from "../../../../stemjs/time/Date";
 
 export interface SelectArgumentChoice {
     key: string | number;
@@ -54,8 +56,8 @@ const verboseStatus = ["Waiting", "Running", "Failed", "Successful"];
 export class CommandRun extends BaseStore("CommandRun") {
     declare userId: number;
     declare commandInstanceId: number;
-    declare dateCreated: number;
-    declare dateFinished?: number;
+    @field(Date) dateCreated: StemDate;
+    @field(Date) dateFinished?: StemDate;
     // Keyed by the run option's shortName, holding what its form field answered with
     declare arguments?: Record<string, CommandRunOption["defaultValue"]>;
     // Whatever the command's run returned, or the traceback lines on failure; only ever stringified

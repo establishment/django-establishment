@@ -199,7 +199,7 @@ class EmailGatewayTableRow extends TableRow<EmailGateway> {
 
 
 @autoredraw(EmailGateway)
-class EmailGatewayTable extends SortableTable {
+class EmailGatewayTable extends SortableTable<EmailGateway> {
     getRowClass() {
         return EmailGatewayTableRow;
     }

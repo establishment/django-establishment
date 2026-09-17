@@ -247,7 +247,7 @@ class EmailTemplateTableRow extends TableRow<EmailTemplate> {
 
 
 @autoredraw(EmailTemplate)
-class EmailTemplateTable extends SortableTable {
+class EmailTemplateTable extends SortableTable<EmailTemplate> {
     getRowClass() {
         return EmailTemplateTableRow;
     }
