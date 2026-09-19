@@ -220,10 +220,11 @@ MessageInstance.addCreateListener((messageInstance: MessageInstance, createEvent
 @globalStore
 export class MessageThread extends BaseStore("MessageThread") {
     declare streamName: string;
-    declare messagesEditable?: boolean;
-    declare lastActivity?: number;
-    declare markupEnabled?: boolean;
-    declare muted?: boolean;
+    declare messagesEditable: boolean;
+    declare lastActivity: number;
+    declare markupEnabled: boolean;
+    declare muted: boolean;
+    declare metadata?: Record<string, unknown>;
     declare online: Set<StoreId>;
     declare messages: Map<StoreId, MessageInstance>;
 

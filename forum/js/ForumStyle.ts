@@ -295,10 +295,6 @@ class ForumThreadHeaderStyle extends StyleSheet {
     fontSize = "0.85em";
     widthLimit = 800;
 
-    constructor() {
-        super({});
-    }
-
     tagsHeight = 50;
     // borderTopColor = "rgb(232, 189, 35)";
     borderTopColor = "#333";
@@ -440,10 +436,6 @@ class ForumThreadBubbleStyle extends StyleSheet {
     fontSize = "1em";
     titlePaddingBottom = "10px";
     widthLimit = 800;
-
-    constructor() {
-        super({});
-    }
 
     baseStyleObject = {
         display: "inline-block",

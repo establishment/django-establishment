@@ -72,7 +72,7 @@ export class Article extends FetchStoreMixin("Article", {
 export class ArticleEdit extends BaseStore("articleedit", {dependencies: ["article"]}) {
     declare content: string;
     declare version: number;
-    declare dateModified: number;
+    @field(Date) dateModified: StemDate;
 
     @field(Article) article;
 

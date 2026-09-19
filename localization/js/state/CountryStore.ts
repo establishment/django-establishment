@@ -33,9 +33,9 @@ export class Country extends BaseStore("Country") {
     static comparator = (a: Country, b: Country): number => a.name > b.name ? 1 : -1;
 
     static allWithNone(noneName: string = "None") {
-         return [
+        return [
             NO_COUNTRY_PLACEHOLDER(noneName),
-            this.all()
+            ...this.all()
         ];
     }
 

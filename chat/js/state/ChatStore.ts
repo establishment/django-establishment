@@ -26,6 +26,8 @@ export class GroupChat extends FetchStoreMixin("GroupChat", {
     maxFetchObjectCount: 1,
 }, BaseChatObject) {
     declare id: number;
+    declare title: string;
+    declare maxMessageSize: number;
 
     static getFetchRequestData(entries: [StoreId, FetchJob<BaseChatObject, Partial<BaseFetchOptions>>[]][]) {
         return {

@@ -21,18 +21,12 @@ abstract class EmailGatewayModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, EmailGatewayModalOptions>;
     abstract getAjaxAction(): string;
 
-    declare fields: string[];
     declare hostInput: TextInput;
     declare nameInput: TextInput;
     declare passwordInput: PasswordInput;
     declare portInput: NumberInput;
     declare useTLSInput: RawCheckboxInput;
     declare usernameInput: TextInput;
-
-    constructor(options: EmailGatewayModal["options"]) {
-        super(options);
-        this.fields = ["name", "host", "port", "useTLS", "username"];
-    }
 
     getBody() {
         const gatewayValues: Partial<EmailGateway> = this.options.gateway || {};

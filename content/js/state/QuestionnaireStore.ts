@@ -1,6 +1,7 @@
 import {globalStore, BaseStore} from "../../../../stemjs/state/Store";
 import {field} from "../../../../stemjs/state/StoreField";
 import {type StoreId, type RawStoreObject} from "../../../../stemjs/state/State";
+import {type StemDate} from "../../../../stemjs/time/Date";
 import {multikeySort} from "../../../../stemjs/base/Utils";
 
 
@@ -91,9 +92,8 @@ export class QuestionnaireQuestionOption extends BaseStore("QuestionnaireQuestio
 
 @globalStore
 export class QuestionnaireInstance extends BaseStore("QuestionnaireInstance", {dependencies: ["questionnaire", "questionnairequestion", "QuestionnaireQuestionOption"]}) {
-    // Unix timestamps
-    declare dateCreated: number;
-    declare dateSubmitted?: number;
+    @field(Date) dateCreated: StemDate;
+    @field(Date) dateSubmitted?: StemDate;
 
     @field(Questionnaire) questionnaire;
     declare userId: number;

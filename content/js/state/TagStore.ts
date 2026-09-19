@@ -3,11 +3,12 @@ import {field} from "../../../../stemjs/state/StoreField";
 
 @globalStore
 export class Tag extends BaseStore("Tag") {
-    static _caseSensitiveCache?: Map<string, Tag>;
-    static _caseInsensitiveCache?: Map<string, Tag>;
+    static caseSensitiveCache?: Map<string, Tag>;
+    static caseInsensitiveCache?: Map<string, Tag>;
 
     declare id: number;
     declare name: string;
+    declare meta?: Record<string, unknown>;
     @field("self") parent?: Tag;
 
     toString(): string {
@@ -34,15 +35,15 @@ export class Tag extends BaseStore("Tag") {
     }
 
     static getTagByName(name: string): Tag | null {
-        if (!this._caseSensitiveCache) {
-            this._caseSensitiveCache = new Map();
+        if (!this.caseSensitiveCache) {
+            this.caseSensitiveCache = new Map();
         }
-        if (this._caseSensitiveCache.has(name)) {
-            return this._caseSensitiveCache.get(name) || null;
+        if (this.caseSensitiveCache.has(name)) {
+            return this.caseSensitiveCache.get(name) || null;
         }
         for (const tag of this.all()) {
             if (tag.name === name) {
-                this._caseSensitiveCache.set(name, tag);
+                this.caseSensitiveCache.set(name, tag);
                 return tag;
             }
         }
@@ -51,15 +52,15 @@ export class Tag extends BaseStore("Tag") {
 
     static getTagByNameInsensitive(name: string): Tag | null {
         const lowerCaseName = name.toLocaleLowerCase();
-        if (!this._caseInsensitiveCache) {
-            this._caseInsensitiveCache = new Map();
+        if (!this.caseInsensitiveCache) {
+            this.caseInsensitiveCache = new Map();
         }
-        if (this._caseInsensitiveCache.has(lowerCaseName)) {
-            return this._caseInsensitiveCache.get(lowerCaseName) || null;
+        if (this.caseInsensitiveCache.has(lowerCaseName)) {
+            return this.caseInsensitiveCache.get(lowerCaseName) || null;
         }
         for (const tag of this.all()) {
             if (tag.name.toLocaleLowerCase() === lowerCaseName) {
-                this._caseInsensitiveCache.set(name, tag);
+                this.caseInsensitiveCache.set(name, tag);
                 return tag;
             }
         }

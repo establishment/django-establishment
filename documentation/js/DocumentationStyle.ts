@@ -1,10 +1,6 @@
 import {StyleSheet, styleRule} from "../../../stemjs/ui/Style";
 
 export class DocumentationStyle extends StyleSheet {
-    constructor() {
-        super({});
-    }
-
     @styleRule
     panel = {
         height: "100%"
