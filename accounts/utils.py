@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
-from django.core.mail import EmailMultiAlternatives, EmailMessage, get_connection
+from django.core.mail import EmailMultiAlternatives, EmailMessage
 
 from django.utils.encoding import force_str
 
@@ -38,13 +38,9 @@ def render_template_mail(template_prefix, email, context, add_subject_prefix=Tru
             if ext == 'txt' and not bodies:
                 # We need at least one body
                 raise
-    with get_connection(
-            host=settings.ACCOUNTS_EMAIL_HOST,
-            port=settings.ACCOUNTS_EMAIL_PORT,
-            username=settings.ACCOUNTS_EMAIL_USER,
-            password=settings.ACCOUNTS_EMAIL_PASSWORD,
-            use_tls=settings.ACCOUNTS_EMAIL_TLS
-    ) as connection:
+    from establishment.emailing.models import EmailGateway
+    gateway = EmailGateway.objects.get(name=settings.ACCOUNTS_EMAIL_GATEWAY)
+    with gateway.get_connection() as connection:
         if 'txt' in bodies:
             msg = EmailMultiAlternatives(subject, bodies['txt'], settings.DEFAULT_FROM_EMAIL, [email], connection=connection)
             if 'html' in bodies:
