@@ -1,6 +1,6 @@
 import {UI, type NodeAttributes, type UIElement} from "../../../stemjs/ui/UIBase";
 import {TabArea} from "../../../stemjs/ui/tabs/TabArea";
-import {GlobalStyle} from "../../../stemjs/ui/GlobalStyle";
+import {Container} from "../../../stemjs/ui/ContainerStyle";
 
 import {EmailGatewayWidget} from "./EmailGatewayWidget";
 import {EmailCampaignWidget} from "./EmailCampaignWidget";
@@ -14,7 +14,7 @@ class EmailManager extends UI.Element {
 
     extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
-        attr.addClass(GlobalStyle.Container.sm);
+        attr.addClass(Container.sm);
     }
 
     getUrlPrefix(urlPart: string) {

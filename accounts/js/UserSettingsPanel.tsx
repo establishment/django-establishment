@@ -12,7 +12,7 @@ import {Ajax} from "../../../stemjs/base/Ajax";
 import {multikeySort} from "../../../stemjs/base/Utils";
 import {Button} from "../../../stemjs/ui/button/Button";
 import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
-import {GlobalStyle} from "../../../stemjs/ui/GlobalStyle";
+import {Container} from "../../../stemjs/ui/ContainerStyle";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 
 import {User} from "../../../csaaccounts/js/state/UserStore";
@@ -467,7 +467,7 @@ export class UserSettingsPanel extends UI.Element {
         attr.setStyle({
             height: "500px"
         });
-        attr.addClass(GlobalStyle.Container.sm);
+        attr.addClass(Container.sm);
     }
 
     getUrlPrefix(str: string) {

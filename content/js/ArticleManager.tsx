@@ -13,7 +13,7 @@ import {Level} from "../../../stemjs/ui/Constants";
 import {Ajax} from "../../../stemjs/base/Ajax";
 import {AjaxButton} from "../../../stemjs/ui/button/AjaxButton";
 import {FAIcon} from "../../../stemjs/ui/FontAwesome";
-import {GlobalStyle} from "../../../stemjs/ui/GlobalStyle";
+import {Container} from "../../../stemjs/ui/ContainerStyle";
 
 import {PublicUser} from "../../../csaaccounts/js/state/UserStore";
 import {Language} from "../../localization/js/state/LanguageStore";
@@ -448,7 +448,7 @@ class ArticleManager extends UI.Element {
 
     extraNodeAttributes(attr: NodeAttributes) {
         super.extraNodeAttributes(attr);
-        attr.addClass(GlobalStyle.Container.sm);
+        attr.addClass(Container.sm);
     }
 
     setOptions(options: typeof this.options) {
