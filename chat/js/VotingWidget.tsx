@@ -117,8 +117,6 @@ class VotingWidget extends UI.Element {
 
 export interface CommentVotingWidgetOptions {
     message?: Votable;
-    // Left as the concrete class: the instanceof below narrows on it, but getReactionCollection answers
-    // with a ReactionCounts, so no one declaration types both arms of updateTarget
     target?: UserReactionCollection | Votable;
 }
 
@@ -141,7 +139,7 @@ class CommentVotingWidget extends VotingWidget {
     }
 
     updateTarget(target) {
-        if (!target || target instanceof UserReactionCollection) {
+        if (!target) {
             this.options.target = target;
             return;
         }
