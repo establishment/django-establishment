@@ -144,21 +144,21 @@ class ViewSet:
                 # Empty paths should never be used in view-sets
                 raise RuntimeError("NO EMPTY URLS!")
 
+            # A regex is registered as written, so its own anchors decide which paths it matches
             if "(?P" in url_path:
-                django_path_func = re_path
-            else:
-                django_path_func = path
+                urlpatterns.append(re_path(url_path, view))
+                continue
 
             # TODO @cleanup nooooooooooo
             # Ensure the all URLs have a trailing slash
             if not url_path.endswith("/"):
                 url_path += "/"
 
-            urlpatterns.append(django_path_func(url_path, view))
+            urlpatterns.append(path(url_path, view))
 
             # Also adding the version of the URL without the trailing space.
             if len(url_path) > 1 and url_path.endswith("/"):
-                urlpatterns.append(django_path_func(url_path[:-1], view))
+                urlpatterns.append(path(url_path[:-1], view))
 
         return urlpatterns
 
