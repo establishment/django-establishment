@@ -64,7 +64,7 @@ class SSHRun:
 
 # Class that handles running commands on a remote machine
 class SSHWorker:
-    def __init__(self, logger: Any, address: str, user: str = "root", auto_add: bool = False):
+    def __init__(self, logger: Any, address: str, user: str = "root", auto_add: bool = False, timeout: Optional[float] = None):
         self.logger = logger
         self.address = address
         self.user = user
@@ -75,7 +75,7 @@ class SSHWorker:
         else:
             self.client.set_missing_host_key_policy(paramiko.RejectPolicy())
 
-        self.client.connect(self.address, username=user)
+        self.client.connect(self.address, username=user, timeout=timeout)
 
     def log(self, *arguments, **keywords):
         self.logger.log(*arguments, **keywords)
