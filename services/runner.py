@@ -4,7 +4,7 @@ from typing import Optional
 
 
 REQUIRED_COMMANDS = ["start", "stop"]
-OPTIONAL_COMMANDS = ["deploy", "post_deploy"]
+OPTIONAL_COMMANDS = ["deploy", "post_deploy", "drain"]
 DEFAULT_MISSING_FILE_ERROR = "Failed to open file {}"
 
 
