@@ -1,17 +1,26 @@
-from typing import Optional, Any
+import copy
+from typing import Optional, Any, Self
 
 from establishment.utils.errors import APIError
 from establishment.webapp.base_views import JSONResponse
 
 
 class OldAPIError(APIError):
+    extra: dict[str, Any] = {}
+
+    def with_extra(self, extra: dict[str, Any]) -> Self:
+        # A copy, since each error is a shared module-level instance
+        error = copy.copy(self)
+        error.extra = extra
+        return error
+
     def to_response(self, extra: Optional[dict[str, Any]] = None) -> JSONResponse:
         response = {
             "error": self.to_json(),
         }
         if extra:
             response.update(extra)
-        response["error"].update(getattr(self, "extra", {}))
+        response["error"].update(self.extra)
         return JSONResponse(response)
 
     def to_json(self) -> dict[str, Any]:
