@@ -235,12 +235,10 @@ class RedisPriorityQueue(object):
         self.name = name
         self.redis_connection = StrictRedis(**connection_info)
 
-    def push(self, score: float, value: str):
-        """
-        Adds the string 'value' in queue with priority 'score'
-        :return: true if the element was added and false if it already exists
-        """
-        return self.redis_connection.execute_command("ZADD", self.name, score, value) == 1
+    # Adds the value with priority score, answering whether it was new; keep_existing leaves a queued one's score alone
+    def push(self, score: float, value: str, keep_existing: bool = False) -> bool:
+        flags = ["NX"] if keep_existing else []
+        return self.redis_connection.execute_command("ZADD", self.name, *flags, score, value) == 1
 
     def pop(self) -> bool:
         """
@@ -259,13 +257,10 @@ class RedisPriorityQueue(object):
         else:
             return None
 
-    def get_and_pop(self) -> Optional[bytes]:
-        """
-        Gets the first element in queue and removes it
-        :return: the first element in queue or None if the queue was empty
-        """
+    # The first element with its score, removed from the queue, or None if the queue was empty
+    def get_and_pop(self) -> Optional[tuple[bytes, float]]:
         pipeline = self.redis_connection.pipeline(transaction=True)
-        pipeline.zrange(self.name, 0, 0)
+        pipeline.zrange(self.name, 0, 0, withscores=True)
         pipeline.zremrangebyrank(self.name, 0, 0)
         result = pipeline.execute()
         if len(result[0]) > 0:

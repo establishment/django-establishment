@@ -146,10 +146,11 @@ class Daemon:
 
         total_time = 0.0
 
-        # Try killing the daemon process
+        # Signalled once, then polled, since the daemon logs every stop signal it receives
         try:
+            os.kill(pid, signal_number)
             while 1:
-                os.kill(pid, signal_number)
+                os.kill(pid, 0)
                 sleep_time = 0.1
                 time.sleep(sleep_time)
                 if timeout:

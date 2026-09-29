@@ -75,7 +75,7 @@ class SSHWorker:
         else:
             self.client.set_missing_host_key_policy(paramiko.RejectPolicy())
 
-        self.client.connect(self.address, username=user, timeout=timeout)
+        self.client.connect(self.address, username=user, timeout=timeout, banner_timeout=timeout, auth_timeout=timeout)
 
     def log(self, *arguments, **keywords):
         self.logger.log(*arguments, **keywords)
@@ -155,6 +155,9 @@ class SSHWorker:
         else:
             self.ftp_client.put(zip_file, "/tmp/deploy.tar.gz")
             self.run(f"tar -xvf /tmp/deploy.tar.gz --directory {remote_folder}")
+
+    def __enter__(self) -> SSHWorker:
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.client.close()
