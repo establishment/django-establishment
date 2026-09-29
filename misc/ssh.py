@@ -16,12 +16,13 @@ class SSHRun:
     Class to wrap a single remote run call
     """
 
-    def __init__(self, worker: SSHWorker, command: str, max_output_size: int = 1 << 20):
+    def __init__(self, worker: SSHWorker, command: str, max_output_size: int = 1 << 20, timeout: Optional[float] = None):
         self.worker = worker
         self.command = command
         self.failed = False
         self.output = ""
         self.max_output_size = max_output_size
+        self.timeout = timeout  # For the whole command, since a connection that dies silently never reports an exit
 
         worker.log("Running command ", command)
 
@@ -48,7 +49,11 @@ class SSHRun:
                 self.worker.log(data_str, end="")
 
     def execute(self):
+        started_at = time.monotonic()
         while not self.channel.exit_status_ready():
+            if self.timeout is not None and time.monotonic() - started_at > self.timeout:
+                self.channel.close()
+                raise TimeoutError(f"SSH command still running after {self.timeout}s: {self.command}")
             self.log_output()
             time.sleep(0.05)
 
@@ -127,8 +132,8 @@ class SSHWorker:
         return json.loads(content)
 
     # Run a shell command on the remote host
-    def run(self, command: str, stop_at_error: bool = True) -> SSHRun:
-        current_run = SSHRun(self, command)
+    def run(self, command: str, stop_at_error: bool = True, timeout: Optional[float] = None) -> SSHRun:
+        current_run = SSHRun(self, command, timeout=timeout)
         if current_run.failed and stop_at_error:
             raise Exception("SSH command failed: " + command)
         return current_run
