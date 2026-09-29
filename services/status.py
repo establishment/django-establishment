@@ -1,3 +1,5 @@
+import json
+import logging
 import os
 import resource
 import threading
@@ -6,7 +8,10 @@ from typing import Optional, Any
 
 from establishment.misc.ifconfig import get_default_network_interface
 from establishment.misc.threading_helper import ThreadHandler
-from establishment.funnel.redis_stream import RedisStreamPublisher
+from establishment.funnel.encoder import StreamJSONEncoder
+from establishment.funnel.redis_stream import RedisStreamPublisher, RetryRedis, get_default_redis_connection_pool
+
+LIVE_STATUS_TIMEOUT_SECONDS = 60
 
 
 class ServiceStatus(object):
@@ -139,23 +144,66 @@ class ServiceStatus(object):
         }
 
         cls.status_stream.publish_json(response)
+        cls.save_status(temp_status, lifecycle)
+
+    @staticmethod
+    def get_redis_connection() -> RetryRedis:
+        return RetryRedis(connection_pool=get_default_redis_connection_pool())
+
+    # The set of machine ids running a service, beside which each machine keeps a status key that expires unless it beats
+    @staticmethod
+    def get_machines_key(service_name: str) -> str:
+        return "service_status:" + service_name
+
+    @classmethod
+    def save_status(cls, status: dict[str, Any], lifecycle: Optional[str]):
+        assert cls.service_name is not None
+        connection = cls.get_redis_connection()
+        machines_key = cls.get_machines_key(cls.service_name)
+        machine_id = str(cls.machine_id)
+        status_key = f"{machines_key}:{machine_id}"
+        if lifecycle == "stop":
+            connection.delete(status_key)
+            connection.srem(machines_key, machine_id)
+        else:
+            connection.setex(status_key, LIVE_STATUS_TIMEOUT_SECONDS, StreamJSONEncoder.dumps(status))
+            connection.sadd(machines_key, machine_id)
+
+    # The last status of every machine whose service beat within the timeout
+    @classmethod
+    def get_live_statuses(cls, service_name: str) -> list[dict[str, Any]]:
+        connection = cls.get_redis_connection()
+        machines_key = cls.get_machines_key(service_name)
+        machine_ids = [machine_id.decode() for machine_id in connection.smembers(machines_key)]
+        if not machine_ids:
+            return []
+        statuses = connection.mget([f"{machines_key}:{machine_id}" for machine_id in machine_ids])
+        # Forgets machines that stopped beating without saying so
+        expired_ids = [machine_id for machine_id, status in zip(machine_ids, statuses) if status is None]
+        if expired_ids:
+            connection.srem(machines_key, *expired_ids)
+        return [json.loads(status) for status in statuses if status is not None]
+
+    # A failed beat is skipped rather than ending the thread, which would make a working service look dead
+    @classmethod
+    def try_publish_status(cls, lifecycle: Optional[str] = None):
+        try:
+            cls.publish_status(lifecycle)
+        except Exception:
+            logging.getLogger(cls.service_name).warning("Failed to publish the service status", exc_info=True)
 
     @classmethod
     def background_thread(cls):
         #TODO: should utils have a method for calling a function ever x seconds
         # Urs: Maybe, but not for this usecase anymore
-        cls.publish_start()
+        cls.try_publish_status("start")
         time.sleep(1.5)
         while True:
             update_call_start = time.time()
-            cls.publish_status()
+            cls.try_publish_status()
             update_duration = time.time() - update_call_start
             time_to_sleep = max(cls.update_interval - update_duration, 0.0)
             time.sleep(time_to_sleep)
-
-    @classmethod
-    def publish_start(cls):
-        cls.publish_status(lifecycle="start")
 
     @classmethod
     def publish_stop(cls):
