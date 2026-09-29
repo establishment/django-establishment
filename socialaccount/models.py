@@ -13,7 +13,6 @@ from establishment.misc.util import import_module_attribute
 
 
 class SocialProvider(models.Model):
-    instance_cache: dict[int, "SocialProvider"] = dict()
     name_cache = None
 
     name = models.CharField(max_length=50, unique=True)
@@ -22,7 +21,7 @@ class SocialProvider(models.Model):
         return "Social Provider " + self.name
 
     def get_provider(self):
-        return self.instance_cache[self.id]
+        return self.get_by_name(self.name)
 
     @classmethod
     def load_provider(cls, provider_name):
@@ -45,23 +44,15 @@ class SocialProvider(models.Model):
     def ensure_instances_loaded(cls):
         if cls.name_cache is not None:
             return
-        cls.name_cache = {}
+        # Published whole, since any request thread may be the first to load it
+        name_cache = {}
         for provider_name in getattr(settings, "SOCIAL_ACCOUNT_PROVIDERS", {}):
-            provider_instance = cls.load_provider(provider_name)
-            cls.name_cache[provider_name] = provider_instance
-
-    @classmethod
-    def load(cls):
-        cls.ensure_instances_loaded()
-        for provider_name in getattr(settings, "SOCIAL_ACCOUNT_PROVIDERS", {}):
-            db_instance, created = cls.objects.get_or_create(name=provider_name)
-            instance = cls.name_cache[provider_name]
-
-            cls.instance_cache[db_instance.id] = instance
-            instance.set_db_instance(db_instance)
+            name_cache[provider_name] = cls.load_provider(provider_name)
+        cls.name_cache = name_cache
 
     @classmethod
     def get_by_name(cls, provider_name):
+        cls.ensure_instances_loaded()
         return cls.name_cache[provider_name]
 
 

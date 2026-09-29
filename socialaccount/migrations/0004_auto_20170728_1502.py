@@ -16,7 +16,6 @@ def forwards_func(apps, schema_editor):
 
     from ..models import SocialProvider
 
-    SocialProvider.load()
     for ModelClass in [SocialApp, SocialAccount]:
         for object in ModelClass.objects.all():
             print("Doing ", object.id)

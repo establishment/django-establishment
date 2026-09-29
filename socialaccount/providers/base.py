@@ -36,11 +36,11 @@ class Provider(object):
         return cls.instance
 
     @classmethod
-    def set_db_instance(cls, db_instance):
-        cls.db_instance = db_instance
-
-    @classmethod
     def get_db_instance(cls):
+        if cls.db_instance is None:
+            from establishment.socialaccount.models import SocialProvider
+
+            cls.db_instance, _ = SocialProvider.objects.get_or_create(name=cls.id)
         return cls.db_instance
 
     def get_urlpatterns(self):
