@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 import stat
 from functools import cached_property
 from typing import Any, Optional
@@ -9,6 +10,9 @@ from typing import Any, Optional
 import paramiko
 from paramiko.sftp_client import SFTPClient
 import time
+
+KEEPALIVE_SECONDS = 15
+DEAD_PEER_SECONDS = 60  # Longer than a network blip, which a long silent command should ride out
 
 
 class SSHRun:
@@ -22,7 +26,7 @@ class SSHRun:
         self.failed = False
         self.output = ""
         self.max_output_size = max_output_size
-        self.timeout = timeout  # For the whole command, since a connection that dies silently never reports an exit
+        self.timeout = timeout  # For opening the session and running the command
 
         worker.log("Running command ", command)
 
@@ -31,7 +35,7 @@ class SSHRun:
         if transport is None:
             raise RuntimeError("SSHWorker is not connected")
 
-        self.channel = transport.open_session()
+        self.channel = transport.open_session(timeout=timeout)
         # Right now we combine stdout with stderr. We may want to change this in the future
         self.channel.set_combine_stderr(True)
         # self.channel.settimeout(timeout)
@@ -80,7 +84,19 @@ class SSHWorker:
         else:
             self.client.set_missing_host_key_policy(paramiko.RejectPolicy())
 
-        self.client.connect(self.address, username=user, timeout=timeout, banner_timeout=timeout, auth_timeout=timeout)
+        try:
+            self.client.connect(self.address, username=user, timeout=timeout, banner_timeout=timeout, auth_timeout=timeout)
+            transport = self.client.get_transport()
+            # A vanished peer would otherwise hang any wait for good, since an idle connection gives TCP nothing to time out
+            if timeout is not None and transport is not None:
+                transport.set_keepalive(KEEPALIVE_SECONDS)
+                # Through a proxy the transport holds a channel, whose own connection isn't ours to tune
+                if isinstance(transport.sock, socket.socket) and hasattr(socket, "TCP_USER_TIMEOUT"):
+                    transport.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_USER_TIMEOUT, DEAD_PEER_SECONDS * 1000)
+        except Exception:
+            # The transport thread it may have started would otherwise outlive the failed attempt
+            self.client.close()
+            raise
 
     def log(self, *arguments, **keywords):
         self.logger.log(*arguments, **keywords)
