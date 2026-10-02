@@ -1,6 +1,7 @@
 import json
 from typing import Any, Union, TypeVar, Optional, Self
 
+from django.conf import settings
 from django.http import HttpRequest
 
 from django.http import QueryDict
@@ -135,6 +136,14 @@ def is_optional(field_description: dict[str, Any]) -> bool:
     return False
 
 
+# A browser form sends an array field as repeated keys, each with [] appended
+def request_field_names(field_name: str, field_description: dict[str, Any]) -> list[str]:
+    names = [field_name, to_camel_case(field_name)]
+    if get_array_type(field_description) is not None:
+        names += [name + "[]" for name in names]
+    return names
+
+
 def load_field_from_request(request: Union[dict, QueryDict], model_schema: dict, field_name: str, request_field_name: str) -> Any:
     field_description = model_schema["properties"][field_name]
 
@@ -160,23 +169,32 @@ class BaseRequest(BaseModel):
     _raw_request: Union[dict, QueryDict]
     _implicit_fields: set[str]
 
+    # Undeclared keys are otherwise dropped, so a misspelt key on an edit endpoint is a success that changes nothing
+    @classmethod
+    def check_unknown_fields(cls, request: Union[dict, QueryDict], accepted_names: set[str]) -> None:
+        if not getattr(settings, "REJECT_UNKNOWN_REQUEST_FIELDS", False):
+            return
+        unknown = sorted(set(request.keys()) - accepted_names)
+        if unknown:
+            raise ValidationError(f"{cls.__name__} does not declare {', '.join(unknown)}. It accepts {', '.join(sorted(accepted_names))}.")
+
     @classmethod
     def from_request(cls, request: Union[dict, QueryDict]) -> Self:
         model_schema = cls.model_json_schema()
         implicit_fields: set[str] = set()
         fields: dict[str, Any] = {}
-        # TODO @pydantic looks like we just ignore extra fields in all our request. Issue an error on local?
-        for field_name in model_schema["properties"].keys():
-            request_field_name = field_name
-            if request_field_name not in request:
-                request_field_name = to_camel_case(field_name)
-            if request_field_name in request:
+        accepted_names: set[str] = set()
+        for field_name, field_description in model_schema["properties"].items():
+            names = request_field_names(field_name, field_description)
+            accepted_names.update(names)
+            request_field_name = next((name for name in names if name in request), None)
+            if request_field_name is not None:
                 fields[field_name] = load_field_from_request(request, model_schema, field_name, request_field_name)
-            else:
-                field_description = model_schema["properties"][field_name]
-                if is_optional(field_description):
-                    fields[field_name] = None
-                    implicit_fields.add(field_name)
+            elif is_optional(field_description):
+                fields[field_name] = None
+                implicit_fields.add(field_name)
+
+        cls.check_unknown_fields(request, accepted_names)
 
         typed_request = cls.model_validate(fields)
         typed_request._raw_request = request
