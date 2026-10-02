@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import codecs
 import json
 import os
 import socket
@@ -27,6 +28,7 @@ class SSHRun:
         self.output = ""
         self.max_output_size = max_output_size
         self.timeout = timeout  # For opening the session and running the command
+        self.decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")  # A character can be split across two reads
 
         worker.log("Running command ", command)
 
@@ -47,7 +49,7 @@ class SSHRun:
         #TODO: there should be separate threads to handle I/O routines
         while self.channel.recv_ready():
             data = self.channel.recv(8192)
-            data_str = str(data, "utf-8")
+            data_str = self.decoder.decode(data)
             if len(self.output) < self.max_output_size:
                 self.output += data_str
                 self.worker.log(data_str, end="")
