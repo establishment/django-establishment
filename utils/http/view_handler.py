@@ -145,7 +145,7 @@ class ViewSet:
                 raise RuntimeError("NO EMPTY URLS!")
 
             # A regex is registered as written, so its own anchors decide which paths it matches
-            if "(?P" in url_path:
+            if "(?P" in url_path or url_path.startswith("^"):
                 urlpatterns.append(re_path(url_path, view))
                 continue
 
