@@ -96,7 +96,7 @@ class UnsupportedMediaType(APIError):
     http_status = 415
 
 
-class Throttled(APIError):
+class ThrottleError(APIError):
     code = 1010
     default_message = "Too many requests, try again later"
     http_status = 429

@@ -5,11 +5,11 @@ from typing import Callable, Any, ClassVar, Optional, Unpack
 
 from django.conf import settings
 from django.core.exceptions import DisallowedHost
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseBase, JsonResponse, StreamingHttpResponse
 from django.urls import URLPattern, re_path, path, include
 
 from establishment.utils.bound_types import CallableT
-from establishment.utils.errors import BadRequest, HTTPMethodNotAllowed, Throttled
+from establishment.utils.errors import BadRequest, HTTPMethodNotAllowed, ThrottleError
 from establishment.utils.http.permissions import Permission, allow_any
 from establishment.utils.http.renderers import to_pure_camel_case_json
 from establishment.utils.http.view_config import ViewConfig, ViewMethod, ViewConfigOverrides, add_view_config
@@ -36,11 +36,14 @@ class BaseView:
 
         self.load_view_arguments: Callable[[], list[Any]] = self.make_argument_loader()
 
-    def __call__(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def __call__(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
         try:
             self.validate_request(request)
             with self.permissions.get_permission_filter():
                 response = self.process_request(request)
+                # A streamed response, such as a file download, has no content to format
+                if isinstance(response, StreamingHttpResponse):
+                    return response
                 return self.format_response(response)
         except Exception as exception:
             return BaseView.handle_exception(request, exception)
@@ -64,7 +67,7 @@ class BaseView:
         # Check throttling -- Should also include per user
         if not settings.DISABLE_THROTTLING:
             if self.throttle.throttle_request(view_context.ip):
-                raise Throttled
+                raise ThrottleError
 
         # Check permission filters
         self.permissions.check_permission()

@@ -1,8 +1,11 @@
 import time
 import uuid
+from typing import Optional
 
 from redis import StrictRedis
 from django.conf import settings
+
+from establishment.utils.errors import ThrottleError
 
 redis_connection = StrictRedis(**settings.REDIS_CONNECTION)
 
@@ -56,7 +59,7 @@ class ActionThrottler(object):
             return True
         return False
 
-    def increm(self, just_check=False):
+    def increm(self, just_check: bool = False) -> bool:
         if self.limit == 1:
             return self.single_increm()
 
@@ -68,16 +71,12 @@ class ActionThrottler(object):
         )
         return bool(allowed)
 
-    def increm_or_raise(self, error):
+    def increm_or_raise(self, message: Optional[str] = None) -> None:
         if not self.increm():
-            raise error
+            raise ThrottleError(message)
 
     def clear(self):
         redis_connection.delete(self.key_name)
-
-    @classmethod  # type: ignore[no-redef]
-    def increm_or_raise(cls, error, timeframe, limit):
-        cls(error.__name__, timeframe, limit).increm_or_raise()
 
 
 class UserActionThrottler(ActionThrottler):
@@ -85,9 +84,5 @@ class UserActionThrottler(ActionThrottler):
         user_id = user if isinstance(user, int) else user.id
 
         super().__init__("user-" + str(user_id) + "-" + name, timeframe, limit)
-
-    @classmethod
-    def increm_or_raise(cls, error, user, timeframe, limit):
-        cls(user, error.__name__, timeframe, limit)
 
 # TODO: include visitor_throttle and user_throttle(error, time, limit) as decorators for views
