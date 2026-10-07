@@ -2,7 +2,7 @@ from __future__ import annotations
 import datetime
 import json
 import uuid
-from typing import Self
+from typing import Any, Optional, Self
 
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -246,10 +246,7 @@ class AbstractStreamObjectUser(AbstractBaseUser, SuperuserPermissionsMixin, Stre
         return list(self.emails.all().order_by("-primary")) + list(self.unverified_emails.all())  # type: ignore[attr-defined]
 
     # TODO: consider localization
-    def email_user(self, subject, message, from_email=None, **kwargs):
-        """
-        Sends an email to this User.
-        """
+    def email_user(self, subject: str, message: str, from_email: Optional[str] = None, **kwargs: Any) -> None:
         send_template_mail(subject, message, from_email, [self.email], **kwargs)
 
     def to_json(self):
@@ -323,9 +320,12 @@ class UserCustomSettings(models.Model):
         self.user.publish_event("lastReadNotification", {"lastReadNotificationId": self.last_read_notification_id})
 
     def to_json(self):
+        # At module level this import leaves mypy's Django plugin without these models' field types
+        from establishment.utils.serializers import JSONFieldValueDict
+
         return {
             "lastReadNotificationId": self.last_read_notification_id or 0,
-            "customSettings": self.settings or {},
+            "customSettings": JSONFieldValueDict(self.settings or {}),
         }
 
 
@@ -542,10 +542,8 @@ class ReactionableMixin(StreamObjectMixin):
 
 
 # TODO: this should be somewhere else (utils?)
+# Adds the reactions the state's user made to the reaction collections in the state
 def add_own_user_reactions_to_state(state):
-    """
-    Add reactions that the current user made to ReactionCollections in the state
-    """
     if not state.user or not state.user.is_authenticated:
         return
 

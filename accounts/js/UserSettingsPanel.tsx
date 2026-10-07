@@ -16,6 +16,7 @@ import {Container} from "../../../stemjs/ui/ContainerStyle";
 import {Level, Size} from "../../../stemjs/ui/Constants";
 
 import {User} from "../../../csaaccounts/js/state/UserStore";
+import {type ErrorMessage} from "../../webapp/js/state/ErrorMessageStore";
 import {FacebookManager} from "./thirt-party/FacebookManager";
 import {GoogleManager} from "./thirt-party/GoogleManager";
 
@@ -112,15 +113,14 @@ export class GeneralInformationPanel extends UI.Element {
                           objectId: data.user.id,
                           data: data.user,
                       }),
-            (error) => {
-                if (error.first_name) {
-                    this.firstNameFormField.setError(error.first_name);
-                }
-                if (error.last_name) {
-                    this.lastNameFormField.setError(error.last_name);
-                }
-                if (error.username) {
-                    this.userNameFormField.setError(error.username);
+            (error: ErrorMessage) => {
+                const formFields: Record<string, FormField> = {
+                    first_name: this.firstNameFormField,
+                    last_name: this.lastNameFormField,
+                    username: this.userNameFormField,
+                };
+                for (const {field, message} of error.fields ?? []) {
+                    formFields[field]?.setError(message);
                 }
             }
         );
