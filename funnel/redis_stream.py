@@ -136,7 +136,7 @@ class RedisStreamPublisher(object):
 
 
 # A rebuild's lock between heartbeats: short, so one that died is noticed within seconds
-LOCK_MILLISECONDS = 5000
+LOCK_SECONDS = 5
 # Keeps a value readable a little past its pointer, for whoever read the pointer just before it expired
 VALUE_MARGIN_SECONDS = 10
 # How long a reader waits for another process's rebuild before doing it itself
@@ -242,14 +242,14 @@ class RedisCache(object):
         serialized_value = self.serialize(generator())
         version = uuid.uuid4().hex
         pipeline = self.redis_connection.pipeline()
-        pipeline.set(key + "@" + version, serialized_value, px=int(hard_timeout * 1000) + VALUE_MARGIN_SECONDS * 1000)
+        pipeline.set(key + "@" + version, serialized_value, px=int((hard_timeout + VALUE_MARGIN_SECONDS) * 1000))
         pipeline.set(key, version + ":" + repr(time.time()), px=int(hard_timeout * 1000))
         pipeline.execute()
         self.local_copies.put(key, version, serialized_value)
         return serialized_value
 
     def try_lock(self, lock_key: str, token: str) -> bool:
-        return bool(self.redis_connection.set(lock_key, token, nx=True, px=LOCK_MILLISECONDS))
+        return bool(self.redis_connection.set(lock_key, token, nx=True, px=int(LOCK_SECONDS * 1000)))
 
     # Renewed while the rebuild runs, so a slow one keeps its lock; only the holder may release it
     @contextmanager
@@ -257,8 +257,8 @@ class RedisCache(object):
         done = threading.Event()
 
         def renew():
-            while not done.wait(LOCK_MILLISECONDS / 3000.0):
-                self.redis_connection.eval(RENEW_LOCK_LUA, 1, lock_key, token, LOCK_MILLISECONDS)
+            while not done.wait(LOCK_SECONDS / 3):
+                self.redis_connection.eval(RENEW_LOCK_LUA, 1, lock_key, token, int(LOCK_SECONDS * 1000))
 
         heartbeat = threading.Thread(target=renew, name="cache-lock-heartbeat", daemon=True)
         heartbeat.start()
@@ -289,7 +289,7 @@ class RedisCache(object):
         threading.Thread(target=refresh, name="cache-refresh", daemon=True).start()
 
     # Cold, or past the hard timeout: one process rebuilds while the others wait, taking over if its lock lapses
-    def rebuild_once(self, key: str, generator: Callable, hard_timeout: float, retries_per_second: int) -> str:
+    def rebuild_once(self, key: str, generator: Callable, hard_timeout: float, retry_interval: float) -> str:
         lock_key = "lock-" + key
         token = uuid.uuid4().hex
         deadline = time.time() + MAX_WAIT_SECONDS
@@ -300,7 +300,7 @@ class RedisCache(object):
             if time.time() >= deadline:
                 logger.warning("Rebuilding " + key + " without its lock, after waiting on another rebuild")
                 return self.rebuild(key, generator, hard_timeout)
-            time.sleep(1.0 / retries_per_second)
+            time.sleep(retry_interval)
             pointer = self.read_pointer(key)
             if pointer is not None:
                 value = self.read_value(key, pointer[0])
@@ -309,7 +309,7 @@ class RedisCache(object):
 
     # Fresh until `timeout`, then served while a background refresh runs until `hard_timeout`, which defaults to it
     def get_or_set(self, key: str, generator: Callable, timeout: float, hard_timeout: Optional[float] = None,
-                   retries_per_second: int = 20) -> Any:
+                   retry_interval: float = 0.05) -> Any:
         hard_timeout = max(timeout, hard_timeout or timeout)
         key = key or generator.__name__
         if self.key_prefix:
@@ -324,7 +324,7 @@ class RedisCache(object):
             if value is not None:
                 return self.deserialize(value)
 
-        return self.deserialize(self.rebuild_once(key, generator, hard_timeout, retries_per_second))
+        return self.deserialize(self.rebuild_once(key, generator, hard_timeout, retry_interval))
 
 
 class RedisCacheSerialized(RedisCache):
