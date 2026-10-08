@@ -6,7 +6,7 @@ import uuid
 from collections import OrderedDict
 from collections.abc import Callable
 from contextlib import contextmanager
-from typing import Union, Any, Optional, Tuple
+from typing import Union, Any, NamedTuple, Optional
 
 from django.conf import settings
 from django.db import connections
@@ -135,12 +135,15 @@ class RedisStreamPublisher(object):
         return "v " + message
 
 
+# TODO @Mihai @cleanup seems like a lot of constants here. Maybe this whole file should be broken up
 # A rebuild's lock between heartbeats: short, so one that died is noticed within seconds
 LOCK_SECONDS = 5
 # Keeps a value readable a little past its pointer, for whoever read the pointer just before it expired
 VALUE_MARGIN_SECONDS = 10
 # How long a reader waits for another process's rebuild before doing it itself
 MAX_WAIT_SECONDS = 30
+# How long a keeper leaves a value whose rebuild failed to its readers, rather than holding a lease nothing fulfils
+FAILED_KEEP_BACKOFF_SECONDS = 10
 # The process's copies of values it read, so a reader whose version matches never fetches a large one again
 LOCAL_COPY_BYTES = 32 * 1024 * 1024
 
@@ -160,10 +163,10 @@ return 0
 logger = logging.getLogger(__name__)
 
 
-class LocalCopies(object):
+class LocalCopies:
     def __init__(self, max_bytes: int):
         self.max_bytes = max_bytes
-        self.entries: "OrderedDict[str, Tuple[str, str]]" = OrderedDict()
+        self.entries: OrderedDict[str, tuple[str, str]] = OrderedDict()
         self.size = 0
         self.lock = threading.Lock()
 
@@ -189,14 +192,23 @@ class LocalCopies(object):
                 self.size -= len(evicted[1])
 
 
+# What a key holds, pointing at the value stored under "<key>@<version>", so a known version is a small read
+class Pointer(NamedTuple):
+    version: str
+    generated_at: float
+    marker: str  # What the watched keys held when the value was generated
+
+
 class RedisCache(object):
     connection_pool = None
     # One per process, shared by every cache object in it
     local_copies = LocalCopies(LOCAL_COPY_BYTES)
 
-    def __init__(self, key_prefix="cache-", redis_connection=None):
+    def __init__(self, key_prefix="cache-", redis_connection=None, watch_connection=None):
         self.key_prefix = key_prefix
         self.redis_connection = redis_connection or StrictRedis(connection_pool=self.get_default_connection_pool())
+        # Watched keys are read where their publishers write them, which need not be the cache's own Redis
+        self.watch_connection = watch_connection or StrictRedis(connection_pool=get_default_redis_connection_pool())
 
     @classmethod
     def get_default_connection_pool(cls):
@@ -212,21 +224,36 @@ class RedisCache(object):
     def deserialize(value):
         return redis_response_to_json(value)
 
-    # The key holds a pointer, "<version>:<generated at>", to the value at "<key>@<version>", so a known version is a small read
-    def read_pointer(self, key: str) -> Optional[Tuple[str, float]]:
-        raw = self.redis_connection.get(key)
+    # Stored as "<version>:<generated at>:<marker>"; anything else, such as a value from an older format, reads as missing
+    @staticmethod
+    def parse_pointer(raw: Optional[str | bytes]) -> Optional[Pointer]:
         if raw is None:
             return None
         if isinstance(raw, bytes):
             raw = raw.decode("utf-8", "replace")
-        version, separator, generated_at = raw.partition(":")
-        # A value written before pointers, left over from a deploy, reads as missing
-        if not separator or len(version) != 32:
+        parts = raw.split(":", 2)
+        if len(parts) != 3 or len(parts[0]) != 32:
             return None
         try:
-            return version, float(generated_at)
+            return Pointer(parts[0], float(parts[1]), parts[2])
         except ValueError:
             return None
+
+    # Names each key beside its value, so watching a different set of keys reads as a change
+    @staticmethod
+    def make_marker(watched_keys: list[str], values: list[Optional[bytes]]) -> str:
+        pairs = []
+        for key, value in zip(watched_keys, values):
+            text = value.decode("utf-8", "replace") if isinstance(value, bytes) else ""
+            pairs.append(key + "=" + text)
+        return ",".join(pairs)
+
+    # The pointer, then what its watched keys hold now
+    def read_state(self, cached: CachedValue) -> tuple[Optional[Pointer], str]:
+        pointer = self.parse_pointer(self.redis_connection.get(cached.key))
+        if not cached.watched_keys:
+            return pointer, ""
+        return pointer, self.make_marker(cached.watched_keys, self.watch_connection.mget(cached.watched_keys))
 
     def read_value(self, key: str, version: str) -> Optional[str]:
         value = self.local_copies.get(key, version)
@@ -238,18 +265,29 @@ class RedisCache(object):
             self.local_copies.put(key, version, value)
         return value
 
-    def rebuild(self, key: str, generator: Callable, hard_timeout: float) -> str:
-        serialized_value = self.serialize(generator())
+    # The watched keys are read first, so a change made while generating leaves the new value already stale
+    def rebuild(self, cached: CachedValue) -> str:
+        previous, marker = self.read_state(cached)
+        serialized_value = self.serialize(cached.generator())
         version = uuid.uuid4().hex
         pipeline = self.redis_connection.pipeline()
-        pipeline.set(key + "@" + version, serialized_value, px=int((hard_timeout + VALUE_MARGIN_SECONDS) * 1000))
-        pipeline.set(key, version + ":" + repr(time.time()), px=int(hard_timeout * 1000))
+        pipeline.set(cached.key + "@" + version, serialized_value, px=int((cached.hard_timeout + VALUE_MARGIN_SECONDS) * 1000))
+        pipeline.set(cached.key, version + ":" + repr(time.time()) + ":" + marker, px=int(cached.hard_timeout * 1000))
+        # A replaced value is kept only for the readers already holding its pointer, or back to back rebuilds pile up
+        if previous is not None:
+            pipeline.pexpire(cached.key + "@" + previous.version, int(VALUE_MARGIN_SECONDS * 1000))
         pipeline.execute()
-        self.local_copies.put(key, version, serialized_value)
+        self.local_copies.put(cached.key, version, serialized_value)
         return serialized_value
 
     def try_lock(self, lock_key: str, token: str) -> bool:
         return bool(self.redis_connection.set(lock_key, token, nx=True, px=int(LOCK_SECONDS * 1000)))
+
+    def renew_lock(self, lock_key: str, token: str) -> bool:
+        return bool(self.redis_connection.eval(RENEW_LOCK_LUA, 1, lock_key, token, int(LOCK_SECONDS * 1000)))
+
+    def release_lock(self, lock_key: str, token: str) -> None:
+        self.redis_connection.eval(RELEASE_LOCK_LUA, 1, lock_key, token)
 
     # Renewed while the rebuild runs, so a slow one keeps its lock; only the holder may release it
     @contextmanager
@@ -258,7 +296,7 @@ class RedisCache(object):
 
         def renew():
             while not done.wait(LOCK_SECONDS / 3):
-                self.redis_connection.eval(RENEW_LOCK_LUA, 1, lock_key, token, int(LOCK_SECONDS * 1000))
+                self.renew_lock(lock_key, token)
 
         heartbeat = threading.Thread(target=renew, name="cache-lock-heartbeat", daemon=True)
         heartbeat.start()
@@ -267,64 +305,55 @@ class RedisCache(object):
         finally:
             done.set()
             heartbeat.join()
-            self.redis_connection.eval(RELEASE_LOCK_LUA, 1, lock_key, token)
+            self.release_lock(lock_key, token)
 
-    # Past the soft timeout the value is still served, while one process recalculates it on a thread of its own
-    def refresh_in_background(self, key: str, generator: Callable, hard_timeout: float) -> None:
-        lock_key = "lock-" + key
+    # A stale value is still served, while one process recalculates it on a thread of its own
+    def refresh_in_background(self, cached: CachedValue) -> None:
         token = uuid.uuid4().hex
-        if not self.try_lock(lock_key, token):
+        if not self.try_lock(cached.lock_key, token):
             return
 
         def refresh():
             try:
-                with self.held_lock(lock_key, token):
-                    self.rebuild(key, generator, hard_timeout)
+                with self.held_lock(cached.lock_key, token):
+                    self.rebuild(cached)
             except Exception:
-                logger.exception("Background refresh of " + key + " failed")
+                logger.exception("Background refresh of " + cached.key + " failed")
             finally:
                 # A thread's database connections are its own, and nothing else would close them
                 connections.close_all()
 
         threading.Thread(target=refresh, name="cache-refresh", daemon=True).start()
 
+    def read_current_value(self, cached: CachedValue) -> Optional[str]:
+        pointer = self.parse_pointer(self.redis_connection.get(cached.key))
+        if pointer is None:
+            return None
+        return self.read_value(cached.key, pointer.version)
+
     # Cold, or past the hard timeout: one process rebuilds while the others wait, taking over if its lock lapses
-    def rebuild_once(self, key: str, generator: Callable, hard_timeout: float, retry_interval: float) -> str:
-        lock_key = "lock-" + key
+    def rebuild_once(self, cached: CachedValue, retry_interval: float) -> str:
         token = uuid.uuid4().hex
         deadline = time.time() + MAX_WAIT_SECONDS
         while True:
-            if self.try_lock(lock_key, token):
-                with self.held_lock(lock_key, token):
-                    return self.rebuild(key, generator, hard_timeout)
+            if self.try_lock(cached.lock_key, token):
+                with self.held_lock(cached.lock_key, token):
+                    # A rebuild that finished between the last look and taking the lock has done the work already
+                    value = self.read_current_value(cached)
+                    if value is not None:
+                        return value
+                    return self.rebuild(cached)
             if time.time() >= deadline:
-                logger.warning("Rebuilding " + key + " without its lock, after waiting on another rebuild")
-                return self.rebuild(key, generator, hard_timeout)
+                logger.warning("Rebuilding " + cached.key + " without its lock, after waiting on another rebuild")
+                return self.rebuild(cached)
             time.sleep(retry_interval)
-            pointer = self.read_pointer(key)
-            if pointer is not None:
-                value = self.read_value(key, pointer[0])
-                if value is not None:
-                    return value
-
-    # Fresh until `timeout`, then served while a background refresh runs until `hard_timeout`, which defaults to it
-    def get_or_set(self, key: str, generator: Callable, timeout: float, hard_timeout: Optional[float] = None,
-                   retry_interval: float = 0.05) -> Any:
-        hard_timeout = max(timeout, hard_timeout or timeout)
-        key = key or generator.__name__
-        if self.key_prefix:
-            key = self.key_prefix + key
-
-        pointer = self.read_pointer(key)
-        if pointer is not None:
-            version, generated_at = pointer
-            if hard_timeout > timeout and time.time() - generated_at >= timeout:
-                self.refresh_in_background(key, generator, hard_timeout)
-            value = self.read_value(key, version)
+            value = self.read_current_value(cached)
             if value is not None:
-                return self.deserialize(value)
+                return value
 
-        return self.deserialize(self.rebuild_once(key, generator, hard_timeout, retry_interval))
+    def get_or_set(self, key: str, generator: Callable, timeout: float, hard_timeout: Optional[float] = None, retry_interval: float = 0.05, unchanged_timeout: Optional[float] = None, watched_keys: Optional[list[str]] = None) -> Any:
+        cached = CachedValue(generator, timeout, key, self, hard_timeout, unchanged_timeout=unchanged_timeout, watched_keys=watched_keys)
+        return cached.get(retry_interval)
 
 
 class RedisCacheSerialized(RedisCache):
@@ -333,6 +362,93 @@ class RedisCacheSerialized(RedisCache):
         if isinstance(value, bytes):
             value = str(value, "utf-8")
         return value
+
+
+# Fresh for `timeout`, or for `unchanged_timeout` while no watched key moves; served stale up to `hard_timeout` while rebuilt
+class CachedValue:
+    cache_class: type[RedisCache] = RedisCache
+
+    def __init__(self, generator: Callable, timeout: float, key: Optional[str] = None, cache: Optional[RedisCache] = None, hard_timeout: Optional[float] = None, unchanged_timeout: Optional[float] = None, watched_keys: Optional[list[str]] = None):
+        self.generator = generator
+        self.timeout = timeout
+        self.unchanged_timeout = max(timeout, unchanged_timeout or timeout)
+        self.hard_timeout = max(self.unchanged_timeout, hard_timeout or timeout)
+        self.watched_keys = watched_keys or []
+        self.cache = cache or self.cache_class()
+        self.key = (self.cache.key_prefix or "") + (key or generator.__name__)
+        self.lock_key = "lock-" + self.key
+
+    # The one rule for readers and keepers alike
+    def is_stale(self, pointer: Pointer, marker: str) -> bool:
+        age = time.time() - pointer.generated_at
+        return age >= self.unchanged_timeout or (pointer.marker != marker and age >= self.timeout)
+
+    def get(self, retry_interval: float = 0.05) -> Any:
+        pointer, marker = self.cache.read_state(self)
+        if pointer is not None:
+            if self.hard_timeout > self.timeout and self.is_stale(pointer, marker):
+                self.cache.refresh_in_background(self)
+            value = self.cache.read_value(self.key, pointer.version)
+            if value is not None:
+                return self.cache.deserialize(value)
+
+        return self.cache.deserialize(self.cache.rebuild_once(self, retry_interval))
+
+
+# Keeps values fresh from one process, holding each one's lock as a lease so that readers serve them and never rebuild
+class CacheKeeper:
+    def __init__(self) -> None:
+        self.token = uuid.uuid4().hex
+        self.kept: dict[str, CachedValue] = {}
+        self.rebuilds: dict[str, threading.Thread] = {}
+        self.failed_until: dict[str, float] = {}
+
+    # Called about once a second with every value to keep: a lease left unrenewed lapses, and readers take over
+    def keep(self, values: list[CachedValue]) -> None:
+        now = time.time()
+        wanted = {cached.key: cached for cached in values if self.failed_until.get(cached.key, 0) <= now}
+        for key, cached in self.kept.items():
+            if key not in wanted:
+                cached.cache.release_lock(cached.lock_key, self.token)
+        self.rebuilds = {key: thread for key, thread in self.rebuilds.items() if key in wanted or thread.is_alive()}
+
+        kept = {}
+        for key, cached in wanted.items():
+            # Someone else's lock is a rebuild under way, so the lease waits for the next call
+            if cached.cache.renew_lock(cached.lock_key, self.token) or cached.cache.try_lock(cached.lock_key, self.token):
+                kept[key] = cached
+        self.kept = kept
+        for cached in kept.values():
+            self.rebuild_if_stale(cached)
+
+    def rebuild_if_stale(self, cached: CachedValue) -> None:
+        running = self.rebuilds.get(cached.key)
+        if running is not None and running.is_alive():
+            return
+        pointer, marker = cached.cache.read_state(cached)
+        # A value evicted under memory pressure leaves its pointer behind, and readers would wait on it
+        if pointer is not None and not cached.is_stale(pointer, marker) and cached.cache.redis_connection.exists(cached.key + "@" + pointer.version):
+            return
+
+        # Back to back while the value goes stale during its own rebuild, for as long as the lease is still ours
+        def rebuild():
+            try:
+                while True:
+                    cached.cache.rebuild(cached)
+                    pointer, marker = cached.cache.read_state(cached)
+                    if pointer is not None and not cached.is_stale(pointer, marker):
+                        return
+                    if cached.key not in self.kept or not cached.cache.renew_lock(cached.lock_key, self.token):
+                        return
+            except Exception:
+                logger.exception("Keeping " + cached.key + " fresh failed")
+                self.failed_until[cached.key] = time.time() + FAILED_KEEP_BACKOFF_SECONDS
+            finally:
+                connections.close_all()
+
+        thread = threading.Thread(target=rebuild, name="cache-keeper-rebuild", daemon=True)
+        self.rebuilds[cached.key] = thread
+        thread.start()
 
 
 def serialize_arguments(*args, **kwargs):

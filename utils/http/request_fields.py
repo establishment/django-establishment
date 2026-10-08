@@ -4,7 +4,7 @@ from functools import cached_property
 from typing import TypeVar, Generic, Any, Optional, Iterable, Callable
 
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import Model, Q, QuerySet
+from django.db.models import Field, Model, Q, QuerySet
 from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, core_schema
@@ -35,16 +35,16 @@ def edit_object_from_request(obj: DjangoModelT,
             continue
 
         value_to_set = value
-        current_value = getattr(obj, key)
-        if current_value == value_to_set:
-            continue
-
         if isinstance(value, ObjectId):
-            if not key.endswith("_id"):
+            if not key.endswith("_id") or not isinstance(django_field, Field):
                 raise KeyError(f"Invalid request foreign key field name: {key}")
             # We'll access the object here, to verify that we're actually allowed to access it.
-            obj_to_set = value.get()
-            value_to_set = str(value)  # Get the primary key as a string
+            value.get()
+            # As the column holds it, so it compares equal to an unchanged key and serializes as a fresh read would
+            value_to_set = django_field.to_python(value)
+
+        if getattr(obj, key) == value_to_set:
+            continue
 
         if fields is not None and key not in fields:
             raise ValidationError(f"Field not editable: {key}")

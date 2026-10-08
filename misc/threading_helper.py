@@ -1,6 +1,4 @@
-"""
-Thread handler from fabric lib, to run background threads
-"""
+# Thread handler from fabric lib, to run background threads
 import logging
 import threading
 import traceback
@@ -45,7 +43,7 @@ class ThreadHandler(object):
 
 
 class ThreadIntervalHandler(ThreadHandler):
-    def __init__(self, name: str, worker: Callable[..., bool], interval: int, *args: Any, **kwargs: Any):
+    def __init__(self, name: str, worker: Callable[..., Optional[bool]], interval: int, *args: Any, **kwargs: Any):
         self.terminate = False
         self.interval = interval
         self.start_at_interval_multiples = kwargs.pop("start_at_interval_multiples", False)
