@@ -199,7 +199,7 @@ class Pointer(NamedTuple):
     marker: str  # What the watched keys held when the value was generated
 
 
-class RedisCache(object):
+class RedisCache:
     connection_pool = None
     # One per process, shared by every cache object in it
     local_copies = LocalCopies(LOCAL_COPY_BYTES)
@@ -208,7 +208,7 @@ class RedisCache(object):
         self.key_prefix = key_prefix
         self.redis_connection = redis_connection or StrictRedis(connection_pool=self.get_default_connection_pool())
         # Watched keys are read where their publishers write them, which need not be the cache's own Redis
-        self.watch_connection = watch_connection or StrictRedis(connection_pool=get_default_redis_connection_pool())
+        self.watch_connection = watch_connection
 
     @classmethod
     def get_default_connection_pool(cls):
@@ -253,7 +253,13 @@ class RedisCache(object):
         pointer = self.parse_pointer(self.redis_connection.get(cached.key))
         if not cached.watched_keys:
             return pointer, ""
+        if self.watch_connection is None:
+            # The streams' Redis by default, opened only for a value that watches keys, since a site may configure none
+            self.watch_connection = RedisStreamPublisher.get_global_connection()
         return pointer, self.make_marker(cached.watched_keys, self.watch_connection.mget(cached.watched_keys))
+
+    def has_value(self, key: str, version: str) -> bool:
+        return bool(self.redis_connection.exists(key + "@" + version))
 
     def read_value(self, key: str, version: str) -> Optional[str]:
         value = self.local_copies.get(key, version)
@@ -427,7 +433,7 @@ class CacheKeeper:
             return
         pointer, marker = cached.cache.read_state(cached)
         # A value evicted under memory pressure leaves its pointer behind, and readers would wait on it
-        if pointer is not None and not cached.is_stale(pointer, marker) and cached.cache.redis_connection.exists(cached.key + "@" + pointer.version):
+        if pointer is not None and not cached.is_stale(pointer, marker) and cached.cache.has_value(cached.key, pointer.version):
             return
 
         # Back to back while the value goes stale during its own rebuild, for as long as the lease is still ours
@@ -435,8 +441,8 @@ class CacheKeeper:
             try:
                 while True:
                     cached.cache.rebuild(cached)
-                    pointer, marker = cached.cache.read_state(cached)
-                    if pointer is not None and not cached.is_stale(pointer, marker):
+                    rebuilt, current_marker = cached.cache.read_state(cached)
+                    if rebuilt is not None and not cached.is_stale(rebuilt, current_marker):
                         return
                     if cached.key not in self.kept or not cached.cache.renew_lock(cached.lock_key, self.token):
                         return
