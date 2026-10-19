@@ -35,9 +35,8 @@ class Daemon:
         self.logger.warning("Received the stop message, going to stop now!")
         self.terminate = True
 
-    def daemonize(self):
-        """Deamonize class. UNIX double fork mechanism."""
-
+    # UNIX double fork, then the standard streams go to logs/<name>-out.txt
+    def daemonize(self) -> None:
         cur_dir = os.getcwd()
         try:
             pid = os.fork()
@@ -69,12 +68,14 @@ class Daemon:
         si = open(os.devnull, "r")
         logs_dir = os.path.join(cur_dir, "logs")
         os.makedirs(logs_dir, exist_ok=True)
-        so = open(os.path.join(logs_dir, self.name + "-out.txt"), "a+")
+        # Line-buffered, so a quiet daemon's prints reach its log as they happen
+        so = open(os.path.join(logs_dir, self.name + "-out.txt"), "a+", buffering=1)
         se = so
 
         os.dup2(si.fileno(), sys.stdin.fileno())
         os.dup2(so.fileno(), sys.stdout.fileno())
         os.dup2(se.fileno(), sys.stderr.fileno())
+        sys.stdout = so
 
         # write pidfile
         atexit.register(self.remove_pid_file)
