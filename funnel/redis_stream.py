@@ -733,12 +733,13 @@ class RedisStreamSubscriber(object):
         self.connection = connection
         self.subscription = connection.pubsub()
 
-    def parse_response(self) -> list:
-        return self.subscription.parse_response()
+    # Waits a second at most, so a quiet stream doesn't trip the connection's socket timeout, and None if nothing came
+    def parse_response(self) -> Optional[list]:
+        return self.subscription.parse_response(block=False, timeout=1)
 
     def next_message(self) -> tuple[Optional[bytes], Optional[bytes]]:
         raw_message = self.parse_response()
-        if len(raw_message) == 3 and raw_message[0] == b'message':
+        if raw_message is not None and len(raw_message) == 3 and raw_message[0] == b'message':
             return (raw_message[2], raw_message[1])
         return (None, None)
 

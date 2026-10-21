@@ -60,7 +60,9 @@ def edit_object_from_request(obj: DjangoModelT,
         # Validators might modify the object, it's ok
         if save is None:
             if len(pre_save) == 0:
-                save_options.update(update_fields=changed_fields)
+                # Django only refreshes auto_now fields that are listed in update_fields
+                auto_now_fields = [field.name for field in obj._meta.concrete_fields if getattr(field, "auto_now", False)]
+                save_options.update(update_fields=changed_fields + auto_now_fields)
             save = True
 
         if save:
