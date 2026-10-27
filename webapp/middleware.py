@@ -1,24 +1,4 @@
-from establishment.webapp.base_views import JSONResponse
-
-
 # TODO @Mihai maybe remove some of these?
-class ProcessResponseMiddleware(object):
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        response = self.get_response(request)
-        if hasattr(response, "to_response"):
-            response = response.to_response()
-        if type(response) == dict:
-            response = JSONResponse(response)
-        return response
-
-    @staticmethod
-    def process_exception(request, exception):
-        return None
-
-
 from .base_views import get_remote_ip
 
 
