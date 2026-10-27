@@ -1,4 +1,5 @@
 import json
+from functools import cache
 from typing import Any, Union, TypeVar, Optional, Self
 
 from django.conf import settings
@@ -165,6 +166,12 @@ def load_field_from_request(request: Union[dict, QueryDict], model_schema: dict,
 T = TypeVar("T", bound=BaseModel)
 
 
+# A class's schema never changes, and building it was most of the cost of parsing a request
+@cache
+def get_model_schema(model_class: type[BaseModel]) -> dict[str, Any]:
+    return model_class.model_json_schema()
+
+
 class BaseRequest(BaseModel):
     _raw_request: Union[dict, QueryDict]
     _implicit_fields: set[str]
@@ -180,7 +187,7 @@ class BaseRequest(BaseModel):
 
     @classmethod
     def from_request(cls, request: Union[dict, QueryDict]) -> Self:
-        model_schema = cls.model_json_schema()
+        model_schema = get_model_schema(cls)
         implicit_fields: set[str] = set()
         fields: dict[str, Any] = {}
         accepted_names: set[str] = set()
