@@ -3,7 +3,7 @@ from typing import Literal, Optional
 from establishment.utils.http.request import BaseRequest
 from establishment.utils.state import State
 from establishment.webapp.view_set import WebappViewSet, is_admin
-from .errors import LocalizationError
+from .errors import EmptyTranslationEntry, InvalidTranslationValue, OneInvalidTranslationKey, TranslationKeyNotFound
 from .models import TranslationEntry, TranslationKey
 
 localization_views = WebappViewSet(permissions=is_admin)
@@ -18,7 +18,7 @@ class TranslationEntryChange(BaseRequest):
 def edit_translation_entries(entries: list[TranslationEntryChange]) -> None:
     for entry_change in entries:
         if not (entry_change.new_value or "").strip():
-            raise LocalizationError.EMPTY_TRANSLATION_ENTRY
+            raise EmptyTranslationEntry
 
     for entry_change in entries:
         entry, created = TranslationEntry.objects.get_or_create(
@@ -40,7 +40,7 @@ def edit_translation_keys(change: TranslationKeyChange) -> Optional[dict[str, in
     if change.type == "add":
         keys = [key_value.strip() for key_value in (change.keys or "").splitlines()]
         if not all(keys):
-            raise LocalizationError.ONE_INVALID_TRANSLATION_KEY
+            raise OneInvalidTranslationKey
         count_added = 0
         for key_value in keys:
             if TranslationKey.objects.get_or_create(value=key_value)[1]:
@@ -49,13 +49,13 @@ def edit_translation_keys(change: TranslationKeyChange) -> Optional[dict[str, in
 
     key = TranslationKey.objects.filter(id=change.key_id).first()
     if key is None:
-        raise LocalizationError.TRANSLATION_KEY_NOT_FOUND
+        raise TranslationKeyNotFound
 
     if change.type == "delete":
         key.delete()
     else:
         if not change.new_value:
-            raise LocalizationError.INVALID_TRANSLATION_VALUE
+            raise InvalidTranslationValue
         key.value = change.new_value
         key.save()
     return None

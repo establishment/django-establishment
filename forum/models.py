@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import F
 
 from establishment.chat.models import MessageThread, MessageThreadSummary
-from establishment.utils.errors_deprecated import BaseError
+from establishment.utils.errors import PermissionDenied
 from establishment.funnel.stream import StreamObjectMixin
 
 
@@ -123,9 +123,9 @@ class ForumThread(StreamObjectMixin):
 
     def can_post(self, user, message):
         if user.chat_muted:
-            return False, BaseError.NOT_ALLOWED
+            return False, PermissionDenied()
         if self.message_thread.muted:
-            return False, BaseError.NOT_ALLOWED
+            return False, PermissionDenied()
         return True, True
 
     def post_message(self, user, message):

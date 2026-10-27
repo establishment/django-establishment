@@ -10,7 +10,8 @@ from establishment.utils.http.request_fields import edit_object_from_request
 from establishment.utils.state import State
 from establishment.webapp.view_set import WebappViewSet, is_admin
 from mercury.api import MercuryRedisAPI
-from .errors import EmailingError
+from establishment.utils.errors import NotFound
+from .errors import InvalidCampaignStart
 from .models import EmailStatus, EmailCampaign, EmailTemplate, EmailGateway
 
 emailing_views = WebappViewSet(permissions=is_admin)
@@ -24,7 +25,7 @@ def email_manager() -> State:
 def get_email_object[T: Model](model_class: type[T], object_id: int) -> T:
     obj = model_class.objects.filter(id=object_id).first()
     if obj is None:
-        raise EmailingError.INVALID_ID
+        raise NotFound
     return obj
 
 
@@ -70,7 +71,7 @@ def delete_campaign(request: ObjectIdRequest) -> dict[str, Any]:
 def start_campaign(request: ObjectIdRequest) -> dict[str, Any]:
     campaign = get_email_object(EmailCampaign, request.id)
     if campaign.manual_send_only:
-        raise EmailingError.INVALID_CAMPAIGN_START
+        raise InvalidCampaignStart
     return MercuryRedisAPI.get_api().send_campaign_start(campaign.id)
 
 

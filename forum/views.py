@@ -4,7 +4,8 @@ from pydantic import Field
 
 from establishment.accounts.models import AbstractStreamObjectUser
 from establishment.chat.models import MAX_VIRTUAL_ID_LENGTH
-from establishment.forum.errors import ForumError
+from establishment.chat.errors import MessageLimitExceeded
+from establishment.forum.errors import ForumThreadLimitExceeded, InvalidTitle, TitleTooLong
 from establishment.forum.models import ForumThread, Forum
 from establishment.utils.errors import PermissionDenied
 from establishment.utils.http.request import BaseRequest
@@ -37,13 +38,13 @@ class CreateForumThreadRequest(BaseRequest):
 def create_forum_thread(request: CreateForumThreadRequest, user: AbstractStreamObjectUser) -> State:
     if not user.is_superuser:
         if not UserActionThrottler(user, "forum-thread-create", 24 * 60 * 60, 10).increm():
-            raise ForumError.FORUM_THREAD_LIMIT_EXCEEDED
+            raise ForumThreadLimitExceeded
 
     if len(request.title) > 160:
-        raise ForumError.TITLE_TOO_LONG
+        raise TitleTooLong
 
     if not any(character.isalnum() for character in request.title):
-        raise ForumError.INVALID_TITLE
+        raise InvalidTitle
 
     forum_thread = ForumThread.create(user, request.title, request.message, request.forum_id.obj)
 
@@ -80,7 +81,7 @@ class ForumThreadPostRequest(BaseRequest):
 def forum_thread_post(request: ForumThreadPostRequest, user: AbstractStreamObjectUser) -> State:
     if not user.is_superuser:
         if not UserActionThrottler(user, "forum-post-message", 60, 5).increm():
-            raise ForumError.MESSAGE_LIMIT_EXCEEDED
+            raise MessageLimitExceeded
 
     forum_thread = request.forum_thread_id.obj
 

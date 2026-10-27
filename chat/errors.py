@@ -1,8 +1,16 @@
-from establishment.utils.errors_deprecated import get_error, ErrorList
+from establishment.utils.errors import APIError
 
 
-class ChatError(ErrorList):
-    INVALID_MESSAGE_CONTENT = get_error("Invalid message content")
-    MESSAGE_NOT_EDITABLE = get_error("Message not editable")
-    MESSAGE_LIMIT_EXCEEDED = get_error("Message limit exceeded")
-    NEW_PRIVATE_CHAT_LIMIT_EXCEEDED = get_error("Too many private chats initiated")
+class InvalidMessageContent(APIError):
+    code = 3400
+    default_message = "Invalid message content"
+
+
+class MessageLimitExceeded(APIError):
+    code = 3401
+    default_message = "Message limit exceeded"
+
+
+class NewPrivateChatLimitExceeded(APIError):
+    code = 3402
+    default_message = "Too many private chats initiated"

@@ -2,6 +2,8 @@
 # TODO @Mihai move this to a handler.py file
 import logging
 import sys
+from collections.abc import Mapping
+from types import TracebackType
 
 global_logger = logging.getLogger(None)
 
@@ -14,7 +16,16 @@ def get_logger() -> logging.Logger:
     original_make_record = global_logger.makeRecord
 
     # Putting python3.12 here, so you know to check when upgrading the version
-    def makeRecordWithExtra(name, level, fn, lno, msg, args, exc_info, func=None, extra=None, sinfo=None):
+    def makeRecordWithExtra(name: str,
+                            level: int,
+                            fn: str,
+                            lno: int,
+                            msg: object,
+                            args: tuple[object, ...] | Mapping[str, object],
+                            exc_info: tuple[type[BaseException], BaseException, TracebackType | None] | tuple[None, None, None] | None,
+                            func: str | None = None,
+                            extra: Mapping[str, object] | None = None,
+                            sinfo: str | None = None) -> logging.LogRecord:
         extra_fields = extra
         log_record = original_make_record(name, level, fn, lno, msg, args, exc_info, func, extra, sinfo)
         if extra_fields is not None:

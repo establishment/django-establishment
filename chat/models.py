@@ -7,9 +7,8 @@ from django.db import models
 from django.utils import timezone
 
 from establishment.accounts.models import ReactionableMixin, UserGroup
-from establishment.chat.errors import ChatError
-from establishment.utils.errors import APIError
-from establishment.utils.errors_deprecated import BaseError
+from establishment.chat.errors import InvalidMessageContent
+from establishment.utils.errors import APIError, PermissionDenied
 from establishment.funnel.nodews_meta import NodeWSMeta
 from establishment.funnel.stream import register_stream_handler, StreamObjectMixin
 from establishment.utils.state import State
@@ -34,7 +33,7 @@ class MessageThread(StreamObjectMixin):
 
     def can_post(self, user, message_content):
         if len(message_content) > (1 << 14):
-            return False, ChatError.INVALID_MESSAGE_CONTENT
+            return False, InvalidMessageContent()
         return True, "Ok"
 
     # def to_json(self):
@@ -281,10 +280,10 @@ class PrivateChat(StreamObjectMixin):
 
     def can_post(self, user, message_content):
         if user.id != self.user1_id and user.id != self.user2_id:
-            return False, BaseError.NOT_ALLOWED
+            return False, PermissionDenied()
         # TODO: fix hardcoded constant
         if len(message_content) > 1 << 14:
-            return False, ChatError.INVALID_MESSAGE_CONTENT
+            return False, InvalidMessageContent()
         # TODO: add case when a user wants to mute a conversation
         return self.message_thread.can_post(user, message_content)
 
@@ -384,16 +383,16 @@ class GroupChat(StreamObjectMixin):
 
     def can_post(self, user, message: str) -> tuple[bool, bool | APIError]:
         if user.chat_muted:
-            return False, BaseError.NOT_ALLOWED
+            return False, PermissionDenied()
         if self.message_thread.muted:
-            return False, BaseError.NOT_ALLOWED
+            return False, PermissionDenied()
         if len(message) > self.max_message_size:
-            return False, ChatError.INVALID_MESSAGE_CONTENT
+            return False, InvalidMessageContent()
 
         if not self.group_id:
             return True, True
 
-        return False, BaseError.NOT_ALLOWED
+        return False, PermissionDenied()
 
     def post(self, user, message):
         return self.message_thread.create_message(user, content=message)

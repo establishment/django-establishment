@@ -204,7 +204,10 @@ class RedisCache:
     # One per process, shared by every cache object in it
     local_copies = LocalCopies(LOCAL_COPY_BYTES)
 
-    def __init__(self, key_prefix="cache-", redis_connection=None, watch_connection=None):
+    def __init__(self,
+                 key_prefix: str = "cache-",
+                 redis_connection: Optional[StrictRedis] = None,
+                 watch_connection: Optional[StrictRedis] = None) -> None:
         self.key_prefix = key_prefix
         self.redis_connection = redis_connection or StrictRedis(connection_pool=self.get_default_connection_pool())
         # Watched keys are read where their publishers write them, which need not be the cache's own Redis
@@ -217,11 +220,11 @@ class RedisCache:
         return cls.connection_pool
 
     @staticmethod
-    def serialize(value, cls=StreamJSONEncoder):
+    def serialize(value: Any, cls: type[json.JSONEncoder] = StreamJSONEncoder) -> str:
         return json.dumps(value, cls=cls)
 
     @staticmethod
-    def deserialize(value):
+    def deserialize(value: Optional[Union[str, bytes]]) -> Any:
         return redis_response_to_json(value)
 
     # Stored as "<version>:<generated at>:<marker>"; anything else, such as a value from an older format, reads as missing

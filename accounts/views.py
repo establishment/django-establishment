@@ -20,7 +20,24 @@ from establishment.webapp.base_views import global_renderer
 from establishment.webapp.throttle import ActionThrottler, UserActionThrottler
 from establishment.webapp.view_set import WebappViewSet
 from .adapter import login, perform_login
-from .errors import AccountsError
+from .errors import (
+    AlreadyLoggedIn,
+    EmailUnavailable,
+    InvalidCaptcha,
+    InvalidEmailAddress,
+    InvalidLoginCredentials,
+    InvalidPasswordResetToken,
+    InvalidSocialAccount,
+    InvalidSocialAccountRemoval,
+    InvalidUsername,
+    MissingPassword,
+    PrimaryEmailRemoval,
+    TooManyPasswordResets,
+    TooManyProfilesRequested,
+    TooManySignUps,
+    UsernameUnavailable,
+    WrongPassword,
+)
 from .models import AbstractStreamObjectUser, EmailAddress, UnverifiedEmail, TempUser, UserSummary, UserGroup, UserGroupMember
 from .recaptcha_client import test_recaptcha
 from .utils import send_template_mail, get_user_manager, get_public_user_class
@@ -46,21 +63,21 @@ class SignupRequest(BaseRequest):
 @accounts_views.post()
 def signup_request(request: SignupRequest, user: Optional[AbstractStreamObjectUser], view_context: BaseViewContext) -> dict[str, Any]:
     if user is not None:
-        raise AccountsError.ALREADY_LOGGED_IN
+        raise AlreadyLoggedIn
 
     if not test_recaptcha(request.recaptcha_key):
         # TODO: log this error
-        raise AccountsError.INVALID_CAPTCHA
+        raise InvalidCaptcha
 
     if not ActionThrottler("user_signup_" + view_context.raw_request.visitor.ip(), 24 * 3600, MAX_SIGNUPS_PER_IP_PER_DAY).increm():
-        raise AccountsError.TOO_MANY_SIGN_UPS
+        raise TooManySignUps
 
     if EmailAddress.objects.filter(email__iexact=request.email).exists():
-        raise AccountsError.EMAIL_UNAVAILABLE
+        raise EmailUnavailable
 
     unverified_email = UnverifiedEmail.create(email=request.email)
     if unverified_email is None:
-        raise AccountsError.INVALID_EMAIL_ADDRESS
+        raise InvalidEmailAddress
 
     extra: dict[str, Any] = {}
     if request.country_id is not None and request.country_id != -1:
@@ -73,11 +90,11 @@ def signup_request(request: SignupRequest, user: Optional[AbstractStreamObjectUs
         if new_user.has_field("username"):
             new_user.username = request.username
             if get_user_manager().filter(username=request.username).exists():
-                raise AccountsError.USERNAME_UNAVAILABLE
+                raise UsernameUnavailable
             try:
                 new_user.full_clean()
             except DjangoValidationError:
-                raise AccountsError.INVALID_USERNAME
+                raise InvalidUsername
             extra["username"] = request.username
 
     TempUser.create(unverified_email, request.password, "10.10.10.10", extra=extra)
@@ -107,9 +124,9 @@ def remove_social_account(request: RemoveSocialAccountRequest, user: AbstractStr
 
     social_account = SocialAccount.objects.filter(id=request.social_account_id).first()
     if social_account is None:
-        raise AccountsError.INVALID_SOCIAL_ACCOUNT
+        raise InvalidSocialAccount
     if social_account.user_id != user.id:
-        raise AccountsError.INVALID_SOCIAL_ACCOUNT_REMOVAL
+        raise InvalidSocialAccountRemoval
     social_account.delete()
 
     return {
@@ -128,14 +145,14 @@ class LoginRequest(BaseRequest):
 @accounts_views.post(url_path="login")
 def user_login_view(request: LoginRequest, user: Optional[AbstractStreamObjectUser], view_context: BaseViewContext) -> dict[str, Any]:
     if user is not None:
-        raise AccountsError.ALREADY_LOGGED_IN
+        raise AlreadyLoggedIn
 
     if request.email is not None:
         logged_in_user = django_authenticate(email=request.email, password=request.password)
     else:
         logged_in_user = django_authenticate(username=request.username, password=request.password)
     if logged_in_user is None:
-        raise AccountsError.INVALID_LOGIN_CREDENTIALS
+        raise InvalidLoginCredentials
 
     raw_request = view_context.raw_request
     perform_login(raw_request, logged_in_user)
@@ -160,7 +177,7 @@ def email_address_add(request: EmailAddressRequest, user: AbstractStreamObjectUs
         unverified_email = UnverifiedEmail.create(email=request.email, user=user)
         unverified_email.send(view_context.raw_request)
     except Exception:
-        raise AccountsError.INVALID_EMAIL_ADDRESS
+        raise InvalidEmailAddress
 
     return {
         "success": True,
@@ -173,13 +190,13 @@ def email_address_remove(request: EmailAddressRequest, user: AbstractStreamObjec
     email_address = EmailAddress.objects.filter(user=user, email=request.email).first()
     if email_address is not None:
         if email_address.primary:
-            raise AccountsError.PRIMARY_EMAIL_REMOVAL
+            raise PrimaryEmailRemoval
         email_address.delete()
     else:
         unverified_email = UnverifiedEmail.objects.filter(user=user, email=request.email).first()
         if unverified_email is None:
             # TODO: log this
-            raise AccountsError.INVALID_EMAIL_ADDRESS
+            raise InvalidEmailAddress
         unverified_email.delete()
 
     return {
@@ -192,7 +209,7 @@ def email_address_remove(request: EmailAddressRequest, user: AbstractStreamObjec
 def email_address_make_primary(request: EmailAddressRequest, user: AbstractStreamObjectUser) -> dict[str, Any]:
     email_address = EmailAddress.objects.filter(user=user, email=request.email).first()
     if email_address is None:
-        raise AccountsError.INVALID_EMAIL_ADDRESS
+        raise InvalidEmailAddress
     email_address.set_as_primary()
 
     return {
@@ -206,7 +223,7 @@ def email_address_make_primary(request: EmailAddressRequest, user: AbstractStrea
 def email_address_verification_send(request: EmailAddressRequest, user: AbstractStreamObjectUser, view_context: BaseViewContext) -> dict[str, Any]:
     unverified_email = UnverifiedEmail.objects.filter(user=user, email=request.email).first()
     if unverified_email is None:
-        raise AccountsError.INVALID_EMAIL_ADDRESS
+        raise InvalidEmailAddress
     unverified_email.send(view_context.raw_request)
 
     return {"success": True}
@@ -268,9 +285,9 @@ def password_change(request: PasswordChangeRequest, user: AbstractStreamObjectUs
     # Only an account that never had a password, made through a social login, may skip the old one
     if request.old_password is None:
         if user.has_usable_password():
-            raise AccountsError.MISSING_PASSWORD
+            raise MissingPassword
     elif not user.check_password(request.old_password):
-        raise AccountsError.WRONG_PASSWORD
+        raise WrongPassword
 
     user.set_password(request.new_password)
     user.save()
@@ -294,13 +311,13 @@ def password_reset_request(request: PasswordResetRequest, user: Optional[Abstrac
 
     reset_password_throttler = UserActionThrottler(user or 0, "reset-password-" + reset_email_address, 60 * 60, 2)
     if not reset_password_throttler.increm():
-        raise AccountsError.TOO_MANY_PASSWORD_RESETS
+        raise TooManyPasswordResets
 
     logger.info("Requesting a password reset for email " + str(reset_email_address))
 
     reset_user = get_user_manager().filter(email__iexact=reset_email_address).first()
     if reset_user is None:
-        raise AccountsError.INVALID_EMAIL_ADDRESS
+        raise InvalidEmailAddress
 
     # TODO: A logged in user can only request a password reset for themselves
 
@@ -327,7 +344,7 @@ def password_reset_from_token(user_base36: URLArg, reset_token: URLArg, view_con
 
     if not password_reset_token_generator.check_token(reset_user, reset_token):
         logger.warning("Invalid password reset token to user " + str(reset_user))
-        raise AccountsError.INVALID_PASSWORD_RESET_TOKEN
+        raise InvalidPasswordResetToken
 
     reset_user.set_unusable_password()
     reset_user.save()
@@ -349,7 +366,7 @@ def public_user_profiles(request: PublicUserProfilesRequest) -> State:
     else:
         if len(request.ids) > 512:
             # TODO: log this, may need to ban someone
-            raise AccountsError.TOO_MANY_PROFILES_REQUESTED
+            raise TooManyProfilesRequested
         users = get_user_manager().filter(id__in=request.ids)
 
     return State(get_public_user_class().wrap_user_list(users))

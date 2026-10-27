@@ -1,11 +1,26 @@
-from establishment.utils.errors_deprecated import get_error, ErrorList
+from establishment.utils.errors import APIError
 
 
-class ContentError(ErrorList):
-    TRANSLATION_EXISTS = get_error("A translation in this language already exists.")
+class TranslationExists(APIError):
+    code = 3200
+    default_message = "A translation in this language already exists."
 
-    REQUESTED_TOO_MANY_ARTICLES = get_error("You have requested too many articles at once.")
-    PROTECTED_ARTICLE = get_error("The article is protected.")
-    TOO_MUCH_FEEDBACK = get_error("Too many posts, ignoring")
 
-    QUESTIONNAIRE_NOT_AVAILABLE = get_error("This questionnaire is no longer available")
+class RequestedTooManyArticles(APIError):
+    code = 3201
+    default_message = "You have requested too many articles at once."
+
+
+class ProtectedArticle(APIError):
+    code = 3202
+    default_message = "The article is protected."
+
+
+class TooMuchFeedback(APIError):
+    code = 3203
+    default_message = "Too many posts, ignoring"
+
+
+class QuestionnaireNotAvailable(APIError):
+    code = 3204
+    default_message = "This questionnaire is no longer available"

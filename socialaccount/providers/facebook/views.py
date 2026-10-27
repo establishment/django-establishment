@@ -5,7 +5,7 @@ from typing import Any, Optional
 
 import requests
 
-from establishment.socialaccount.errors import SocialAccountError
+from establishment.socialaccount.errors import InvalidExternalAccount, InvalidSocialToken
 from establishment.socialaccount.helpers import complete_social_login
 from establishment.socialaccount.models import SocialLogin, SocialToken
 from establishment.utils.http.request import BaseRequest
@@ -90,7 +90,7 @@ def login_by_token(request: FacebookLoginRequest, view_context: BaseViewContext)
             return {"success": True}
     except requests.RequestException:
         logger.exception("Error accessing FB user profile")
-        raise SocialAccountError.INVALID_SOCIAL_ACCOUNT
+        raise InvalidExternalAccount
     except Exception:
         logger.exception("Invalid facebook token")
-    raise SocialAccountError.INVALID_SOCIAL_TOKEN
+    raise InvalidSocialToken

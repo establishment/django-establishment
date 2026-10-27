@@ -1,10 +1,16 @@
-from establishment.utils.errors_deprecated import get_error, ErrorList
+from establishment.utils.errors import APIError
 
 
-class ForumError(ErrorList):
-    INVALID_MESSAGE_CONTENT = get_error("Invalid message content")
-    MESSAGE_NOT_EDITABLE = get_error("Message not editable")
-    MESSAGE_LIMIT_EXCEEDED = get_error("Message limit exceeded")
-    FORUM_THREAD_LIMIT_EXCEEDED = get_error("Forum thread limit exceeded")
-    TITLE_TOO_LONG = get_error("Forum thread title max length exceeded")
-    INVALID_TITLE = get_error("Invalid title. (forum thread title must contain at least one alpha-numeric character)")
+class ForumThreadLimitExceeded(APIError):
+    code = 3500
+    default_message = "Forum thread limit exceeded"
+
+
+class TitleTooLong(APIError):
+    code = 3501
+    default_message = "Forum thread title max length exceeded"
+
+
+class InvalidTitle(APIError):
+    code = 3502
+    default_message = "Invalid title. (forum thread title must contain at least one alpha-numeric character)"

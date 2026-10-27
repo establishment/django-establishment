@@ -1,25 +1,84 @@
-from establishment.utils.errors_deprecated import get_error, ErrorList
+from establishment.utils.errors import APIError
 
 
-class AccountsError(ErrorList):
-    # Errors due to unavailability of the requested action
-    ALREADY_LOGGED_IN = get_error("You're already logged in. Try refreshing the page.")
-    EMAIL_UNAVAILABLE = get_error("Email address is already in")
-    USERNAME_UNAVAILABLE = get_error("Username is already in use")
-    PRIMARY_EMAIL_REMOVAL = get_error("Email address is primary, can't remove")
+# Errors due to unavailability of the requested action
+class AlreadyLoggedIn(APIError):
+    code = 3000
+    default_message = "You're already logged in. Try refreshing the page."
 
-    # Errors due to invalid information provided
-    INVALID_CAPTCHA = get_error("Invalid captcha")
-    INVALID_USERNAME = get_error("Username is invalid")
-    INVALID_SOCIAL_ACCOUNT = get_error("Social account doesn't exist")
-    INVALID_EMAIL_ADDRESS = get_error("Invalid email address")
-    INVALID_LOGIN_CREDENTIALS = get_error("The e-mail address and/or password you specified are not correct")
-    INVALID_SOCIAL_ACCOUNT_REMOVAL = get_error("Can't remove social account for other user")
-    WRONG_PASSWORD = get_error("Wrong password")
-    MISSING_PASSWORD = get_error("Missing password field")
-    INVALID_PASSWORD_RESET_TOKEN = get_error("Invalid password token")
 
-    # Errors due to abuse of services
-    TOO_MANY_PASSWORD_RESETS = get_error("You may request another password reset later")
-    TOO_MANY_PROFILES_REQUESTED = get_error("Requesting too many users")
-    TOO_MANY_SIGN_UPS = get_error("Too many users created from your IP")
+class EmailUnavailable(APIError):
+    code = 3001
+    default_message = "Email address is already in use"
+
+
+class UsernameUnavailable(APIError):
+    code = 3002
+    default_message = "Username is already in use"
+
+
+class PrimaryEmailRemoval(APIError):
+    code = 3003
+    default_message = "Email address is primary, can't remove"
+
+
+# Errors due to invalid information provided
+class InvalidCaptcha(APIError):
+    code = 3004
+    default_message = "Invalid captcha"
+
+
+class InvalidUsername(APIError):
+    code = 3005
+    default_message = "Username is invalid"
+
+
+class InvalidSocialAccount(APIError):
+    code = 3006
+    default_message = "Social account doesn't exist"
+
+
+class InvalidEmailAddress(APIError):
+    code = 3007
+    default_message = "Invalid email address"
+
+
+class InvalidLoginCredentials(APIError):
+    code = 3008
+    default_message = "The e-mail address and/or password you specified are not correct"
+
+
+class InvalidSocialAccountRemoval(APIError):
+    code = 3009
+    default_message = "Can't remove social account for other user"
+
+
+class WrongPassword(APIError):
+    code = 3010
+    default_message = "Wrong password"
+
+
+class MissingPassword(APIError):
+    code = 3011
+    default_message = "Missing password field"
+
+
+class InvalidPasswordResetToken(APIError):
+    code = 3012
+    default_message = "Invalid password token"
+
+
+# Errors due to abuse of services
+class TooManyPasswordResets(APIError):
+    code = 3013
+    default_message = "You may request another password reset later"
+
+
+class TooManyProfilesRequested(APIError):
+    code = 3014
+    default_message = "Requesting too many users"
+
+
+class TooManySignUps(APIError):
+    code = 3015
+    default_message = "Too many users created from your IP"

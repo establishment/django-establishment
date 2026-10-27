@@ -13,7 +13,13 @@ from establishment.utils.http.view_arguments_loaders import URLArg
 from establishment.utils.http.view_context import BaseViewContext
 from establishment.utils.state import State
 from establishment.webapp.view_set import WebappViewSet, is_admin
-from .errors import ContentError
+from .errors import (
+    ProtectedArticle,
+    QuestionnaireNotAvailable,
+    RequestedTooManyArticles,
+    TooMuchFeedback,
+    TranslationExists,
+)
 from .models import TermDefinition, ArticleEdit, UserFeedback, Article, Questionnaire, QuestionnaireQuestion, \
                     QuestionnaireInstance, QuestionnaireQuestionResponse, QuestionnaireQuestionOption
 
@@ -45,7 +51,7 @@ def create_article(request: CreateArticleRequest, user: AbstractStreamObjectUser
     except IntegrityError as e:
         # TODO: really @Rocky, 23505????
         if e.__cause__.pgcode == "23505":
-            raise ContentError.TRANSLATION_EXISTS
+            raise TranslationExists
         raise
 
     if request.markup is not None:
@@ -61,7 +67,7 @@ class FetchArticleRequest(BaseRequest):
 @content_views.get()
 def fetch_article(request: FetchArticleRequest, user: Optional[AbstractStreamObjectUser]) -> State:
     if len(request.ids) > 128:
-        raise ContentError.REQUESTED_TOO_MANY_ARTICLES
+        raise RequestedTooManyArticles
 
     state = State()
     for article in Article.objects.filter(id__in=request.ids):
@@ -146,7 +152,7 @@ def edit_article(request: EditArticleRequest, user: AbstractStreamObjectUser) ->
         article.save()
     except IntegrityError as e:
         if e.__cause__.pgcode == "23505":
-            raise ContentError.TRANSLATION_EXISTS
+            raise TranslationExists
         raise
     return {"success": True}
 
@@ -175,7 +181,7 @@ def delete_article(article_id: URLArg, user: AbstractStreamObjectUser) -> dict[s
     try:
         article.delete()
     except models.ProtectedError:
-        raise ContentError.PROTECTED_ARTICLE
+        raise ProtectedArticle
 
     return {"success": True}
 
@@ -191,7 +197,7 @@ class SendFeedbackRequest(BaseRequest):
 @content_views.post()
 def send_feedback(request: SendFeedbackRequest, user: Optional[AbstractStreamObjectUser], view_context: BaseViewContext) -> dict[str, Any]:
     if not view_context.raw_request.visitor.get_throttler("postFeedback", (24 * 60 * 60, 5)).increm():
-        raise ContentError.TOO_MUCH_FEEDBACK
+        raise TooMuchFeedback
 
     user_feedback = UserFeedback(message=request.message, client_message=request.client_message)
 
@@ -224,7 +230,7 @@ def questionnaire_state(request: QuestionnaireRequest, user: AbstractStreamObjec
     questionnaire = request.questionnaire_id.obj
 
     if not user.is_superuser and not questionnaire.visible and questionnaire.owner_id != user.id:
-        raise ContentError.QUESTIONNAIRE_NOT_AVAILABLE
+        raise QuestionnaireNotAvailable
 
     state = State()
     questionnaire.add_to_state(state, user)
@@ -250,7 +256,7 @@ def questionnaire_all_answers(request: QuestionnaireRequest, user: AbstractStrea
 
 def get_questionnaire_instance(questionnaire: Questionnaire, user: AbstractStreamObjectUser) -> QuestionnaireInstance:
     if not user.is_superuser and not questionnaire.visible:
-        raise ContentError.QUESTIONNAIRE_NOT_AVAILABLE
+        raise QuestionnaireNotAvailable
 
     instance = QuestionnaireInstance.objects.filter(user=user, questionnaire=questionnaire).first()
     if instance is None:

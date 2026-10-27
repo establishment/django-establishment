@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from establishment.accounts.adapter import perform_login
 from establishment.accounts.models import EmailAddress
 
-from .errors import SocialAccountError
+from .errors import GenericInvalidProcess, SocialAccountNoEmail
 from .providers.base import AuthProcess
 
 
@@ -17,7 +17,7 @@ def complete_social_login(request, social_login):
     elif process == AuthProcess.CONNECT:
         return _add_social_account(request, social_login)
     else:
-        raise SocialAccountError.GENERIC_INVALID_PROCESS
+        raise GenericInvalidProcess
 
 
 # TODO: this should probably be a method in social_login, connect_to_account!
@@ -38,7 +38,7 @@ def _complete_social_login(request, social_login):
         logout(request)
 
     if not social_login.email_addresses:
-        raise SocialAccountError.SOCIAL_ACCOUNT_NO_EMAIL
+        raise SocialAccountNoEmail
 
     # Check for an existing user with same email as social email and connect if found
     for email in social_login.email_addresses:

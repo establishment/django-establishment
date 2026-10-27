@@ -5,7 +5,7 @@ from django.db.models import Q
 from pydantic import Field
 
 from establishment.accounts.models import AbstractStreamObjectUser
-from establishment.chat.errors import ChatError
+from establishment.chat.errors import MessageLimitExceeded, NewPrivateChatLimitExceeded
 from establishment.chat.models import MAX_VIRTUAL_ID_LENGTH, PrivateChat, GroupChat, MessageInstance
 from establishment.utils.errors import NotFound, PermissionDenied
 from establishment.utils.http.request import BaseRequest
@@ -99,7 +99,7 @@ def private_chat_state(request: PrivateChatStateRequest, user: AbstractStreamObj
         return state.add_extra({"privateChatId": existing_chat.id})
 
     if not user.is_superuser and not UserActionThrottler(user, "create-private-chat", 24 * 60 * 60, 10).increm():
-        raise ChatError.NEW_PRIVATE_CHAT_LIMIT_EXCEEDED
+        raise NewPrivateChatLimitExceeded
 
     private_chat = PrivateChat.get_or_create(other_user, user)
     private_chat.add_to_state(state)
@@ -118,7 +118,7 @@ def private_chat_post(request: PrivateChatPostRequest, user: AbstractStreamObjec
     if not user.is_superuser:
         # TODO: this needs multiple throttlers
         if not UserActionThrottler(user, "post-message", 60, 60).increm():
-            raise ChatError.MESSAGE_LIMIT_EXCEEDED
+            raise MessageLimitExceeded
 
     private_chat = request.private_chat_id.obj
 
@@ -183,7 +183,7 @@ class GroupChatPostRequest(BaseRequest):
 def group_chat_post(request: GroupChatPostRequest, user: AbstractStreamObjectUser) -> State:
     if not user.is_superuser:
         if not UserActionThrottler(user, "post-message", 60, 100).increm():
-            raise ChatError.MESSAGE_LIMIT_EXCEEDED
+            raise MessageLimitExceeded
 
     group_chat = request.chat_id.obj
     can_post, error = group_chat.can_post(user, request.message)
