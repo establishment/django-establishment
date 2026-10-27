@@ -10,7 +10,7 @@ from establishment.utils.state import State
 
 class BlogEntry(Commentable):
     url_name = models.CharField(max_length=256, unique=True)
-    article = models.OneToOneField(Article, on_delete=models.PROTECT, null=True, blank=True)
+    article = models.OneToOneField(Article, on_delete=models.PROTECT)
     visible = models.BooleanField(default=False)
 
     class Meta:

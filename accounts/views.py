@@ -8,7 +8,6 @@ from django.contrib.auth import logout as django_logout
 from django.contrib.auth.tokens import default_token_generator as password_reset_token_generator
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.http import base36_to_int, int_to_base36
 
 from establishment.utils.errors import NotFound, PermissionDenied
@@ -16,7 +15,6 @@ from establishment.utils.http.request import BaseRequest
 from establishment.utils.http.view_arguments_loaders import URLArg
 from establishment.utils.http.view_context import BaseViewContext
 from establishment.utils.state import State
-from establishment.webapp.base_views import global_renderer
 from establishment.webapp.middleware import RequestVisitor
 from establishment.webapp.throttle import ActionThrottler, UserActionThrottler
 from establishment.webapp.view_set import WebappViewSet
@@ -46,8 +44,6 @@ from .utils import send_template_mail, get_public_user_class
 logger = logging.getLogger("django.request")
 
 accounts_views = WebappViewSet()
-# Routed at the site's root rather than under accounts/
-accounts_root_views = WebappViewSet()
 
 # TODO: this should be moved to settings
 MAX_SIGNUPS_PER_IP_PER_DAY = 300
@@ -102,17 +98,6 @@ def signup_request(request: SignupRequest, user: Optional[AbstractStreamObjectUs
 
     unverified_email.send(view_context.raw_request, signup=True)
     return {"result": "success"}
-
-
-@accounts_root_views.get(url_path=r"^myprofile")
-def my_profile(user: Optional[AbstractStreamObjectUser], view_context: BaseViewContext) -> HttpResponse:
-    if user is None:
-        return global_renderer.render_error_message(view_context.raw_request, "Please login",
-                                                    "You need to login to continue. You can login from the navbar (upper right corner)")
-    if user.username:
-        return HttpResponseRedirect("/user/" + user.username)
-    return global_renderer.render_error_message(view_context.raw_request, "No username set",
-                                                "You need to <a href='/accounts/settings'>set your username</a> to access your public profile.")
 
 
 class RemoveSocialAccountRequest(BaseRequest):
