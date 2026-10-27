@@ -144,7 +144,7 @@ export class AdminDocumentationPanel extends DocumentationPanel {
                 parentIndex: entry.parentIndex
             });
         }
-        Ajax.postJSON("/docs/change_parents/",{modifiedEntries: JSON.stringify(modified)});
+        Ajax.postJSONBody("/docs/change_parents/", {modifiedEntries: modified});
     }
 
     setTarget(element: NavElement, eventType: DragEventType, borderType: BorderType, visibleEntries: NavElement[]) {

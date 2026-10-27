@@ -1,12 +1,10 @@
 from __future__ import annotations
-from typing import Any, Self, Optional
+from typing import Any, Optional
 
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 from django.db import transaction
-from django.http.request import HttpRequest
-from django.db.models.query import QuerySet
 
 from establishment.accounts.models import AbstractStreamObjectUser
 from establishment.funnel.stream import StreamObjectMixin
@@ -142,18 +140,12 @@ class Article(models.Model):
 
             return self.version
 
-    def is_available_to(self, user: AbstractStreamObjectUser) -> bool:
-        if user.is_authenticated and self.author_created_id == user.id:
+    def is_available_to(self, user: Optional[AbstractStreamObjectUser]) -> bool:
+        if user is None:
+            return self.is_public
+        if self.author_created_id == user.id:
             return True
         return self.is_public or user.is_superuser
-
-    @classmethod
-    def get_editable_articles(cls, user: AbstractStreamObjectUser) -> QuerySet[Self]:
-        if user.is_superuser:
-            articles = cls.objects.all()
-        else:
-            articles = cls.objects.filter(author_created_id=user.id)
-        return articles
 
     def add_to_state(self, state: State, with_edits: bool = False):
         state.add(self)
@@ -190,14 +182,6 @@ class UserFeedback(StreamObjectMixin):
 
     def __str__(self) -> str:
         return "UserFeedback-" + str(self.id)
-
-    # TODO Deprecate this
-    @classmethod
-    def create_from_request(cls, request: HttpRequest) -> Self:
-        user_feedback = super().create_from_request(request)
-        if request.user.is_authenticated:
-            user_feedback.sender_email = request.user.email
-        return user_feedback
 
 
 class Questionnaire(StreamObjectMixin):

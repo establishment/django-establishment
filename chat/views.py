@@ -1,69 +1,77 @@
+from typing import Any, Optional
+
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from pydantic import Field
 
+from establishment.accounts.models import AbstractStreamObjectUser
 from establishment.chat.errors import ChatError
-from establishment.chat.models import PrivateChat, GroupChat, MessageInstance
-from establishment.utils.errors_deprecated import BaseError
-from establishment.webapp.base_views import login_required_ajax, ajax_required, login_required, single_page_app
+from establishment.chat.models import MAX_VIRTUAL_ID_LENGTH, PrivateChat, GroupChat, MessageInstance
+from establishment.utils.errors import NotFound, PermissionDenied
+from establishment.utils.http.request import BaseRequest
+from establishment.utils.http.request_fields import ObjectId
 from establishment.utils.state import State
 from establishment.webapp.throttle import UserActionThrottler
+from establishment.webapp.view_set import WebappViewSet
+
+chat_views = WebappViewSet()
 
 
-@login_required_ajax
-def edit_message(request):
-    message_id = int(request.POST["messageId"])
-    message_instance = MessageInstance.objects.get(id=message_id)
+class EditMessageRequest(BaseRequest):
+    message_id: ObjectId[MessageInstance]
+    message: Optional[str] = None
+    hidden: bool = False
+    delete: bool = False
+    reaction: Optional[str] = None
+
+
+@chat_views.post()
+def edit_message(request: EditMessageRequest, user: AbstractStreamObjectUser) -> dict[str, Any]:
+    message_instance = request.message_id.obj
     message_thread = message_instance.message_thread
+    is_author_or_admin = user.is_superuser or user.id == message_instance.user_id
 
-    if "message" in request.POST:
-        new_content = request.POST["message"]
-
-        #TODO: should not be editing messages directly, good enough for now
-        if not request.user.is_superuser:
-            if not message_thread.messages_editable:
-                return BaseError.NOT_ALLOWED
-            if request.user.id != message_instance.user_id:
-                return BaseError.NOT_ALLOWED
+    if request.message is not None:
+        # TODO: should not be editing messages directly, good enough for now
+        if not user.is_superuser:
+            if not message_thread.messages_editable or not is_author_or_admin:
+                raise PermissionDenied
             # TODO: need a proper pattern here
-            can_post, error = message_thread.can_post(request.user, new_content)
+            can_post, error = message_thread.can_post(user, request.message)
             if not can_post:
-                return error
+                raise error
 
-        message_instance.edit(request.user, new_content)
+        message_instance.edit(user, request.message)
 
-    # TODO: extract if true or false from json.loads(request.POST["hidden"])
-    if "hidden" in request.POST:
-        if not request.user.is_superuser and request.user.id != message_instance.user_id:
-            return BaseError.NOT_ALLOWED
+    if request.hidden:
+        if not is_author_or_admin:
+            raise PermissionDenied
         message_instance.hide_message()
 
-    if "delete" in request.POST:
-        if not request.user.is_superuser and request.user.id != message_instance.user_id:
-            return BaseError.NOT_ALLOWED
+    if request.delete:
+        if not is_author_or_admin:
+            raise PermissionDenied
         message_instance.delete_message()
 
-    if "reaction" in request.POST:
-        reaction = request.POST["reaction"]
-        if reaction != "resetReaction":
-            message_instance.set_reaction(request.user, reaction)
+    if request.reaction is not None:
+        if request.reaction != "resetReaction":
+            message_instance.set_reaction(user, request.reaction)
         else:
-            message_instance.clear_reaction(request.user)
+            message_instance.clear_reaction(user)
 
     return {}
 
 
-@login_required
-@single_page_app
-def private_chat(request):
-    return {}
+class PrivateChatListRequest(BaseRequest):
+    only_unread: bool = False
 
 
-@login_required_ajax
-def private_chat_list(request):
+@chat_views.get()
+def private_chat_list(request: PrivateChatListRequest, user: AbstractStreamObjectUser) -> State:
     # TODO: superuser shoud be able to specify a user
-    private_chats = PrivateChat.objects.filter(Q(user1=request.user) | Q(user2=request.user))
-    if "onlyUnread" in request.GET:
-        private_chats = private_chats.filter(first_unread_message__has_key=str(request.user.id))
+    private_chats = PrivateChat.objects.filter(Q(user1=user) | Q(user2=user))
+    if request.only_unread:
+        private_chats = private_chats.filter(first_unread_message__has_key=str(user.id))
     private_chats = private_chats.prefetch_related("message_thread")
     state = State()
     # TODO: it's very expensive to have num_private_chat DB hits for messages, optimize this
@@ -72,63 +80,62 @@ def private_chat_list(request):
     return state
 
 
-@login_required_ajax
-def private_chat_state(request):
-    user1 = get_user_model().objects.get(id=int(request.POST["userId"]))
-    user2 = request.user
+class PrivateChatStateRequest(BaseRequest):
+    user_id: int
+    last_message_id: Optional[int] = None
+
+
+@chat_views.post()
+def private_chat_state(request: PrivateChatStateRequest, user: AbstractStreamObjectUser) -> State:
+    other_user = get_user_model().objects.filter(id=request.user_id).first()
+    if other_user is None:
+        raise NotFound
 
     state = State()
 
-    existing_chat = PrivateChat.get(user1=user1, user2=user2)
-
+    existing_chat = PrivateChat.get(user1=other_user, user2=user)
     if existing_chat:
-        last_message_id = None
-        if "lastMessageId" in request.POST:
-            last_message_id = int(request.POST["lastMessageId"])
-        existing_chat.add_to_state(state, message_count=20, last_message_id=last_message_id)
-        return state.to_response({"privateChatId": existing_chat.id})
+        existing_chat.add_to_state(state, message_count=20, last_message_id=request.last_message_id)
+        return state.add_extra({"privateChatId": existing_chat.id})
 
-    create_throttle = UserActionThrottler(request.user, "create-private-chat", 24 * 60 * 60, 10)
+    if not user.is_superuser and not UserActionThrottler(user, "create-private-chat", 24 * 60 * 60, 10).increm():
+        raise ChatError.NEW_PRIVATE_CHAT_LIMIT_EXCEEDED
 
-    if not request.user.is_superuser and not create_throttle.increm():
-        return ChatError.NEW_PRIVATE_CHAT_LIMIT_EXCEEDED
-
-    private_chat = PrivateChat.get_or_create(user1, user2)
+    private_chat = PrivateChat.get_or_create(other_user, user)
     private_chat.add_to_state(state)
 
-    return state.to_response({"privateChatId": private_chat.id})
+    return state.add_extra({"privateChatId": private_chat.id})
 
 
-@login_required_ajax
-def private_chat_post(request):
-    if not request.user.is_superuser:
+class PrivateChatPostRequest(BaseRequest):
+    private_chat_id: ObjectId[PrivateChat]
+    message: str
+    virtual_id: Optional[str] = Field(None, max_length=MAX_VIRTUAL_ID_LENGTH)
+
+
+@chat_views.post()
+def private_chat_post(request: PrivateChatPostRequest, user: AbstractStreamObjectUser) -> State:
+    if not user.is_superuser:
         # TODO: this needs multiple throttlers
-        user_run_throttler = UserActionThrottler(request.user, "post-message", 60, 60)
-        if not user_run_throttler.increm():
-            return ChatError.MESSAGE_LIMIT_EXCEEDED
+        if not UserActionThrottler(user, "post-message", 60, 60).increm():
+            raise ChatError.MESSAGE_LIMIT_EXCEEDED
 
-    private_chat_id = int(request.POST["privateChatId"])
-    content = request.POST["message"]
+    private_chat = request.private_chat_id.obj
 
-    try:
-        private_chat = PrivateChat.objects.get(id=private_chat_id)
-    except Exception as e:
-        # TODO: log this
-        return BaseError.OBJECT_NOT_FOUND
-
-    can_post, error = private_chat.can_post(request.user, content)
+    can_post, error = private_chat.can_post(user, request.message)
     if not can_post:
         # TODO: log this
-        return error
+        raise error
 
-    message_instance, json_response = private_chat.create_message_from_request(request)
+    message_instance = private_chat.message_thread.create_message(user, request.message, virtual_id=request.virtual_id,
+                                                                  stream_names=private_chat.get_user_streams())
 
     state = State()
     state.add(private_chat)
     state.add(private_chat.message_thread)
     state.add(message_instance)
 
-    private_chat.user_posted(request.user, message_instance)
+    private_chat.user_posted(user, message_instance)
 
     private_chat.publish_event("privateMessage", {}, extra={
         "messageId": message_instance.id,
@@ -136,51 +143,53 @@ def private_chat_post(request):
         "state": state
     }, stream_names=private_chat.get_user_streams())
 
-    return json_response
+    return State(message_instance).add_extra({"messageId": message_instance.id})
 
 
-@login_required_ajax
-def private_chat_mark_read(request):
-    private_chat = PrivateChat.objects.get(id=int(request.POST["privateChatId"]))
-    if request.user.id != private_chat.user1_id and request.user.id != private_chat.user2_id:
+class PrivateChatMarkReadRequest(BaseRequest):
+    private_chat_id: ObjectId[PrivateChat]
+
+
+@chat_views.post()
+def private_chat_mark_read(request: PrivateChatMarkReadRequest, user: AbstractStreamObjectUser) -> dict[str, Any]:
+    private_chat = request.private_chat_id.obj
+    if user.id != private_chat.user1_id and user.id != private_chat.user2_id:
         # TODO: log this!
-        return BaseError.NOT_ALLOWED
-    private_chat.clear_user_to_read(request.user.id)
+        raise PermissionDenied
+    private_chat.clear_user_to_read(user.id)
     return {"success": True}
 
 
-@ajax_required
-def group_chat_state(request):
-    group_chat = GroupChat.objects.get(id=int(request.GET["chatId"]))
-
-    state = State(user=request.user)
-
-    last_message_id = request.GET.get("lastMessageId", None)
-    if last_message_id:
-        last_message_id = int(last_message_id)
-
-    group_chat.add_to_state(state, last_message_id)
-
-    return state.to_response()
+class GroupChatStateRequest(BaseRequest):
+    chat_id: ObjectId[GroupChat]
+    last_message_id: Optional[int] = None
 
 
-@login_required_ajax
-def group_chat_post(request):
-    if not request.user.is_superuser:
-        user_run_throttler = UserActionThrottler(request.user, "post-message", 60, 100)
-        if not user_run_throttler.increm():
-            return ChatError.MESSAGE_LIMIT_EXCEEDED
+@chat_views.get()
+def group_chat_state(request: GroupChatStateRequest, user: Optional[AbstractStreamObjectUser]) -> State:
+    group_chat = request.chat_id.obj
+    state = State(user=user)
+    group_chat.add_to_state(state, request.last_message_id)
+    return state
 
-    group_chat_id = int(request.POST["chatId"])
-    content = request.POST["message"]
 
-    group_chat = GroupChat.objects.get(id=group_chat_id)
+class GroupChatPostRequest(BaseRequest):
+    chat_id: ObjectId[GroupChat]
+    message: str
+    virtual_id: Optional[str] = Field(None, max_length=MAX_VIRTUAL_ID_LENGTH)
 
-    can_post, error = group_chat.can_post(request.user, content)
 
+@chat_views.post()
+def group_chat_post(request: GroupChatPostRequest, user: AbstractStreamObjectUser) -> State:
+    if not user.is_superuser:
+        if not UserActionThrottler(user, "post-message", 60, 100).increm():
+            raise ChatError.MESSAGE_LIMIT_EXCEEDED
+
+    group_chat = request.chat_id.obj
+    can_post, error = group_chat.can_post(user, request.message)
     if not can_post:
-        return error
+        raise error
 
-    message, json_response = group_chat.post_from_request(request)
+    message_instance = group_chat.message_thread.create_message(user, request.message, virtual_id=request.virtual_id)
 
-    return json_response
+    return State(message_instance).add_extra({"messageId": message_instance.id})

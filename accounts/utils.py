@@ -1,5 +1,4 @@
 from django.contrib.sites.models import Site
-from django.urls import reverse
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
@@ -59,8 +58,8 @@ def send_template_mail(template_prefix, email, context, add_subject_prefix=True)
 
 def send_verification_mail(request, unverified_email, signup):
     current_site = Site.objects.get_current(request=request)
-    url = reverse("account_email_verify", args=[unverified_email.key])
-    activate_url = request.build_absolute_uri(url)
+    # Every site mounts the accounts routes under accounts/
+    activate_url = request.build_absolute_uri(f"/accounts/email_address_verify/{unverified_email.key}/")
     context = {
         "user": unverified_email.user,
         "activate_url": activate_url,

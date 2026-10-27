@@ -21,9 +21,9 @@ export interface EditEntryModalOptions {
     entry?: EntryFormValues;
 }
 
-// What the edit form posts, plus the parent the create form adds on top of it
+// What the edit form posts; the create form posts it without an entry, naming the parent instead
 interface EntryRequest {
-    entryId: StoreId;
+    entryId?: StoreId;
     urlName: string;
     name: string;
     articleId: number;
@@ -162,6 +162,7 @@ export class CreateEntryModal extends EditEntryModal {
 
     getAjaxRequest() {
         let request = super.getAjaxRequest();
+        delete request.entryId;
         request.parentId = this.parentInput.get().id;
         return request;
     }

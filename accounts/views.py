@@ -1,402 +1,315 @@
-import json
 import logging
+from typing import Any, Optional
 
 from django.conf import settings
 from django.contrib.auth import authenticate as django_authenticate, get_user_model
 from django.contrib.auth import logout as django_logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.tokens import default_token_generator as password_reset_token_generator
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.contrib.sites.models import Site
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.http import base36_to_int, int_to_base36
 
-from establishment.utils.errors_deprecated import BaseError
-from establishment.webapp.base_views import login_required, login_required_ajax, ajax_required, global_renderer
-from establishment.webapp.base_views import single_page_app
+from establishment.utils.errors import NotFound, PermissionDenied
+from establishment.utils.http.request import BaseRequest
+from establishment.utils.http.view_arguments_loaders import URLArg
+from establishment.utils.http.view_context import BaseViewContext
 from establishment.utils.state import State
-from ..utils.convert import int_list
-from establishment.webapp.throttle import ActionThrottler
+from establishment.webapp.base_views import global_renderer
+from establishment.webapp.throttle import ActionThrottler, UserActionThrottler
+from establishment.webapp.view_set import WebappViewSet
 from .adapter import login, perform_login
 from .errors import AccountsError
-from .models import EmailAddress, UnverifiedEmail, TempUser, UserSummary, UserGroup, UserGroupMember
+from .models import AbstractStreamObjectUser, EmailAddress, UnverifiedEmail, TempUser, UserSummary, UserGroup, UserGroupMember
 from .recaptcha_client import test_recaptcha
 from .utils import send_template_mail, get_user_manager, get_public_user_class
 
 logger = logging.getLogger("django.request")
 
+accounts_views = WebappViewSet()
+# Routed at the site's root rather than under accounts/
+accounts_root_views = WebappViewSet()
 
-@ajax_required
-def user_signup_request(request):
-    if request.user.is_authenticated:
-        return AccountsError.ALREADY_LOGGED_IN
+# TODO: this should be moved to settings
+MAX_SIGNUPS_PER_IP_PER_DAY = 300
 
-    if not test_recaptcha(request):
+
+class SignupRequest(BaseRequest):
+    email: str
+    password: str = ""
+    recaptcha_key: Optional[str] = None
+    username: Optional[str] = None
+    country_id: Optional[int] = None  # -1 for no country
+
+
+@accounts_views.post()
+def signup_request(request: SignupRequest, user: Optional[AbstractStreamObjectUser], view_context: BaseViewContext) -> dict[str, Any]:
+    if user is not None:
+        raise AccountsError.ALREADY_LOGGED_IN
+
+    if not test_recaptcha(request.recaptcha_key):
         # TODO: log this error
-        return AccountsError.INVALID_CAPTCHA
+        raise AccountsError.INVALID_CAPTCHA
 
-    # TODO: this should be moved to settings
-    MAX_SIGNUPS_PER_IP_PER_DAY = 300
+    if not ActionThrottler("user_signup_" + view_context.raw_request.visitor.ip(), 24 * 3600, MAX_SIGNUPS_PER_IP_PER_DAY).increm():
+        raise AccountsError.TOO_MANY_SIGN_UPS
 
-    if not ActionThrottler("user_signup_" + request.visitor.ip(), 24 * 3600, MAX_SIGNUPS_PER_IP_PER_DAY).increm():
-        return AccountsError.TOO_MANY_SIGN_UPS
+    if EmailAddress.objects.filter(email__iexact=request.email).exists():
+        raise AccountsError.EMAIL_UNAVAILABLE
 
-    email = request.POST["email"]
-    if EmailAddress.objects.filter(email__iexact=email).exists():
-        return AccountsError.EMAIL_UNAVAILABLE
+    unverified_email = UnverifiedEmail.create(email=request.email)
 
-    password = request.POST.get("password", "")
-
-    unverified_email = UnverifiedEmail.create(email=email)
-
-    extra = {}
-    if "countryId" in request.POST and request.POST["countryId"] != -1:
+    extra: dict[str, Any] = {}
+    if request.country_id is not None and request.country_id != -1:
         from establishment.localization.models import Country
-        try:
-            Country.objects.get(id=int(request.POST["countryId"]))
-            extra["countryId"] = request.POST["countryId"]
-        except ObjectDoesNotExist:
-            pass
-    if "username" in request.POST and request.POST["username"] != "":
-        user = get_user_model()(email=email, password=password)
-        if user.has_field("username"):
-            user.username = request.POST["username"]
-            try:
-                get_user_manager().get(username=user.username)
-                return AccountsError.USERNAME_UNAVAILABLE
-            except ObjectDoesNotExist:
-                pass
-            try:
-                user.full_clean()
-                extra["username"] = request.POST["username"]
-            except ValidationError:
-                return AccountsError.INVALID_USERNAME
-    TempUser.create(unverified_email, password, "10.10.10.10", extra=extra)
+        if Country.objects.filter(id=request.country_id).exists():
+            extra["countryId"] = request.country_id
 
-    unverified_email.send(request, signup=True)
+    if request.username:
+        new_user = get_user_model()(email=request.email, password=request.password)
+        if new_user.has_field("username"):
+            new_user.username = request.username
+            if get_user_manager().filter(username=request.username).exists():
+                raise AccountsError.USERNAME_UNAVAILABLE
+            try:
+                new_user.full_clean()
+            except DjangoValidationError:
+                raise AccountsError.INVALID_USERNAME
+            extra["username"] = request.username
+
+    TempUser.create(unverified_email, request.password, "10.10.10.10", extra=extra)
+
+    unverified_email.send(view_context.raw_request, signup=True)
     return {"result": "success"}
 
 
-@login_required
-@single_page_app
-def account_settings(request):
-    return State(UserSummary(request.user))
+@accounts_root_views.get(url_path=r"^myprofile")
+def my_profile(user: Optional[AbstractStreamObjectUser], view_context: BaseViewContext) -> HttpResponse:
+    if user is None:
+        return global_renderer.render_error_message(view_context.raw_request, "Please login",
+                                                    "You need to login to continue. You can login from the navbar (upper right corner)")
+    if user.username:
+        return HttpResponseRedirect("/user/" + user.username)
+    return global_renderer.render_error_message(view_context.raw_request, "No username set",
+                                                "You need to <a href='/accounts/settings'>set your username</a> to access your public profile.")
 
 
-@login_required
-def my_profile(request):
-    if request.user.username:
-        return HttpResponseRedirect("/user/" + request.user.username)
-    return global_renderer.render_error_message(request, "No username set",
-                                  "You need to <a href='/accounts/settings'>set your username</a> to access your public profile.")
+class RemoveSocialAccountRequest(BaseRequest):
+    social_account_id: int
 
 
-@single_page_app
-def public_user_profile(request, profile_user):
-    state = State()
-    user_summary = get_public_user_class()(profile_user)
-    state.add(user_summary)
-    return state.to_response({
-        "userId": profile_user.id,
-    })
-
-
-def public_username_profile(request, username):
-    try:
-        profile_user = get_user_manager().get(username__iexact=username)
-    except ObjectDoesNotExist:
-        return global_renderer.render_error_message(request, "Invalid user", "The user " + username + " doesn't exist.")
-    return public_user_profile(request, profile_user)
-
-
-def public_user_id_profile(request, user_id):
-    try:
-        profile_user = get_user_manager().get(id=user_id)
-    except ObjectDoesNotExist:
-        return global_renderer.render_error_message(request, "Invalid user", "The user with id " + user_id + " doesn't exist.")
-    return public_user_profile(request, profile_user)
-
-
-@login_required_ajax
-def edit_profile(request):
-    save_user = False
-    if "firstName" in request.POST and request.user.first_name != request.POST["firstName"]:
-        request.user.first_name = request.POST["firstName"]
-        save_user = True
-
-    if "lastName" in request.POST and request.user.last_name != request.POST["lastName"]:
-        request.user.last_name = request.POST["lastName"]
-        save_user = True
-
-    if "userName" in request.POST and request.user.username != request.POST["userName"]:
-        request.user.username = request.POST["userName"]
-        save_user = True
-
-    if "displayName" in request.POST and request.user.display_name != request.POST["displayName"]:
-        request.user.display_name = json.loads(request.POST["displayName"])
-        save_user = True
-
-    if "receivesEmailAnnouncements" in request.POST:
-        receives_email_announcements = json.loads(request.POST["receivesEmailAnnouncements"])
-        if request.user.receives_email_announcements != receives_email_announcements:
-            request.user.receives_email_announcements = receives_email_announcements
-            save_user = True
-
-    if "customSettingsKey" in request.POST:
-        # TODO: add ability to save multiple ones in the same request
-        request.user.set_custom_setting(request.POST["customSettingsKey"], request.POST["customSettingsValue"])
-
-    if "localeLanguageId" in request.POST:
-        request.user.locale_language_id = int(request.POST["localeLanguageId"])
-        save_user = True
-
-    if save_user:
-        try:
-            request.user.full_clean()
-            request.user.save()
-        except ValidationError as e:
-            return {
-                "error": e.message_dict
-            }
-        request.user.publish_event("profileChanged", request.user)
-
-    return State([UserSummary(request.user)]).to_response(extra={"success": True})
-
-
-@login_required_ajax
-def remove_social_account(request):
-    social_account_id = int(request.POST["socialAccountId"])
-
+@accounts_views.post()
+def remove_social_account(request: RemoveSocialAccountRequest, user: AbstractStreamObjectUser) -> dict[str, Any]:
     from establishment.socialaccount.models import SocialAccount
-    try:
-        social_account = SocialAccount.objects.get(id=social_account_id)
-        if social_account.user_id == request.user.id:
-            social_account.delete()
-        else:
-            return AccountsError.INVALID_SOCIAL_ACCOUNT_REMOVAL
-    except SocialAccount.DoesNotExist:
-        return AccountsError.INVALID_SOCIAL_ACCOUNT
+
+    social_account = SocialAccount.objects.filter(id=request.social_account_id).first()
+    if social_account is None:
+        raise AccountsError.INVALID_SOCIAL_ACCOUNT
+    if social_account.user_id != user.id:
+        raise AccountsError.INVALID_SOCIAL_ACCOUNT_REMOVAL
+    social_account.delete()
 
     return {
         "success": True,
-        "user": UserSummary(request.user)
+        "user": UserSummary(user),
     }
 
 
-@ajax_required
-def user_login_view(request):
-    if request.user.is_authenticated:
-        return AccountsError.ALREADY_LOGGED_IN
+class LoginRequest(BaseRequest):
+    password: str
+    email: Optional[str] = None
+    username: Optional[str] = None
+    remember: bool = False
 
-    credentials = {
-        "password": request.POST["password"]
-    }
 
-    if "email" in request.POST:
-        credentials["email"] = request.POST["email"]
+@accounts_views.post(url_path="login")
+def user_login_view(request: LoginRequest, user: Optional[AbstractStreamObjectUser], view_context: BaseViewContext) -> dict[str, Any]:
+    if user is not None:
+        raise AccountsError.ALREADY_LOGGED_IN
+
+    if request.email is not None:
+        logged_in_user = django_authenticate(email=request.email, password=request.password)
     else:
-        credentials["username"] = request.POST["username"]
+        logged_in_user = django_authenticate(username=request.username, password=request.password)
+    if logged_in_user is None:
+        raise AccountsError.INVALID_LOGIN_CREDENTIALS
 
-    user = django_authenticate(**credentials)
-
-    if user:
-        perform_login(request, user)
-        if request.POST.get("remember", False):
-            request.session.set_expiry(settings.SESSION_COOKIE_AGE)
-        else:
-            request.session.set_expiry(0)
-    else:
-        return AccountsError.INVALID_LOGIN_CREDENTIALS
+    raw_request = view_context.raw_request
+    perform_login(raw_request, logged_in_user)
+    # An expiry of 0 ends the session when the browser closes
+    raw_request.session.set_expiry(settings.SESSION_COOKIE_AGE if request.remember else 0)
     return {"success": True}
 
 
-@login_required
-def user_logout_view(request):
-    django_logout(request)
+@accounts_views.post()
+def logout(user: AbstractStreamObjectUser, view_context: BaseViewContext) -> dict[str, Any]:
+    django_logout(view_context.raw_request)
     return {"success": True}
 
 
-@login_required_ajax
-def email_address_add(request):
+class EmailAddressRequest(BaseRequest):
+    email: str
+
+
+@accounts_views.post()
+def email_address_add(request: EmailAddressRequest, user: AbstractStreamObjectUser, view_context: BaseViewContext) -> dict[str, Any]:
     try:
-        unverified_email = UnverifiedEmail.create(email=request.POST["email"], user=request.user)
-        unverified_email.send(request)
-    except:
-        return AccountsError.INVALID_EMAIL_ADDRESS
+        unverified_email = UnverifiedEmail.create(email=request.email, user=user)
+        unverified_email.send(view_context.raw_request)
+    except Exception:
+        raise AccountsError.INVALID_EMAIL_ADDRESS
 
     return {
         "success": True,
-        "user": UserSummary(request.user)
+        "user": UserSummary(user),
     }
 
 
-@login_required_ajax
-def email_address_remove(request):
-    email = request.POST["email"]
-
-    try:
-        email_address = EmailAddress.objects.get(user=request.user, email=email)
+@accounts_views.post()
+def email_address_remove(request: EmailAddressRequest, user: AbstractStreamObjectUser) -> dict[str, Any]:
+    email_address = EmailAddress.objects.filter(user=user, email=request.email).first()
+    if email_address is not None:
         if email_address.primary:
-            return AccountsError.PRIMARY_EMAIL_REMOVAL
-        else:
-            email_address.delete()
-    except EmailAddress.DoesNotExist:
-        try:
-            unverified_email = UnverifiedEmail.objects.get(user=request.user, email=email)
-            unverified_email.delete()
-        except UnverifiedEmail.DoesNotExist:
+            raise AccountsError.PRIMARY_EMAIL_REMOVAL
+        email_address.delete()
+    else:
+        unverified_email = UnverifiedEmail.objects.filter(user=user, email=request.email).first()
+        if unverified_email is None:
             # TODO: log this
-            return AccountsError.INVALID_EMAIL_ADDRESS
+            raise AccountsError.INVALID_EMAIL_ADDRESS
+        unverified_email.delete()
 
     return {
         "success": True,
-        "user": UserSummary(request.user)
+        "user": UserSummary(user),
     }
 
 
-@login_required_ajax
-def email_address_make_primary(request):
-    email = request.POST["email"]
-    try:
-        email_address = EmailAddress.objects.get(user=request.user, email=email)
-        email_address.set_as_primary()
-    except EmailAddress.DoesNotExist:
-        return AccountsError.INVALID_EMAIL_ADDRESS
+@accounts_views.post()
+def email_address_make_primary(request: EmailAddressRequest, user: AbstractStreamObjectUser) -> dict[str, Any]:
+    email_address = EmailAddress.objects.filter(user=user, email=request.email).first()
+    if email_address is None:
+        raise AccountsError.INVALID_EMAIL_ADDRESS
+    email_address.set_as_primary()
 
     return {
         "success": True,
-        "user": UserSummary(request.user)
+        "user": UserSummary(user),
     }
 
 
-@ajax_required
-def email_address_verification_send(request):
-    """
-    User requests that a confirmation email is sent to his email address
-    """
-    email = request.POST["email"]
-
-    try:
-        unverified_email = UnverifiedEmail.objects.get(user=request.user, email=email)
-        unverified_email.send(request)
-    except UnverifiedEmail.DoesNotExist:
-        return AccountsError.INVALID_EMAIL_ADDRESS
+# Resends the confirmation email of an address the user added
+@accounts_views.post()
+def email_address_verification_send(request: EmailAddressRequest, user: AbstractStreamObjectUser, view_context: BaseViewContext) -> dict[str, Any]:
+    unverified_email = UnverifiedEmail.objects.filter(user=user, email=request.email).first()
+    if unverified_email is None:
+        raise AccountsError.INVALID_EMAIL_ADDRESS
+    unverified_email.send(view_context.raw_request)
 
     return {"success": True}
 
 
-@single_page_app
-def email_unsubscribe(request, key):
-    try:
-        user = get_user_manager().get(email_unsubscribe_key=key)
-    except:
+@accounts_views.single_page_app(url_path=r"^email_unsubscribe/(?P<key>\w+)/$")
+def email_unsubscribe(key: URLArg) -> dict[str, Any]:
+    unsubscribed_user = get_user_manager().filter(email_unsubscribe_key=key).first()
+    if unsubscribed_user is None:
         return {}
 
-    user.receives_email_announcements = False
-    user.save()
+    unsubscribed_user.receives_email_announcements = False
+    unsubscribed_user.save()
 
     return {"unsubscribeSuccess": True}
 
 
-@single_page_app
-def email_address_verify(request, key):
+@accounts_views.single_page_app(url_path=r"^email_address_verify/(?P<key>\w+)/$")
+def email_address_verify(key: URLArg, view_context: BaseViewContext) -> dict[str, Any]:
     # TODO: we'll want a nice way of protecting against spammers hitting us with heavy requests (keys over 1MB for instance)
-    try:
-        unverified_email = UnverifiedEmail.objects.get(key=key)
-        if unverified_email.key_expired():
-            return {}
-    except ObjectDoesNotExist:
+    unverified_email = UnverifiedEmail.objects.filter(key=key).first()
+    if unverified_email is None or unverified_email.key_expired():
         return {}
 
     if unverified_email.user is None:
-        # create a new user
-        try:
-            temp_user = TempUser.objects.get(email=unverified_email)
+        # A signup: the account is only created once its email is confirmed
+        create_user_args: list[Any] = []
+        update_dict: dict[str, Any] = {}
+        temp_user = TempUser.objects.filter(email=unverified_email).first()
+        if temp_user is not None:
             update_dict = temp_user.extra or {}
-            extra = []
             update_dict["password"] = temp_user.password
-            if "username" in temp_user.extra and (get_user_model()()).has_field("username"):
-                available_username = get_user_model().get_available_username(temp_user.extra["username"])
-                extra = [None, available_username]
+            if "username" in update_dict and get_user_model()().has_field("username"):
+                available_username = get_user_model().get_available_username(update_dict["username"])
+                create_user_args = [None, available_username]
                 update_dict["username"] = available_username
-        except ObjectDoesNotExist:
-            extra = []
-            update_dict = {}
-        user = get_user_manager().create_user(unverified_email.email, *extra)
-        user.edit_from_dict(update_dict)
+        new_user = get_user_manager().create_user(unverified_email.email, *create_user_args)
+        new_user.edit_from_dict(update_dict)
         if "password" not in update_dict:
-            user.set_unusable_password()
-        unverified_email.user = user
+            new_user.set_unusable_password()
+        unverified_email.user = new_user
 
     email_address = unverified_email.convert()
     if email_address is None:
         return {}
 
-    login(request, email_address.user)
+    login(view_context.raw_request, email_address.user)
 
     return {"confirmSuccess": True}
 
 
-@login_required_ajax
-def user_password_change(request):
-    old_password = request.POST.get("oldPassword", None)
-    new_password = request.POST["newPassword"]
+class PasswordChangeRequest(BaseRequest):
+    new_password: str
+    old_password: Optional[str] = None
 
-    # You're allowed to change the password without sending the old one only when you're missing one (You've only logged in from social accounts)
-    if old_password is None:
-        # Check here that the account has never before set a password
-        if request.user.has_usable_password():
-            return AccountsError.MISSING_PASSWORD
-    else:
-        # Check the current password for the user
-        if not request.user.check_password(old_password):
-            return AccountsError.WRONG_PASSWORD
 
-    # Actually change the password
-    request.user.set_password(new_password)
-    request.user.save()
+@accounts_views.post()
+def password_change(request: PasswordChangeRequest, user: AbstractStreamObjectUser, view_context: BaseViewContext) -> dict[str, Any]:
+    # Only an account that never had a password, made through a social login, may skip the old one
+    if request.old_password is None:
+        if user.has_usable_password():
+            raise AccountsError.MISSING_PASSWORD
+    elif not user.check_password(request.old_password):
+        raise AccountsError.WRONG_PASSWORD
 
-    # Logout the user everywhere else (invalidate all sessions)
-    # Log him in here in a new session
-    update_session_auth_hash(request, request.user)
+    user.set_password(request.new_password)
+    user.save()
+
+    # Every other session of the user is invalidated, this one stays logged in
+    update_session_auth_hash(view_context.raw_request, user)
 
     return {
         "success": True,
-        "user": UserSummary(request.user)
+        "user": UserSummary(user),
     }
 
 
-@single_page_app
-def user_password_reset_request(request):
-    reset_email_address = request.POST["email"]
+class PasswordResetRequest(BaseRequest):
+    email: str
 
-    from establishment.webapp.throttle import UserActionThrottler
 
-    reset_password_throttler = UserActionThrottler(request.user or 0, "reset-password-" + reset_email_address, 60 * 60, 2)
+@accounts_views.post()
+def password_reset_request(request: PasswordResetRequest, user: Optional[AbstractStreamObjectUser], view_context: BaseViewContext) -> dict[str, Any]:
+    reset_email_address = request.email
+
+    reset_password_throttler = UserActionThrottler(user or 0, "reset-password-" + reset_email_address, 60 * 60, 2)
     if not reset_password_throttler.increm():
-        return AccountsError.TOO_MANY_PASSWORD_RESETS
+        raise AccountsError.TOO_MANY_PASSWORD_RESETS
 
     logger.info("Requesting a password reset for email " + str(reset_email_address))
 
-    try:
-        user = get_user_manager().get(email__iexact=reset_email_address)
-    except:
-        return AccountsError.INVALID_EMAIL_ADDRESS
+    reset_user = get_user_manager().filter(email__iexact=reset_email_address).first()
+    if reset_user is None:
+        raise AccountsError.INVALID_EMAIL_ADDRESS
 
-    #TODO: A logged in user can only request a password reset for themselves
+    # TODO: A logged in user can only request a password reset for themselves
 
-    reset_token = password_reset_token_generator.make_token(user)
+    reset_token = password_reset_token_generator.make_token(reset_user)
 
-    # Send the password reset email
-
-    # TODO: is this reverse the best way of doing this?
-    path = reverse("user_password_reset_from_token", kwargs=dict(user_base36=int_to_base36(user.id), reset_token=reset_token))
-    url = request.build_absolute_uri(path)
-
-    from django.contrib.sites.models import Site
+    raw_request = view_context.raw_request
+    # Every site mounts the accounts routes under accounts/
+    url = raw_request.build_absolute_uri(f"/accounts/password_reset/{int_to_base36(reset_user.id)}-{reset_token}/")
     context = {
         "password_reset_url": url,
-        "current_site": Site.objects.get_current(request=request)
+        "current_site": Site.objects.get_current(request=raw_request),
     }
 
     send_template_mail("account/email/password_reset_key", reset_email_address, context)
@@ -404,73 +317,74 @@ def user_password_reset_request(request):
     return {"success": True}
 
 
-@single_page_app
-def user_password_reset_from_token(request, user_base36, reset_token):
-    user_id = base36_to_int(user_base36)
-    reset_user = get_user_manager().get(id=user_id)
+@accounts_views.single_page_app(url_path=r"^password_reset/(?P<user_base36>[0-9A-Za-z]+)-(?P<reset_token>.+)/$")
+def password_reset_from_token(user_base36: URLArg, reset_token: URLArg, view_context: BaseViewContext) -> dict[str, Any]:
+    reset_user = get_user_manager().filter(id=base36_to_int(user_base36)).first()
+    if reset_user is None:
+        raise NotFound
 
-    token_valid = password_reset_token_generator.check_token(reset_user, reset_token)
-
-    if not token_valid:
-        logger.warn("Invalid password reset token to user " + str(reset_user))
-        return AccountsError.INVALID_PASSWORD_RESET_TOKEN
+    if not password_reset_token_generator.check_token(reset_user, reset_token):
+        logger.warning("Invalid password reset token to user " + str(reset_user))
+        raise AccountsError.INVALID_PASSWORD_RESET_TOKEN
 
     reset_user.set_unusable_password()
     reset_user.save()
-    # Logout the user everywhere else (invalidate all sessions)
-    # Log him in here in a new session
-    # update_session_auth_hash(request, request.user)
-    login(request, reset_user)
+    login(view_context.raw_request, reset_user)
     return {}
 
 
-@ajax_required
-def public_user_profiles(request):
-    if "usernamePrefix" in request.GET:
-        username_prefix = request.GET["usernamePrefix"]
-        precise_user = get_user_manager().filter(username__iexact=username_prefix)
-        prefix_users = get_user_manager().filter(username__istartswith=username_prefix)[:10]
+class PublicUserProfilesRequest(BaseRequest):
+    username_prefix: Optional[str] = None
+    ids: list[int] = []
+
+
+@accounts_views.get()
+def public_user_profiles(request: PublicUserProfilesRequest) -> State:
+    if request.username_prefix is not None:
+        precise_user = get_user_manager().filter(username__iexact=request.username_prefix)
+        prefix_users = get_user_manager().filter(username__istartswith=request.username_prefix)[:10]
         users = list(precise_user) + list(prefix_users)
     else:
-        user_ids = int_list(request.GET.getlist("ids[]"))
-        if len(user_ids) > 512:
+        if len(request.ids) > 512:
             # TODO: log this, may need to ban someone
-            return AccountsError.TOO_MANY_PROFILES_REQUESTED
-        users = get_user_manager().filter(id__in=user_ids)
+            raise AccountsError.TOO_MANY_PROFILES_REQUESTED
+        users = get_user_manager().filter(id__in=request.ids)
 
     return State(get_public_user_class().wrap_user_list(users))
 
 
-@login_required_ajax
-def get_user_notifications(request):
-    user_summary = UserSummary(request.user)
-    notifications = request.user.notifications.all().order_by("-id")[0:100]
+@accounts_views.get()
+def get_user_notifications(user: AbstractStreamObjectUser) -> State:
+    user_summary = UserSummary(user)
+    notifications = user.notifications.all().order_by("-id")[0:100]
     return State(user_summary, notifications)
 
 
-@login_required_ajax
-def set_user_notifications_read(request):
+@accounts_views.post()
+def set_user_notifications_read(user: AbstractStreamObjectUser) -> dict[str, Any]:
     # TODO: if any notification Ids are given, mark them all as read
-    # request.user.notifications.all().update(read=True)
-    last_user_notification = request.user.notifications.all().order_by("-id").first()
+    last_user_notification = user.notifications.all().order_by("-id").first()
     if last_user_notification:
-        request.user.get_custom_settings().set_last_read_notification(last_user_notification)
+        user.get_custom_settings().set_last_read_notification(last_user_notification)
     return {"success": True}
 
 
-@ajax_required
-def change_user_group(request):
-    group_id = int(request.POST["groupId"])
-    group = UserGroup.get_group_by_id(group_id)
-    if not request.user.is_superuser and group.owner_id != request.user.id:
-        return BaseError.NOT_ALLOWED
+class ChangeUserGroupRequest(BaseRequest):
+    group_id: int
+    user_id: int
+    action: str
+
+
+@accounts_views.post()
+def change_user_group(request: ChangeUserGroupRequest, user: AbstractStreamObjectUser) -> State:
+    group = UserGroup.get_group_by_id(request.group_id)
+    if not user.is_superuser and group.owner_id != user.id:
+        raise PermissionDenied
 
     state = State()
-    user_id = int(request.POST["userId"])
-    action = request.POST["action"]
-    if action == "remove":
-        UserGroupMember.objects.filter(user_id=user_id, group_id=group_id).delete()
-    elif action == "add":
-        group_member, created = UserGroupMember.objects.get_or_create(user_id=user_id, group_id=group_id)
+    if request.action == "remove":
+        UserGroupMember.objects.filter(user_id=request.user_id, group_id=group.id).delete()
+    elif request.action == "add":
+        group_member, created = UserGroupMember.objects.get_or_create(user_id=request.user_id, group_id=group.id)
         state.add(group_member)
     return state

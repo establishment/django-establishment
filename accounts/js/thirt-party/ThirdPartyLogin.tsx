@@ -1,6 +1,5 @@
 import {GoogleManager} from "./GoogleManager";
 import {FacebookManager} from "./FacebookManager";
-import {GithubManager} from "./GithubManager";
 import {registerStyle} from "../../../../stemjs/ui/style/Theme";
 import {LoginStyle} from "../LoginStyle";
 import {UI, type ElementOptions, type NodeAttributes} from "../../../../stemjs/ui/UIBase";
@@ -39,12 +38,6 @@ export const THIRD_PARTY_LOGIN_HANDLERS: Record<string, ThirdPartyLoginHandler> 
         color: "#3b5998",
         icon: "facebook",
         loginManager: FacebookManager,
-    },
-    Github: {
-        name: "Github",
-        color: "#000",
-        icon: "github",
-        loginManager: GithubManager,
     },
 };
 

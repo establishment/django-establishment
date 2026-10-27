@@ -9,6 +9,8 @@ import {Select} from "../../../stemjs/ui/input/Input";
 import {ActionModal} from "../../../stemjs/ui/modal/Modal";
 import {TableRow} from "../../../stemjs/ui/table/Table";
 import {Ajax} from "../../../stemjs/base/Ajax";
+import {type StoreId} from "../../../stemjs/state/State";
+import {showRequestError} from "./RequestError";
 import {EmailGateway} from "./state/EmailGatewayStore";
 import {EmailCampaign} from "./state/EmailCampaignStore";
 import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
@@ -21,7 +23,7 @@ export interface GenericConfirmModalOptions {
 abstract class GenericConfirmModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, GenericConfirmModalOptions>;
     abstract getActionText(): string;
-    abstract getAjaxAction(): string;
+    abstract getAjaxUrl(): string;
 
 
     getBody() {
@@ -32,19 +34,12 @@ abstract class GenericConfirmModal extends ActionModal {
 
     action() {
         const request = {
-            action: this.getAjaxAction(),
-            objectType: "campaign",
-            id: this.options.campaign ? this.options.campaign.id : null,
+            id: this.options.campaign.id,
         };
 
-        Ajax.postJSON("/email/control/", request).then(
+        Ajax.postJSON(this.getAjaxUrl(), request).then(
             () => this.hide(),
-            (error) => {
-                if (error.fieldName) {
-                    error.message += " (" + error.fieldName + ")";
-                }
-                this.messageArea.showMessage(error.message, "red");
-            }
+            (error) => showRequestError(this.messageArea, error)
         );
     }
 
@@ -63,8 +58,8 @@ class DeleteCampaignConfirmModal extends GenericConfirmModal {
         return "Are you sure you want to delete this entry?";
     }
 
-    getAjaxAction() {
-        return "delete";
+    getAjaxUrl() {
+        return "/email/delete_campaign/";
     }
 }
 
@@ -74,8 +69,8 @@ class ClearStatusCampaignConfirmModal extends GenericConfirmModal {
         return "Are you sure you want to clear all status for this entry?";
     }
 
-    getAjaxAction() {
-        return "clearStatus";
+    getAjaxUrl() {
+        return "/email/clear_campaign_status/";
     }
 }
 
@@ -84,8 +79,8 @@ class SendCampaignConfirmModal extends GenericConfirmModal {
         return "Are you sure you want to start sending this email campaign?";
     }
 
-    getAjaxAction() {
-        return "start";
+    getAjaxUrl() {
+        return "/email/start_campaign/";
     }
 }
 
@@ -112,20 +107,13 @@ class TestSendCampaignModal extends ActionModal {
 
     action() {
         const request = {
-            action: "test",
-            objectType: "campaign",
+            id: this.options.campaign.id,
             receiverId: this.receiverIdInput.getValue(),
-            id: this.options.campaign ? this.options.campaign.id : null,
         };
 
-        Ajax.postJSON("/email/control/", request).then(
+        Ajax.postJSON("/email/test_campaign/", request).then(
             () => this.hide(),
-            (error) => {
-                if (error.fieldName) {
-                    error.message += " (" + error.fieldName + ")";
-                }
-                this.messageArea.showMessage(error.message, "red");
-            }
+            (error) => showRequestError(this.messageArea, error)
         );
     }
 
@@ -149,7 +137,6 @@ export interface EmailCampaignModalOptions {
 
 abstract class EmailCampaignModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, EmailCampaignModalOptions>;
-    abstract getAjaxAction(): string;
 
     // The wire keys the modal reads back off its inputs
     declare fields: string[];
@@ -183,24 +170,19 @@ abstract class EmailCampaignModal extends ActionModal {
     }
 
     action() {
-        const request = {
-            action: this.getAjaxAction(),
-            objectType: "campaign",
+        const request: {name: string; fromAddress: string; gatewayId: StoreId; isNewsletter: boolean; id?: StoreId} = {
             name: this.nameInput.getValue(),
             fromAddress: this.fromAddressInput.getValue(),
             gatewayId: this.gatewaySelect.get().id,
             isNewsletter: this.isNewsletterInput.getValue(),
-            id: this.options.campaign ? this.options.campaign.id : null,
         };
+        if (this.options.campaign) {
+            request.id = this.options.campaign.id;
+        }
 
-        Ajax.postJSON("/email/control/", request).then(
+        Ajax.postJSON("/email/save_campaign/", request).then(
             () => this.hide(),
-            (error) => {
-                if (error.fieldName) {
-                    error.message += " (" + error.fieldName + ")";
-                }
-                this.messageArea.showMessage(error.message, "red");
-            }
+            (error) => showRequestError(this.messageArea, error)
         );
     }
 }
@@ -218,10 +200,6 @@ class AddEmailCampaignModal extends EmailCampaignModal {
     getActionLevel() {
         return Level.PRIMARY;
     }
-
-    getAjaxAction() {
-        return "new";
-    }
 }
 
 
@@ -236,10 +214,6 @@ class EditEmailCampaignModal extends EmailCampaignModal {
 
     getActionLevel() {
         return Level.PRIMARY;
-    }
-
-    getAjaxAction() {
-        return "update";
     }
 }
 

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import requests
 
 from establishment.baseconfig.models import private_settings_cache
@@ -5,11 +7,9 @@ from establishment.baseconfig.models import private_settings_cache
 RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
 
-def test_recaptcha(request):
+def test_recaptcha(recaptcha_key: Optional[str]) -> bool:
     if not private_settings_cache.get("USE_GOOGLE_RECAPTCHA", True):
         return True
-
-    recaptcha_key = request.POST["recaptchaKey"]
 
     google_request = {
         "secret": private_settings_cache.RECAPTCHA_PRIVATE_KEY,

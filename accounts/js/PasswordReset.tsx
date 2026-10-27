@@ -35,12 +35,7 @@ class PasswordReset extends UI.Element {
     sendPasswordReset() {
         this.emailFormField.removeError();
 
-        let url = window.location.href;
-        if (!url.endsWith("/")) {
-            url += "/";
-        }
-
-        this.resetPasswordButton.postJSON(url, {
+        this.resetPasswordButton.postJSON("/accounts/password_reset_request/", {
             email: this.emailInput.getValue().trim(),
         }).then(
             () => {},

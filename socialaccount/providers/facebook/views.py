@@ -1,16 +1,21 @@
 import hashlib
 import hmac
 import logging
+from typing import Any, Optional
 
 import requests
 
 from establishment.socialaccount.errors import SocialAccountError
 from establishment.socialaccount.helpers import complete_social_login
 from establishment.socialaccount.models import SocialLogin, SocialToken
-from establishment.webapp.base_views import ajax_required
+from establishment.utils.http.request import BaseRequest
+from establishment.utils.http.view_context import BaseViewContext
+from establishment.webapp.view_set import WebappViewSet
 from .provider import FacebookProvider, GRAPH_API_URL
 
 logger = logging.getLogger("django")
+
+facebook_views = WebappViewSet()
 
 
 def compute_appsecret_proof(app, token):
@@ -36,14 +41,21 @@ def fb_complete_login(request, app, token):
     return provider.social_login_from_response(request, resp.json())
 
 
-@ajax_required
-def login_by_token(request):
-    data = request.POST
+class FacebookLoginRequest(BaseRequest):
+    access_token: str
+    # The social login state reads these from the raw request
+    next: Optional[str] = None
+    process: Optional[str] = None
+
+
+@facebook_views.post(url_path=r"^facebook/login/token/$")
+def login_by_token(request: FacebookLoginRequest, view_context: BaseViewContext) -> dict[str, Any]:
+    raw_request = view_context.raw_request
     try:
         provider = FacebookProvider.get_instance()
-        login_options = provider.get_fb_login_options(request)
-        app = provider.get_app(request)
-        access_token = data["accessToken"]
+        login_options = provider.get_fb_login_options(raw_request)
+        app = provider.get_app(raw_request)
+        access_token = request.access_token
         if login_options.get("auth_type") == "reauthenticate":
             info = requests.get(
                 GRAPH_API_URL + "/oauth/access_token_info",
@@ -53,7 +65,7 @@ def login_by_token(request):
                 },
                 timeout=10
             ).json()
-            nonce = provider.get_nonce(request, pop=True)
+            nonce = provider.get_nonce(raw_request, pop=True)
             ok = nonce and nonce == info.get("auth_nonce")
         else:
             ok = True
@@ -71,14 +83,14 @@ def login_by_token(request):
             access_token = resp["access_token"]
         if ok:
             token = SocialToken(app=app, token=access_token)
-            login = fb_complete_login(request, app, token)
+            login = fb_complete_login(raw_request, app, token)
             login.token = token
-            login.state = SocialLogin.state_from_request(request)
-            complete_social_login(request, login)
+            login.state = SocialLogin.state_from_request(raw_request)
+            complete_social_login(raw_request, login)
             return {"success": True}
-    except requests.RequestException as e:
+    except requests.RequestException:
         logger.exception("Error accessing FB user profile")
-        return SocialAccountError.INVALID_SOCIAL_ACCOUNT
-    except Exception as e:
+        raise SocialAccountError.INVALID_SOCIAL_ACCOUNT
+    except Exception:
         logger.exception("Invalid facebook token")
-    return SocialAccountError.INVALID_SOCIAL_TOKEN
+    raise SocialAccountError.INVALID_SOCIAL_TOKEN

@@ -1,11 +1,8 @@
-from django.urls import re_path
+from django.urls import include, path
 
-from . import views
+from .views import blog_views, blog_page_views
 
 urlpatterns = [
-    re_path(r'^get_blog_post/$', views.get_blogpost),
-    re_path(r'^add_entry/$', views.add_entry),
-    re_path(r'^change_entry_settings/$', views.change_entry_settings),
-    re_path(r'^create_entry_discussion/$', views.create_entry_discussion),
-    re_path(r'^', views.blog),
+    path("", include(blog_views.build_url_patterns())),
+    path("", include(blog_page_views.build_url_patterns())),
 ]

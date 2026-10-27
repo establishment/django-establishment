@@ -1,133 +1,94 @@
-import json
 import time
+from typing import Any, Optional
 
 from django.core.mail import mail_admins
 from django.db import IntegrityError, models, transaction
 from django.utils import timezone
 
-from establishment.utils.errors_deprecated import BaseError
-from establishment.webapp.base_views import login_required, login_required_ajax, ajax_required, \
-    superuser_required, single_page_app
+from establishment.accounts.models import AbstractStreamObjectUser
+from establishment.utils.errors import NotFound, PermissionDenied, ValidationError
+from establishment.utils.http.request import BaseRequest
+from establishment.utils.http.request_fields import ObjectId
+from establishment.utils.http.view_arguments_loaders import URLArg
+from establishment.utils.http.view_context import BaseViewContext
 from establishment.utils.state import State
+from establishment.webapp.view_set import WebappViewSet, is_admin
 from .errors import ContentError
 from .models import TermDefinition, ArticleEdit, UserFeedback, Article, Questionnaire, QuestionnaireQuestion, \
                     QuestionnaireInstance, QuestionnaireQuestionResponse, QuestionnaireQuestionOption
 
-
-@single_page_app
-def article_manager_view(request):
-    articles = Article.get_editable_articles(request.user)
-    return State(articles)
+content_views = WebappViewSet()
 
 
-@login_required_ajax
-def create_article(request):
+class CreateArticleRequest(BaseRequest):
+    is_public: bool
+    name: Optional[str] = None
+    dependency: str = ""
+    language_id: int = 1
+    user_created_id: Optional[int] = None
+    base_article_id: Optional[int] = None
+    markup: Optional[str] = None
+
+
+@content_views.post(permissions=is_admin)
+def create_article(request: CreateArticleRequest, user: AbstractStreamObjectUser) -> State:
     # TODO: check a limit here
-    if not request.user.is_superuser:
-        return BaseError.NOT_ALLOWED
+    name = request.name if request.name is not None else "Untitled Article " + str(time.time())
+    owner_id = request.user_created_id if request.user_created_id is not None else user.id
 
-    name = request.POST.get("name", "Untitled Article " + str(time.time()))
-    dependency = request.POST.get("dependency", "")
-    language_id = request.POST.get("languageId", 1)
-    is_public = json.loads(request.POST["isPublic"])
-    owner_id = request.user.id
-    if "userCreatedId" in request.POST:
-        owner_id = int(request.POST["userCreatedId"])
-
-    article = Article(author_created_id=owner_id, name=name, dependency=dependency, language_id=language_id,
-                      is_public=is_public)
-    if "baseArticleId" in request.POST:
-        article.base_article_id = int(request.POST["baseArticleId"])
+    article = Article(author_created_id=owner_id, name=name, dependency=request.dependency, language_id=request.language_id,
+                      is_public=request.is_public)
+    if request.base_article_id is not None:
+        article.base_article_id = request.base_article_id
     try:
         article.save()
     except IntegrityError as e:
         # TODO: really @Rocky, 23505????
-        if e.__cause__.pgcode == '23505':
-            return ContentError.TRANSLATION_EXISTS
+        if e.__cause__.pgcode == "23505":
+            raise ContentError.TRANSLATION_EXISTS
         raise
 
-    if "markup" in request.POST:
-        article.edit(request.user, request.POST["markup"], )
+    if request.markup is not None:
+        article.edit(user, request.markup)
 
-    state = State(article)
-
-    return state.to_response({"article": article})
+    return State(article).add_extra({"article": article})
 
 
-@ajax_required
-def fetch_article(request):
-    article_ids = request.GET.getlist("ids[]")
-    article_ids = [int(x) for x in article_ids]
-    if len(article_ids) > 128:
-        return ContentError.REQUESTED_TOO_MANY_ARTICLES
-    articles = Article.objects.filter(id__in=article_ids)
+class FetchArticleRequest(BaseRequest):
+    ids: list[int] = []
+
+
+@content_views.get()
+def fetch_article(request: FetchArticleRequest, user: Optional[AbstractStreamObjectUser]) -> State:
+    if len(request.ids) > 128:
+        raise ContentError.REQUESTED_TOO_MANY_ARTICLES
 
     state = State()
-
-    for article in articles:
-        if article.is_available_to(request.user):
+    for article in Article.objects.filter(id__in=request.ids):
+        if article.is_available_to(user):
             state.add(article)
+    return state
 
-    return state.to_response()
 
-
-@login_required_ajax
-def get_available_articles(request):
-    articles = Article.get_editable_articles(request.user)
-    return State(articles)
+def get_editable_article(article_id: int | str, user: AbstractStreamObjectUser) -> Article:
+    article = Article.objects.filter(id=article_id).first()
+    if article is None:
+        raise NotFound
+    if not user.is_superuser and article.author_created_id != user.id:
+        raise PermissionDenied
+    return article
 
 
 # TODO: should be renamed to get_article_translations
-@login_required_ajax
-def get_translations(request, article_id):
-    article = Article.objects.get(id=article_id)
-    if not request.user.is_superuser and article.author_created_id != request.user.id:
-        return BaseError.NOT_ALLOWED
+@content_views.get(url_path=r"^article/(?P<article_id>\d+)/get_translations/$")
+def get_translations(article_id: URLArg, user: AbstractStreamObjectUser) -> State:
+    article = get_editable_article(article_id, user)
 
     translations = Article.objects.filter(base_article_id=article.id)
     return State(translations, TermDefinition.objects.all())
 
 
-@login_required
-def full_article(request):
-    article = Article.objects.get(id=int(request.GET["articleId"]))
-
-    # Permission checking to access all edits for this article
-    if not request.user.is_superuser and article.author_created != request.user:
-        return BaseError.NOT_ALLOWED
-
-    state = State()
-
-    article.add_to_state(state, True)
-
-    return state
-
-
-def check_article_change(request, article):
-    need_save = False
-    if "dependency" in request.POST:
-        # Right now regular users can't add js dependencies to an article
-        if not request.user.is_superuser:
-            return BaseError.NOT_ALLOWED
-        article.dependency = request.POST["dependency"]
-        need_save = True
-    if "languageId" in request.POST:
-        article.language_id = int(request.POST["languageId"])
-        need_save = True
-    if "name" in request.POST:
-        article.name = request.POST["name"]
-        need_save = True
-    if "isPublic" in request.POST:
-        article.is_public = json.loads(request.POST["isPublic"])
-        need_save = True
-    if "markup" in request.POST:
-        with transaction.atomic():
-            article.edit(request.user, request.POST["markup"], )
-            need_save = False
-    return need_save
-
-
-def get_article_state(article):
+def get_article_state(article: Article) -> State:
     article_edits = ArticleEdit.objects.filter(article=article)
 
     state = State()
@@ -140,106 +101,142 @@ def get_article_state(article):
     return state
 
 
-@login_required
-@single_page_app
-def edit_article(request, article_id):
-    article = Article.objects.get(id=article_id)
+@content_views.single_page_app(url_path=r"^article/(?P<article_id>\d+)/edit/$")
+def edit_article_page(article_id: URLArg, user: AbstractStreamObjectUser) -> State:
+    article = get_editable_article(article_id, user)
+    return get_article_state(article).add_extra({"articleId": article.id})
 
-    if not request.user.is_superuser and request.user.id != article.author_created_id:
-        return BaseError.NOT_ALLOWED
+
+class EditArticleRequest(BaseRequest):
+    article_id: int
+    dependency: Optional[str] = None
+    language_id: Optional[int] = None
+    name: Optional[str] = None
+    is_public: Optional[bool] = None
+    markup: Optional[str] = None
+
+
+@content_views.post()
+def edit_article(request: EditArticleRequest, user: AbstractStreamObjectUser) -> State | dict[str, Any]:
+    article = get_editable_article(request.article_id, user)
 
     # TODO: throttle the number of edits an article can have here
     # TODO: keep only a limited number of versions for the edits for non-admin users
     # TODO: article sizes should be limited
 
-    need_save = check_article_change(request, article)
-    if need_save:
-        try:
-            article.save()
-        except IntegrityError as e:
-            if e.__cause__.pgcode == '23505':
-                return ContentError.TRANSLATION_EXISTS
-            raise
-        return {"success": True}
-    else:
-        state = get_article_state(article)
-        return state.to_response({"articleId": article.id, "success": True})
+    if request.dependency is not None and request.dependency != article.dependency:
+        # Right now regular users can't add js dependencies to an article
+        if not user.is_superuser:
+            raise PermissionDenied
+        article.dependency = request.dependency
+    if request.language_id is not None:
+        article.language_id = request.language_id
+    if request.name is not None:
+        article.name = request.name
+    if request.is_public is not None:
+        article.is_public = request.is_public
+
+    if request.markup is not None:
+        # Saving the markup saves the article along with it
+        with transaction.atomic():
+            article.edit(user, request.markup)
+        return get_article_state(article).add_extra({"articleId": article.id, "success": True})
+
+    try:
+        article.save()
+    except IntegrityError as e:
+        if e.__cause__.pgcode == "23505":
+            raise ContentError.TRANSLATION_EXISTS
+        raise
+    return {"success": True}
+
+
+class SetArticleOwnerRequest(BaseRequest):
+    new_owner: int
 
 
 # TODO: this logic should be merged into edit_article
-@ajax_required
-@superuser_required
-def set_article_owner(request, article_id):
-    article = Article.objects.get(id=article_id)
+@content_views.post(url_path=r"^article/(?P<article_id>\d+)/set_owner/$", permissions=is_admin)
+def set_article_owner(request: SetArticleOwnerRequest, article_id: URLArg) -> State:
+    article = Article.objects.filter(id=article_id).first()
+    if article is None:
+        raise NotFound
 
-    new_owner_id = int(request.POST["newOwner"])
-    article.author_created_id = new_owner_id
+    article.author_created_id = request.new_owner
     article.save()
 
     return State(article)
 
 
-@login_required_ajax
-def delete_article(request, article_id):
-    article = Article.objects.get(id=article_id)
-    if not request.user.is_superuser and request.user.id != article.author_created_id:
-        return BaseError.NOT_ALLOWED
+@content_views.post(url_path=r"^article/(?P<article_id>\d+)/delete/$")
+def delete_article(article_id: URLArg, user: AbstractStreamObjectUser) -> dict[str, Any]:
+    article = get_editable_article(article_id, user)
 
     try:
         article.delete()
     except models.ProtectedError:
-        return ContentError.PROTECTED_ARTICLE
+        raise ContentError.PROTECTED_ARTICLE
 
     return {"success": True}
 
 
-def send_feedback(request):
-    if not request.visitor.get_throttler("postFeedback", (24 * 60 * 60, 5)).increm():
-        return ContentError.TOO_MUCH_FEEDBACK
+class SendFeedbackRequest(BaseRequest):
+    message: str
+    client_message: str = "{}"
+    # Asked only of visitors, a user is known already
+    name: Optional[str] = None
+    email: Optional[str] = None
 
-    message = request.POST["message"]
-    client_message = request.POST.get("clientMessage", "{}")
 
-    user_feedback = UserFeedback(message=message, client_message=client_message)
+@content_views.post()
+def send_feedback(request: SendFeedbackRequest, user: Optional[AbstractStreamObjectUser], view_context: BaseViewContext) -> dict[str, Any]:
+    if not view_context.raw_request.visitor.get_throttler("postFeedback", (24 * 60 * 60, 5)).increm():
+        raise ContentError.TOO_MUCH_FEEDBACK
 
-    if request.user.is_authenticated:
-        user_feedback.user = request.user
-        name = request.user.get_full_name()
-        user_feedback.sender_email = request.user.email
+    user_feedback = UserFeedback(message=request.message, client_message=request.client_message)
+
+    if user is not None:
+        user_feedback.user = user
+        name = user.get_full_name()
+        user_feedback.sender_email = user.email
     else:
-        name = request.POST["name"]
-        user_feedback.sender_email = request.POST["email"]
+        if request.name is None or request.email is None:
+            raise ValidationError("A name and an email are needed to send feedback without an account")
+        name = request.name
+        user_feedback.sender_email = request.email
 
     user_feedback.save()
 
     mail_admins(
         "Feedback from %s (%s)" % (name, user_feedback.sender_email),
-        message,
+        request.message,
     )
 
     return {"success": True, "feedbackId": user_feedback.id}
 
 
-@login_required_ajax
-def questionnaire_state(request):
-    questionnaire_id = int(request.POST["questionnaireId"])
-    questionnaire = Questionnaire.objects.get(id=questionnaire_id)
+class QuestionnaireRequest(BaseRequest):
+    questionnaire_id: ObjectId[Questionnaire]
 
-    if not request.user.is_superuser and not questionnaire.visible and questionnaire.owner_id != request.user.id:
-        return ContentError.QUESTIONNAIRE_NOT_AVAILABLE
+
+@content_views.post()
+def questionnaire_state(request: QuestionnaireRequest, user: AbstractStreamObjectUser) -> State:
+    questionnaire = request.questionnaire_id.obj
+
+    if not user.is_superuser and not questionnaire.visible and questionnaire.owner_id != user.id:
+        raise ContentError.QUESTIONNAIRE_NOT_AVAILABLE
 
     state = State()
-    questionnaire.add_to_state(state, request.user)
+    questionnaire.add_to_state(state, user)
     return state
 
 
-@login_required_ajax
-def questionnaire_all_answers(request):
-    questionnaire_id = int(request.GET["questionnaireId"])
-    questionnaire = Questionnaire.objects.get(id=questionnaire_id)
+@content_views.get()
+def questionnaire_all_answers(request: QuestionnaireRequest, user: AbstractStreamObjectUser) -> State:
+    questionnaire = request.questionnaire_id.obj
 
-    if not request.user.is_superuser and questionnaire.owner_id != request.user.id:
-        return BaseError.NOT_ALLOWED
+    if not user.is_superuser and questionnaire.owner_id != user.id:
+        raise PermissionDenied
 
     state = State()
     questionnaire.add_to_state(state)
@@ -251,61 +248,59 @@ def questionnaire_all_answers(request):
     return state
 
 
-@login_required_ajax
-def questionnaire_answer(request):
-    questionnaire_id = int(request.POST["questionnaireId"])
+def get_questionnaire_instance(questionnaire: Questionnaire, user: AbstractStreamObjectUser) -> QuestionnaireInstance:
+    if not user.is_superuser and not questionnaire.visible:
+        raise ContentError.QUESTIONNAIRE_NOT_AVAILABLE
 
-    questionnaire = Questionnaire.objects.get(id=questionnaire_id)
-    if not request.user.is_superuser and not questionnaire.visible:
-        return ContentError.QUESTIONNAIRE_NOT_AVAILABLE
+    instance = QuestionnaireInstance.objects.filter(user=user, questionnaire=questionnaire).first()
+    if instance is None:
+        raise NotFound
+    return instance
 
-    question = QuestionnaireQuestion.objects.get(id=int(request.POST["questionId"]))
-    if question.questionnaire_id != questionnaire.id:
-        return BaseError.NOT_ALLOWED
 
-    instance = QuestionnaireInstance.objects.get(user=request.user, questionnaire=questionnaire)
-    # if instance.date_submitted:
-    #     return BaseError.NOT_ALLOWED
+class QuestionnaireAnswerRequest(QuestionnaireRequest):
+    question_id: ObjectId[QuestionnaireQuestion]
+    text: Optional[str] = None
+    choice_ids: list[int] = []
+
+
+@content_views.post()
+def questionnaire_answer(request: QuestionnaireAnswerRequest, user: AbstractStreamObjectUser) -> State:
+    instance = get_questionnaire_instance(request.questionnaire_id.obj, user)
+
+    question = request.question_id.obj
+    if question.questionnaire_id != instance.questionnaire_id:
+        raise PermissionDenied
 
     question_response, created = QuestionnaireQuestionResponse.objects.get_or_create(instance=instance, question=question)
 
-    question_response.text = request.POST.get("text", None)
+    question_response.text = request.text
 
     if question.type == 2:  # Single choice
-        choice_id = request.POST.getlist("choiceIds[]", [])
-        print(choice_id)
-        if len(choice_id):
-            choice_id = choice_id[0]
-            question_choice = QuestionnaireQuestionOption.objects.get(id=choice_id)
+        if len(request.choice_ids):
+            question_choice = QuestionnaireQuestionOption.objects.filter(id=request.choice_ids[0]).first()
+            if question_choice is None:
+                raise NotFound
             if question_choice.question_id != question.id:
-                return BaseError.NOT_ALLOWED
+                raise PermissionDenied
             question_response.choices.set([question_choice])
         else:
             question_response.choices.set([])
     if question.type == 3:  # Multiple choice
-        choice_ids = request.POST.getlist("choiceIds[]", [])
-        question_choices = QuestionnaireQuestionOption.objects.filter(id__in=choice_ids)
-        if len(question_choices) != len(choice_ids):
-            return BaseError.NOT_ALLOWED
+        question_choices = QuestionnaireQuestionOption.objects.filter(id__in=request.choice_ids)
+        if len(question_choices) != len(request.choice_ids):
+            raise PermissionDenied
         for question_choice in question_choices:
             if question_choice.question_id != question.id:
-                return BaseError.NOT_ALLOWED
+                raise PermissionDenied
         question_response.choices.set(list(question_choices))
     question_response.save()
     return State(question_response)
 
 
-@login_required_ajax
-def questionnaire_submit(request):
-    questionnaire_id = int(request.POST["questionnaireId"])
-
-    questionnaire = Questionnaire.objects.get(id=questionnaire_id)
-    if not request.user.is_superuser and not questionnaire.visible:
-        return ContentError.QUESTIONNAIRE_NOT_AVAILABLE
-
-    instance = QuestionnaireInstance.objects.get(user=request.user, questionnaire=questionnaire)
-    # if instance.date_submitted:
-    #     return BaseError.NOT_ALLOWED
+@content_views.post()
+def questionnaire_submit(request: QuestionnaireRequest, user: AbstractStreamObjectUser) -> State:
+    instance = get_questionnaire_instance(request.questionnaire_id.obj, user)
 
     instance.date_submitted = timezone.now()
     instance.save()

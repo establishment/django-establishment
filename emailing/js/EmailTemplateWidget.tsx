@@ -10,10 +10,12 @@ import {TextInput} from "../../../stemjs/ui/input/Input";
 import {Select} from "../../../stemjs/ui/input/Input";
 import {TextArea} from "../../../stemjs/ui/input/Input";
 import {Ajax} from "../../../stemjs/base/Ajax";
+import {type StoreId} from "../../../stemjs/state/State";
+import {showRequestError} from "./RequestError";
 import {Language} from "../../localization/js/state/LanguageStore";
-import {EmailGateway} from "state/EmailGatewayStore";
-import {EmailCampaign} from "state/EmailCampaignStore";
-import {EmailTemplate} from "state/EmailTemplateStore";
+import {EmailGateway} from "./state/EmailGatewayStore";
+import {EmailCampaign} from "./state/EmailCampaignStore";
+import {EmailTemplate} from "./state/EmailTemplateStore";
 import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 
 export interface EmailTemplateModalOptions {
@@ -22,7 +24,6 @@ export interface EmailTemplateModalOptions {
 
 abstract class EmailTemplateModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, EmailTemplateModalOptions>;
-    abstract getAjaxAction(): string;
 
     declare campaignSelect: Select<EmailCampaign>;
     // The wire keys the modal reads back off its inputs
@@ -97,25 +98,20 @@ abstract class EmailTemplateModal extends ActionModal {
     }
 
     action() {
-        const request = {
-            action: this.getAjaxAction(),
-            objectType: "template",
+        const request: {subject: string; html: string; campaignId: StoreId; languageId: StoreId; gatewayId: StoreId; id?: StoreId} = {
             subject: this.subjectInput.getValue(),
             html: this.htmlInput.getValue(),
             campaignId: this.campaignSelect.get().id,
             languageId: this.languageSelect.get().id,
             gatewayId: this.gatewaySelect.get().id,
-            id: this.options.template ? this.options.template.id : null,
         };
+        if (this.options.template) {
+            request.id = this.options.template.id;
+        }
 
-        Ajax.postJSON("/email/control/", request).then(
+        Ajax.postJSON("/email/save_template/", request).then(
             () => this.hide(),
-            (error) => {
-                if (error.fieldName) {
-                    error.message += " (" + error.fieldName + ")";
-                }
-                this.messageArea.showMessage(error.message, "red");
-            }
+            (error) => showRequestError(this.messageArea, error)
         );
     }
 
@@ -143,10 +139,6 @@ class AddEmailTemplateModal extends EmailTemplateModal {
     getActionLevel() {
         return Level.PRIMARY;
     }
-
-    getAjaxAction() {
-        return "new";
-    }
 }
 
 
@@ -162,10 +154,6 @@ class EditEmailTemplateModal extends EmailTemplateModal {
     getActionLevel() {
         return Level.PRIMARY;
     }
-
-    getAjaxAction() {
-        return "update";
-    }
 }
 
 
@@ -176,7 +164,7 @@ export interface GenericConfirmModalOptions {
 abstract class GenericConfirmModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, GenericConfirmModalOptions>;
     abstract getActionText(): string;
-    abstract getAjaxAction(): string;
+    abstract getAjaxUrl(): string;
 
 
     constructor(options: GenericConfirmModal["options"]) {
@@ -191,19 +179,12 @@ abstract class GenericConfirmModal extends ActionModal {
 
     action() {
         const request = {
-            action: this.getAjaxAction(),
-            objectType: "template",
-            id: this.options.template ? this.options.template.id : null,
+            id: this.options.template.id,
         };
 
-        Ajax.postJSON("/email/control/", request).then(
+        Ajax.postJSON(this.getAjaxUrl(), request).then(
             () => this.hide(),
-            (error) => {
-                if (error.fieldName) {
-                    error.message += " (" + error.fieldName + ")";
-                }
-                this.messageArea.showMessage(error.message, "red");
-            }
+            (error) => showRequestError(this.messageArea, error)
         );
     }
 
@@ -222,8 +203,8 @@ class DeleteTemplateConfirmModal extends GenericConfirmModal {
         return "Are you sure you want to delete this entry?";
     }
 
-    getAjaxAction() {
-        return "delete";
+    getAjaxUrl() {
+        return "/email/delete_template/";
     }
 }
 
@@ -289,7 +270,7 @@ class EmailTemplateTable extends SortableTable<EmailTemplate> {
             cellStyle: cellStyle,
             headerStyle: headerStyle,
         }, {
-            value: (template: EmailTemplate) => EmailGateway.get(template.gatewayId).name,
+            value: (template: EmailTemplate) => template.gatewayId ? EmailGateway.get(template.gatewayId).name : "campaign's",
             headerName: UI.T("Gateway"),
             cellStyle: cellStyle,
             headerStyle: headerStyle,

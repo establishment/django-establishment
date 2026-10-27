@@ -1,11 +1,8 @@
-from django.urls import re_path
+from django.urls import include, path
 
-from establishment.documentation import views
+from .views import documentation_views, documentation_page_views
 
 urlpatterns = [
-    re_path(r"^edit_entry/$", views.edit_entry),
-    re_path(r"^create/$", views.create_entry),
-    re_path(r"^change_parents/$", views.change_parents),
-    re_path(r"^edit/", views.edit_documentation),
-    re_path(r"^", views.documentation)
+    path("", include(documentation_views.build_url_patterns())),
+    path("", include(documentation_page_views.build_url_patterns())),
 ]

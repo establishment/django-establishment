@@ -71,11 +71,8 @@ class GoogleManager extends SocialAccountManager {
         this.getGoogleAuth().grantOfflineAccess({
             redirect_uri: "postmessage",
             immediate: false,
-        }).then((data: object) => {
-            Object.assign(data, {
-                process: process,
-            });
-            this.sendData(this.options.loginByTokenUrl, data, () => self.location.reload());
+        }).then((data: {code: string}) => {
+            this.sendData(this.options.loginByTokenUrl, {code: data.code, process}, () => self.location.reload());
         });
     }
 

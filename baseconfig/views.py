@@ -1,30 +1,32 @@
-import json
+from typing import Any
 
+from establishment.accounts.models import AbstractStreamObjectUser
 from establishment.misc.threading_helper import ThreadHandler
-from establishment.webapp.base_views import superuser_required, ajax_required, single_page_app
+from establishment.utils.http.request import BaseRequest
+from establishment.utils.http.request_fields import ObjectId
 from establishment.utils.state import State
-from .errors import BaseconfigError
+from establishment.webapp.view_set import WebappViewSet, is_admin
 from .models import CommandInstance, CommandRun
 
+baseconfig_views = WebappViewSet(permissions=is_admin)
 
-@superuser_required
-@ajax_required
-def run_command(request):
-    command_instance_id = request.POST["commandInstanceId"]
-    arguments = json.loads(request.POST.get("arguments", "{}"))
-    try:
-        command_instance = CommandInstance.objects.get(id=command_instance_id)
-    except Exception:
-        return BaseconfigError.INVALID_COMMAND_INSTANCE
 
-    def run():
-        CommandRun.run(request.user, command_instance, arguments)
+class RunCommandRequest(BaseRequest):
+    command_instance_id: ObjectId[CommandInstance]
+    arguments: dict[str, Any] = {}
+
+
+@baseconfig_views.post()
+def run_command(request: RunCommandRequest, user: AbstractStreamObjectUser) -> dict[str, Any]:
+    command_instance = request.command_instance_id.obj
+
+    def run() -> None:
+        CommandRun.run(user, command_instance, request.arguments)
     ThreadHandler("commandthread", run)
 
     return {}
 
 
-@superuser_required
-@single_page_app
-def command_manager(request):
+@baseconfig_views.single_page_app(url_path="command/manager")
+def command_manager() -> State:
     return State(CommandInstance.objects.all(), CommandRun.objects.all())

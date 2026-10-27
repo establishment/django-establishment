@@ -14,6 +14,9 @@ from establishment.funnel.nodews_meta import NodeWSMeta
 from establishment.funnel.stream import register_stream_handler, StreamObjectMixin
 from establishment.utils.state import State
 
+# Longest id a client may give a message it shows before the server confirms it
+MAX_VIRTUAL_ID_LENGTH = 128
+
 
 class MessageThread(StreamObjectMixin):
     stream_name = models.CharField(max_length=256)
@@ -43,18 +46,6 @@ class MessageThread(StreamObjectMixin):
     #         "markupEnabled": self.markup_enabled,
     #         "lastActivity": self.last_activity,
     #     }
-
-    def create_message_from_request(self, request, stream_names=None):
-        user = request.user
-        content = request.POST["message"]
-
-        virtual_id = request.POST.get("virtualId", None)
-
-        if virtual_id and len(virtual_id) > 128:
-            return None, ChatError.INVALID_MESSAGE_CONTENT
-
-        message = self.create_message(user, content, virtual_id=virtual_id, stream_names=stream_names)
-        return message, State(message).to_response(extra={"messageId": message.id})
 
     def create_message(self, user, content, metadata={}, virtual_id=None, stream_names=None):
         message = MessageInstance(message_thread=self, user=user, content=content, metadata=metadata)
@@ -297,11 +288,6 @@ class PrivateChat(StreamObjectMixin):
         # TODO: add case when a user wants to mute a conversation
         return self.message_thread.can_post(user, message_content)
 
-    # TODO: Nope!
-    def create_message_from_request(self, request):
-        stream_names = self.get_user_streams()
-        return self.message_thread.create_message_from_request(request, stream_names=stream_names)
-
     def to_json(self):
         return {
             "id": self.id,
@@ -368,7 +354,7 @@ class GroupChat(StreamObjectMixin):
         return "messagethread-groupchat-" + str(self.id) + "-m-" + str(self.message_thread_id)
 
     @classmethod
-    def create(cls, title: str, group: UserGroup, messages_editable: bool=True):
+    def create(cls, title: str, group: Optional[UserGroup], messages_editable: bool=True) -> GroupChat:
         message_thread = MessageThread(stream_name="invalid", messages_editable=messages_editable, metadata=dict())
         message_thread.save()
         group_chat = GroupChat(title=title, message_thread=message_thread, group=group)
@@ -408,9 +394,6 @@ class GroupChat(StreamObjectMixin):
             return True, True
 
         return False, BaseError.NOT_ALLOWED
-
-    def post_from_request(self, request):
-        return self.message_thread.create_message_from_request(request)
 
     def post(self, user, message):
         return self.message_thread.create_message(user, content=message)

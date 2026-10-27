@@ -1,15 +1,20 @@
 import logging
 from datetime import datetime, timedelta
+from typing import Any, Optional
 
 import requests
 
 from establishment.socialaccount.errors import SocialAccountError
 from establishment.socialaccount.helpers import complete_social_login
 from establishment.socialaccount.models import SocialToken, SocialLogin
-from establishment.webapp.base_views import ajax_required
+from establishment.utils.http.request import BaseRequest
+from establishment.utils.http.view_context import BaseViewContext
+from establishment.webapp.view_set import WebappViewSet
 from .provider import GoogleProvider
 
 logger = logging.getLogger("django")
+
+google_views = WebappViewSet()
 
 
 def google_complete_login(request, app, token):
@@ -52,22 +57,27 @@ def google_complete_login(request, app, token):
     return provider.social_login_from_response(request, user_data)
 
 
-@ajax_required
-def login_by_token(request):
-    data = request.POST
-    try:
-        app = GoogleProvider.get_instance().get_app(request)
-        access_token = data["code"]
+class GoogleLoginRequest(BaseRequest):
+    code: str
+    # The social login state reads it from the raw request
+    process: Optional[str] = None
 
-        token = SocialToken(app=app, token=access_token)
-        login = google_complete_login(request, app, token)
+
+@google_views.post(url_path=r"^google/login/token/$")
+def login_by_token(request: GoogleLoginRequest, view_context: BaseViewContext) -> dict[str, Any]:
+    raw_request = view_context.raw_request
+    try:
+        app = GoogleProvider.get_instance().get_app(raw_request)
+
+        token = SocialToken(app=app, token=request.code)
+        login = google_complete_login(raw_request, app, token)
         login.token = token
-        login.state = SocialLogin.state_from_request(request)
-        complete_social_login(request, login)
+        login.state = SocialLogin.state_from_request(raw_request)
+        complete_social_login(raw_request, login)
         return {"success": True}
-    except requests.RequestException as e:
+    except requests.RequestException:
         logger.exception("Error accessing Google user profile")
-        return SocialAccountError.INVALID_SOCIAL_ACCOUNT
-    except Exception as e:
+        raise SocialAccountError.INVALID_SOCIAL_ACCOUNT
+    except Exception:
         logger.exception("Invalid google token")
-    return SocialAccountError.INVALID_SOCIAL_TOKEN
+    raise SocialAccountError.INVALID_SOCIAL_TOKEN

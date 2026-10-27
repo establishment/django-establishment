@@ -1,8 +1,7 @@
-from django.urls import re_path
+from django.urls import include, path
 
-from .views import *
+from .views import baseconfig_views
 
 urlpatterns = [
-    re_path(r"^run_command/$", run_command),
-    re_path(r"^command/manager/$", command_manager),
+    path("", include(baseconfig_views.build_url_patterns())),
 ]

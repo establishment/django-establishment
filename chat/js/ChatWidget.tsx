@@ -413,7 +413,7 @@ class ChatMessageScrollSection extends InfiniteScrollable<MessageInstance> {
 }
 
 
-// What every chat request is keyed by; the group widgets send the chat, the private one the pair
+// What every chat request is keyed by; the group widgets send the chat, the private one its chat or the other user
 type ChatBaseRequest = {chatId?: StoreId; userId?: StoreId; privateChatId?: StoreId};
 
 // What is posted: the base request the widget was configured with, plus what sendMessage adds to it
@@ -460,6 +460,14 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
         return this.options.messageThread;
     }
 
+    getPostRequest(): ChatBaseRequest {
+        return this.options.baseRequest || {};
+    }
+
+    getLoadRequest(): ChatBaseRequest {
+        return this.options.baseRequest || {};
+    }
+
     setOptions(options: typeof this.options) {
         super.setOptions(options);
         this.initializeShowLoadMoreButton();
@@ -497,7 +505,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
             return;
         }
         const request: ChatSendRequest = {
-            ...this.options.baseRequest,
+            ...this.getPostRequest(),
         };
 
         message = message || this.chatInput.getValue();
@@ -629,7 +637,7 @@ class ChatWidgetBase extends Pluginable(UI.Element) {
 
         let request = Object.assign({
             lastMessageId: lastMessageId
-        }, this.options.baseRequest || {});
+        }, this.getLoadRequest());
 
         const oldScrollHeight = this.messageWindow.node.scrollHeight;
 
@@ -833,12 +841,17 @@ class PrivateChatWidget extends ChatWidget(PrivateChatMessage) {
     setOptions(options: typeof this.options) {
         options = Object.assign({
             messageThread: options.privateChat.getMessageThread(),
-            baseRequest: {
-                userId: options.privateChat.getOtherUserId(),
-                privateChatId: options.privateChat.id
-            }
         }, options);
         super.setOptions(options);
+    }
+
+    getPostRequest(): ChatBaseRequest {
+        return {privateChatId: this.options.privateChat.id};
+    }
+
+    // Loading may create the chat, so it names the other user rather than the chat
+    getLoadRequest(): ChatBaseRequest {
+        return {userId: this.options.privateChat.getOtherUserId()};
     }
 
     getPostURL() {

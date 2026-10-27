@@ -1,8 +1,7 @@
-from django.urls import re_path
+from django.urls import include, path
 
-from . import views
+from .views import google_views
 
 urlpatterns = [
-    re_path('^google/login/token/$', views.login_by_token, name="google_login_by_token")
+    path("", include(google_views.build_url_patterns())),
 ]
-

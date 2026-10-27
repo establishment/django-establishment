@@ -128,9 +128,6 @@ class ForumThread(StreamObjectMixin):
             return False, BaseError.NOT_ALLOWED
         return True, True
 
-    def post_message_from_request(self, request):
-        return self.message_thread.create_message_from_request(request)
-
     def post_message(self, user, message):
         return self.message_thread.create_message(user, content=message)
 

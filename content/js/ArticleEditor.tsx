@@ -274,12 +274,13 @@ class ArticleEditor extends UI.Element {
 
     saveMarkup(content: string) {
         let request = {
+            articleId: this.options.articleId,
             markup: content
         };
 
         this.saveMarkupMessageArea.showMessage("Saving...", "black", null);
 
-        this.saveMarkupButton.postJSON("/article/" + this.options.articleId + "/edit/", request).then(
+        this.saveMarkupButton.postJSON("/edit_article/", request).then(
             () => {
                 // Add a new version in the dropdown if the save is a success
                 if (ArticleEditor.DiffWidgetClass) {
@@ -292,12 +293,12 @@ class ArticleEditor extends UI.Element {
     }
 
     saveOptions(options: object) {
-        let request = {};
+        let request = {articleId: this.options.articleId};
         Object.assign(request, options);
 
         this.saveOptionsMessageArea.showMessage("Saving...", "black", null);
 
-        this.saveOptionsButton.postJSON("/article/" + this.options.articleId + "/edit/", request).then(
+        this.saveOptionsButton.postJSON("/edit_article/", request).then(
             () => window.location.replace("/article/" + this.options.articleId + "/edit/"),
             (error) => this.saveOptionsMessageArea.showMessage("Error in saving the article: " + error.message, "red")
         );

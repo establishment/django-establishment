@@ -82,7 +82,6 @@ class FacebookManager extends SocialAccountManager {
             next: nextUrl || '',
             process: process,
             accessToken: response.authResponse.accessToken,
-            expiresIn: response.authResponse.expiresIn
         };
         this.sendData(this.options.loginByTokenUrl, data);
     }

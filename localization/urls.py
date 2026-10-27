@@ -1,7 +1,7 @@
-from django.urls import re_path
+from django.urls import include, path
 
-from . import views
+from .views import localization_views
 
 urlpatterns = [
-    re_path(r"^edit_translation/$", views.edit_translation),
+    path("", include(localization_views.build_url_patterns())),
 ]

@@ -18,7 +18,7 @@ import {Language} from "./state/LanguageStore";
 import {type StoreId} from "../../../stemjs/state/State";
 
 function ajaxCall(request: object, onSuccess=NOOP_FUNCTION, onError=NOOP_FUNCTION) {
-    Ajax.postJSON("/edit_translation/", request).then(onSuccess, onError);
+    Ajax.postJSONBody("/edit_translation/", request).then(onSuccess, onError);
 }
 
 export interface TranslationEntryTableRowOptions {
@@ -68,7 +68,7 @@ class TranslationEntryTableRow extends TableRow {
                     newValue: this.entryInput.getValue()
                 }];
         let request = {
-            editEntries: JSON.stringify(editEntries)
+            editEntries: editEntries
         };
         ajaxCall(request, () => {
             this.markUnchanged();
@@ -246,7 +246,7 @@ class TranslationEntryManager extends UI.Element {
             changes.push(change);
         }
         let request = {
-            editEntries: JSON.stringify(changes)
+            editEntries: changes
         };
         ajaxCall(request, () => {
             // TODO: Find a way to redraw only the changed rows
@@ -324,7 +324,7 @@ class TranslationEntryManager extends UI.Element {
                         }
                         if (!error) {
                             let request = {
-                                editEntries: JSON.stringify(changes)
+                                editEntries: changes
                             };
                             ajaxCall(request, () => {
                                 this.redraw();
@@ -426,10 +426,10 @@ class TranslationKeyTableRow extends TableRow {
         let key = this.options.entry.key;
         let table = this.options.entry.table;
         let request = {
-            editKeys: JSON.stringify({
-                    type: "delete",
-                    keyId: key.id
-                })
+            editKeys: {
+                type: "delete",
+                keyId: key.id
+            }
         };
         table.changed = true;
         this.hide();
@@ -461,11 +461,11 @@ class TranslationKeyTableRow extends TableRow {
                 let value = this.textInput.getValue();
                 let key = this.options.entry.key;
                 let request = {
-                    editKeys: JSON.stringify({
-                            type: "rename",
-                            keyId: key.id,
-                            newValue: value
-                        })
+                    editKeys: {
+                        type: "rename",
+                        keyId: key.id,
+                        newValue: value
+                    }
                 };
                 ajaxCall(request, () => {
                     this.options.entry.table.changed = true;
@@ -623,10 +623,10 @@ class TranslationKeyManager extends UI.Element {
         this.textArea.setValue("");
 
         let request = {
-            editKeys: JSON.stringify({
-                    type: "add",
-                    keys: value
-                })
+            editKeys: {
+                type: "add",
+                keys: value
+            }
         };
         this.saveButton.disable();
         this.changed = true;

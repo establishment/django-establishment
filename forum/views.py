@@ -1,107 +1,120 @@
-from establishment.utils.errors_deprecated import BaseError
+from typing import Any, Optional
+
+from pydantic import Field
+
+from establishment.accounts.models import AbstractStreamObjectUser
+from establishment.chat.models import MAX_VIRTUAL_ID_LENGTH
 from establishment.forum.errors import ForumError
 from establishment.forum.models import ForumThread, Forum
-from establishment.webapp.base_views import ajax_required, login_required_ajax, single_page_app
+from establishment.utils.errors import PermissionDenied
+from establishment.utils.http.request import BaseRequest
+from establishment.utils.http.request_fields import ObjectId
+from establishment.utils.http.view_context import BaseViewContext
 from establishment.utils.state import State
 from establishment.webapp.throttle import UserActionThrottler, ActionThrottler
+from establishment.webapp.view_set import WebappViewSet
+
+forum_views = WebappViewSet()
+# Routed after forum_views: any other path under the forum is a page the app routes in the browser
+forum_page_views = WebappViewSet()
 
 
-@single_page_app
-def main_forum_view(request):
+@forum_page_views.single_page_app(url_path=r"^")
+def main_forum_view(user: Optional[AbstractStreamObjectUser]) -> State:
     main_forum = Forum.objects.get(id=1)
-    state = State(user=request.user)
+    state = State(user=user)
     main_forum.add_to_state(state)
-    return state.to_response(extra={"forumId": main_forum.id})
+    return state.add_extra({"forumId": main_forum.id})
 
 
-@login_required_ajax
-def create_forum_thread(request):
-    if not request.user.is_superuser:
-        user_run_throttler = UserActionThrottler(request.user, "forum-thread-create", 24 * 60 * 60, 10)
-        if not user_run_throttler.increm():
-            return ForumError.FORUM_THREAD_LIMIT_EXCEEDED
+class CreateForumThreadRequest(BaseRequest):
+    forum_id: ObjectId[Forum]
+    title: str
+    message: str
 
-    title = request.POST["title"]
 
-    if len(title) > 160:
-        return ForumError.TITLE_TOO_LONG
+@forum_views.post()
+def create_forum_thread(request: CreateForumThreadRequest, user: AbstractStreamObjectUser) -> State:
+    if not user.is_superuser:
+        if not UserActionThrottler(user, "forum-thread-create", 24 * 60 * 60, 10).increm():
+            raise ForumError.FORUM_THREAD_LIMIT_EXCEEDED
 
-    non_empty_url = False
-    for character in title:
-        if character.isalnum():
-            non_empty_url = True
-    if not non_empty_url:
-        return ForumError.INVALID_TITLE
+    if len(request.title) > 160:
+        raise ForumError.TITLE_TOO_LONG
 
-    forum = Forum.objects.get(id=int(request.POST["forumId"]))
-    forum_thread = ForumThread.create(request.user, request.POST["title"], request.POST["message"], forum)
+    if not any(character.isalnum() for character in request.title):
+        raise ForumError.INVALID_TITLE
+
+    forum_thread = ForumThread.create(user, request.title, request.message, request.forum_id.obj)
 
     state = State()
     forum_thread.publish_create_event()
     forum_thread.add_to_state(state)
-    return state.to_response({
-        "forumThreadId": forum_thread.id
-    })
+    return state.add_extra({"forumThreadId": forum_thread.id})
 
 
-@login_required_ajax
-def edit_forum_thread(request):
-    forum_thread = ForumThread.objects.get(id=int(request.POST["forumThreadId"]))
+class EditForumThreadRequest(BaseRequest):
+    forum_thread_id: ObjectId[ForumThread]
+    hidden: bool = False
 
-    # TODO: extract if true or false from json.loads(request.POST["hidden"])
-    if "hidden" in request.POST:
-        if not request.user.is_superuser and request.user.id != forum_thread.author_id:
-            return BaseError.NOT_ALLOWED
+
+@forum_views.post()
+def edit_forum_thread(request: EditForumThreadRequest, user: AbstractStreamObjectUser) -> dict[str, Any]:
+    forum_thread = request.forum_thread_id.obj
+
+    if request.hidden:
+        if not user.is_superuser and user.id != forum_thread.author_id:
+            raise PermissionDenied
         forum_thread.hide_thread()
 
     return {"success": True}
 
 
-@login_required_ajax
-def forum_thread_post(request):
-    if not request.user.is_superuser:
-        user_run_throttler = UserActionThrottler(request.user, "forum-post-message", 60, 5)
-        if not user_run_throttler.increm():
-            return ForumError.MESSAGE_LIMIT_EXCEEDED
+class ForumThreadPostRequest(BaseRequest):
+    forum_thread_id: ObjectId[ForumThread]
+    message: str
+    virtual_id: Optional[str] = Field(None, max_length=MAX_VIRTUAL_ID_LENGTH)
 
-    forum_thread = ForumThread.objects.get(id=int(request.POST["forumThreadId"]))
-    content = request.POST["message"]
 
-    can_post, error = forum_thread.can_post(request.user, content)
+@forum_views.post()
+def forum_thread_post(request: ForumThreadPostRequest, user: AbstractStreamObjectUser) -> State:
+    if not user.is_superuser:
+        if not UserActionThrottler(user, "forum-post-message", 60, 5).increm():
+            raise ForumError.MESSAGE_LIMIT_EXCEEDED
+
+    forum_thread = request.forum_thread_id.obj
+
+    can_post, error = forum_thread.can_post(user, request.message)
     if not can_post:
-        return error
+        raise error
 
-    message, json_response = forum_thread.post_message_from_request(request)
+    message_instance = forum_thread.message_thread.create_message(user, request.message, virtual_id=request.virtual_id)
 
-    if message:
-        forum_thread.publish_event("lastActive", {
-            "lastActive": message.time_added,
-        })
+    forum_thread.publish_event("lastActive", {
+        "lastActive": message_instance.time_added,
+    })
 
-    return json_response
-
-
-@ajax_required
-def forum_state(request):
-    forum = Forum.objects.get(id=int(request.POST["forumId"]))
-    state = State(user=request.user)
-    forum.add_to_state(state)
-    return state.to_response()
+    return State(message_instance).add_extra({"messageId": message_instance.id})
 
 
-@ajax_required
-def forum_thread_state(request):
-    forum_thread = ForumThread.objects.get(id=int(request.POST["forumThreadId"]))
-    if forum_thread.hidden and not request.user.is_superuser:
-        return BaseError.NOT_ALLOWED
+class ForumThreadStateRequest(BaseRequest):
+    forum_thread_id: ObjectId[ForumThread]
 
-    forum_view_throttler = ActionThrottler(request.visitor.unique() + "-forum-thread-" + str(forum_thread.id) + "-view", 60 * 60 * 24, 1)
+
+@forum_views.post()
+def forum_thread_state(request: ForumThreadStateRequest, user: Optional[AbstractStreamObjectUser], view_context: BaseViewContext) -> State:
+    forum_thread = request.forum_thread_id.obj
+    if forum_thread.hidden and (user is None or not user.is_superuser):
+        raise PermissionDenied
+
+    # A view counts once a day for each visitor
+    forum_view_throttler = ActionThrottler(view_context.raw_request.visitor.unique() + "-forum-thread-" + str(forum_thread.id) + "-view", 60 * 60 * 24, 1)
     if forum_view_throttler.increm():
         forum_thread.increment_num_views()
 
-    state = State(user=request.user)
-    forum_thread.add_to_state(state, request)
-    return state.to_response()
+    state = State(user=user)
+    forum_thread.add_to_state(state)
+    return state
 
 
 def latest_forum_state():

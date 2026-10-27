@@ -10,6 +10,8 @@ import {RawCheckboxInput} from "../../../stemjs/ui/input/Input";
 import {PasswordInput} from "../../../stemjs/ui/input/Input";
 import {TableRow} from "../../../stemjs/ui/table/Table";
 import {Ajax} from "../../../stemjs/base/Ajax";
+import {type StoreId} from "../../../stemjs/state/State";
+import {showRequestError} from "./RequestError";
 import {EmailGateway} from "./state/EmailGatewayStore";
 import {autoredraw} from "../../../stemjs/decorators/AutoRedraw";
 
@@ -19,7 +21,6 @@ export interface EmailGatewayModalOptions {
 
 abstract class EmailGatewayModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, EmailGatewayModalOptions>;
-    abstract getAjaxAction(): string;
 
     declare hostInput: TextInput;
     declare nameInput: TextInput;
@@ -53,26 +54,25 @@ abstract class EmailGatewayModal extends ActionModal {
     }
 
     action() {
-        const request = {
-            action: this.getAjaxAction(),
-            objectType: "gateway",
+        const request: {name: string; host: string; port: number; useTls: boolean; username: string; password?: string; id?: StoreId} = {
             name: this.nameInput.getValue(),
             host: this.hostInput.getValue(),
             port: this.portInput.getValue(),
-            useTLS: this.useTLSInput.getValue(),
+            useTls: this.useTLSInput.getValue(),
             username: this.usernameInput.getValue(),
-            password: this.passwordInput.getValue(),
-            id: this.options.gateway ? this.options.gateway.id : null,
         };
+        // Left empty, the stored password stays
+        const password = this.passwordInput.getValue();
+        if (password) {
+            request.password = password;
+        }
+        if (this.options.gateway) {
+            request.id = this.options.gateway.id;
+        }
 
-        Ajax.postJSON("/email/control/", request).then(
+        Ajax.postJSON("/email/save_gateway/", request).then(
             () => this.hide(),
-            (error) => {
-                if (error.fieldName) {
-                    error.message += " (" + error.fieldName + ")";
-                }
-                this.messageArea.showMessage(error.message, "red");
-            }
+            (error) => showRequestError(this.messageArea, error)
         );
     }
 }
@@ -90,10 +90,6 @@ class AddEmailGatewayModal extends EmailGatewayModal {
     getActionLevel() {
         return Level.PRIMARY;
     }
-
-    getAjaxAction() {
-        return "new";
-    }
 }
 
 
@@ -109,10 +105,6 @@ class EditEmailGatewayModal extends EmailGatewayModal {
     getActionLevel() {
         return Level.PRIMARY;
     }
-
-    getAjaxAction() {
-        return "update";
-    }
 }
 
 
@@ -123,7 +115,7 @@ export interface GenericConfirmModalOptions {
 abstract class GenericConfirmModal extends ActionModal {
     declare options: ExtendedOptions<ActionModal, GenericConfirmModalOptions>;
     abstract getActionText(): string;
-    abstract getAjaxAction(): string;
+    abstract getAjaxUrl(): string;
 
 
     constructor(options: GenericConfirmModal["options"]) {
@@ -138,19 +130,12 @@ abstract class GenericConfirmModal extends ActionModal {
 
     action() {
         const request = {
-            action: this.getAjaxAction(),
-            objectType: "gateway",
-            id: this.options.gateway ? this.options.gateway.id : null,
+            id: this.options.gateway.id,
         };
 
-        Ajax.postJSON("/email/control/", request).then(
+        Ajax.postJSON(this.getAjaxUrl(), request).then(
             () => this.hide(),
-            (error) => {
-                if (error.fieldName) {
-                    error.message += " (" + error.fieldName + ")";
-                }
-                this.messageArea.showMessage(error.message, "red");
-            }
+            (error) => showRequestError(this.messageArea, error)
         );
     }
 
@@ -169,8 +154,8 @@ class DeleteGatewayConfirmModal extends GenericConfirmModal {
         return "Are you sure you want to delete this entry?";
     }
 
-    getAjaxAction() {
-        return "delete";
+    getAjaxUrl() {
+        return "/email/delete_gateway/";
     }
 }
 
