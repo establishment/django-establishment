@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import re
 from functools import partial
 from typing import Callable, Any, ClassVar, Optional, Unpack
 
 from django.conf import settings
-from django.core.exceptions import DisallowedHost
+from django.core.exceptions import DisallowedHost, ImproperlyConfigured
 from django.http import HttpRequest, HttpResponse, HttpResponseBase, JsonResponse, StreamingHttpResponse
 from django.urls import URLPattern, re_path, path, include
 
@@ -163,7 +164,20 @@ class ViewSet:
             if len(url_path) > 1 and url_path.endswith("/"):
                 urlpatterns.append(path(url_path[:-1], view))
 
+        self.check_no_shadowed_routes(urlpatterns)
         return urlpatterns
+
+    # Routes register in the order of their views' names, so a broad pattern can silently answer a later route's paths
+    @staticmethod
+    def check_no_shadowed_routes(urlpatterns: list[URLPattern]) -> None:
+        for index, later in enumerate(urlpatterns):
+            # The path a route literally starts with, before any pattern syntax, when the route serves that path itself
+            literal_start = re.split(r"[\\(\[.*+?{|$<]", str(later.pattern).removeprefix("^"), maxsplit=1)[0]
+            if not literal_start or not later.pattern.match(literal_start):
+                continue
+            for earlier in urlpatterns[:index]:
+                if earlier.callback is not later.callback and earlier.pattern.match(literal_start):
+                    raise ImproperlyConfigured(f"The route {earlier.pattern} answers {literal_start}, so the later route {later.pattern} is never reached")
 
     def build_path(self, path_url: str = ""):
         return path(path_url, include(self.build_url_patterns()))

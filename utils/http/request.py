@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from establishment.utils.convert import to_camel_case, to_snake_case
 from establishment.utils.errors import ValidationError
+from establishment.utils.logging import logger
 
 
 # Replaces the removed Django request.is_ajax() — also accepts the legacy
@@ -179,11 +180,16 @@ class BaseRequest(BaseModel):
     # Undeclared keys are otherwise dropped, so a misspelt key on an edit endpoint is a success that changes nothing
     @classmethod
     def check_unknown_fields(cls, request: Union[dict, QueryDict], accepted_names: set[str]) -> None:
-        if not getattr(settings, "REJECT_UNKNOWN_REQUEST_FIELDS", False):
+        reject = getattr(settings, "REJECT_UNKNOWN_REQUEST_FIELDS", False)
+        if not reject and not getattr(settings, "LOG_UNKNOWN_REQUEST_FIELDS", False):
             return
         unknown = sorted(set(request.keys()) - accepted_names)
-        if unknown:
-            raise ValidationError(f"{cls.__name__} does not declare {', '.join(unknown)}. It accepts {', '.join(sorted(accepted_names))}.")
+        if not unknown:
+            return
+        message = f"{cls.__name__} does not declare {', '.join(unknown)}. It accepts {', '.join(sorted(accepted_names))}."
+        if reject:
+            raise ValidationError(message)
+        logger.warning(message)
 
     @classmethod
     def from_request(cls, request: Union[dict, QueryDict]) -> Self:

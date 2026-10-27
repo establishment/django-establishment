@@ -1,13 +1,12 @@
 import datetime
-from typing import Any, Optional, Self
+from typing import Any, Optional
 
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 from django.db.models.fields.related import ManyToManyRel, RelatedField, OneToOneField
 from django.db.models.fields.reverse_related import ForeignObjectRel
-from django.http.request import HttpRequest
 
 from establishment.utils.state import State
-from ..utils.convert import int_list
 from .json_helper import to_camel_case, to_json_dict
 from .redis_stream import RedisStreamPublisher
 
@@ -28,7 +27,8 @@ def get_stream_handler(stream_name: str):
 
 
 class StreamObjectMixin(models.Model):
-    EVENT_PERSISTENCE_DURATION = 30 * 60   # 30 minutes
+    id: int  # Provided by Django, declared here for mypy (abstract class)
+    EVENT_PERSISTENCE_DURATION: Optional[int] = 30 * 60   # 30 minutes
 
     class Meta:
         abstract = True
@@ -93,7 +93,7 @@ class StreamObjectMixin(models.Model):
         return to_camel_case(name)
 
     @classmethod
-    def get_object_key_from_meta_field(cls, meta_field):
+    def get_object_key_from_meta_field(cls, meta_field) -> str:
         name = meta_field.name
         if type(meta_field.remote_field) is ManyToManyRel:
             name = name[:-1]
@@ -172,6 +172,10 @@ class StreamObjectMixin(models.Model):
 
         return False
 
+    # TODO decide whether a falsy field should be sent at all. exclude_none drops None, [] and {} here, and
+    # roughly forty hand-written to_json methods go further and guard a boolean behind `if self.flag`. The
+    # client then declares every one of them optional, so `?` means "may be absent" and "may be false" at
+    # once. Always sending the key costs a little bandwidth and makes optionality mean one thing.
     def meta_to_json(self, include_many_to_many=False, rename=None, exclude=None, include=None, exclude_none=True) -> dict[str, Any]:
         json_obj: dict[str, Any] = dict()
 
@@ -215,33 +219,13 @@ class StreamObjectMixin(models.Model):
 
     def update_from_dict(self, data_dict, rename=None) -> list[str]:
         json_dict = to_json_dict(data_dict)
-        updated_fields = []
+        updated_fields: list[str] = []
 
         for meta_field in self._meta.get_fields():
             if self.update_field_from_json_dict(meta_field, json_dict, rename):
                 key = self.get_object_key_from_meta_field(meta_field)
                 updated_fields.append(key)
         return updated_fields
-
-    @classmethod
-    def get_object_from_edit_request(cls, request, rename=None):
-        if rename is not None and "id" in rename:
-            return cls.objects.get(id=request.POST[rename["id"]])
-        return cls.objects.get(id=request.POST["id"])
-
-    def can_be_edited_by_request(self, request):
-        return self.can_be_edited_by_user(request.user)
-
-    def can_be_edited_by_user(self, user):
-        if user.is_superuser:
-            return True
-        return getattr(self, "owner_id", getattr(self, "author_id", -1)) == user.id
-
-    def can_be_created_by_request(self, request):
-        return self.can_be_created_by_user(request.user)
-
-    def can_be_created_by_user(self, user):
-        return self.can_be_edited_by_user(user)
 
     def edit_from_dict(self, data_dict, rename=None, trusted: bool = False, publish_event: bool = True, event_type: str = "update",
                        event_extra: Optional[dict] = None) -> Optional[dict[str, Any]]:
@@ -262,62 +246,6 @@ class StreamObjectMixin(models.Model):
         if publish_event:
             self.publish_event_raw(event)
         return event
-
-    def edit_from_request(self, request, rename=None):
-        if not self.can_be_edited_by_request(request):
-            from establishment.utils.errors_deprecated import BaseError
-            raise BaseError.NOT_ALLOWED
-        return self.edit_from_dict(request.POST, rename, publish_event=False)
-
-    @classmethod
-    def edit_view(cls, decorators=list()):
-        def view_func(request):
-            obj = cls.get_object_from_edit_request(request)
-            obj.edit_from_request(request)
-            return {"success": True}
-
-        for decorator in reversed(decorators):
-            view_func = decorator(view_func)
-
-        return view_func
-
-    @classmethod
-    def create_from_request(cls, request: HttpRequest) -> Self:
-        obj = cls()
-        obj.update_from_dict(request.POST)
-        if not obj.can_be_created_by_request(request):
-            from establishment.utils.errors_deprecated import BaseError
-            raise BaseError.NOT_ALLOWED
-        obj.full_clean()
-        return obj
-
-    @classmethod
-    def create_view(cls, decorators=list()):
-        def view_func(request):
-            obj = cls.create_from_request(request)
-            obj.save()
-            return {"obj": obj}
-
-        for decorator in reversed(decorators):
-            view_func = decorator(view_func)
-
-        return view_func
-
-    @classmethod
-    def fetch_view(cls, decorators=None, permission_filter=None, max_ids=256):
-        def view_func(request):
-            ids = int_list(request.GET.getlist("ids[]"))
-            if len(ids) > max_ids:
-                # TODO: log this, may need to ban some asshole
-                from establishment.utils.errors_deprecated import BaseError
-                return BaseError.TOO_MANY_OBJECTS
-            state = State(user=request.user)
-            for obj in cls.objects.get(id__in=ids):
-                if not permission_filter or permission_filter(obj):
-                    state.add(obj)
-            return state
-
-        return view_func
 
     def make_event(self, event_type: str, data: Any, extra: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         event_dict = {
@@ -376,5 +304,5 @@ class StreamObjectMixin(models.Model):
         for stream_name in stream_names:
             RedisStreamPublisher.publish_to_stream(stream_name, event, persistence=persistence, expire_time=expire_time)
 
-    def add_to_state(self, state: State, user=None):
+    def add_to_state(self, state: State, user: Optional[AbstractBaseUser] = None):
         state.add(self)

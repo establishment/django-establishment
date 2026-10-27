@@ -59,6 +59,8 @@ def signup_request(request: SignupRequest, user: Optional[AbstractStreamObjectUs
         raise AccountsError.EMAIL_UNAVAILABLE
 
     unverified_email = UnverifiedEmail.create(email=request.email)
+    if unverified_email is None:
+        raise AccountsError.INVALID_EMAIL_ADDRESS
 
     extra: dict[str, Any] = {}
     if request.country_id is not None and request.country_id != -1:
