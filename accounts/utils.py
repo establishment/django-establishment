@@ -1,3 +1,6 @@
+from collections.abc import Iterable
+from typing import Protocol, TYPE_CHECKING
+
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -7,6 +10,9 @@ from django.core.mail import EmailMultiAlternatives, EmailMessage
 from django.utils.encoding import force_str
 
 from establishment.misc.util import import_module_attribute
+
+if TYPE_CHECKING:
+    from .models import AbstractStreamObjectUser
 
 
 def format_email_subject(subject, add_prefix=True):
@@ -80,7 +86,13 @@ def get_user_manager():
     return get_user_model().objects
 
 
-def get_public_user_class():
+# What the PUBLIC_USER_CLASS setting names: the wrapper public profiles are sent as
+class PublicUserClass(Protocol):
+    @classmethod
+    def wrap_user_list(cls, users: Iterable[AbstractStreamObjectUser]) -> Iterable[object]: ...
+
+
+def get_public_user_class() -> type[PublicUserClass]:
     from .models import PublicUserWrapper
     public_user_class = getattr(settings, "PUBLIC_USER_CLASS", PublicUserWrapper)
     if isinstance(public_user_class, str):

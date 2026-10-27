@@ -1,3 +1,5 @@
+from typing import Any, Optional
+
 from django.conf import settings
 from django.utils.crypto import get_random_string
 
@@ -32,7 +34,7 @@ class FacebookProvider(OAuth2Provider):
     def get_default_scope(self):
         return ["email"]
 
-    def get_fields(self):
+    def get_fields(self) -> list[str]:
         default_fields = [
             "id",
             "email",
@@ -55,14 +57,14 @@ class FacebookProvider(OAuth2Provider):
             ret["auth_type"] = "rerequest"
         return ret
 
-    def get_fb_login_options(self, request):
+    def get_fb_login_options(self, request) -> dict[str, Any]:
         ret = self.get_auth_params(request, "authenticate")
         ret["scope"] = ",".join(self.get_scope(request))
         if ret.get("auth_type") == "reauthenticate":
             ret["auth_nonce"] = self.get_nonce(request, or_create=True)
         return ret
 
-    def get_nonce(self, request, or_create=False, pop=False):
+    def get_nonce(self, request, or_create=False, pop=False) -> Optional[str]:
         if pop:
             nonce = request.session.pop(NONCE_SESSION_KEY, None)
         else:

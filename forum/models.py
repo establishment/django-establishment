@@ -1,4 +1,5 @@
 import re
+from typing import Self
 
 from django.conf import settings
 from django.db import models
@@ -93,7 +94,7 @@ class ForumThread(StreamObjectMixin):
         return "messagethread-forumthread-" + str(self.id) + "-m-" + str(self.message_thread_id)
 
     @classmethod
-    def create(cls, author, title, content, parent_forum):
+    def create(cls, author, title, content, parent_forum) -> Self:
         message_thread = MessageThread(stream_name="invalid", messages_editable=True, metadata=dict())
         message_thread.save()
         forum_thread = ForumThread(author=author,
@@ -121,12 +122,11 @@ class ForumThread(StreamObjectMixin):
     def guest_can_subscribe(cls, stream_name):
         return cls.matches_stream_name(stream_name), "It matches stream name so should be just fine!"
 
-    def can_post(self, user, message):
+    def check_can_post(self, user, message: str) -> None:
         if user.chat_muted:
-            return False, PermissionDenied()
+            raise PermissionDenied
         if self.message_thread.muted:
-            return False, PermissionDenied()
-        return True, True
+            raise PermissionDenied
 
     def post_message(self, user, message):
         return self.message_thread.create_message(user, content=message)

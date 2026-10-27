@@ -23,9 +23,9 @@ class EntryRequest(BaseRequest):
 
 def get_entry_article(request: EntryRequest, user: AbstractStreamObjectUser) -> Article:
     if request.article_id == 0:
-        article = Article(author_created=user, name=request.name)
-        article.save()
-        return article
+        new_article = Article(author_created_id=user.id, name=request.name)
+        new_article.save()
+        return new_article
 
     article = Article.objects.filter(id=request.article_id).first()
     if article is None:

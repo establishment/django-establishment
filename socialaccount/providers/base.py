@@ -1,8 +1,13 @@
+from typing import Any, Self, TYPE_CHECKING
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from establishment.misc.util import import_module_attribute
 from establishment.socialaccount.adapter import populate_user
+
+if TYPE_CHECKING:
+    from establishment.socialaccount.models import SocialApp, SocialLogin
 
 
 class AuthProcess(object):
@@ -26,7 +31,7 @@ class Provider(object):
     db_instance = None
 
     @classmethod
-    def get_instance(cls, name=None, package=None, *args, **kwargs):
+    def get_instance(cls, name=None, package=None, *args, **kwargs) -> Self:
         if cls.instance is None:
             cls.instance = cls()
             if name:
@@ -46,7 +51,7 @@ class Provider(object):
     def get_urlpatterns(self):
         return import_module_attribute(self.package + ".urls.urlpatterns", [])
 
-    def get_app(self, request):
+    def get_app(self, request) -> SocialApp:
         # NOTE: Avoid loading models at top due to registry boot...
         from establishment.socialaccount.models import SocialApp
 
@@ -55,10 +60,10 @@ class Provider(object):
     def wrap_account(self, social_account):
         return self.account_class(social_account)
 
-    def get_settings(self):
+    def get_settings(self) -> dict[str, Any]:
         return settings.SOCIAL_ACCOUNT_PROVIDERS.get(self.id, {})
 
-    def social_login_from_response(self, request, response):
+    def social_login_from_response(self, request, response) -> SocialLogin:
         """
         Instantiates and populates a `SocialLogin` model based on the data
         retrieved in `response`. The method does NOT save the model to the

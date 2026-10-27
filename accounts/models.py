@@ -35,7 +35,7 @@ class UnverifiedEmail(StreamObjectMixin):
         return self.email
 
     @classmethod
-    def create(cls, email, user=None):
+    def create(cls, email: str, user: Optional[AbstractStreamObjectUser] = None) -> Optional[UnverifiedEmail]:
         try:
             validators.validate_email(email)
         except ValidationError:
@@ -49,7 +49,7 @@ class UnverifiedEmail(StreamObjectMixin):
             unverified_email = UnverifiedEmail.objects.create(user=user, email=email, key=key)
         return unverified_email
 
-    def convert(self):
+    def convert(self) -> EmailAddress:
         with transaction.atomic():
             make_primary = not EmailAddress.objects.filter(user=self.user, primary=True).exists()
             verified_email = EmailAddress.objects.create(user=self.user, email=self.email, primary=make_primary)
@@ -209,7 +209,7 @@ class AbstractStreamObjectUser(AbstractBaseUser, SuperuserPermissionsMixin, Stre
             pass
         return username
 
-    def get_custom_settings(self):
+    def get_custom_settings(self) -> UserCustomSettings:
         custom_settings, created = UserCustomSettings.objects.get_or_create(user=self, defaults={"settings": {}})
         return custom_settings
 
@@ -312,14 +312,14 @@ class UserCustomSettings(models.Model):
         if len(json.dumps(self.settings)) > MAX_USER_CUSTOM_SETTINGS_SIZE:
             raise RuntimeError("Settings too large!")
 
-    def set_last_read_notification(self, user_notification):
+    def set_last_read_notification(self, user_notification: UserNotification) -> None:
         if user_notification.user_id != self.user_id:
             raise RuntimeError("Invalid notification for current user")
         self.last_read_notification = user_notification
         self.save(update_fields=["last_read_notification"])
         self.user.publish_event("lastReadNotification", {"lastReadNotificationId": self.last_read_notification_id})
 
-    def to_json(self):
+    def to_json(self) -> dict[str, Any]:
         # At module level this import leaves mypy's Django plugin without these models' field types
         from establishment.utils.serializers import JSONFieldValueDict
 

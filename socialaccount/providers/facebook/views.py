@@ -4,10 +4,11 @@ import logging
 from typing import Any, Optional
 
 import requests
+from django.http import HttpRequest
 
 from establishment.socialaccount.errors import InvalidExternalAccount, InvalidSocialToken
 from establishment.socialaccount.helpers import complete_social_login
-from establishment.socialaccount.models import SocialLogin, SocialToken
+from establishment.socialaccount.models import SocialApp, SocialLogin, SocialToken
 from establishment.utils.http.request import BaseRequest
 from establishment.utils.http.view_context import BaseViewContext
 from establishment.webapp.view_set import WebappViewSet
@@ -27,7 +28,7 @@ def compute_appsecret_proof(app, token):
     return appsecret_proof
 
 
-def fb_complete_login(request, app, token):
+def fb_complete_login(request: HttpRequest, app: SocialApp, token: SocialToken) -> SocialLogin:
     provider = FacebookProvider.get_instance()
     resp = requests.get(
         GRAPH_API_URL + "/me",

@@ -12,6 +12,7 @@ from establishment.utils.http.request import BaseRequest
 from establishment.utils.http.request_fields import ObjectId
 from establishment.utils.http.view_context import BaseViewContext
 from establishment.utils.state import State
+from establishment.webapp.middleware import RequestVisitor
 from establishment.webapp.throttle import UserActionThrottler, ActionThrottler
 from establishment.webapp.view_set import WebappViewSet
 
@@ -85,9 +86,7 @@ def forum_thread_post(request: ForumThreadPostRequest, user: AbstractStreamObjec
 
     forum_thread = request.forum_thread_id.obj
 
-    can_post, error = forum_thread.can_post(user, request.message)
-    if not can_post:
-        raise error
+    forum_thread.check_can_post(user, request.message)
 
     message_instance = forum_thread.message_thread.create_message(user, request.message, virtual_id=request.virtual_id)
 
@@ -109,7 +108,7 @@ def forum_thread_state(request: ForumThreadStateRequest, user: Optional[Abstract
         raise PermissionDenied
 
     # A view counts once a day for each visitor
-    forum_view_throttler = ActionThrottler(view_context.raw_request.visitor.unique() + "-forum-thread-" + str(forum_thread.id) + "-view", 60 * 60 * 24, 1)
+    forum_view_throttler = ActionThrottler(RequestVisitor(view_context.raw_request).unique() + "-forum-thread-" + str(forum_thread.id) + "-view", 60 * 60 * 24, 1)
     if forum_view_throttler.increm():
         forum_thread.increment_num_views()
 

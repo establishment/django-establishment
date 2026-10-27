@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Self
 
 from django.conf import settings
 from django.db import models
@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from establishment.accounts.models import ReactionableMixin, UserGroup
 from establishment.chat.errors import InvalidMessageContent
-from establishment.utils.errors import APIError, PermissionDenied
+from establishment.utils.errors import PermissionDenied
 from establishment.funnel.nodews_meta import NodeWSMeta
 from establishment.funnel.stream import register_stream_handler, StreamObjectMixin
 from establishment.utils.state import State
@@ -31,10 +31,9 @@ class MessageThread(StreamObjectMixin):
     def __str__(self):
         return "MessageThread-" + str(self.id)
 
-    def can_post(self, user, message_content):
+    def check_can_post(self, user, message_content: str) -> None:
         if len(message_content) > (1 << 14):
-            return False, InvalidMessageContent()
-        return True, "Ok"
+            raise InvalidMessageContent
 
     # def to_json(self):
     #     return {
@@ -46,7 +45,7 @@ class MessageThread(StreamObjectMixin):
     #         "lastActivity": self.last_activity,
     #     }
 
-    def create_message(self, user, content, metadata={}, virtual_id=None, stream_names=None):
+    def create_message(self, user, content, metadata={}, virtual_id=None, stream_names=None) -> MessageInstance:
         message = MessageInstance(message_thread=self, user=user, content=content, metadata=metadata)
         message.save()
         message.publish("create", virtual_id=virtual_id, stream_names=stream_names)
@@ -249,13 +248,13 @@ class PrivateChat(StreamObjectMixin):
             return self.user1
 
     @classmethod
-    def get(cls, user1, user2):
+    def get(cls, user1, user2) -> Optional[Self]:
         if user2.id < user1.id:
             user1, user2 = user2, user1
         return cls.objects.filter(user1=user1, user2=user2).first()
 
     @classmethod
-    def get_or_create(cls, user1, user2):
+    def get_or_create(cls, user1, user2) -> Self:
         if user2.id < user1.id:
             user1, user2 = user2, user1
         try:
@@ -278,14 +277,14 @@ class PrivateChat(StreamObjectMixin):
             message_thread.delete()
             return cls.objects.get(user1=user1, user2=user2)
 
-    def can_post(self, user, message_content):
+    def check_can_post(self, user, message_content: str) -> None:
         if user.id != self.user1_id and user.id != self.user2_id:
-            return False, PermissionDenied()
+            raise PermissionDenied
         # TODO: fix hardcoded constant
         if len(message_content) > 1 << 14:
-            return False, InvalidMessageContent()
+            raise InvalidMessageContent
         # TODO: add case when a user wants to mute a conversation
-        return self.message_thread.can_post(user, message_content)
+        self.message_thread.check_can_post(user, message_content)
 
     def to_json(self):
         return {
@@ -381,18 +380,16 @@ class GroupChat(StreamObjectMixin):
     def get_message_thread_id(cls, stream_name):
         return int(cls.stream_name_pattern.split(stream_name)[2])
 
-    def can_post(self, user, message: str) -> tuple[bool, bool | APIError]:
+    def check_can_post(self, user, message: str) -> None:
         if user.chat_muted:
-            return False, PermissionDenied()
+            raise PermissionDenied
         if self.message_thread.muted:
-            return False, PermissionDenied()
+            raise PermissionDenied
         if len(message) > self.max_message_size:
-            return False, InvalidMessageContent()
+            raise InvalidMessageContent
 
-        if not self.group_id:
-            return True, True
-
-        return False, PermissionDenied()
+        if self.group_id:
+            raise PermissionDenied
 
     def post(self, user, message):
         return self.message_thread.create_message(user, content=message)

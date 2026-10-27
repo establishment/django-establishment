@@ -4,6 +4,7 @@ from typing import Any, Optional
 from django.core.mail import mail_admins
 from django.db import IntegrityError, models, transaction
 from django.utils import timezone
+from psycopg.errors import UniqueViolation
 
 from establishment.accounts.models import AbstractStreamObjectUser
 from establishment.utils.errors import NotFound, PermissionDenied, ValidationError
@@ -12,6 +13,7 @@ from establishment.utils.http.request_fields import ObjectId
 from establishment.utils.http.view_arguments_loaders import URLArg
 from establishment.utils.http.view_context import BaseViewContext
 from establishment.utils.state import State
+from establishment.webapp.middleware import RequestVisitor
 from establishment.webapp.view_set import WebappViewSet, is_admin
 from .errors import (
     ProtectedArticle,
@@ -49,8 +51,7 @@ def create_article(request: CreateArticleRequest, user: AbstractStreamObjectUser
     try:
         article.save()
     except IntegrityError as e:
-        # TODO: really @Rocky, 23505????
-        if e.__cause__.pgcode == "23505":
+        if isinstance(e.__cause__, UniqueViolation):
             raise TranslationExists
         raise
 
@@ -102,7 +103,7 @@ def get_article_state(article: Article) -> State:
     state.add(article_edits)
 
     # TODO: Language should be loaded in PublicState
-    from establishment.content.models import Language
+    from establishment.localization.models import Language
     state.add(Language.objects.all())
     return state
 
@@ -151,7 +152,7 @@ def edit_article(request: EditArticleRequest, user: AbstractStreamObjectUser) ->
     try:
         article.save()
     except IntegrityError as e:
-        if e.__cause__.pgcode == "23505":
+        if isinstance(e.__cause__, UniqueViolation):
             raise TranslationExists
         raise
     return {"success": True}
@@ -196,13 +197,13 @@ class SendFeedbackRequest(BaseRequest):
 
 @content_views.post()
 def send_feedback(request: SendFeedbackRequest, user: Optional[AbstractStreamObjectUser], view_context: BaseViewContext) -> dict[str, Any]:
-    if not view_context.raw_request.visitor.get_throttler("postFeedback", (24 * 60 * 60, 5)).increm():
+    if not RequestVisitor(view_context.raw_request).get_throttler("postFeedback", (24 * 60 * 60, 5)).increm():
         raise TooMuchFeedback
 
     user_feedback = UserFeedback(message=request.message, client_message=request.client_message)
 
     if user is not None:
-        user_feedback.user = user
+        user_feedback.user_id = user.id
         name = user.get_full_name()
         user_feedback.sender_email = user.email
     else:
@@ -258,7 +259,7 @@ def get_questionnaire_instance(questionnaire: Questionnaire, user: AbstractStrea
     if not user.is_superuser and not questionnaire.visible:
         raise QuestionnaireNotAvailable
 
-    instance = QuestionnaireInstance.objects.filter(user=user, questionnaire=questionnaire).first()
+    instance = QuestionnaireInstance.objects.filter(user_id=user.id, questionnaire=questionnaire).first()
     if instance is None:
         raise NotFound
     return instance

@@ -25,7 +25,7 @@ def edit_translation_entries(entries: list[TranslationEntryChange]) -> None:
             language_id=entry_change.language_id,
             key_id=entry_change.key_id,
         )
-        entry.value = entry_change.new_value.strip()
+        entry.value = (entry_change.new_value or "").strip()
         entry.save()
 
 
@@ -47,6 +47,8 @@ def edit_translation_keys(change: TranslationKeyChange) -> Optional[dict[str, in
                 count_added += 1
         return {"added": count_added, "alreadyExists": len(keys) - count_added}
 
+    if change.key_id is None:
+        raise TranslationKeyNotFound
     key = TranslationKey.objects.filter(id=change.key_id).first()
     if key is None:
         raise TranslationKeyNotFound

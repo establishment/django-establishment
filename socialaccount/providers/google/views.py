@@ -3,10 +3,11 @@ from datetime import datetime, timedelta
 from typing import Any, Optional
 
 import requests
+from django.http import HttpRequest
 
 from establishment.socialaccount.errors import InvalidExternalAccount, InvalidSocialToken
 from establishment.socialaccount.helpers import complete_social_login
-from establishment.socialaccount.models import SocialToken, SocialLogin
+from establishment.socialaccount.models import SocialApp, SocialToken, SocialLogin
 from establishment.utils.http.request import BaseRequest
 from establishment.utils.http.view_context import BaseViewContext
 from establishment.webapp.view_set import WebappViewSet
@@ -17,7 +18,7 @@ logger = logging.getLogger("django")
 google_views = WebappViewSet()
 
 
-def google_complete_login(request, app, token):
+def google_complete_login(request: HttpRequest, app: SocialApp, token: SocialToken) -> SocialLogin:
     provider = GoogleProvider.get_instance()
 
     token_response = requests.post(

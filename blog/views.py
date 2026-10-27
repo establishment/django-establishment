@@ -71,7 +71,7 @@ def add_entry(request: AddEntryRequest, user: AbstractStreamObjectUser) -> State
     title = request.title if request.title is not None else "Unnamed entry" + str(datetime.datetime.now())
     url_name = request.url_name if request.url_name is not None else slugify(title)
 
-    article = Article(author_created=user, name=title)
+    article = Article(author_created_id=user.id, name=title)
 
     if request.content is not None:
         article.markup = request.content

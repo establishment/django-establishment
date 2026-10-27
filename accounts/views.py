@@ -1,10 +1,10 @@
 import logging
+from collections.abc import Iterable
 from typing import Any, Optional
 
 from django.conf import settings
 from django.contrib.auth import authenticate as django_authenticate, get_user_model
 from django.contrib.auth import logout as django_logout
-from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.tokens import default_token_generator as password_reset_token_generator
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -17,9 +17,10 @@ from establishment.utils.http.view_arguments_loaders import URLArg
 from establishment.utils.http.view_context import BaseViewContext
 from establishment.utils.state import State
 from establishment.webapp.base_views import global_renderer
+from establishment.webapp.middleware import RequestVisitor
 from establishment.webapp.throttle import ActionThrottler, UserActionThrottler
 from establishment.webapp.view_set import WebappViewSet
-from .adapter import login, perform_login
+from .adapter import keep_session_after_password_change, login, perform_login
 from .errors import (
     AlreadyLoggedIn,
     EmailUnavailable,
@@ -38,9 +39,9 @@ from .errors import (
     UsernameUnavailable,
     WrongPassword,
 )
-from .models import AbstractStreamObjectUser, EmailAddress, UnverifiedEmail, TempUser, UserSummary, UserGroup, UserGroupMember
+from .models import AbstractStreamObjectUser, EmailAddress, UnverifiedEmail, TempUser, UserSummary, UserGroup, UserGroupMember, UserNotification
 from .recaptcha_client import test_recaptcha
-from .utils import send_template_mail, get_user_manager, get_public_user_class
+from .utils import send_template_mail, get_public_user_class
 
 logger = logging.getLogger("django.request")
 
@@ -69,7 +70,7 @@ def signup_request(request: SignupRequest, user: Optional[AbstractStreamObjectUs
         # TODO: log this error
         raise InvalidCaptcha
 
-    if not ActionThrottler("user_signup_" + view_context.raw_request.visitor.ip(), 24 * 3600, MAX_SIGNUPS_PER_IP_PER_DAY).increm():
+    if not ActionThrottler("user_signup_" + RequestVisitor(view_context.raw_request).ip(), 24 * 3600, MAX_SIGNUPS_PER_IP_PER_DAY).increm():
         raise TooManySignUps
 
     if EmailAddress.objects.filter(email__iexact=request.email).exists():
@@ -89,7 +90,7 @@ def signup_request(request: SignupRequest, user: Optional[AbstractStreamObjectUs
         new_user = get_user_model()(email=request.email, password=request.password)
         if new_user.has_field("username"):
             new_user.username = request.username
-            if get_user_manager().filter(username=request.username).exists():
+            if get_user_model().objects.filter(username=request.username).exists():
                 raise UsernameUnavailable
             try:
                 new_user.full_clean()
@@ -175,6 +176,8 @@ class EmailAddressRequest(BaseRequest):
 def email_address_add(request: EmailAddressRequest, user: AbstractStreamObjectUser, view_context: BaseViewContext) -> dict[str, Any]:
     try:
         unverified_email = UnverifiedEmail.create(email=request.email, user=user)
+        if unverified_email is None:
+            raise InvalidEmailAddress
         unverified_email.send(view_context.raw_request)
     except Exception:
         raise InvalidEmailAddress
@@ -187,13 +190,13 @@ def email_address_add(request: EmailAddressRequest, user: AbstractStreamObjectUs
 
 @accounts_views.post()
 def email_address_remove(request: EmailAddressRequest, user: AbstractStreamObjectUser) -> dict[str, Any]:
-    email_address = EmailAddress.objects.filter(user=user, email=request.email).first()
+    email_address = EmailAddress.objects.filter(user_id=user.id, email=request.email).first()
     if email_address is not None:
         if email_address.primary:
             raise PrimaryEmailRemoval
         email_address.delete()
     else:
-        unverified_email = UnverifiedEmail.objects.filter(user=user, email=request.email).first()
+        unverified_email = UnverifiedEmail.objects.filter(user_id=user.id, email=request.email).first()
         if unverified_email is None:
             # TODO: log this
             raise InvalidEmailAddress
@@ -207,7 +210,7 @@ def email_address_remove(request: EmailAddressRequest, user: AbstractStreamObjec
 
 @accounts_views.post()
 def email_address_make_primary(request: EmailAddressRequest, user: AbstractStreamObjectUser) -> dict[str, Any]:
-    email_address = EmailAddress.objects.filter(user=user, email=request.email).first()
+    email_address = EmailAddress.objects.filter(user_id=user.id, email=request.email).first()
     if email_address is None:
         raise InvalidEmailAddress
     email_address.set_as_primary()
@@ -221,7 +224,7 @@ def email_address_make_primary(request: EmailAddressRequest, user: AbstractStrea
 # Resends the confirmation email of an address the user added
 @accounts_views.post()
 def email_address_verification_send(request: EmailAddressRequest, user: AbstractStreamObjectUser, view_context: BaseViewContext) -> dict[str, Any]:
-    unverified_email = UnverifiedEmail.objects.filter(user=user, email=request.email).first()
+    unverified_email = UnverifiedEmail.objects.filter(user_id=user.id, email=request.email).first()
     if unverified_email is None:
         raise InvalidEmailAddress
     unverified_email.send(view_context.raw_request)
@@ -231,7 +234,7 @@ def email_address_verification_send(request: EmailAddressRequest, user: Abstract
 
 @accounts_views.single_page_app(url_path=r"^email_unsubscribe/(?P<key>\w+)/$")
 def email_unsubscribe(key: URLArg) -> dict[str, Any]:
-    unsubscribed_user = get_user_manager().filter(email_unsubscribe_key=key).first()
+    unsubscribed_user = get_user_model().objects.filter(email_unsubscribe_key=key).first()
     if unsubscribed_user is None:
         return {}
 
@@ -260,15 +263,13 @@ def email_address_verify(key: URLArg, view_context: BaseViewContext) -> dict[str
                 available_username = get_user_model().get_available_username(update_dict["username"])
                 create_user_args = [None, available_username]
                 update_dict["username"] = available_username
-        new_user = get_user_manager().create_user(unverified_email.email, *create_user_args)
+        new_user = get_user_model().objects.create_user(unverified_email.email, *create_user_args)
         new_user.edit_from_dict(update_dict)
         if "password" not in update_dict:
             new_user.set_unusable_password()
         unverified_email.user = new_user
 
     email_address = unverified_email.convert()
-    if email_address is None:
-        return {}
 
     login(view_context.raw_request, email_address.user)
 
@@ -292,8 +293,7 @@ def password_change(request: PasswordChangeRequest, user: AbstractStreamObjectUs
     user.set_password(request.new_password)
     user.save()
 
-    # Every other session of the user is invalidated, this one stays logged in
-    update_session_auth_hash(view_context.raw_request, user)
+    keep_session_after_password_change(view_context.raw_request, user)
 
     return {
         "success": True,
@@ -315,7 +315,7 @@ def password_reset_request(request: PasswordResetRequest, user: Optional[Abstrac
 
     logger.info("Requesting a password reset for email " + str(reset_email_address))
 
-    reset_user = get_user_manager().filter(email__iexact=reset_email_address).first()
+    reset_user = get_user_model().objects.filter(email__iexact=reset_email_address).first()
     if reset_user is None:
         raise InvalidEmailAddress
 
@@ -338,7 +338,7 @@ def password_reset_request(request: PasswordResetRequest, user: Optional[Abstrac
 
 @accounts_views.single_page_app(url_path=r"^password_reset/(?P<user_base36>[0-9A-Za-z]+)-(?P<reset_token>.+)/$")
 def password_reset_from_token(user_base36: URLArg, reset_token: URLArg, view_context: BaseViewContext) -> dict[str, Any]:
-    reset_user = get_user_manager().filter(id=base36_to_int(user_base36)).first()
+    reset_user = get_user_model().objects.filter(id=base36_to_int(user_base36)).first()
     if reset_user is None:
         raise NotFound
 
@@ -359,15 +359,16 @@ class PublicUserProfilesRequest(BaseRequest):
 
 @accounts_views.get()
 def public_user_profiles(request: PublicUserProfilesRequest) -> State:
+    users: Iterable[AbstractStreamObjectUser]
     if request.username_prefix is not None:
-        precise_user = get_user_manager().filter(username__iexact=request.username_prefix)
-        prefix_users = get_user_manager().filter(username__istartswith=request.username_prefix)[:10]
+        precise_user = get_user_model().objects.filter(username__iexact=request.username_prefix)
+        prefix_users = get_user_model().objects.filter(username__istartswith=request.username_prefix)[:10]
         users = list(precise_user) + list(prefix_users)
     else:
         if len(request.ids) > 512:
             # TODO: log this, may need to ban someone
             raise TooManyProfilesRequested
-        users = get_user_manager().filter(id__in=request.ids)
+        users = get_user_model().objects.filter(id__in=request.ids)
 
     return State(get_public_user_class().wrap_user_list(users))
 
@@ -375,14 +376,14 @@ def public_user_profiles(request: PublicUserProfilesRequest) -> State:
 @accounts_views.get()
 def get_user_notifications(user: AbstractStreamObjectUser) -> State:
     user_summary = UserSummary(user)
-    notifications = user.notifications.all().order_by("-id")[0:100]
+    notifications = UserNotification.objects.filter(user_id=user.id).order_by("-id")[0:100]
     return State(user_summary, notifications)
 
 
 @accounts_views.post()
 def set_user_notifications_read(user: AbstractStreamObjectUser) -> dict[str, Any]:
     # TODO: if any notification Ids are given, mark them all as read
-    last_user_notification = user.notifications.all().order_by("-id").first()
+    last_user_notification = UserNotification.objects.filter(user_id=user.id).order_by("-id").first()
     if last_user_notification:
         user.get_custom_settings().set_last_read_notification(last_user_notification)
     return {"success": True}

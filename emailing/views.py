@@ -1,7 +1,7 @@
+from io import BytesIO
 from typing import Any, Optional
 
 from PIL import Image
-from django.db.models import Model
 from django.http import HttpResponse
 
 from establishment.utils.http.permissions import allow_any
@@ -22,7 +22,7 @@ def email_manager() -> State:
     return State(EmailCampaign.objects.all(), EmailTemplate.objects.all(), EmailGateway.objects.all())
 
 
-def get_email_object[T: Model](model_class: type[T], object_id: int) -> T:
+def get_email_object[T: (EmailCampaign, EmailTemplate, EmailGateway)](model_class: type[T], object_id: int) -> T:
     obj = model_class.objects.filter(id=object_id).first()
     if obj is None:
         raise NotFound
@@ -33,7 +33,7 @@ class SaveRequest(BaseRequest):
     id: Optional[int] = None  # Absent for a new object
 
 
-def save_object(model_class: type[EmailCampaign | EmailTemplate | EmailGateway], request: SaveRequest) -> State:
+def save_object[T: (EmailCampaign, EmailTemplate, EmailGateway)](model_class: type[T], request: SaveRequest) -> State:
     obj = model_class() if request.id is None else get_email_object(model_class, request.id)
     state = edit_object_from_request(obj, request, const_validators=[lambda edited_obj: edited_obj.full_clean()])
     obj.publish_update_event()
@@ -142,6 +142,6 @@ def track_email(request: TrackEmailRequest) -> HttpResponse:
         email_status.mark_read()
 
     image = Image.new("RGBA", (1, 1), (255, 255, 255, 0))
-    response = HttpResponse(content_type="image/png")
-    image.save(response, "PNG")
-    return response
+    png = BytesIO()
+    image.save(png, "PNG")
+    return HttpResponse(png.getvalue(), content_type="image/png")

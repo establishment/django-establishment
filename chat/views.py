@@ -36,10 +36,7 @@ def edit_message(request: EditMessageRequest, user: AbstractStreamObjectUser) ->
         if not user.is_superuser:
             if not message_thread.messages_editable or not is_author_or_admin:
                 raise PermissionDenied
-            # TODO: need a proper pattern here
-            can_post, error = message_thread.can_post(user, request.message)
-            if not can_post:
-                raise error
+            message_thread.check_can_post(user, request.message)
 
         message_instance.edit(user, request.message)
 
@@ -122,10 +119,7 @@ def private_chat_post(request: PrivateChatPostRequest, user: AbstractStreamObjec
 
     private_chat = request.private_chat_id.obj
 
-    can_post, error = private_chat.can_post(user, request.message)
-    if not can_post:
-        # TODO: log this
-        raise error
+    private_chat.check_can_post(user, request.message)
 
     message_instance = private_chat.message_thread.create_message(user, request.message, virtual_id=request.virtual_id,
                                                                   stream_names=private_chat.get_user_streams())
@@ -186,9 +180,7 @@ def group_chat_post(request: GroupChatPostRequest, user: AbstractStreamObjectUse
             raise MessageLimitExceeded
 
     group_chat = request.chat_id.obj
-    can_post, error = group_chat.can_post(user, request.message)
-    if not can_post:
-        raise error
+    group_chat.check_can_post(user, request.message)
 
     message_instance = group_chat.message_thread.create_message(user, request.message, virtual_id=request.virtual_id)
 
