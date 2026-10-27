@@ -2,6 +2,7 @@ from __future__ import annotations
 import datetime
 import json
 import uuid
+from collections.abc import Iterable
 from typing import Any, Optional, Self
 
 from django.conf import settings
@@ -14,6 +15,7 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 
 from establishment.funnel.stream import StreamObjectMixin
+from establishment.utils.proxy import ProxyObject
 from .utils import send_verification_mail, get_user_manager, send_template_mail
 
 
@@ -359,13 +361,12 @@ class UserNotification(StreamObjectMixin):
         }
 
 
-class BaseUserSummary(object):
-    def __init__(self, user):
-        self.user = user
+class BaseUserSummary(ProxyObject[AbstractStreamObjectUser]):
+    state_object_name = "user"
 
-    @classmethod
-    def object_type(cls):
-        return "user"
+    def __init__(self, user: AbstractStreamObjectUser):
+        super().__init__(user)
+        self.user = user
 
     @classmethod
     def add_users_to_state(cls, state, user_ids):
@@ -374,7 +375,7 @@ class BaseUserSummary(object):
             state.add(cls(user))
 
     @classmethod
-    def wrap_user_list(cls, user_list):
+    def wrap_user_list(cls, user_list: Iterable[AbstractStreamObjectUser]) -> Iterable[Self]:
         return map(lambda user: cls(user), user_list)
 
     @property
@@ -387,9 +388,7 @@ class BaseUserSummary(object):
 
 # Wrapper classes
 class PublicUserWrapper(BaseUserSummary):
-    @classmethod
-    def object_type(cls):
-        return "PublicUser"
+    state_object_name = "PublicUser"
 
     def to_json(self):
         # All public info from the user model should go here

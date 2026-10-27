@@ -12,6 +12,7 @@ from django.utils.encoding import force_str
 from establishment.misc.util import import_module_attribute
 
 if TYPE_CHECKING:
+    from establishment.utils.proxy import ProxyObject
     from .models import AbstractStreamObjectUser
 
 
@@ -89,7 +90,7 @@ def get_user_manager():
 # What the PUBLIC_USER_CLASS setting names: the wrapper public profiles are sent as
 class PublicUserClass(Protocol):
     @classmethod
-    def wrap_user_list(cls, users: Iterable[AbstractStreamObjectUser]) -> Iterable[object]: ...
+    def wrap_user_list(cls, users: Iterable[AbstractStreamObjectUser]) -> Iterable[ProxyObject]: ...
 
 
 def get_public_user_class() -> type[PublicUserClass]:

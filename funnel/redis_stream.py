@@ -166,11 +166,11 @@ logger = logging.getLogger(__name__)
 class LocalCopies:
     def __init__(self, max_bytes: int):
         self.max_bytes = max_bytes
-        self.entries: OrderedDict[str, tuple[str, str]] = OrderedDict()
+        self.entries: OrderedDict[str, tuple[str, str | bytes]] = OrderedDict()
         self.size = 0
         self.lock = threading.Lock()
 
-    def get(self, key: str, version: str) -> Optional[str]:
+    def get(self, key: str, version: str) -> Optional[str | bytes]:
         with self.lock:
             entry = self.entries.get(key)
             if entry is None or entry[0] != version:
@@ -178,7 +178,7 @@ class LocalCopies:
             self.entries.move_to_end(key)
             return entry[1]
 
-    def put(self, key: str, version: str, value: str) -> None:
+    def put(self, key: str, version: str, value: str | bytes) -> None:
         if len(value) > self.max_bytes:
             return
         with self.lock:
@@ -203,6 +203,7 @@ class RedisCache:
     connection_pool = None
     # One per process, shared by every cache object in it
     local_copies = LocalCopies(LOCAL_COPY_BYTES)
+    stores_text = True  # Decoded once, as a value enters the local copies, rather than on every read
 
     def __init__(self,
                  key_prefix: str = "cache-",
@@ -220,7 +221,7 @@ class RedisCache:
         return cls.connection_pool
 
     @staticmethod
-    def serialize(value: Any, cls: type[json.JSONEncoder] = StreamJSONEncoder) -> str:
+    def serialize(value: Any, cls: type[json.JSONEncoder] = StreamJSONEncoder) -> str | bytes:
         return json.dumps(value, cls=cls)
 
     @staticmethod
@@ -264,18 +265,18 @@ class RedisCache:
     def has_value(self, key: str, version: str) -> bool:
         return bool(self.redis_connection.exists(key + "@" + version))
 
-    def read_value(self, key: str, version: str) -> Optional[str]:
+    def read_value(self, key: str, version: str) -> Optional[str | bytes]:
         value = self.local_copies.get(key, version)
         if value is None:
             raw = self.redis_connection.get(key + "@" + version)
             if raw is None:
                 return None
-            value = raw.decode("utf-8") if isinstance(raw, bytes) else raw
+            value = raw.decode("utf-8") if self.stores_text and isinstance(raw, bytes) else raw
             self.local_copies.put(key, version, value)
         return value
 
     # The watched keys are read first, so a change made while generating leaves the new value already stale
-    def rebuild(self, cached: CachedValue) -> str:
+    def rebuild(self, cached: CachedValue) -> str | bytes:
         previous, marker = self.read_state(cached)
         serialized_value = self.serialize(cached.generator())
         version = uuid.uuid4().hex
@@ -334,14 +335,14 @@ class RedisCache:
 
         threading.Thread(target=refresh, name="cache-refresh", daemon=True).start()
 
-    def read_current_value(self, cached: CachedValue) -> Optional[str]:
+    def read_current_value(self, cached: CachedValue) -> Optional[str | bytes]:
         pointer = self.parse_pointer(self.redis_connection.get(cached.key))
         if pointer is None:
             return None
         return self.read_value(cached.key, pointer.version)
 
     # Cold, or past the hard timeout: one process rebuilds while the others wait, taking over if its lock lapses
-    def rebuild_once(self, cached: CachedValue, retry_interval: float) -> str:
+    def rebuild_once(self, cached: CachedValue, retry_interval: float) -> str | bytes:
         token = uuid.uuid4().hex
         deadline = time.time() + MAX_WAIT_SECONDS
         while True:
@@ -370,6 +371,19 @@ class RedisCacheSerialized(RedisCache):
     def deserialize(value):
         if isinstance(value, bytes):
             value = str(value, "utf-8")
+        return value
+
+
+# Bytes the generator hands over, stored and served as they are, which the cache never reads into
+class RedisCacheBinary(RedisCache):
+    stores_text = False
+
+    @staticmethod
+    def serialize(value: bytes, cls: type[json.JSONEncoder] = StreamJSONEncoder) -> bytes:
+        return value
+
+    @staticmethod
+    def deserialize(value: Optional[Union[str, bytes]]) -> Any:
         return value
 
 
