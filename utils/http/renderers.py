@@ -3,6 +3,7 @@ import uuid
 import json
 import decimal
 import dataclasses
+import functools
 from typing import Callable, Any
 
 from django.utils import timezone
@@ -12,6 +13,10 @@ from django.conf import settings
 from establishment.utils.convert import to_camel_case, bytes_to_hex
 from establishment.utils.object_cache import ObjectStore
 from establishment.utils.serializers import JSONFieldValueDict, JSONFieldValueList
+
+
+# Any integer that won't fit in an IEEE double can't be handled by Javascript
+JS_INTEGER_LIMIT = 2**52
 
 
 # This class is only used in this file, to make the difference between
@@ -66,8 +71,7 @@ def normalize_to_primitive_type(obj: Any) -> Any:
     if isinstance(obj, memoryview):
         return bytes_to_hex(obj.tobytes())
 
-    # Any integer that won't fit in an IEEE double can't be handled by Javascript
-    if isinstance(obj, int) and abs(obj) >= 2**52:
+    if isinstance(obj, int) and abs(obj) >= JS_INTEGER_LIMIT:
         return str(obj)
 
     if isinstance(obj, (str, int, float)):
@@ -91,6 +95,13 @@ class BlinkJSONEncoder(json.JSONEncoder):
 
 
 def serialize_to_json(obj: Any, key_transform: Callable[[str], str]) -> Any:
+    # Exact types first, since most of a response is plain values: a subclass, such as an enum, takes the checks below
+    obj_type = type(obj)
+    if obj is None or obj_type is str or obj_type is bool or obj_type is float:
+        return obj
+    if obj_type is int and abs(obj) < JS_INTEGER_LIMIT:
+        return obj
+
     if isinstance(obj, (JSONFieldValueDict, JSONFieldValueList)):
         # If this object comes from a Django JSONField, don't touch it.
         return obj
@@ -108,8 +119,15 @@ def serialize_to_json(obj: Any, key_transform: Callable[[str], str]) -> Any:
     return obj
 
 
+@functools.lru_cache(maxsize=4096)
+def cached_camel_case(key: str) -> str:
+    return to_camel_case(key)
+
+
 # TODO What are the non-string args?
 def to_camel_case_key(key: Any) -> Any:
+    if type(key) is str:
+        return cached_camel_case(key)
     if isinstance(key, str):
         return to_camel_case(key)
     return key
