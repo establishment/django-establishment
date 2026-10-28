@@ -32,7 +32,7 @@ class Command(BaseCommand):
     def serialize_constant(name, value):
         return "self.%s = %s;" % (name, StreamJSONEncoder.dumps(value))
 
-    def handle(self, *args, **options):
+    def generate_public_state(self) -> None:
         state = State()
         context_dict = {}
         from collections import OrderedDict
@@ -52,7 +52,13 @@ class Command(BaseCommand):
             self.generate_template(template_path, output_path, context_dict)
             # TODO: also copy to static path in production
 
-        # Bump JS version
+    # Pages ask for their scripts with ?v=JS_VERSION, so a bump makes every browser fetch them again
+    @staticmethod
+    def bump_js_version() -> None:
         public_settings_cache.rebuild()
         js_version = int(public_settings_cache.get("JS_VERSION", 1))
         PublicGlobalSettings.set("JS_VERSION", js_version + 1)
+
+    def handle(self, *args, **options):
+        self.generate_public_state()
+        self.bump_js_version()

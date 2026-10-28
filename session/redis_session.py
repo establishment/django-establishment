@@ -2,6 +2,8 @@ import redis
 from django.conf import settings as django_settings
 from django.contrib.sessions.backends.base import SessionBase, CreateError
 
+from establishment.funnel.redis_stream import get_redis_connection_pool
+
 
 class UselessByteWrapper(str):
     def __init__(self, bytes):
@@ -14,7 +16,7 @@ class UselessByteWrapper(str):
 class SessionStore(SessionBase):
     def __init__(self, session_key=None):
         super().__init__(session_key)
-        self.server = redis.StrictRedis(**django_settings.REDIS_CONNECTION_SESSION)
+        self.server = redis.StrictRedis(connection_pool=get_redis_connection_pool(django_settings.REDIS_CONNECTION_SESSION))
 
     @classmethod
     def clear_expired(cls):

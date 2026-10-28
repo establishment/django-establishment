@@ -17,7 +17,9 @@ from establishment.misc.threading_helper import ThreadIntervalHandler
 from establishment.funnel.encoder import StreamJSONEncoder
 
 
-redis_connection_pool = None
+# One pool per Redis the process talks to, so a client made for a single call reuses connections instead of opening one
+redis_connection_pools: dict[tuple[tuple[str, Any], ...], ConnectionPool] = {}
+redis_connection_pools_lock = threading.Lock()
 
 
 def redis_response_to_json(data: Optional[Union[str, bytes]]) -> Any:
@@ -30,11 +32,18 @@ def redis_response_to_json(data: Optional[Union[str, bytes]]) -> Any:
     return json.loads(data)
 
 
+def get_redis_connection_pool(connection_info: dict[str, Any]) -> ConnectionPool:
+    key = tuple(sorted(connection_info.items()))
+    with redis_connection_pools_lock:
+        pool = redis_connection_pools.get(key)
+        if pool is None:
+            pool = ConnectionPool(**connection_info)
+            redis_connection_pools[key] = pool
+    return pool
+
+
 def get_default_redis_connection_pool() -> ConnectionPool:
-    global redis_connection_pool
-    if redis_connection_pool is None:
-        redis_connection_pool = ConnectionPool(**settings.REDIS_CONNECTION)
-    return redis_connection_pool
+    return get_redis_connection_pool(settings.REDIS_CONNECTION)
 
 
 class RetryRedis(StrictRedis):
@@ -501,7 +510,7 @@ def redis_cached(expiration: float, *cache_args, **cache_kwargs) -> Callable:
 class RedisPriorityQueue(object):
     def __init__(self, name: str, **connection_info):
         self.name = name
-        self.redis_connection = StrictRedis(**connection_info)
+        self.redis_connection = StrictRedis(connection_pool=get_redis_connection_pool(connection_info))
 
     # Adds the value with priority score, answering whether it was new; keep_existing leaves a queued one's score alone
     def push(self, score: float, value: str, keep_existing: bool = False) -> bool:
