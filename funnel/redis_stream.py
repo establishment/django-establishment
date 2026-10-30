@@ -70,7 +70,7 @@ def simple_stream_publish(stream_name: str, message: Union[str, dict]) -> None:
 
 
 class RedisStreamPublisher(object):
-    message_timeout = 60 * 60 * 5   # Default expire time - 5 hours
+    message_timeout = 60 * 5  # Seconds a published message stays readable, for a client catching up after reconnecting
     global_connection = None
 
     def __init__(self, stream_name: str, connection=None, persistence=True, raw=False, expire_time=None):
