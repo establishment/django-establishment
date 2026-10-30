@@ -4,7 +4,7 @@ from typing import Optional
 
 
 REQUIRED_COMMANDS = ["start", "stop"]
-OPTIONAL_COMMANDS = ["deploy", "post_deploy", "rolling_restart"]
+OPTIONAL_COMMANDS = ["deploy", "post_deploy", "restart"]
 DEFAULT_MISSING_FILE_ERROR = "Failed to open file {}"
 
 
@@ -67,6 +67,12 @@ class ServiceRunner:
 
     def run_service_command(self, service_name: str, command: str) -> None:
         have_executed = self.maybe_execute(f"{service_name}/{command}")
+
+        # A service with no restart of its own is stopped and started again
+        if not have_executed and command == "restart":
+            self.run_service_command(service_name, "stop")
+            self.run_service_command(service_name, "start")
+            return
 
         if not have_executed and command in REQUIRED_COMMANDS:
             die(f"Failed to find command {command} for service {service_name}")
