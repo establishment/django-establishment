@@ -37,9 +37,10 @@ class ObjectStore(Generic[StateObjectT]):
         for obj in objects:
             self.add(obj)
 
-    def add(self, obj: StateObjectT, timestamp: float = time.time()):
-        obj_id = get_id_from_obj(obj)
-        self.cache[obj_id] = (obj, timestamp)
+    def add(self, obj: StateObjectT) -> tuple[StateObjectT, float]:
+        entry = (obj, time.time())
+        self.cache[get_id_from_obj(obj)] = entry
+        return entry
 
     def has(self, id: IdType) -> bool:
         return id in self.cache
@@ -52,7 +53,7 @@ class ObjectStore(Generic[StateObjectT]):
             raise RuntimeError(f"Missing object {id}")
         obj, timestamp = entry
         if max_age and time.time() - max_age > timestamp:
-            del self.cache[id]
+            self.cache.pop(id, None)
             raise RuntimeError(f"Object expired {id}")
         return obj
 
@@ -73,17 +74,19 @@ class ObjectStore(Generic[StateObjectT]):
 
 
 class DBObjectStore(ObjectStore[DjangoModelT]):
+    # Answers from the entry it read or stored, since another thread may drop or replace the cached one meanwhile
     def get_raw(self, id: IdType) -> tuple[DjangoModelT, float]:
-        if not self.has(id):
-            self.add(self.object_class.objects.get(id=id))  # type: ignore[attr-defined]
-        return self.cache[id]
+        entry = self.cache.get(id)
+        if entry is None:
+            entry = self.add(self.object_class.objects.get(id=id))  # type: ignore[attr-defined]
+        return entry
 
     def get(self, id: IdType, max_age: Optional[float] = None) -> DjangoModelT:
         if not max_age:
             max_age = self.default_max_age
         obj, timestamp = self.get_raw(id)
         if max_age and time.time() - max_age > timestamp:
-            del self.cache[id]
+            self.cache.pop(id, None)
             obj, timestamp = self.get_raw(id)
         return obj
 
@@ -92,8 +95,7 @@ class DBObjectStore(ObjectStore[DjangoModelT]):
             if python_query(obj):
                 return obj, age
         obj = self.object_class.objects.get(db_query)  # type: ignore[attr-defined]
-        self.add(obj)
-        return self.cache[obj.pk]
+        return self.add(obj)
 
     def find(self, python_query: Callable[[DjangoModelT], bool], db_query: Q, max_age: Optional[float] = None) -> DjangoModelT:
         if not max_age:
@@ -101,6 +103,6 @@ class DBObjectStore(ObjectStore[DjangoModelT]):
         obj, timestamp = self.find_raw(python_query, db_query)
         if max_age and time.time() - max_age > timestamp:
             obj_id = obj.pk
-            del self.cache[obj_id]
+            self.cache.pop(obj_id, None)
             obj, timestamp = self.get_raw(obj_id)
         return obj

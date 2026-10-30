@@ -146,11 +146,12 @@ class BackgroundLoggingHandler(logging.Handler):
 
         #TODO: at exit try to log whatever is unlogged
 
-    def process_record(self, record):
+    def process_record(self, record: logging.LogRecord) -> None:
         try:
             message = self.format(record)
         except Exception:
             self.handleError(record)
+            return
 
         self.write_message(message)
 
@@ -201,14 +202,15 @@ class RedisLoggingHandler(BackgroundLoggingHandler):
         record.service = ServiceStatus.log_info
         super().process_record(record)
 
-    def write_message(self, message):
+    def write_message(self, message: str) -> None:
         while True:
             try:
                 self.connection.publish(self.channel, "v " + message)
                 return
             #TODO: exception should only take care of connection errors
-            except Exception as e:
-                # Try to reconnect to the redis server
+            except Exception:
+                # Building a client never reaches the network, so this pause is what keeps a Redis outage from spinning
+                time.sleep(1)
                 self.connect_to_redis()
 
 
